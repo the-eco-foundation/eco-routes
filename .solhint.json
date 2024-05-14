@@ -1,17 +1,16 @@
 {
-    "extends": "solhint:recommended",
-    "plugins": [
-      "eco"
-    ],
-    "rules": {
-      "max-line-length": "off",
-      "var-name-mixedcase": "warn",
-      "state-visibility": "error",
-      "function-max-lines": "warn",
-      "max-states-count": "warn",
-      "eco/underscore-function-args": "error",
-      "eco/no-underscore-events-args": "error",
-      "compiler-version": ["error", "^0.8.0"],
-      "mark-callable-contracts": "off"
-   }
+  "extends": "solhint:recommended",
+  "plugins": ["eco"],
+  "rules": {
+    "compiler-version": ["error", "^0.8.0"],
+    "func-visibility": ["warn", { "ignoreConstructors": true }],
+    "max-line-length": "off",
+    "var-name-mixedcase": "warn",
+    "state-visibility": "error",
+    "function-max-lines": "warn",
+    "max-states-count": "warn",
+    "eco/underscore-function-args": "error",
+    "eco/no-underscore-events-args": "error",
+    "mark-callable-contracts": "off"
+  }
 }
