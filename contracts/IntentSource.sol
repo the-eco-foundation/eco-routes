@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IIntentSource.sol";
 import "./types/Intent.sol";
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
@@ -12,7 +13,12 @@ import "./types/Intent.sol";
  * Its counterpart is the inbox contract that lives on the destination chain.
  * This contract makes a call to the prover contract (on the sourcez chain) in order to verify intent fulfillment.
  */
-contract IntentSource is IIntentSource {
+contract IntentSource is IIntentSource, EIP712 {
+
+    bytes32 private immutable _INTENT_TYPEHASH =
+    keccak256(
+        "Intent(address creator,address target,bytes instructions, )"
+    );
     // chain ID
     uint256 public immutable CHAIN_ID;
 
@@ -29,9 +35,11 @@ contract IntentSource is IIntentSource {
     mapping(bytes32 => Intent) public intents;
 
     /**
+     * @param _name name of the protocol ("Eco Protocol" for now)
+     * @param _version version of the protocol
      * @param _minimumDuration the minimum duration of an intent originating on this chain
      */
-    constructor(uint256 _minimumDuration) {
+    constructor(string memory _name, string memory _version, uint256 _minimumDuration) EIP712(_name, _version) {
         CHAIN_ID = block.chainid;
         MINIMUM_DURATION = _minimumDuration;
     }
@@ -55,7 +63,28 @@ contract IntentSource is IIntentSource {
         bytes calldata _instructions,
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts
-    ) external {}
+    ) external {
+        if (_expiry < block.timestamp + MINIMUM_DURATION) {
+            revert BadExpiry();
+        }
+        if (_rewardTokens.length == 0 || _rewardTokens.length != _rewardAmounts.length) {
+            revert BadRewards();
+        }
+        intents(getKey(counter, msg.sender)) = Intent{
+            creator: msg.sender,
+            destinationChain: _destinationChain,
+            target: _target,
+            instructions: _instructions,
+            rewardTokens: _rewardTokens,
+            rewardAmounts: _rewardAmounts
+        };
+    }
 
-    function withdrawRewards(uint256 index) external {}
+    function withdrawRewards(uint256 index) external {
+         Intent storage intent = intents[getKey(index, msg.sender)];
+    }
+
+    function getKey(_index, _address);(uint256 _index, address _address) internal returns (bytes32 nonce){
+        return keccak256(abi.encodePacked(_index, _address, CHAIN_ID));
+    }
 }

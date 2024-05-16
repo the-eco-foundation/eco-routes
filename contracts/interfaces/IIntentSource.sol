@@ -25,9 +25,9 @@ interface IIntentSource {
     error BadExpiry();
 
     /**
-     * @notice emitted on a call to createIntent where _rewardTokens and _rewardAmounts have mismatched lengths
+     * @notice emitted on a call to createIntent where _rewardTokens and _rewardAmounts have mismatched lengths, or if either has length 0
      */
-    error RewardsMismatch();
+    error BadRewards();
 
     /**
      * @notice emitted on a successful call to createIntent
