@@ -25,7 +25,12 @@ interface IIntentSource {
     error ExpiryTooSoon();
 
     /**
-     * @notice emitted on a call to createIntent where _rewardTokens and _rewardAmounts have mismatched lengths, or when one of their lengths is zero.
+     * @notice emitted on a call to createIntent where _targets and _callDatas have different lengths, or when one of their lengths is zero.
+     */
+    error TargetsCalldatasMismatch();
+
+    /**
+     * @notice emitted on a call to createIntent where _rewardTokens and _rewardAmounts have different lengths, or when one of their lengths is zero.
      */
     error RewardsMismatch();
 
