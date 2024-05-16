@@ -40,7 +40,7 @@ interface IIntentSource {
      * @param _creator the address that created the intent
      * @param _destinationChain the destination chain
      * @param _targets the address on _destinationChain at which the instruction sets need to be executed
-     * @param _expiry the time by which the storage proof must have been created in order for the solver to redeem rewards.
+     * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      * @param _callDatas the instructions to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
@@ -51,7 +51,7 @@ interface IIntentSource {
         address _creator,
         uint256 _destinationChain,
         address[] _targets,
-        uint256 indexed _expiry,
+        uint256 indexed _expiryTime,
         bytes[] _callDatas,
         address[] indexed _rewardTokens,
         uint256[] indexed _rewardAmounts
@@ -71,7 +71,7 @@ interface IIntentSource {
      * @dev The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.
      * @param _destinationChain the destination chain
      * @param _targets the addresses on _destinationChain at which the instruction sets need to be executed
-     * @param _expiry the time by which the storage proof must have been created in order for the solver to redeem rewards.
+     * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      * @param _callDatas the instructions to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
@@ -79,7 +79,7 @@ interface IIntentSource {
     function createIntent(
         uint256 _destinationChain,
         address[] calldata _targets,
-        uint256 _expiry,
+        uint256 _expiryTime,
         bytes[] calldata _callDatas,
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts
