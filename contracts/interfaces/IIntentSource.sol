@@ -16,27 +16,32 @@ interface IIntentSource {
      * given intent.
      * @param _index the index of the intent on which withdraw was attempted
      */
-    error BadWithdrawal(uint256 _index);
+    error UnauthorizedWithdrawal(uint256 _index);
 
     /**
      * @notice emitted on a call to createIntent where _expiry is less than MINIMUM_DURATION
      * seconds later than the block timestamp at time of call
      */
-    error BadExpiry();
+    error ExpiryTooSoon();
 
     /**
-     * @notice emitted on a call to createIntent where _rewardTokens and _rewardAmounts have mismatched lengths, or if either has length 0
+     * @notice emitted on a call to createIntent where _targets and _callDatas have different lengths, or when one of their lengths is zero.
      */
-    error BadRewards();
+    error TargetsCalldatasMismatch();
+
+    /**
+     * @notice emitted on a call to createIntent where _rewardTokens and _rewardAmounts have different lengths, or when one of their lengths is zero.
+     */
+    error RewardsMismatch();
 
     /**
      * @notice emitted on a successful call to createIntent
      * @param _index the index of the event
      * @param _creator the address that created the intent
      * @param _destinationChain the destination chain
-     * @param _target the address on _destinationChain at which the instructions need to be executed
+     * @param _targets the address on _destinationChain at which the instruction sets need to be executed
      * @param _expiry the time by which the storage proof must have been created in order for the solver to redeem rewards.
-     * @param _instructions the instructions to be executed on _target
+     * @param _callDatas the instructions to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      */
@@ -45,9 +50,9 @@ interface IIntentSource {
         uint256 _index,
         address _creator,
         uint256 _destinationChain,
-        address _target,
+        address[] _targets,
         uint256 indexed _expiry,
-        bytes _instructions,
+        bytes[] _callDatas,
         address[] indexed _rewardTokens,
         uint256[] indexed _rewardAmounts
     );
@@ -65,17 +70,17 @@ interface IIntentSource {
      * The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent solver.
      * @dev The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.
      * @param _destinationChain the destination chain
-     * @param _target the address on _destinationChain at which the instructions need to be executed
+     * @param _targets the addresses on _destinationChain at which the instruction sets need to be executed
      * @param _expiry the time by which the storage proof must have been created in order for the solver to redeem rewards.
-     * @param _instructions the instructions to be executed on _target
+     * @param _callDatas the instructions to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      */
     function createIntent(
         uint256 _destinationChain,
-        address _target,
+        address[] calldata _targets,
         uint256 _expiry,
-        bytes calldata _instructions,
+        bytes[] calldata _callDatas,
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts
     ) external;

@@ -1,6 +1,6 @@
-/* -*- c-basic-offset: 4 -*- */
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+// /* -*- c-basic-offset: 4 -*- */
+// // SPDX-License-Identifier: MIT
+// pragma solidity ^0.8.0;
 
 import "./interfaces/IIntentSource.sol";
 import "./types/Intent.sol";
@@ -22,17 +22,17 @@ contract IntentSource is IIntentSource, EIP712 {
     // chain ID
     uint256 public immutable CHAIN_ID;
 
-    // intent creation counter
-    uint256 public counter;
+//     // intent creation counter
+//     uint256 public counter;
 
-    /**
-     * minimum duration of an intent, in seconds.
-     * Intents cannot expire less than MINIMUM_DURATION seconds after they are created.
-     */
-    uint256 public immutable MINIMUM_DURATION;
+//     /**
+//      * minimum duration of an intent, in seconds.
+//      * Intents cannot expire less than MINIMUM_DURATION seconds after they are created.
+//      */
+//     uint256 public immutable MINIMUM_DURATION;
 
-    // stores the intents by the hash of all their data
-    mapping(bytes32 => Intent) public intents;
+//     // stores the intents by the hash of all their data
+//     mapping(bytes32 => Intent) public intents;
 
     /**
      * @param _name name of the protocol ("Eco Protocol" for now)
