@@ -14,9 +14,9 @@ interface IIntentSource {
     /**
      * @notice emitted on a call to withdraw() by someone who is not entitled to the rewards for a
      * given intent.
-     * @param _index the index of the intent on which withdraw was attempted
+     * @param _identifier the identifier of the intent on which withdraw was attempted
      */
-    error UnauthorizedWithdrawal(uint256 _index);
+    error UnauthorizedWithdrawal(uint256 _identifier);
 
     /**
      * @notice emitted on a call to createIntent where _expiry is less than MINIMUM_DURATION
@@ -36,33 +36,33 @@ interface IIntentSource {
 
     /**
      * @notice emitted on a successful call to createIntent
-     * @param _index the index of the event
+     * @param _identifier the key of the intents mapping that can be used to fetch the intent
      * @param _creator the address that created the intent
      * @param _destinationChain the destination chain
      * @param _targets the address on _destinationChain at which the instruction sets need to be executed
-     * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      * @param _callDatas the instructions to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
+     * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      */
     event IntentCreated(
         //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
-        uint256 _index,
+        bytes32 _identifier,
         address _creator,
         uint256 _destinationChain,
         address[] _targets,
-        uint256 indexed _expiryTime,
         bytes[] _callDatas,
         address[] indexed _rewardTokens,
-        uint256[] indexed _rewardAmounts
+        uint256[] indexed _rewardAmounts,
+        uint256 indexed _expiryTime
     );
 
     /**
      * @notice emitted on successful call to withdraw
-     * @param _index the index of the intent on which withdraw was attempted
+     * @param _identifier the identifier of the intent on which withdraw was attempted
      * @param _recipient the address that received the rewards for this intent
      */
-    event Withdrawal(uint256 _index, address indexed _recipient);
+    event Withdrawal(uint256 _identifier, address indexed _recipient);
 
     /**
      * @notice Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets.
@@ -71,23 +71,23 @@ interface IIntentSource {
      * @dev The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.
      * @param _destinationChain the destination chain
      * @param _targets the addresses on _destinationChain at which the instruction sets need to be executed
-     * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      * @param _callDatas the instructions to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
+     * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      */
     function createIntent(
         uint256 _destinationChain,
         address[] calldata _targets,
-        uint256 _expiryTime,
         bytes[] calldata _callDatas,
         address[] calldata _rewardTokens,
-        uint256[] calldata _rewardAmounts
+        uint256[] calldata _rewardAmounts,
+        uint256 _expiryTime
     ) external;
 
     /**
      * @notice allows withdrawal of reward funds locked up for a given intent
-     * @param _index the index of the intent
+     * @param _identifier the key corresponding to this intent in the intents mapping
      */
-    function withdrawRewards(uint256 _index) external;
+    function withdrawRewards(uint256 _identifier) external;
 }
