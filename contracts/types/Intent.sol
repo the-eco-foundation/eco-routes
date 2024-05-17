@@ -8,13 +8,13 @@ struct Intent {
     // chain where we want instructions executed
     uint256 destinationChain;
     // address on destinationChain where we want instructions executed
-    address target;
+    address[] targets;
     // instructions we want executed
-    bytes instructions;
+    bytes[] callDatas;
     // addresses of reward tokens
     address[] rewardTokens;
     // corresponding amounts of reward tokens
     uint256[] rewardAmounts;
     // intent expiry timestamp
-    uint256 expiry;
+    uint256 expiryTime;
 }

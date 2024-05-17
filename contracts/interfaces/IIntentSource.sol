@@ -89,5 +89,5 @@ interface IIntentSource {
      * @notice allows withdrawal of reward funds locked up for a given intent
      * @param _identifier the key corresponding to this intent in the intents mapping
      */
-    function withdrawRewards(uint256 _identifier) external;
+    function withdrawRewards(bytes32 _identifier) external;
 }

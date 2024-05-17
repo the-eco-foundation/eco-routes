@@ -14,11 +14,10 @@ import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
  * This contract makes a call to the prover contract (on the sourcez chain) in order to verify intent fulfillment.
  */
 contract IntentSource is IIntentSource, EIP712 {
-
     bytes32 private immutable _INTENT_TYPEHASH =
-    keccak256(
-        "Intent(address creator,address target,bytes instructions, )"
-    );
+        keccak256(
+            "Intent(address creator,address target,bytes instructions, )"
+        );
     // chain ID
     uint256 public immutable CHAIN_ID;
 
@@ -31,7 +30,7 @@ contract IntentSource is IIntentSource, EIP712 {
      */
     uint256 public immutable MINIMUM_DURATION;
 
-    // stores the intents by the hash of all their data
+    // stores the intents
     mapping(bytes32 => Intent) public intents;
 
     /**
@@ -39,7 +38,11 @@ contract IntentSource is IIntentSource, EIP712 {
      * @param _version version of the protocol
      * @param _minimumDuration the minimum duration of an intent originating on this chain
      */
-    constructor(string memory _name, string memory _version, uint256 _minimumDuration) EIP712(_name, _version) {
+    constructor(
+        string memory _name,
+        string memory _version,
+        uint256 _minimumDuration
+    ) EIP712(_name, _version) {
         CHAIN_ID = block.chainid;
         MINIMUM_DURATION = _minimumDuration;
     }
@@ -50,45 +53,64 @@ contract IntentSource is IIntentSource, EIP712 {
      * The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent solver.
      * @dev The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.
      * @param _destinationChain the destination chain
-     * @param _target the address on _destinationChain at which the instructions need to be executed
-     * @param _expiry the time by which the storage proof must have been created in order for the solver to redeem rewards.
-     * @param _instructions the instructions to be executed on _target
+     * @param _targets the addresses on _destinationChain at which the instructions need to be executed
+     * @param _callDatas the instruction sets to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the timestamp at which the intent expires
      */
     function createIntent(
         uint256 _destinationChain,
-        address _target,
-        uint256 _expiry,
-        bytes calldata _instructions,
+        address[] calldata _targets,
+        bytes[] calldata _callDatas,
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime
     ) external {
-        if (_expiry < block.timestamp + MINIMUM_DURATION) {
+        if (_expiryTime < block.timestamp + MINIMUM_DURATION) {
             revert ExpiryTooSoon();
         }
-        if (_rewardTokens.length == 0 || _rewardTokens.length != _rewardAmounts.length) {
+        if (
+            _rewardTokens.length == 0 ||
+            _rewardTokens.length != _rewardAmounts.length
+        ) {
             revert RewardsMismatch();
         }
 
-        intents[getKey(counter)] = Intent({
+        bytes32 identifier = keccak256(abi.encode(counter, CHAIN_ID));
+
+        intents[identifier] = Intent({
             creator: msg.sender,
             destinationChain: _destinationChain,
-            target: _target,
-            instructions: _instructions,
+            targets: _targets,
+            callDatas: _callDatas,
             rewardTokens: _rewardTokens,
             rewardAmounts: _rewardAmounts,
-            expiry: _expiryTime
-        }) ;
+            expiryTime: _expiryTime
+        });
+        counter += 1;
+
+        emitIntentCreated(identifier, intents[identifier]);
     }
 
-    function withdrawRewards(uint256 index) external {
-         Intent storage intent = intents[getKey(index, msg.sender)];
+    function emitIntentCreated(
+        bytes32 _identifier,
+        Intent memory _intent
+    ) internal {
+        //gets around Stack Too Deep
+        emit IntentCreated(
+            _identifier,
+            msg.sender,
+            _intent.destinationChain,
+            _intent.targets,
+            _intent.callDatas,
+            _intent.rewardTokens,
+            _intent.rewardAmounts,
+            _intent.expiryTime
+        );
     }
 
-    function getKey(uint256 _index) internal returns (bytes32 key){
-        return keccak256(abi.encodePacked(_index, CHAIN_ID));
+    function withdrawRewards(bytes32 _identifier) external {
+        Intent storage intent = intents[_identifier];
     }
 }
