@@ -32,7 +32,7 @@ const config: HardhatUserConfig = {
             // },
             // runs: 4294967295,
           },
-          // viaIR: true,
+          viaIR: true,
         },
       },
     ],
