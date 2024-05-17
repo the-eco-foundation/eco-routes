@@ -22,17 +22,17 @@ contract IntentSource is IIntentSource, EIP712 {
     // chain ID
     uint256 public immutable CHAIN_ID;
 
-//     // intent creation counter
-//     uint256 public counter;
+    // intent creation counter
+    uint256 public counter;
 
-//     /**
-//      * minimum duration of an intent, in seconds.
-//      * Intents cannot expire less than MINIMUM_DURATION seconds after they are created.
-//      */
-//     uint256 public immutable MINIMUM_DURATION;
+    /**
+     * minimum duration of an intent, in seconds.
+     * Intents cannot expire less than MINIMUM_DURATION seconds after they are created.
+     */
+    uint256 public immutable MINIMUM_DURATION;
 
-//     // stores the intents by the hash of all their data
-//     mapping(bytes32 => Intent) public intents;
+    // stores the intents by the hash of all their data
+    mapping(bytes32 => Intent) public intents;
 
     /**
      * @param _name name of the protocol ("Eco Protocol" for now)
@@ -55,6 +55,7 @@ contract IntentSource is IIntentSource, EIP712 {
      * @param _instructions the instructions to be executed on _target
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
+     * @param _expiryTime the timestamp at which the intent expires
      */
     function createIntent(
         uint256 _destinationChain,
@@ -62,29 +63,32 @@ contract IntentSource is IIntentSource, EIP712 {
         uint256 _expiry,
         bytes calldata _instructions,
         address[] calldata _rewardTokens,
-        uint256[] calldata _rewardAmounts
+        uint256[] calldata _rewardAmounts,
+        uint256 _expiryTime
     ) external {
         if (_expiry < block.timestamp + MINIMUM_DURATION) {
-            revert BadExpiry();
+            revert ExpiryTooSoon();
         }
         if (_rewardTokens.length == 0 || _rewardTokens.length != _rewardAmounts.length) {
-            revert BadRewards();
+            revert RewardsMismatch();
         }
-        intents(getKey(counter, msg.sender)) = Intent{
+
+        intents[getKey(counter)] = Intent({
             creator: msg.sender,
             destinationChain: _destinationChain,
             target: _target,
             instructions: _instructions,
             rewardTokens: _rewardTokens,
-            rewardAmounts: _rewardAmounts
-        };
+            rewardAmounts: _rewardAmounts,
+            expiry: _expiryTime
+        }) ;
     }
 
     function withdrawRewards(uint256 index) external {
          Intent storage intent = intents[getKey(index, msg.sender)];
     }
 
-    function getKey(_index, _address);(uint256 _index, address _address) internal returns (bytes32 nonce){
-        return keccak256(abi.encodePacked(_index, _address, CHAIN_ID));
+    function getKey(uint256 _index) internal returns (bytes32 key){
+        return keccak256(abi.encodePacked(_index, CHAIN_ID));
     }
 }
