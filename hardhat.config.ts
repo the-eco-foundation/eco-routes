@@ -50,15 +50,10 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
-      forking: {
-        url: `https://mainnet.infura.io/v3/${apiKey}`,
-        blockNumber: 18772535
-      }
-    },
-    goerli: {
-      chainId: 5,
-      url: `https://goerli.infura.io/v3/${apiKey}`,
-      accounts: [privateKey],
+      // forking: {
+      //   url: `https://mainnet.infura.io/v3/${apiKey}`,
+      //   blockNumber: 18772535
+      // }
     },
     sepolia: {
       chainId: 11155111,
