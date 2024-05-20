@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import { Lib_SecureMerkleTrie } from "@eth-optimism/contracts/libraries/trie/Lib_SecureMerkleTrie.sol";
-import { Lib_RLPReader } from "@eth-optimism/contracts/libraries/rlp/Lib_RLPReader.sol";
-import { Lib_RLPWriter } from "@eth-optimism/contracts/libraries/rlp/Lib_RLPWriter.sol";
+import { SecureMerkleTrie } from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
+import { RLPReader } from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
+import { RLPWriter } from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import { IL1Block } from "./interfaces/IL1Block.sol";
 
 
@@ -37,10 +37,10 @@ contract Prover {
         bytes[] memory _proof,
         bytes32 _root
     ) public pure {
-        require(Lib_SecureMerkleTrie.verifyInclusionProof(
+        require(SecureMerkleTrie.verifyInclusionProof(
             _key,
             _val,
-            Lib_RLPWriter.writeList(_proof),
+            _proof,
             _root
         ), "failed to prove");
     }
@@ -51,10 +51,10 @@ contract Prover {
         bytes[] memory _proof,
         bytes32 _root
     ) public pure {
-        require(Lib_SecureMerkleTrie.verifyInclusionProof(
+        require(SecureMerkleTrie.verifyInclusionProof(
             _address,
             _data,
-            Lib_RLPWriter.writeList(_proof),
+            _proof,
             _root
         ), "failed to prove");
     }
@@ -80,10 +80,10 @@ contract Prover {
         bytes[] memory dataList
     ) public pure returns (bytes memory) {
         for(uint256 i = 0; i < dataList.length; ++i) {
-            dataList[i] = Lib_RLPWriter.writeBytes(dataList[i]);
+            dataList[i] = RLPWriter.writeBytes(dataList[i]);
         }
 
-        return Lib_RLPWriter.writeList(dataList);
+        return RLPWriter.writeList(dataList);
     }
 
     function proveL1WorldState(
@@ -91,7 +91,7 @@ contract Prover {
     ) public {
         require(keccak256(rlpEncodedL1BlockData) == l1BlockhashOracle.hash()); // the function here depends on the chain hosting the prover
 
-        bytes32 l1WorldStateRoot = bytes32(Lib_RLPReader.readBytes(Lib_RLPReader.readList(rlpEncodedL1BlockData)[3]));
+        bytes32 l1WorldStateRoot = bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedL1BlockData)[3]));
 
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
@@ -127,7 +127,7 @@ contract Prover {
             )
         )) + l2OutputIndex*2)));
 
-        bytes memory outputOracleStateRoot = Lib_RLPReader.readBytes(Lib_RLPReader.readList(rlpEncodedOutputOracleData)[2]);
+        bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
         require(outputOracleStateRoot.length <= 32); // ensure lossless casting to bytes32
 
@@ -167,7 +167,7 @@ contract Prover {
             )
         );
 
-        bytes memory inboxStateRoot = Lib_RLPReader.readBytes(Lib_RLPReader.readList(rlpEncodedInboxData)[2]);
+        bytes memory inboxStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedInboxData)[2]);
 
         require(inboxStateRoot.length <= 32); // ensure lossless casting to bytes32
 
