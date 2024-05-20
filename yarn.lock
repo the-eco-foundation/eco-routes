@@ -457,6 +457,11 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
+"@eth-optimism/contracts-bedrock@0.17.2":
+  version "0.17.2"
+  resolved "https://registry.yarnpkg.com/@eth-optimism/contracts-bedrock/-/contracts-bedrock-0.17.2.tgz#501ae26c7fe4ef4edf6420c384f76677e85f62ae"
+  integrity sha512-YVwPHpBZgFwFX9qY8+iToVAAH7mSnVIVmih+YfHhqjAhlLvLZfYjvj+hRNgcB9eRyl1SOOB0jevp4JOOV1v2BA==
+
 "@ethereum-waffle/chai@^3.4.4":
   version "3.4.4"
   resolved "https://registry.yarnpkg.com/@ethereum-waffle/chai/-/chai-3.4.4.tgz#16c4cc877df31b035d6d92486dfdf983df9138ff"
