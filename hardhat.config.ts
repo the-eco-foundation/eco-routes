@@ -6,6 +6,7 @@ import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
+import 'hardhat-change-network'
 
 import '@nomiclabs/hardhat-ethers'
 import '@openzeppelin/hardhat-upgrades'
@@ -69,6 +70,16 @@ const config: HardhatUserConfig = {
       url: `https://mainnet.infura.io/v3/${apiKey}`,
       accounts: [privateKey],
       gasPrice: 10000000000
+    },
+    sepoliaOptimism: {
+      chainId: 11155420,
+      url: `https://optimism-sepolia.infura.io/v3/${apiKey}`,
+      accounts: [privateKey]
+    },
+    baseSepolia: {
+      chainId: 84532,
+      url: `https://base-sepolia.infura.io/v3/${apiKey}`,
+      accounts: [privateKey]
     },
   },
   mocha: {

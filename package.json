@@ -98,6 +98,7 @@
       "ethereum-waffle": "^3.3.0",
       "fs-extra": "^11.1.1",
       "glob": "^10.3.10",
+      "hardhat-change-network": "^0.0.7",
       "hardhat-gas-reporter": "1.0.9",
       "mocha": "^8.4.0",
       "prettier": "2.7.1",
