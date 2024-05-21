@@ -10,21 +10,27 @@ contract Inbox is InboxInterface {
     // Mapping of intent hash to whether it has been fulfilled
     mapping(bytes32 => bool) public fulfilled;
 
-    // Check that the intent hash has not been fulfilled
-    modifier unfulfilled(bytes32 _hash) {
-        if (!fulfilled[_hash]) {
-            _;
-        } else {
-            revert IntentAlreadyFulfilled(_hash);
-        }
-    }
-
     // Check that the intent has not expired
     modifier validTimestamp(uint256 _expireBlock) {
         if (block.number <= _expireBlock) {
             _;
         } else {
             revert IntentExpired(block.number);
+        }
+    }
+
+    // Check that the _callAddresses and calldata are valid and of same length
+    modifier validData(
+        address[] calldata _callAddresses,
+        bytes[] calldata _callData
+    ) {
+        if (
+            _callAddresses.length != 0 &&
+            _callAddresses.length == _callData.length
+        ) {
+            _;
+        } else {
+            revert InvalidData();
         }
     }
 
@@ -53,18 +59,12 @@ contract Inbox is InboxInterface {
         }
     }
 
-    // Check that the _callAddresses and calldata are valid and of same length
-    modifier validData(
-        address[] calldata _callAddresses,
-        bytes[] calldata _callData
-    ) {
-        if (
-            _callAddresses.length != 0 &&
-            _callAddresses.length == _callData.length
-        ) {
+    // Check that the intent hash has not been fulfilled
+    modifier unfulfilled(bytes32 _hash) {
+        if (!fulfilled[_hash]) {
             _;
         } else {
-            revert InvalidData();
+            revert IntentAlreadyFulfilled(_hash);
         }
     }
 
