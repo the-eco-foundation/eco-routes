@@ -26,6 +26,10 @@ async function main() {
     hre.changeNetwork(L2_NETWORK)
     const l2OutputStorageRoot = (await hre.ethers.provider.send('eth_getBlockByNumber', [l2EndBatchBlock, false])).stateRoot
     const proof = await hre.ethers.provider.send('eth_getProof', [inboxContract, [storageSlot], l2EndBatchBlock])
+
+    const balance = proof.balance === '0x0' ? '0x' : (proof.balance.length & 1 === 1 ? hre.ethers.utils.hexZeroPad(proof.balance, 1) : proof.balance)
+    const nonce = proof.nonce === '0x0' ? '0x' : (proof.nonce.length & 1 === 1 ? hre.ethers.utils.hexZeroPad(proof.nonce, 1) : proof.nonce)
+
     const proveIntentParams = [
         proof.storageProof[0].value,
         inboxContract,
@@ -33,8 +37,8 @@ async function main() {
         outputIndex - 1, // see comment in contract
         proof.storageProof[0].proof,
         hre.ethers.utils.RLP.encode([
-            hre.ethers.utils.hexZeroPad(proof.nonce, 1),
-            hre.ethers.utils.hexlify(proof.balance.slice(0,2)),
+            nonce,
+            balance,
             proof.storageHash,
             proof.codeHash
         ]),
