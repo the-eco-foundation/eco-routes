@@ -68,8 +68,6 @@ contract MockL1Block is IL1Block {
     )
         external override
     {
-        require(msg.sender == 0xDeaDDEaDDeAdDeAdDEAdDEaddeAddEAdDEAd0001, "L1Block: only the depositor account can set L1 block values");
-
         number = _number;
         timestamp = _timestamp;
         basefee = _basefee;
