@@ -1,11 +1,10 @@
-// /* -*- c-basic-offset: 4 -*- */
-// // SPDX-License-Identifier: MIT
-// pragma solidity ^0.8.0;
+/* -*- c-basic-offset: 4 -*- */
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./interfaces/IIntentSource.sol";
-import "./interfaces/IProver.sol";
+import "./test/IProver.sol";
 import "./types/Intent.sol";
-import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
@@ -15,11 +14,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * Its counterpart is the inbox contract that lives on the destination chain.
  * This contract makes a call to the prover contract (on the sourcez chain) in order to verify intent fulfillment.
  */
-contract IntentSource is IIntentSource, EIP712 {
-    bytes32 private immutable _INTENT_TYPEHASH =
-        keccak256(
-            "Intent(address creator,address target,bytes instructions, )"
-        );
+contract IntentSource is IIntentSource {
     // chain ID
     uint256 public immutable CHAIN_ID;
 
@@ -39,16 +34,13 @@ contract IntentSource is IIntentSource, EIP712 {
     mapping(bytes32 => Intent) public intents;
 
     /**
-     * @param _name name of the protocol ("Eco Protocol" for now)
-     * @param _version version of the protocol
+     * @param _prover the prover address
      * @param _minimumDuration the minimum duration of an intent originating on this chain
      */
     constructor(
-        string memory _name,
-        string memory _version,
         address _prover,
         uint256 _minimumDuration
-    ) EIP712(_name, _version) {
+    ) {
         CHAIN_ID = block.chainid;
         PROVER = IProver (_prover);
         MINIMUM_DURATION = _minimumDuration;
@@ -120,7 +112,7 @@ contract IntentSource is IIntentSource, EIP712 {
 
     function withdrawRewards(bytes32 _identifier) external {
         Intent storage intent = intents[_identifier];
-        bytes32 hashedIntent = keccak256("intent"); // still have to do this via 712
+        bytes32 hashedIntent = keccak256("intent"); // still have to do this via 712. Hash of targets[], calldatas[], expiry and nonce
         address provenBy = PROVER.provenIntents(hashedIntent);
         if (!intent.hasBeenWithdrawn) {
             if (provenBy == msg.sender || provenBy == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime) {
