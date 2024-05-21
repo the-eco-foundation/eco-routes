@@ -3,8 +3,10 @@
 // pragma solidity ^0.8.0;
 
 import "./interfaces/IIntentSource.sol";
+import "./interfaces/IProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
@@ -20,6 +22,9 @@ contract IntentSource is IIntentSource, EIP712 {
         );
     // chain ID
     uint256 public immutable CHAIN_ID;
+
+    // prover gateway address
+    IProver public immutable PROVER;
 
     // intent creation counter
     uint256 public counter;
@@ -41,9 +46,11 @@ contract IntentSource is IIntentSource, EIP712 {
     constructor(
         string memory _name,
         string memory _version,
+        address _prover,
         uint256 _minimumDuration
     ) EIP712(_name, _version) {
         CHAIN_ID = block.chainid;
+        PROVER = IProver (_prover);
         MINIMUM_DURATION = _minimumDuration;
     }
 
@@ -86,7 +93,8 @@ contract IntentSource is IIntentSource, EIP712 {
             callDatas: _callDatas,
             rewardTokens: _rewardTokens,
             rewardAmounts: _rewardAmounts,
-            expiryTime: _expiryTime
+            expiryTime: _expiryTime,
+            hasBeenWithdrawn: false
         });
         counter += 1;
 
@@ -112,5 +120,19 @@ contract IntentSource is IIntentSource, EIP712 {
 
     function withdrawRewards(bytes32 _identifier) external {
         Intent storage intent = intents[_identifier];
+        bytes32 hashedIntent = keccak256("intent"); // still have to do this via 712
+        address provenBy = PROVER.provenIntents(hashedIntent);
+        if (!intent.hasBeenWithdrawn) {
+            if (provenBy == msg.sender || provenBy == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime) {
+                uint256 len = intent.rewardTokens.length;
+                for (uint256 i = 0; i < len; i++) {
+                    IERC20(intent.rewardTokens[i]).transfer(msg.sender, intent.rewardAmounts[i]);
+                }
+                intent.hasBeenWithdrawn = true;
+                emit Withdrawal(_identifier, msg.sender);
+                return;
+            }
+        }
+        revert UnauthorizedWithdrawal(_identifier);
     }
 }

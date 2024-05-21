@@ -17,4 +17,6 @@ struct Intent {
     uint256[] rewardAmounts;
     // intent expiry timestamp
     uint256 expiryTime;
+    // true if it has been withdrawn already
+    bool hasBeenWithdrawn;
 }
