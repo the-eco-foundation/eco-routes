@@ -16,7 +16,7 @@ interface IIntentSource {
      * given intent.
      * @param _identifier the identifier of the intent on which withdraw was attempted
      */
-    error UnauthorizedWithdrawal(uint256 _identifier);
+    error UnauthorizedWithdrawal(bytes32 _identifier);
 
     /**
      * @notice emitted on a call to createIntent where _expiry is less than MINIMUM_DURATION
@@ -62,7 +62,7 @@ interface IIntentSource {
      * @param _identifier the identifier of the intent on which withdraw was attempted
      * @param _recipient the address that received the rewards for this intent
      */
-    event Withdrawal(uint256 _identifier, address indexed _recipient);
+    event Withdrawal(bytes32 _identifier, address indexed _recipient);
 
     /**
      * @notice Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets.
@@ -89,5 +89,5 @@ interface IIntentSource {
      * @notice allows withdrawal of reward funds locked up for a given intent
      * @param _identifier the key corresponding to this intent in the intents mapping
      */
-    function withdrawRewards(uint256 _identifier) external;
+    function withdrawRewards(bytes32 _identifier) external;
 }
