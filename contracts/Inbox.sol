@@ -19,6 +19,7 @@ contract Inbox is InboxInterface {
         bytes32 hash;
         address claimer;
     }
+    
     // Mapping of intent nonce on the src chain to its fulfillment
     mapping(uint256 => IntentFulfillment) public fulfilled;
 
