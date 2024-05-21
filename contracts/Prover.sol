@@ -42,7 +42,7 @@ contract Prover {
             _val,
             _proof,
             _root
-        ), "failed to prove");
+        ), "failed to prove storage");
     }
 
     function proveAccount(
@@ -56,7 +56,7 @@ contract Prover {
             _data,
             _proof,
             _root
-        ), "failed to prove");
+        ), "failed to prove account");
     }
 
     function generateOutputRoot(
@@ -89,7 +89,7 @@ contract Prover {
     function proveL1WorldState(
         bytes calldata rlpEncodedL1BlockData
     ) public {
-        require(keccak256(rlpEncodedL1BlockData) == l1BlockhashOracle.hash()); // the function here depends on the chain hosting the prover
+        require(keccak256(rlpEncodedL1BlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
         bytes32 l1WorldStateRoot = bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedL1BlockData)[3]));
 
@@ -112,7 +112,7 @@ contract Prover {
         // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
-        require(provenL1States[l1WorldStateRoot] > 0);
+        require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
 
         bytes32 outputRoot = generateOutputRoot(
             L2_OUTPUT_ROOT_VERSION_NUMBER,
@@ -129,7 +129,7 @@ contract Prover {
 
         bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
-        require(outputOracleStateRoot.length <= 32); // ensure lossless casting to bytes32
+        require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
 
         proveStorage(
             abi.encodePacked(outputRootStorageSlot),
@@ -158,7 +158,7 @@ contract Prover {
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
     ) public {
-        require(provenL2States[l2WorldStateRoot] > intentOutputIndex); // intentOutputIndex can never be less than zero, so this always ensures the root was proven
+        require(provenL2States[l2WorldStateRoot] > intentOutputIndex, "l2 state root not yet proven"); // intentOutputIndex can never be less than zero, so this always ensures the root was proven
 
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
@@ -169,7 +169,7 @@ contract Prover {
 
         bytes memory inboxStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedInboxData)[2]);
 
-        require(inboxStateRoot.length <= 32); // ensure lossless casting to bytes32
+        require(inboxStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
 
         proveStorage(
             abi.encodePacked(messageMappingSlot),
