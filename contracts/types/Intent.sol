@@ -16,8 +16,8 @@ struct Intent {
     // corresponding amounts of reward tokens
     uint256[] rewardAmounts;
     // intent expiry timestamp
-    uint256 expiry;
-    // whether or not the intent's rewards have been withdrawn
+    uint256 expiryTime;
+    // true if it has been withdrawn already
     bool hasBeenWithdrawn;
     // hash of identifier, targets, calldatas
     bytes32 intentHash;
