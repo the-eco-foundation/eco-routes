@@ -5,6 +5,7 @@
   "engines": {
     "node": ">=18.17.0"
   },
+  "type": "module",
   "homepage": "https://github.com/eco/ecoism#readme",
   "bugs": {
     "url": "https://github.com/eco/ecoism/issues"
@@ -32,7 +33,9 @@
     "depcheck": "depcheck --ignore-bin-package --ignores @openzeppelin/contracts,@openzeppelin/contracts-upgradeable,prettier-plugin-solidity,solhint-plugin-eco,concurrently,@types/mocha",
     "lint": "yarn format",
     "build": "hardhat compile",
-    "test": "hardhat test",
+    "testOriginal": "hardhat test",
+    "test": "NODE_OPTIONS='--experimental-loader ts-node/esm/transpile-only --no-warnings=ExperimentalWarning' hardhat test",
+    "script": "NODE_OPTIONS='--experimental-loader ts-node/esm/transpile-only --no-warnings=ExperimentalWarning' hardhat run",
     "clean": "hardhat clean",
     "docgen": "hardhat docgen",
     "testGas": "ENABLE_GAS_REPORT=1 hardhat test",
