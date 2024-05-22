@@ -1,9 +1,9 @@
 {
     "extends": "solhint:recommended",
-    "plugins": [
-      "eco"
-    ],
+    "plugins": ["eco"],
     "rules": {
+      "compiler-version": ["error", "^0.8.0"],
+      "func-visibility": ["warn", { "ignoreConstructors": true }],
       "max-line-length": "off",
       "var-name-mixedcase": "warn",
       "state-visibility": "error",
@@ -11,7 +11,6 @@
       "max-states-count": "warn",
       "eco/underscore-function-args": "error",
       "eco/no-underscore-events-args": "error",
-      "compiler-version": ["error", "^0.8.0"],
       "mark-callable-contracts": "off"
-   }
+    }
 }

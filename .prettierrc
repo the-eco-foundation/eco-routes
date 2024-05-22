@@ -3,7 +3,13 @@
     {
         "files": ["**/*.js", "**/*.ts"],
         "options": {
-            "singleQuote": true
+          "singleQuote": true
+        }
+      },
+      {
+        "files": "*.sol",
+        "options": {
+          "tabWidth": 4
         }
     }
   ],
