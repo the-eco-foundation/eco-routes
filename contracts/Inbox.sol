@@ -21,7 +21,7 @@ contract Inbox is InboxInterface {
     }
     
     // Mapping of intent nonce on the src chain to its fulfillment
-    mapping(uint256 => IntentFulfillment) public fulfilled;
+    mapping(bytes32 => IntentFulfillment) public fulfilled;
 
     // Check that the intent has not expired
     modifier validTimestamp(uint256 _expireTimestamp) {
@@ -32,23 +32,8 @@ contract Inbox is InboxInterface {
         }
     }
 
-    // Check that the _callAddresses and calldata are valid and of same length
-    modifier validData(
-        address[] calldata _callAddresses,
-        bytes[] calldata _callData
-    ) {
-        if (
-            _callAddresses.length != 0 &&
-            _callAddresses.length == _callData.length
-        ) {
-            _;
-        } else {
-            revert InvalidData();
-        }
-    }
-
     // Check that the intent hash has not been fulfilled
-    modifier unfulfilled(uint256 _nonce) {
+    modifier unfulfilled(bytes32 _nonce) {
         if (fulfilled[_nonce].claimer == address(0)) {
             _;
         } else {
@@ -61,36 +46,35 @@ contract Inbox is InboxInterface {
      * It then calls the addresses with the calldata, and if successful marks the intent as fulfilled and emits an event.
      *
      * @param _nonce The nonce of the calldata. Composed of the hash on the src chain of a global nonce & chainID
-     * @param _callAddresses The addresses to call
-     * @param _callData The calldata to call
+     * @param _targets The addresses to call
+     * @param _datas The calldata to call
      * @param _expireTimestamp The timestamp at which the intent expires
      * @param _claimer The address who can claim the reward on the src chain. Not part of the hash
      * @return results The results of the calls as an array of bytes
      */
     function fulfill(
-        uint256 _nonce,
-        address[] calldata _callAddresses,
-        bytes[] calldata _callData,
+        bytes32 _nonce,
+        address[] calldata _targets,
+        bytes[] calldata _datas,
         uint256 _expireTimestamp,
         address _claimer
     )
         external
         unfulfilled(_nonce)
-        validData(_callAddresses, _callData)
         validTimestamp(_expireTimestamp)
         returns (bytes[] memory)
     {
         // Store the results of the calls
-        bytes[] memory results = new bytes[](_callData.length);
+        bytes[] memory results = new bytes[](_datas.length);
         // Call the addresses with the calldata
-        for (uint256 i = 0; i < _callData.length; i++) {
-            (bool success, bytes memory result) = _callAddresses[i].call(
-                _callData[i]
+        for (uint256 i = 0; i < _datas.length; i++) {
+            (bool success, bytes memory result) = _targets[i].call(
+                _datas[i]
             );
             if (!success) {
                 revert IntentCallFailed(
-                    _callAddresses[i],
-                    _callData[i],
+                    _targets[i],
+                    _datas[i],
                     result
                 );
             }
@@ -98,7 +82,7 @@ contract Inbox is InboxInterface {
         }
         // Mark the intent as fulfilled
         fulfilled[_nonce] = IntentFulfillment(
-            encodeHash(_nonce, _callAddresses, _callData, _expireTimestamp),
+            encodeHash(_nonce, _targets, _datas, _expireTimestamp),
             _claimer
         );
 
@@ -119,7 +103,7 @@ contract Inbox is InboxInterface {
      * @return hash The hash of the intent parameters
      */
     function encodeHash(
-        uint256 _nonce,
+        bytes32 _nonce,
         address[] calldata _callAddresses,
         bytes[] calldata _callData,
         uint256 _expireTimestamp

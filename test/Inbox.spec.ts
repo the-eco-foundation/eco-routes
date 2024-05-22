@@ -17,7 +17,7 @@ describe('Inbox Test', (): void => {
   let hash32: string
   let calldata: DataHexString
   let timeStamp: number
-  const nonce = '0x987'
+  const nonce = ethers.encodeBytes32String('0x987')
   let erc20Address: string
   const timeDelta = 1000
   const mintAmount = 1000
@@ -72,7 +72,7 @@ describe('Inbox Test', (): void => {
     timeStamp = (await time.latest()) + timeDelta
     const abiCoder = ethers.AbiCoder.defaultAbiCoder()
     const encodedData = abiCoder.encode(
-      ['uint256', 'address[]', 'bytes[]', 'uint256'],
+      ['bytes32', 'address[]', 'bytes[]', 'uint256'],
       [nonce, [erc20Address], [calldata], timeStamp],
     )
     hash32 = ethers.keccak256(encodedData)
@@ -93,16 +93,6 @@ describe('Inbox Test', (): void => {
     })
 
     it('should revert if the data is invalid', async () => {
-      // unequal length of addresses and calldata
-      await expect(
-        inbox.fulfill(
-          nonce,
-          [erc20Address],
-          [calldata, calldata],
-          timeStamp,
-          dstAddr.address,
-        ),
-      ).to.be.revertedWithCustomError(inbox, 'InvalidData')
       // empty addresses
       await expect(
         inbox.fulfill(
@@ -112,7 +102,7 @@ describe('Inbox Test', (): void => {
           timeStamp,
           dstAddr.address,
         ),
-      ).to.be.revertedWithCustomError(inbox, 'InvalidData')
+      ).to.be.revertedWithPanic('0x32') // Array accessed at an out-of-bounds or negative index
     })
   })
 
