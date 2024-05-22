@@ -76,7 +76,15 @@ contract IntentSource is IIntentSource {
             revert RewardsMismatch();
         }
 
+        if (
+            _targets.length == 0 ||
+            _targets.length != _callDatas.length
+        ) {
+            revert CalldataMismatch();
+        }
+
         bytes32 identifier = keccak256(abi.encode(counter, CHAIN_ID));
+        bytes32 intentHash = keccak256(abi.encode(identifier, _targets, _callDatas));
 
         intents[identifier] = Intent({
             creator: msg.sender,
@@ -86,7 +94,8 @@ contract IntentSource is IIntentSource {
             rewardTokens: _rewardTokens,
             rewardAmounts: _rewardAmounts,
             expiryTime: _expiryTime,
-            hasBeenWithdrawn: false
+            hasBeenWithdrawn: false,
+            intentHash: intentHash
         });
         counter += 1;
 

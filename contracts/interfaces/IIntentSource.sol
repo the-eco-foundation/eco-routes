@@ -27,7 +27,7 @@ interface IIntentSource {
     /**
      * @notice emitted on a call to createIntent where _targets and _callDatas have different lengths, or when one of their lengths is zero.
      */
-    error TargetsCalldatasMismatch();
+    error CalldataMismatch();
 
     /**
      * @notice emitted on a call to createIntent where _rewardTokens and _rewardAmounts have different lengths, or when one of their lengths is zero.
