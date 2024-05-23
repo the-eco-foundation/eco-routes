@@ -12,7 +12,7 @@ subtask(TASK_COMPILE_SOLIDITY).setAction(async (_, { config }, runSuper) => {
   try {
     await writeFile(
       join(config.paths.artifacts, "package.json"),
-      '{ "type": "commonjs" }'
+      '{ "type": "commonjs" }',
     )
   } catch (error) {
     console.error("Error writing package.json: ", error)

@@ -4,7 +4,7 @@ import hre from 'hardhat'
 import { TestERC20, IntentSource, TestProver } from '../typechain-types'
 import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
-import { Block, keccak256, AbiCoder } from 'ethers'
+import { Block, keccak256, AbiCoder, BytesLike } from 'ethers'
 import { NumberLike } from '@nomicfoundation/hardhat-network-helpers/dist/src/types.js'
 // import { ERC20 } from '../typechain-types/@openzeppelin/contracts/token/ERC20/ERC20.js'
 const { ethers } = hre
@@ -19,9 +19,16 @@ describe('Intent Source Test', (): void => {
   let prover: TestProver
   let hash32: string
   let calldata: DataHexString
-  let expiryTime: number
   const mintAmount: number = 1000
   const minimumDuration = 1000
+
+  let expiry: number
+  let identifier: BytesLike
+  let chainId: number
+  let targets: string[]
+  let data: BytesLike[]
+  let rewardTokens: string[]
+  let rewardAmounts: number[]
 
   async function deploySourceFixture(): Promise<{
     intentSource: IntentSource
@@ -115,96 +122,156 @@ describe('Intent Source Test', (): void => {
       expect(await intentSource.MINIMUM_DURATION()).to.eq(minimumDuration)
       expect(await intentSource.counter()).to.eq(0)
     })
-    describe('intent creation', () => {
-      context('fails if', () => {
-        it('targets or data length is 0, or if they are mismatched', async () => {
-          // mismatch
-          await expect(
-            intentSource
-              .connect(creator)
-              .createIntent(
-                1,
-                [await tokenA.getAddress(), await tokenB.getAddress()],
-                [encodeTransfer(creator.address, mintAmount)],
-                [await tokenA.getAddress()],
-                [mintAmount],
-                (await time.latest()) + minimumDuration
-              )
-          ).to.be.revertedWithCustomError(intentSource, 'CalldataMismatch')
-          // length 0
-          await expect(
-            intentSource
-              .connect(creator)
-              .createIntent(
-                1,
-                [],
-                [],
-                [await tokenA.getAddress()],
-                [mintAmount],
-                (await time.latest()) + minimumDuration
-              )
-          ).to.be.revertedWithCustomError(intentSource, 'CalldataMismatch')
-        })
-        it('rewardTokens or rewardAmounts is 0, or if they are mismatched', async () => {
-          // mismatch
-          await expect(
-            intentSource
-              .connect(creator)
-              .createIntent(
-                1,
-                [await tokenA.getAddress()],
-                [encodeTransfer(creator.address, mintAmount)],
-                [await tokenA.getAddress(), await tokenB.getAddress()],
-                [mintAmount],
-                (await time.latest()) + minimumDuration
-              )
-          ).to.be.revertedWithCustomError(intentSource, 'RewardsMismatch')
-          // length 0
-          await expect(
-            intentSource
-              .connect(creator)
-              .createIntent(
-                1,
-                [await tokenA.getAddress()],
-                [encodeTransfer(creator.address, mintAmount)],
-                [],
-                [],
-                (await time.latest()) + minimumDuration
-              )
-          ).to.be.revertedWithCustomError(intentSource, 'RewardsMismatch')
-        })
-        it('expiryTime is too early', async () => {
-          await expect(
-            intentSource
-              .connect(creator)
-              .createIntent(
-                1,
-                [await tokenA.getAddress()],
-                [encodeTransfer(creator.address, mintAmount)],
-                [await tokenA.getAddress()],
-                [mintAmount],
-                (await time.latest()) + minimumDuration - 1
-              )
-          ).to.be.revertedWithCustomError(intentSource, 'ExpiryTooSoon')
-        })
+  })
+  describe('intent creation', async () => {
+    beforeEach(async (): Promise<void> => {
+      expiry = (await time.latest()) + minimumDuration + 10
+      identifier = await encodeIdentifier(
+        0,
+        (
+          await ethers.provider.getNetwork()
+        ).chainId
+      )
+      chainId = 1
+      targets = [await tokenA.getAddress()]
+      data = [await encodeTransfer(creator.address, mintAmount)]
+      rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
+      rewardAmounts = [mintAmount, mintAmount * 2]
+    })
+    context('fails if', () => {
+      it('targets or data length is 0, or if they are mismatched', async () => {
+        // mismatch
+        await expect(
+          intentSource
+            .connect(creator)
+            .createIntent(
+              1,
+              [await tokenA.getAddress(), await tokenB.getAddress()],
+              [encodeTransfer(creator.address, mintAmount)],
+              [await tokenA.getAddress()],
+              [mintAmount],
+              (await time.latest()) + minimumDuration
+            )
+        ).to.be.revertedWithCustomError(intentSource, 'CalldataMismatch')
+        // length 0
+        await expect(
+          intentSource
+            .connect(creator)
+            .createIntent(
+              1,
+              [],
+              [],
+              [await tokenA.getAddress()],
+              [mintAmount],
+              (await time.latest()) + minimumDuration
+            )
+        ).to.be.revertedWithCustomError(intentSource, 'CalldataMismatch')
       })
-      it('creates properly', async () => {
-        const expiry = (await time.latest()) + minimumDuration + 10
-        const identifier = await encodeIdentifier(
-          0,
-          (
-            await ethers.provider.getNetwork()
-          ).chainId
+      it('rewardTokens or rewardAmounts is 0, or if they are mismatched', async () => {
+        // mismatch
+        await expect(
+          intentSource
+            .connect(creator)
+            .createIntent(
+              1,
+              [await tokenA.getAddress()],
+              [encodeTransfer(creator.address, mintAmount)],
+              [await tokenA.getAddress(), await tokenB.getAddress()],
+              [mintAmount],
+              (await time.latest()) + minimumDuration
+            )
+        ).to.be.revertedWithCustomError(intentSource, 'RewardsMismatch')
+        // length 0
+        await expect(
+          intentSource
+            .connect(creator)
+            .createIntent(
+              1,
+              [await tokenA.getAddress()],
+              [encodeTransfer(creator.address, mintAmount)],
+              [],
+              [],
+              (await time.latest()) + minimumDuration
+            )
+        ).to.be.revertedWithCustomError(intentSource, 'RewardsMismatch')
+      })
+      it('expiryTime is too early', async () => {
+        await expect(
+          intentSource
+            .connect(creator)
+            .createIntent(
+              1,
+              [await tokenA.getAddress()],
+              [encodeTransfer(creator.address, mintAmount)],
+              [await tokenA.getAddress()],
+              [mintAmount],
+              (await time.latest()) + minimumDuration - 1
+            )
+        ).to.be.revertedWithCustomError(intentSource, 'ExpiryTooSoon')
+      })
+    })
+    it('creates properly', async () => {
+      await intentSource
+        .connect(creator)
+        .createIntent(
+          chainId,
+          targets,
+          data,
+          rewardTokens,
+          rewardAmounts,
+          expiry
         )
-        const chainId = 1
-        const targets = [await tokenA.getAddress()]
-        const data = [await encodeTransfer(creator.address, mintAmount)]
-        const rewardTokens = [
-          await tokenA.getAddress(),
-          await tokenB.getAddress(),
-        ]
-        const rewardAmounts = [mintAmount, mintAmount * 2]
-        await intentSource
+      const intent = await intentSource.intents(identifier)
+      // value types
+      expect(intent.creator).to.eq(creator.address)
+      expect(intent.destinationChain).to.eq(chainId)
+      expect(intent.expiryTime).to.eq(expiry)
+      expect(intent.hasBeenWithdrawn).to.eq(false)
+      const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+      const encodedData = abiCoder.encode(
+        ['bytes32', 'address[]', 'bytes[]', 'uint256'],
+        [identifier, targets, data, expiry]
+      )
+      expect(intent.intentHash).to.eq(keccak256(encodedData))
+      // reference types
+      expect(await intentSource.getTargets(identifier)).to.deep.eq(targets)
+      expect(await intentSource.getData(identifier)).to.deep.eq(data)
+      expect(await intentSource.getRewardTokens(identifier)).to.deep.eq(
+        rewardTokens
+      )
+      expect(await intentSource.getRewardAmounts(identifier)).to.deep.eq(
+        rewardAmounts
+      )
+    })
+    it('increments counter and locks up tokens', async () => {
+      const counter = await intentSource.counter()
+      const initialBalanceA = await tokenA.balanceOf(
+        await intentSource.getAddress()
+      )
+      const initialBalanceB = await tokenA.balanceOf(
+        await intentSource.getAddress()
+      )
+      await intentSource
+        .connect(creator)
+        .createIntent(
+          chainId,
+          targets,
+          data,
+          rewardTokens,
+          rewardAmounts,
+          expiry
+        )
+      expect(await intentSource.counter()).to.eq(Number(counter) + 1)
+      expect(await tokenA.balanceOf(await intentSource.getAddress())).to.eq(
+        Number(initialBalanceA) + rewardAmounts[0]
+      )
+      expect(await tokenB.balanceOf(await intentSource.getAddress())).to.eq(
+        Number(initialBalanceB) + rewardAmounts[1]
+      )
+    })
+    it('emits events', async () => {
+      await expect(
+        intentSource
           .connect(creator)
           .createIntent(
             chainId,
@@ -214,180 +281,18 @@ describe('Intent Source Test', (): void => {
             rewardAmounts,
             expiry
           )
-        const intent = await intentSource.intents(identifier)
-        // value types
-        expect(intent.creator).to.eq(creator.address)
-        expect(intent.destinationChain).to.eq(chainId)
-        expect(intent.expiryTime).to.eq(expiry)
-        expect(intent.hasBeenWithdrawn).to.eq(false)
-        const abiCoder = ethers.AbiCoder.defaultAbiCoder()
-        const encodedData = abiCoder.encode(
-          ['bytes32', 'address[]', 'bytes[]', 'uint256'],
-          [identifier, targets, data, expiry]
+      )
+        .to.emit(intentSource, 'IntentCreated')
+        .withArgs(
+          identifier,
+          await creator.getAddress(),
+          chainId,
+          targets,
+          data,
+          rewardTokens,
+          rewardAmounts,
+          expiry
         )
-        expect(intent.intentHash).to.eq(keccak256(encodedData))
-        // reference types
-        expect(await intentSource.getTargets(identifier)).to.deep.eq(targets)
-        expect(await intentSource.getData(identifier)).to.deep.eq(data)
-        expect(await intentSource.getRewardTokens(identifier)).to.deep.eq(
-          rewardTokens
-        )
-        expect(await intentSource.getRewardAmounts(identifier)).to.deep.eq(
-          rewardAmounts
-        )
-      })
-      //   it('emits events', async () => {
-      //     const expiry = (await time.latest()) + minimumDuration + 10
-      //     const identifier = encodeIdentifier(
-      //       0,
-      //       (await ethers.provider.getNetwork()).chainId
-      //     )
-      //     await expect(
-      //       intentSource
-      //         .connect(creator)
-      //         .createIntent(
-      //           1,
-      //           [await tokenA.getAddress()],
-      //           [await encodeTransfer(creator.address, mintAmount)],
-      //           [await tokenA.getAddress(), await tokenB.getAddress()],
-      //           [mintAmount, mintAmount * 2],
-      //           expiry
-      //         )
-      //     )
-      //       .to.emit(intentSource, 'IntentCreatedRequirements')
-      //       .withArgs(
-      //         identifier,
-      //         await creator.getAddress(),
-      //         1,
-      //         [await tokenA.getAddress()],
-      //         [await encodeTransfer(creator.address, mintAmount)]
-      //       )
-      //       .to.emit(intentSource, 'IntentCreatedRewards')
-      //       .withArgs(
-      //         identifier,
-      //         [await tokenA.getAddress(), await tokenB.getAddress()],
-      //         [mintAmount, mintAmount * 2],
-      //         expiry
-      //       )
-      //     const intent = await intentSource.intents(identifier)
-      //     expect(intent.creator).to.eq(creator.address)
-      //     expect(intent.destinationChain).to.eq(1)
-      //     // expect(intent.targets).to.deep.eq([await tokenA.getAddress()])
-      //     expect(await intentSource.getTargets(identifier)).to.deep.eq([
-      //       await tokenA.getAddress(),
-      //     ])
-
-      //     // const encodedData = abiCoder.encode(
-      //     //   ['uint256', 'address[]', 'bytes[]', 'uint256'],
-      //     //   [nonce, [erc20Address], [calldata], timeStamp]
-      //     // )
-      //     // const hash = keccak256(AbiCoder.enc)
-      //   })
     })
-
-    // it('should revert if the data is invalid', async () => {
-    //   // unequal length of addresses and calldata
-    //   await expect(
-    //     inbox.fulfill(
-    //       nonce,
-    //       [erc20Address],
-    //       [calldata, calldata],
-    //       timeStamp,
-    //       dstAddr.address
-    //     )
-    //   ).to.be.revertedWithCustomError(inbox, 'InvalidData')
-    //   // empty addresses
-    //   await expect(
-    //     inbox.fulfill(
-    //       nonce,
-    //       [],
-    //       [calldata, calldata],
-    //       timeStamp,
-    //       dstAddr.address
-    //     )
-    //   ).to.be.revertedWithCustomError(inbox, 'InvalidData')
-    // })
   })
-
-  //   describe('when the intent is valid', () => {
-  //     it('should revert if the call fails', async () => {
-  //       await expect(
-  //         inbox.fulfill(
-  //           nonce,
-  //           [erc20Address],
-  //           [calldata],
-  //           timeStamp,
-  //           dstAddr.address,
-  //         ),
-  //       ).to.be.revertedWithCustomError(inbox, 'IntentCallFailed')
-  //     })
-
-  //     it('should succeed', async () => {
-  //       expect(await inbox.fulfilled(nonce)).to.be.deep.equal([
-  //         ethers.ZeroHash,
-  //         ethers.ZeroAddress,
-  //       ])
-  //       expect(await erc20.balanceOf(solver.address)).to.equal(mintAmount)
-  //       expect(await erc20.balanceOf(dstAddr.address)).to.equal(0)
-
-  //       // transfer the tokens to the inbox so it can process the transaction
-  //       await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
-
-  //       // should emit an event
-  //       await expect(
-  //         inbox
-  //           .connect(solver)
-  //           .fulfill(
-  //             nonce,
-  //             [erc20Address],
-  //             [calldata],
-  //             timeStamp,
-  //             dstAddr.address,
-  //           ),
-  //       )
-  //         .to.emit(inbox, 'Fulfillment')
-  //         .withArgs(nonce)
-  //       // should update the fulfilled hash
-  //       expect(await inbox.fulfilled(nonce)).to.be.deep.equal([
-  //         hash32,
-  //         dstAddr.address,
-  //       ])
-
-  //       // check balances
-  //       expect(await erc20.balanceOf(solver.address)).to.equal(0)
-  //       expect(await erc20.balanceOf(dstAddr.address)).to.equal(mintAmount)
-  //     })
-
-  //     it('should revert if the intent has already been fulfilled', async () => {
-  //       // transfer the tokens to the inbox so it can process the transaction
-  //       await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
-
-  //       // should emit an event
-  //       await expect(
-  //         inbox
-  //           .connect(solver)
-  //           .fulfill(
-  //             nonce,
-  //             [erc20Address],
-  //             [calldata],
-  //             timeStamp,
-  //             dstAddr.address,
-  //           ),
-  //       )
-  //         .to.emit(inbox, 'Fulfillment')
-  //         .withArgs(nonce)
-  //       // should revert
-  //       await expect(
-  //         inbox
-  //           .connect(solver)
-  //           .fulfill(
-  //             nonce,
-  //             [erc20Address],
-  //             [calldata],
-  //             timeStamp,
-  //             dstAddr.address,
-  //           ),
-  //       ).to.be.revertedWithCustomError(inbox, 'IntentAlreadyFulfilled')
-  //     })
-  //   })
 })

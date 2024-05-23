@@ -115,18 +115,18 @@ contract IntentSource is IIntentSource {
     ) internal {
         //gets around Stack Too Deep
         //TODO: remove this, stacktoodeep is solved elsewhere
-        // emit IntentCreated(
-        //     _identifier,
-        //     msg.sender,
-        //     _intent.destinationChain,
-        //     _intent.targets,
-        //     _intent.data,
-        //     _intent.rewardTokens,
-        //     _intent.rewardAmounts,
-        //     _intent.expiryTime
-        // );
-        emit IntentCreatedRequirements(_identifier, msg.sender, _intent.destinationChain, _intent.targets, _intent.data);
-        emit IntentCreatedRewards(_identifier, _intent.rewardTokens, _intent.rewardAmounts, _intent.expiryTime);
+        emit IntentCreated(
+            _identifier,
+            msg.sender,
+            _intent.destinationChain,
+            _intent.targets,
+            _intent.data,
+            _intent.rewardTokens,
+            _intent.rewardAmounts,
+            _intent.expiryTime
+        );
+        // emit IntentCreatedRequirements(_identifier, msg.sender, _intent.destinationChain, _intent.targets, _intent.data);
+        // emit IntentCreatedRewards(_identifier, _intent.rewardTokens, _intent.rewardAmounts, _intent.expiryTime);
     }
 
     function withdrawRewards(bytes32 _identifier) external {

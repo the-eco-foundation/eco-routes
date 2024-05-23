@@ -34,29 +34,6 @@ interface IIntentSource {
      */
     error RewardsMismatch();
 
-    // /**
-    //  * @notice emitted on a successful call to createIntent
-    //  * @param _identifier the key of the intents mapping that can be used to fetch the intent
-    //  * @param _creator the address that created the intent
-    //  * @param _destinationChain the destination chain
-    //  * @param _targets the address on _destinationChain at which the instruction sets need to be executed
-    //  * @param _data the instructions to be executed on _targets
-    //  * @param _rewardTokens the addresses of reward tokens
-    //  * @param _rewardAmounts the amounts of reward tokens
-    //  * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
-    //  */
-    // event IntentCreated(
-    //     //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
-    //     bytes32 _identifier,
-    //     address _creator,
-    //     uint256 _destinationChain,
-    //     address[] _targets,
-    //     bytes[] _data,
-    //     address[] indexed _rewardTokens,
-    //     uint256[] indexed _rewardAmounts,
-    //     uint256 indexed _expiryTime
-    // );
-
     /**
      * @notice emitted on a successful call to createIntent
      * @param _identifier the key of the intents mapping that can be used to fetch the intent
@@ -64,26 +41,19 @@ interface IIntentSource {
      * @param _destinationChain the destination chain
      * @param _targets the address on _destinationChain at which the instruction sets need to be executed
      * @param _data the instructions to be executed on _targets
-     */
-    event IntentCreatedRequirements(
-        bytes32 _identifier,
-        address _creator,
-        uint256 _destinationChain,
-        address[] _targets,
-        bytes[] _data
-    );
-    /**
-     * @notice emitted on a successful call to createIntent
-     * @param _identifier the key of the intents mapping that can be used to fetch the intent
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      */
-
-    event IntentCreatedRewards(
+    event IntentCreated(
+        //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
         bytes32 _identifier,
-        address[] indexed _rewardTokens,
-        uint256[] indexed _rewardAmounts,
+        address _creator,
+        uint256 indexed _destinationChain,
+        address[] _targets,
+        bytes[] _data,
+        address[] _rewardTokens,
+        uint256[] _rewardAmounts,
         uint256 indexed _expiryTime
     );
 
