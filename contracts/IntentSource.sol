@@ -114,16 +114,19 @@ contract IntentSource is IIntentSource {
         Intent memory _intent
     ) internal {
         //gets around Stack Too Deep
-        emit IntentCreated(
-            _identifier,
-            msg.sender,
-            _intent.destinationChain,
-            _intent.targets,
-            _intent.data,
-            _intent.rewardTokens,
-            _intent.rewardAmounts,
-            _intent.expiryTime
-        );
+        //TODO: remove this, stacktoodeep is solved elsewhere
+        // emit IntentCreated(
+        //     _identifier,
+        //     msg.sender,
+        //     _intent.destinationChain,
+        //     _intent.targets,
+        //     _intent.data,
+        //     _intent.rewardTokens,
+        //     _intent.rewardAmounts,
+        //     _intent.expiryTime
+        // );
+        emit IntentCreatedRequirements(_identifier, msg.sender, _intent.destinationChain, _intent.targets, _intent.data);
+        emit IntentCreatedRewards(_identifier, _intent.rewardTokens, _intent.rewardAmounts, _intent.expiryTime);
     }
 
     function withdrawRewards(bytes32 _identifier) external {
@@ -142,5 +145,18 @@ contract IntentSource is IIntentSource {
             }
         }
         revert UnauthorizedWithdrawal(_identifier);
+    }
+
+    function getTargets(bytes32 identifier) public view returns(address[] memory) {
+        return intents[identifier].targets;   
+    }
+    function getData(bytes32 identifier) public view returns(bytes[] memory) {
+        return intents[identifier].data;   
+    }
+    function getRewardTokens(bytes32 identifier) public view returns(address[] memory) {
+        return intents[identifier].rewardTokens;   
+    }
+    function getRewardAmounts(bytes32 identifier) public view returns(uint256[] memory) {
+        return intents[identifier].rewardAmounts;   
     }
 }

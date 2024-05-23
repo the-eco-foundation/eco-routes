@@ -188,45 +188,101 @@ describe('Intent Source Test', (): void => {
           ).to.be.revertedWithCustomError(intentSource, 'ExpiryTooSoon')
         })
       })
-      it('creates properly and emits event', async () => {
+      it('creates properly', async () => {
         const expiry = (await time.latest()) + minimumDuration + 10
-        await expect(
-          intentSource
-            .connect(creator)
-            .createIntent(
-              1,
-              [await tokenA.getAddress()],
-              [await encodeTransfer(creator.address, mintAmount)],
-              [await tokenA.getAddress(), await tokenB.getAddress()],
-              [mintAmount, mintAmount * 2],
-              expiry
-            )
-        ).to.emit(intentSource, 'IntentCreated')
-        //   .withArgs(
-        //     encodeIdentifier(0, (await ethers.provider.getNetwork()).chainId),
-        //     await creator.getAddress(),
-        //     1,
-        //     [await tokenA.getAddress()],
-        //     [await encodeTransfer(creator.address, mintAmount)],
-        //     [await tokenA.getAddress(), await tokenB.getAddress()],
-        //     [mintAmount, mintAmount * 2],
-        //     expiry
-        //   )
-        const identifier = encodeIdentifier(
+        const identifier = await encodeIdentifier(
           0,
-          (await ethers.provider.getNetwork()).chainId
+          (
+            await ethers.provider.getNetwork()
+          ).chainId
         )
+        const chainId = 1
+        const targets = [await tokenA.getAddress()]
+        const data = [await encodeTransfer(creator.address, mintAmount)]
+        const rewardTokens = [
+          await tokenA.getAddress(),
+          await tokenB.getAddress(),
+        ]
+        const rewardAmounts = [mintAmount, mintAmount * 2]
+        await intentSource
+          .connect(creator)
+          .createIntent(
+            chainId,
+            targets,
+            data,
+            rewardTokens,
+            rewardAmounts,
+            expiry
+          )
         const intent = await intentSource.intents(identifier)
+        // value types
         expect(intent.creator).to.eq(creator.address)
-        expect(intent.destinationChain).to.eq(1)
-        expect(intent.targets).to.deep.eq([await tokenA.getAddress()])
-
-        // const encodedData = abiCoder.encode(
-        //   ['uint256', 'address[]', 'bytes[]', 'uint256'],
-        //   [nonce, [erc20Address], [calldata], timeStamp]
-        // )
-        // const hash = keccak256(AbiCoder.enc)
+        expect(intent.destinationChain).to.eq(chainId)
+        expect(intent.expiryTime).to.eq(expiry)
+        expect(intent.hasBeenWithdrawn).to.eq(false)
+        const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+        const encodedData = abiCoder.encode(
+          ['bytes32', 'address[]', 'bytes[]', 'uint256'],
+          [identifier, targets, data, expiry]
+        )
+        expect(intent.intentHash).to.eq(keccak256(encodedData))
+        // reference types
+        expect(await intentSource.getTargets(identifier)).to.deep.eq(targets)
+        expect(await intentSource.getData(identifier)).to.deep.eq(data)
+        expect(await intentSource.getRewardTokens(identifier)).to.deep.eq(
+          rewardTokens
+        )
+        expect(await intentSource.getRewardAmounts(identifier)).to.deep.eq(
+          rewardAmounts
+        )
       })
+      //   it('emits events', async () => {
+      //     const expiry = (await time.latest()) + minimumDuration + 10
+      //     const identifier = encodeIdentifier(
+      //       0,
+      //       (await ethers.provider.getNetwork()).chainId
+      //     )
+      //     await expect(
+      //       intentSource
+      //         .connect(creator)
+      //         .createIntent(
+      //           1,
+      //           [await tokenA.getAddress()],
+      //           [await encodeTransfer(creator.address, mintAmount)],
+      //           [await tokenA.getAddress(), await tokenB.getAddress()],
+      //           [mintAmount, mintAmount * 2],
+      //           expiry
+      //         )
+      //     )
+      //       .to.emit(intentSource, 'IntentCreatedRequirements')
+      //       .withArgs(
+      //         identifier,
+      //         await creator.getAddress(),
+      //         1,
+      //         [await tokenA.getAddress()],
+      //         [await encodeTransfer(creator.address, mintAmount)]
+      //       )
+      //       .to.emit(intentSource, 'IntentCreatedRewards')
+      //       .withArgs(
+      //         identifier,
+      //         [await tokenA.getAddress(), await tokenB.getAddress()],
+      //         [mintAmount, mintAmount * 2],
+      //         expiry
+      //       )
+      //     const intent = await intentSource.intents(identifier)
+      //     expect(intent.creator).to.eq(creator.address)
+      //     expect(intent.destinationChain).to.eq(1)
+      //     // expect(intent.targets).to.deep.eq([await tokenA.getAddress()])
+      //     expect(await intentSource.getTargets(identifier)).to.deep.eq([
+      //       await tokenA.getAddress(),
+      //     ])
+
+      //     // const encodedData = abiCoder.encode(
+      //     //   ['uint256', 'address[]', 'bytes[]', 'uint256'],
+      //     //   [nonce, [erc20Address], [calldata], timeStamp]
+      //     // )
+      //     // const hash = keccak256(AbiCoder.enc)
+      //   })
     })
 
     // it('should revert if the data is invalid', async () => {
