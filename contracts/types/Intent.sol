@@ -10,7 +10,7 @@ struct Intent {
     // address on destinationChain where we want instructions executed
     address[] targets;
     // instructions we want executed
-    bytes[] callDatas;
+    bytes[] data;
     // addresses of reward tokens
     address[] rewardTokens;
     // corresponding amounts of reward tokens

@@ -17,9 +17,8 @@ describe('Intent Source Test', (): void => {
   let prover: TestProver
   let hash32: string
   let calldata: DataHexString
-  let timeStamp: number
-  let erc20Address: string
   const mintAmount = 1000
+  const minimumDuration = 1000
 
   async function deployInboxFixture(): Promise<{
     intentSource: IntentSource
@@ -31,17 +30,18 @@ describe('Intent Source Test', (): void => {
     dstAddr: SignerWithAddress
   }> {
     const [creator, solver, dstAddr] = await ethers.getSigners()
+
+    // deploy prover
+    const proverFactory = await ethers.getContractFactory('TestProver')
+    const prover = await proverFactory.deploy()
+
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
-    const intentSource = await intentSourceFactory.deploy()
+    const intentSource = await intentSourceFactory.deploy(prover, minimumDuration)
 
     // deploy ERC20 test
     const erc20Factory = await ethers.getContractFactory('TestERC20')
     const tokenA = await erc20Factory.deploy('A', 'A')
     const tokenB = await erc20Factory.deploy('B', 'B')
-
-    // deploy prover
-    const proverFactory = await ethers.getContractFactory('TestProver')
-    const prover = await proverFactory.deploy()
 
     return {
       intentSource,

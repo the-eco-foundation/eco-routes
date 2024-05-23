@@ -53,7 +53,7 @@ contract IntentSource is IIntentSource {
      * @dev The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.
      * @param _destinationChain the destination chain
      * @param _targets the addresses on _destinationChain at which the instructions need to be executed
-     * @param _callDatas the instruction sets to be executed on _targets
+     * @param _data the instruction sets to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the timestamp at which the intent expires
@@ -61,7 +61,7 @@ contract IntentSource is IIntentSource {
     function createIntent(
         uint256 _destinationChain,
         address[] calldata _targets,
-        bytes[] calldata _callDatas,
+        bytes[] calldata _data,
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime
@@ -78,19 +78,19 @@ contract IntentSource is IIntentSource {
 
         if (
             _targets.length == 0 ||
-            _targets.length != _callDatas.length
+            _targets.length != _data.length
         ) {
             revert CalldataMismatch();
         }
 
         bytes32 identifier = keccak256(abi.encode(counter, CHAIN_ID));
-        bytes32 intentHash = keccak256(abi.encode(identifier, _targets, _callDatas));
+        bytes32 intentHash = keccak256(abi.encode(identifier, _targets, _data));
 
         intents[identifier] = Intent({
             creator: msg.sender,
             destinationChain: _destinationChain,
             targets: _targets,
-            callDatas: _callDatas,
+            data: _data,
             rewardTokens: _rewardTokens,
             rewardAmounts: _rewardAmounts,
             expiryTime: _expiryTime,
@@ -112,7 +112,7 @@ contract IntentSource is IIntentSource {
             msg.sender,
             _intent.destinationChain,
             _intent.targets,
-            _intent.callDatas,
+            _intent.data,
             _intent.rewardTokens,
             _intent.rewardAmounts,
             _intent.expiryTime
@@ -121,7 +121,7 @@ contract IntentSource is IIntentSource {
 
     function withdrawRewards(bytes32 _identifier) external {
         Intent storage intent = intents[_identifier];
-        bytes32 hashedIntent = keccak256("intent"); // still have to do this via 712. Hash of targets[], calldatas[], expiry and nonce
+        bytes32 hashedIntent = keccak256("intent"); // Hash of nonce, targets[], data[], expiry
         address provenBy = PROVER.provenIntents(hashedIntent);
         if (!intent.hasBeenWithdrawn) {
             if (provenBy == msg.sender || provenBy == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime) {
