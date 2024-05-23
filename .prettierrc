@@ -1,10 +1,16 @@
 {
   "overrides": [
     {
-        "files": ["**/*.js", "**/*.ts"],
-        "options": {
-            "singleQuote": true
-        }
+      "files": ["**/*.js", "**/*.ts"],
+      "options": {
+        "singleQuote": true
+      }
+    },
+    {
+      "files": "*.sol",
+      "options": {
+        "tabWidth": 4
+      }
     }
   ],
   "semi": false
