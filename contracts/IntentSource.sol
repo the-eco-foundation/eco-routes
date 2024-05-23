@@ -66,16 +66,6 @@ contract IntentSource is IIntentSource {
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime
     ) external {
-        if (_expiryTime < block.timestamp + MINIMUM_DURATION) {
-            revert ExpiryTooSoon();
-        }
-        if (
-            _rewardTokens.length == 0 ||
-            _rewardTokens.length != _rewardAmounts.length
-        ) {
-            revert RewardsMismatch();
-        }
-
         if (
             _targets.length == 0 ||
             _targets.length != _data.length
@@ -83,8 +73,20 @@ contract IntentSource is IIntentSource {
             revert CalldataMismatch();
         }
 
+        uint256 len = _rewardTokens.length;
+        if (
+            len == 0 ||
+            len != _rewardAmounts.length
+        ) {
+            revert RewardsMismatch();
+        }
+
+        if (_expiryTime < block.timestamp + MINIMUM_DURATION) {
+            revert ExpiryTooSoon();
+        }
+
         bytes32 identifier = keccak256(abi.encode(counter, CHAIN_ID));
-        bytes32 intentHash = keccak256(abi.encode(identifier, _targets, _data));
+        bytes32 intentHash = keccak256(abi.encode(identifier, _targets, _data, _expiryTime));
 
         intents[identifier] = Intent({
             creator: msg.sender,
@@ -97,7 +99,12 @@ contract IntentSource is IIntentSource {
             hasBeenWithdrawn: false,
             intentHash: intentHash
         });
+
         counter += 1;
+        
+        for(uint256 i = 0; i < len; i++) {
+            IERC20(_rewardTokens[i]).transferFrom(msg.sender, address(this), _rewardAmounts[i]);
+        }
 
         emitIntentCreated(identifier, intents[identifier]);
     }
