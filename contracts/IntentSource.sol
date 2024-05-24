@@ -131,8 +131,7 @@ contract IntentSource is IIntentSource {
 
     function withdrawRewards(bytes32 _identifier) external {
         Intent storage intent = intents[_identifier];
-        bytes32 hashedIntent = keccak256("intent"); // Hash of nonce, targets[], data[], expiry
-        address provenBy = PROVER.provenIntents(hashedIntent);
+        address provenBy = PROVER.provenIntents(intent.intentHash);
         if (!intent.hasBeenWithdrawn) {
             if (provenBy == msg.sender || provenBy == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime) {
                 uint256 len = intent.rewardTokens.length;
@@ -143,8 +142,9 @@ contract IntentSource is IIntentSource {
                 emit Withdrawal(_identifier, msg.sender);
                 return;
             }
+            revert UnauthorizedWithdrawal(_identifier);
         }
-        revert UnauthorizedWithdrawal(_identifier);
+        revert NothingToWithdraw(_identifier);
     }
 
     function getTargets(bytes32 identifier) public view returns(address[] memory) {

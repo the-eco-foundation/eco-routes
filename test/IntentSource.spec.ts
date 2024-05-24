@@ -17,7 +17,7 @@ describe('Intent Source Test', (): void => {
   let solver: SignerWithAddress
   let dest: SignerWithAddress
   let prover: TestProver
-  let hash32: string
+  //   let intentHash: DataH
   let calldata: DataHexString
   const mintAmount: number = 1000
   const minimumDuration = 1000
@@ -293,6 +293,129 @@ describe('Intent Source Test', (): void => {
           rewardAmounts,
           expiry
         )
+    })
+  })
+  describe('claiming rewards', async () => {
+    beforeEach(async (): Promise<void> => {
+      expiry = (await time.latest()) + minimumDuration + 10
+      identifier = await encodeIdentifier(
+        0,
+        (
+          await ethers.provider.getNetwork()
+        ).chainId
+      )
+      chainId = 1
+      targets = [await tokenA.getAddress()]
+      data = [await encodeTransfer(creator.address, mintAmount)]
+      rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
+      rewardAmounts = [mintAmount, mintAmount * 2]
+
+      await intentSource
+        .connect(creator)
+        .createIntent(
+          chainId,
+          targets,
+          data,
+          rewardTokens,
+          rewardAmounts,
+          expiry
+        )
+    })
+    context('before expiry, no proof', () => {
+      it('cant be withdrawn by solver or creator (or anyone else)', async () => {
+        await expect(
+          intentSource.connect(creator).withdrawRewards(identifier)
+        ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
+
+        await expect(
+          intentSource.connect(solver).withdrawRewards(identifier)
+        ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
+      })
+    })
+    context('before expiry, proof', () => {
+      beforeEach(async (): Promise<void> => {
+        await prover
+          .connect(creator)
+          .addProvenIntent(
+            (
+              await intentSource.intents(identifier)
+            ).intentHash,
+            await solver.getAddress()
+          )
+      })
+      it('cannot be withdrawn by non-solver', async () => {
+        await expect(
+          intentSource.connect(creator).withdrawRewards(identifier)
+        ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
+      })
+      it('can be withdrawn by solver', async () => {
+        const initialBalanceA = await tokenA.balanceOf(
+          await solver.getAddress()
+        )
+        const initialBalanceB = await tokenB.balanceOf(
+          await solver.getAddress()
+        )
+        expect((await intentSource.intents(identifier)).hasBeenWithdrawn).to.be
+          .false
+
+        await intentSource.connect(solver).withdrawRewards(identifier)
+
+        expect((await intentSource.intents(identifier)).hasBeenWithdrawn).to.be
+          .true
+        expect(await tokenA.balanceOf(await solver.getAddress())).to.eq(
+          Number(initialBalanceA) + rewardAmounts[0]
+        )
+        expect(await tokenB.balanceOf(await solver.getAddress())).to.eq(
+          Number(initialBalanceB) + rewardAmounts[1]
+        )
+      })
+      it('emits event', async () => {
+        await expect(intentSource.connect(solver).withdrawRewards(identifier))
+          .to.emit(intentSource, 'Withdrawal')
+          .withArgs(identifier, await solver.getAddress())
+      })
+      it('does not allow repeat withdrawal', async () => {
+        await intentSource.connect(solver).withdrawRewards(identifier)
+        await expect(
+          intentSource.connect(solver).withdrawRewards(identifier)
+        ).to.be.revertedWithCustomError(intentSource, 'NothingToWithdraw')
+      })
+    })
+    context('after expiry, no proof', () => {
+      beforeEach(async (): Promise<void> => {
+        await time.increaseTo(expiry)
+      })
+      it('cannot be withdrawn by non-creator', async () => {
+        await expect(
+          intentSource.connect(solver).withdrawRewards(identifier)
+        ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
+      })
+      it('can be withdrawn by creator', async () => {
+        await expect(intentSource.connect(creator).withdrawRewards(identifier))
+          .to.not.be.reverted
+      })
+    })
+    context('after expiry, proof', () => {
+      beforeEach(async (): Promise<void> => {
+        await prover
+          .connect(creator)
+          .addProvenIntent(
+            (
+              await intentSource.intents(identifier)
+            ).intentHash,
+            await solver.getAddress()
+          )
+        await time.increaseTo(expiry)
+      })
+      it('cannot be withdrawn by non-solver', async () => {
+        await expect(
+          intentSource.connect(creator).withdrawRewards(identifier)
+        ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
+      })
+      it('can be withdrawn by solver', async () => {
+        await expect(intentSource.connect(solver).withdrawRewards(identifier))
+          .to.not.be.reverted
+      })
     })
   })
 })

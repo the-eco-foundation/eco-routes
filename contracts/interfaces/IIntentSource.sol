@@ -19,6 +19,12 @@ interface IIntentSource {
     error UnauthorizedWithdrawal(bytes32 _identifier);
 
     /**
+     * @notice emitted on a call to withdraw() for an intent whose rewards have already been withdrawn.
+     * @param _identifier the identifier of the intent on which withdraw was attempted
+     */
+    error NothingToWithdraw(bytes32 _identifier);
+
+    /**
      * @notice emitted on a call to createIntent where _expiry is less than MINIMUM_DURATION
      * seconds later than the block timestamp at time of call
      */
@@ -90,4 +96,28 @@ interface IIntentSource {
      * @param _identifier the key corresponding to this intent in the intents mapping
      */
     function withdrawRewards(bytes32 _identifier) external;
+
+    /**
+     * @notice fetches targets array from intent
+     * @param _identifier the identifier for the intent
+     */
+    function getTargets(bytes32 _identifier) external view returns (address[] memory);
+    
+    /**
+     * @notice fetches data array from intent
+     * @param _identifier the identifier for the intent
+     */
+    function getData(bytes32 _identifier) external view returns (bytes[] memory);
+
+        /**
+     * @notice fetches reward tokens array from intent
+     * @param _identifier the identifier for the intent
+     */
+    function getRewardTokens(bytes32 _identifier) external view returns (address[] memory);
+
+    /**
+     * @notice fetches reward amounts array from intent
+     * @param _identifier the identifier for the intent
+     */
+    function getRewardAmounts(bytes32 _identifier) external view returns (uint256[] memory);
 }
