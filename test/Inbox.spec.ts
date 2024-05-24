@@ -7,6 +7,7 @@ import {
   loadFixture,
 } from '@nomicfoundation/hardhat-toolbox/network-helpers'
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
+import { encodeTransfer } from '../utils/encode'
 
 describe('Inbox Test', (): void => {
   let inbox: Inbox
@@ -50,16 +51,7 @@ describe('Inbox Test', (): void => {
     await erc20.connect(owner).transfer(await solver.getAddress(), mintAmount)
   }
 
-  async function encodeTransfer(
-    to: string,
-    value: number,
-  ): Promise<DataHexString> {
-    // Contract ABIs
-    const erc20ABI = ['function transfer(address to, uint256 value)']
-    const abiInterface = new ethers.Interface(erc20ABI)
-    const callData = abiInterface.encodeFunctionData('transfer', [to, value])
-    return callData
-  }
+
 
   beforeEach(async (): Promise<void> => {
     ;({ inbox, erc20, owner, solver, dstAddr } =
