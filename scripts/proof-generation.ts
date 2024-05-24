@@ -11,10 +11,10 @@ const txToProve =
 const inboxContract = '0xCfC89c06B5499ee50dfAf451078D85Ad71D76079'
 const intentHash =
   '0x4321000000000000000000000000000000000000000000000000000000000000'
-const storageSlot = hre.ethers.utils.solidityKeccak256(
+const storageSlot = hre.ethers.solidityPackedKeccak256(
   ['bytes'],
   [
-    hre.ethers.utils.defaultAbiCoder.encode(
+    hre.ethers.AbiCoder.defaultAbiCoder().encode(
       ['bytes32', 'uint256'],
       [intentHash, 0],
     ),
