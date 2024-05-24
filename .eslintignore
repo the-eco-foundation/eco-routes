@@ -5,3 +5,4 @@ coverage
 typechain-types
 dist
 templates
+*.spec.ts

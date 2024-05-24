@@ -7,7 +7,7 @@ import { Contract, ContractFactory, Signer } from 'ethers'
 export async function deploy<F extends ContractFactory>(
   from: Signer,
   FactoryType: { new (from: Signer): F },
-  params: any[] = []
+  params: any[] = [],
 ): Promise<Contract> {
   const factory = new FactoryType(from)
   const contract = await factory.deploy(...params)
