@@ -1,6 +1,6 @@
 /* -*- c-basic-offset: 4 -*- */
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.26;
 
 import "./interfaces/IIntentSource.sol";
 import "./test/IProver.sol";
@@ -37,12 +37,9 @@ contract IntentSource is IIntentSource {
      * @param _prover the prover address
      * @param _minimumDuration the minimum duration of an intent originating on this chain
      */
-    constructor(
-        address _prover,
-        uint256 _minimumDuration
-    ) {
+    constructor(address _prover, uint256 _minimumDuration) {
         CHAIN_ID = block.chainid;
-        PROVER = IProver (_prover);
+        PROVER = IProver(_prover);
         MINIMUM_DURATION = _minimumDuration;
     }
 
@@ -66,18 +63,12 @@ contract IntentSource is IIntentSource {
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime
     ) external {
-        if (
-            _targets.length == 0 ||
-            _targets.length != _data.length
-        ) {
+        if (_targets.length == 0 || _targets.length != _data.length) {
             revert CalldataMismatch();
         }
 
         uint256 len = _rewardTokens.length;
-        if (
-            len == 0 ||
-            len != _rewardAmounts.length
-        ) {
+        if (len == 0 || len != _rewardAmounts.length) {
             revert RewardsMismatch();
         }
 
@@ -101,18 +92,15 @@ contract IntentSource is IIntentSource {
         });
 
         counter += 1;
-        
-        for(uint256 i = 0; i < len; i++) {
+
+        for (uint256 i = 0; i < len; i++) {
             IERC20(_rewardTokens[i]).transferFrom(msg.sender, address(this), _rewardAmounts[i]);
         }
 
         emitIntentCreated(identifier, intents[identifier]);
     }
 
-    function emitIntentCreated(
-        bytes32 _identifier,
-        Intent memory _intent
-    ) internal {
+    function emitIntentCreated(bytes32 _identifier, Intent memory _intent) internal {
         //gets around Stack Too Deep
         //TODO: remove this, stacktoodeep is solved elsewhere
         emit IntentCreated(
@@ -133,7 +121,10 @@ contract IntentSource is IIntentSource {
         Intent storage intent = intents[_identifier];
         address provenBy = PROVER.provenIntents(intent.intentHash);
         if (!intent.hasBeenWithdrawn) {
-            if (provenBy == msg.sender || provenBy == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime) {
+            if (
+                provenBy == msg.sender
+                    || provenBy == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime
+            ) {
                 uint256 len = intent.rewardTokens.length;
                 for (uint256 i = 0; i < len; i++) {
                     IERC20(intent.rewardTokens[i]).transfer(msg.sender, intent.rewardAmounts[i]);
@@ -147,16 +138,19 @@ contract IntentSource is IIntentSource {
         revert NothingToWithdraw(_identifier);
     }
 
-    function getTargets(bytes32 identifier) public view returns(address[] memory) {
-        return intents[identifier].targets;   
+    function getTargets(bytes32 identifier) public view returns (address[] memory) {
+        return intents[identifier].targets;
     }
-    function getData(bytes32 identifier) public view returns(bytes[] memory) {
-        return intents[identifier].data;   
+
+    function getData(bytes32 identifier) public view returns (bytes[] memory) {
+        return intents[identifier].data;
     }
-    function getRewardTokens(bytes32 identifier) public view returns(address[] memory) {
-        return intents[identifier].rewardTokens;   
+
+    function getRewardTokens(bytes32 identifier) public view returns (address[] memory) {
+        return intents[identifier].rewardTokens;
     }
-    function getRewardAmounts(bytes32 identifier) public view returns(uint256[] memory) {
-        return intents[identifier].rewardAmounts;   
+
+    function getRewardAmounts(bytes32 identifier) public view returns (uint256[] memory) {
+        return intents[identifier].rewardAmounts;
     }
 }

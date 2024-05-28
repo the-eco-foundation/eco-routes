@@ -2,6 +2,8 @@ import * as dotenv from 'dotenv'
 import { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
 import '@nomicfoundation/hardhat-viem'
+import 'solidity-docgen'
+
 dotenv.config()
 const DEPLOY_PRIVATE_KEY = process.env.PRIVATE_KEY || '0x' + '11'.repeat(32) // this is to avoid hardhat error
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
@@ -168,6 +170,26 @@ const config: HardhatUserConfig = {
         },
       },
     ],
+  },
+  mocha: {
+    timeout: 50000,
+  },
+  docgen: {
+    outputDir: 'docs/solidity',
+    templates: './templates',
+    theme: 'markdown',
+    // pages: 'single',
+    // pages: 'items',
+    pages: 'files',
+    // exclude: ['governance/community'],
+    collapseNewlines: true,
+    pageExtension: '.md',
+  },
+  gasReporter: {
+    enabled: !!process.env.ENABLE_GAS_REPORT,
+    currency: 'USD',
+    gasPrice: 100,
+    outputFile: process.env.CI ? 'gas-report.txt' : undefined,
   },
 }
 

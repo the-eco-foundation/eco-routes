@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.15;
+pragma solidity ^0.8.26;
 
-import { IL1Block } from "../interfaces/IL1Block.sol";
+import {IL1Block} from "../interfaces/IL1Block.sol";
 
 /// @custom:proxied
 /// @custom:predeploy 0x4200000000000000000000000000000000000015
@@ -65,9 +65,7 @@ contract MockL1Block is IL1Block {
         bytes32 _batcherHash,
         uint256 _l1FeeOverhead,
         uint256 _l1FeeScalar
-    )
-        external override
-    {
+    ) external override {
         number = _number;
         timestamp = _timestamp;
         basefee = _basefee;
