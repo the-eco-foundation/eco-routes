@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./IProver.sol";
+import "../Prover.sol";
 
-contract TestProver is IProver {
-    mapping(bytes32 => address) public provenIntents;
+
+contract TestProver is Prover{
+
+    constructor() Prover(address(this)) {
+    }
 
     function addProvenIntent(bytes32 identifier, address withdrawableBy) public {
         provenIntents[identifier] = withdrawableBy;
     }
-
 }

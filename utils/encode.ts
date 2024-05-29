@@ -1,5 +1,5 @@
-import { DataHexString } from "ethers/lib.commonjs/utils/data"
-import { ethers } from "hardhat"
+import { DataHexString } from 'ethers/lib.commonjs/utils/data'
+import { ethers } from 'hardhat'
 
 export async function encodeTransfer(
   to: string,
