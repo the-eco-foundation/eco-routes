@@ -1,10 +1,6 @@
 /* -*- c-basic-offset: 4 -*- */
 // SPDX-License-Identifier: MIT
-<<<<<<< HEAD
-pragma solidity ^0.8.0;
-=======
 pragma solidity ^0.8.26;
->>>>>>> main
 
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
@@ -13,10 +9,6 @@ pragma solidity ^0.8.26;
  * Its counterpart is the inbox contract that lives on the destination chain.
  * This contract makes a call to the prover contract (on the source chain) in order to verify intent fulfillment.
  */
-<<<<<<< HEAD
-
-=======
->>>>>>> main
 interface IIntentSource {
     /**
      * @notice emitted on a call to withdraw() by someone who is not entitled to the rewards for a
@@ -58,13 +50,8 @@ interface IIntentSource {
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      */
-<<<<<<< HEAD
-    event IntentCreated(
-        //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
-=======
     //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
     event IntentCreated(
->>>>>>> main
         bytes32 _identifier,
         address _creator,
         uint256 indexed _destinationChain,
@@ -114,22 +101,13 @@ interface IIntentSource {
      * @param _identifier the identifier for the intent
      */
     function getTargets(bytes32 _identifier) external view returns (address[] memory);
-<<<<<<< HEAD
-    
-=======
-
->>>>>>> main
     /**
      * @notice fetches data array from intent
      * @param _identifier the identifier for the intent
      */
     function getData(bytes32 _identifier) external view returns (bytes[] memory);
 
-<<<<<<< HEAD
-        /**
-=======
     /**
->>>>>>> main
      * @notice fetches reward tokens array from intent
      * @param _identifier the identifier for the intent
      */

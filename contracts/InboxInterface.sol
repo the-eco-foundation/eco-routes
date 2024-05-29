@@ -22,7 +22,7 @@ interface InboxInterface {
     ) external returns (bytes[] memory);
 
     // Event emitted when an intent is succesfully fulfilled
-    event Fulfillment(bytes32 indexed _nonce);
+    event Fulfillment(bytes32 indexed _hash);
 
     // Event emitted when the intent can no longer be fulfilled because its timestamp has expired
     error IntentExpired();

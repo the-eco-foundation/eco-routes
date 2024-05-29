@@ -8,6 +8,8 @@ import {
 } from '@nomicfoundation/hardhat-toolbox/network-helpers'
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
 import { encodeTransfer } from '../utils/encode'
+import { AbiCoder, keccak256 } from 'ethers'
+import { encode } from 'punycode'
 
 describe('Inbox Test', (): void => {
   let inbox: Inbox
@@ -110,10 +112,7 @@ describe('Inbox Test', (): void => {
     })
 
     it('should succeed', async () => {
-      expect(await inbox.fulfilled(nonce)).to.be.deep.equal([
-        ethers.ZeroHash,
-        ethers.ZeroAddress,
-      ])
+      expect(await inbox.fulfilled(hash32)).to.equal(ethers.ZeroAddress)
       expect(await erc20.balanceOf(solver.address)).to.equal(mintAmount)
       expect(await erc20.balanceOf(dstAddr.address)).to.equal(0)
 
@@ -133,12 +132,9 @@ describe('Inbox Test', (): void => {
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-        .withArgs(nonce)
+        .withArgs(hash32)
       // should update the fulfilled hash
-      expect(await inbox.fulfilled(nonce)).to.be.deep.equal([
-        hash32,
-        dstAddr.address,
-      ])
+      expect(await inbox.fulfilled(hash32)).to.equal(dstAddr.address)
 
       // check balances
       expect(await erc20.balanceOf(solver.address)).to.equal(0)
@@ -162,7 +158,7 @@ describe('Inbox Test', (): void => {
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-        .withArgs(nonce)
+        .withArgs(hash32)
       // should revert
       await expect(
         inbox
