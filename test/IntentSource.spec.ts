@@ -98,8 +98,7 @@ describe('Intent Source Test', (): void => {
   })
 
   describe('constructor', () => {
-    it('works', async () => {
-      //   expect(true).to.eq(true)
+    it('is initialized correctly', async () => {
       expect(await intentSource.CHAIN_ID()).to.eq(
         (await ethers.provider.getNetwork()).chainId,
       )
@@ -370,8 +369,25 @@ describe('Intent Source Test', (): void => {
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
       })
       it('can be withdrawn by creator', async () => {
-        await expect(intentSource.connect(creator).withdrawRewards(identifier))
-          .to.not.be.reverted
+        const initialBalanceA = await tokenA.balanceOf(
+          await creator.getAddress(),
+        )
+        const initialBalanceB = await tokenB.balanceOf(
+          await creator.getAddress(),
+        )
+        expect((await intentSource.intents(identifier)).hasBeenWithdrawn).to.be
+          .false
+
+        await intentSource.connect(creator).withdrawRewards(identifier)
+
+        expect((await intentSource.intents(identifier)).hasBeenWithdrawn).to.be
+          .true
+        expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(
+          Number(initialBalanceA) + rewardAmounts[0],
+        )
+        expect(await tokenB.balanceOf(await creator.getAddress())).to.eq(
+          Number(initialBalanceB) + rewardAmounts[1],
+        )
       })
     })
     context('after expiry, proof', () => {
