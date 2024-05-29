@@ -78,6 +78,8 @@ package
 lib
 libTest
 
+# docs
+docs
 # Slither generated artifacts
 docs/slither/contract-summary.txt
 docs/slither/variable-order.txt
@@ -87,3 +89,5 @@ docs/slither/vulnerability.txt
 # docs/gasReport.txt
 #Deployment data
 deploy/deployments
+
+
