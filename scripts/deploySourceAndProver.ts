@@ -18,7 +18,7 @@ async function main() {
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
   const intentSource: IntentSource = await intentSourceFactory.deploy(
     await prover.getAddress(),
-    1000
+    1000,
   )
   console.log('intentSource deployed to:', await intentSource.getAddress())
 }

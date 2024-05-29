@@ -23,15 +23,6 @@ contract Inbox is InboxInterface {
         }
     }
 
-    // Check that the intent hash has not been fulfilled
-    modifier unfulfilled(bytes32 _hash) {
-        if (fulfilled[_hash] == address(0)) {
-            _;
-        } else {
-            revert IntentAlreadyFulfilled(_hash);
-        }
-    }
-
     /**
      * This function is the main entry point for fulfilling an intent. It validates that the hash is the hash of the other parameters.
      * It then calls the addresses with the calldata, and if successful marks the intent as fulfilled and emits an event.
@@ -49,7 +40,12 @@ contract Inbox is InboxInterface {
         bytes[] calldata _datas,
         uint256 _expireTimestamp,
         address _claimant
-    ) external unfulfilled(_nonce) validTimestamp(_expireTimestamp) returns (bytes[] memory) {
+    ) external validTimestamp(_expireTimestamp) returns (bytes[] memory) {
+        bytes32 intentHash = encodeHash(_nonce, _targets, _datas, _expireTimestamp);
+        // revert if intent has already been fulfilled
+        if(fulfilled[intentHash] != address(0)) {
+            revert IntentAlreadyFulfilled(intentHash);
+        }
         // Store the results of the calls
         bytes[] memory results = new bytes[](_datas.length);
         // Call the addresses with the calldata
@@ -61,7 +57,6 @@ contract Inbox is InboxInterface {
             results[i] = result;
         }
         // Mark the intent as fulfilled
-        bytes32 intentHash = encodeHash(_nonce, _targets, _datas, _expireTimestamp);
         fulfilled[intentHash] = _claimant;
 
         // Emit an event
