@@ -5,7 +5,7 @@ import "./InboxInterface.sol";
 
 /**
  * @title Inbox
- * @dev The Inbox contract is the main entry point for fulfilling an intent. 
+ * @dev The Inbox contract is the main entry point for fulfilling an intent.
  * It validates that the hash is the hash of the other parameters, and then executes the calldata.
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
@@ -19,7 +19,7 @@ contract Inbox is InboxInterface {
         bytes32 hash;
         address claimer;
     }
-    
+
     // Mapping of intent nonce on the src chain to its fulfillment
     mapping(bytes32 => IntentFulfillment) public fulfilled;
 
@@ -58,33 +58,19 @@ contract Inbox is InboxInterface {
         bytes[] calldata _datas,
         uint256 _expireTimestamp,
         address _claimer
-    )
-        external
-        unfulfilled(_nonce)
-        validTimestamp(_expireTimestamp)
-        returns (bytes[] memory)
-    {
+    ) external unfulfilled(_nonce) validTimestamp(_expireTimestamp) returns (bytes[] memory) {
         // Store the results of the calls
         bytes[] memory results = new bytes[](_datas.length);
         // Call the addresses with the calldata
         for (uint256 i = 0; i < _datas.length; i++) {
-            (bool success, bytes memory result) = _targets[i].call(
-                _datas[i]
-            );
+            (bool success, bytes memory result) = _targets[i].call(_datas[i]);
             if (!success) {
-                revert IntentCallFailed(
-                    _targets[i],
-                    _datas[i],
-                    result
-                );
+                revert IntentCallFailed(_targets[i], _datas[i], result);
             }
             results[i] = result;
         }
         // Mark the intent as fulfilled
-        fulfilled[_nonce] = IntentFulfillment(
-            encodeHash(_nonce, _targets, _datas, _expireTimestamp),
-            _claimer
-        );
+        fulfilled[_nonce] = IntentFulfillment(encodeHash(_nonce, _targets, _datas, _expireTimestamp), _claimer);
 
         // Emit an event
         emit Fulfillment(_nonce);
@@ -108,9 +94,6 @@ contract Inbox is InboxInterface {
         bytes[] calldata _callData,
         uint256 _expireTimestamp
     ) internal pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(_nonce, _callAddresses, _callData, _expireTimestamp)
-            );
+        return keccak256(abi.encode(_nonce, _callAddresses, _callData, _expireTimestamp));
     }
 }

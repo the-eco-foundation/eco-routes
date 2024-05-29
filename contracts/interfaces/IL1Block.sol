@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.15;
+pragma solidity ^0.8.26;
 
 interface IL1Block {
     /// @notice The latest L1 block number known by the L2 system.
