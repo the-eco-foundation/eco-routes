@@ -11,7 +11,7 @@ export async function deploy<F extends ContractFactory>(
 ): Promise<Contract> {
   const factory = new FactoryType(from)
   const contract = await factory.deploy(...params)
-  await contract.deployed()
+  await contract.waitForDeployment()
 
   return contract
 }

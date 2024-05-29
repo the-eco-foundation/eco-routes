@@ -51,8 +51,6 @@ describe('Inbox Test', (): void => {
     await erc20.connect(owner).transfer(await solver.getAddress(), mintAmount)
   }
 
-
-
   beforeEach(async (): Promise<void> => {
     ;({ inbox, erc20, owner, solver, dstAddr } =
       await loadFixture(deployInboxFixture))

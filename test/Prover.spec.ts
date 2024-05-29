@@ -2,8 +2,7 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deploy } from './utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { MockL1Block__factory } from '../typechain-types'
-import { Prover__factory } from '../typechain-types'
+import { MockL1Block__factory, Prover__factory } from '../typechain-types'
 
 const l2StorageProof = [
   '0xf838a120ceaa546d78134283b3b4a86b6ae3d0d57bb8166c714a3893d80b26ecd35ccb9f9594445575a842c3f13b4625f1de6b4ee96c721e580a',
@@ -125,7 +124,7 @@ const L1_BLOCK_HASH =
 
 const L1_BLOCK_NUMBER = '0x5a12ed'
 
-describe.skip('Prover Test', () => {
+describe('Prover Test', () => {
   let alice: SignerWithAddress
 
   before(async () => {
@@ -148,7 +147,9 @@ describe.skip('Prover Test', () => {
       0,
       0,
     )
-    prover = await deploy(alice, Prover__factory, [blockDataSource.address])
+    prover = await deploy(alice, Prover__factory, [
+      await blockDataSource.getAddress(),
+    ])
   })
 
   it('has the correct block hash', async () => {

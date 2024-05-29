@@ -1,6 +1,10 @@
 /* -*- c-basic-offset: 4 -*- */
 // SPDX-License-Identifier: MIT
+<<<<<<< HEAD
 pragma solidity ^0.8.0;
+=======
+pragma solidity ^0.8.26;
+>>>>>>> main
 
 struct Intent {
     // creator of the intent
