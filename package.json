@@ -49,7 +49,10 @@
     "contractSummary": "slither --print contract-summary . 2>&1 | tee ./docs/slither/contract-summary.txt",
     "deployInbox": "hardhat run --network mainnetOptimismBlockscout scripts/deploy-inbox.ts",
     "fulfillIntent": "hardhat run --network mainnetOptimismBlockscout scripts/fulfill-intent.ts",
-    "deploySourceAndProver": "hardhat run --network sepoliaOptimismBlockscout scripts/deployIntentSource.ts"
+    "deploySourceAndProver": "hardhat run --network sepoliaOptimismBlockscout scripts/deployIntentSource.ts",
+    "createIntent": "hardhat run --network sepoliaOptimismBlockscout scripts/createIntent.ts",
+    "generateProof": "hardhat run --network sepoliaOptimismBlockscout scripts/proof-generation.ts",
+    "withdrawRewards": "hardhat run --network sepoliaOptimismBlockscout scripts/withdrawRewards.ts"
   },
   "files": [
     "contracts/**.sol",

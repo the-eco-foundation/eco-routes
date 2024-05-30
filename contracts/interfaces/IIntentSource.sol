@@ -52,7 +52,7 @@ interface IIntentSource {
      */
     //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
     event IntentCreated(
-        bytes32 _hash,
+        bytes32 indexed _hash,
         address _creator,
         uint256 indexed _destinationChain,
         address[] _targets,

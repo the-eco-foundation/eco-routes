@@ -52,7 +52,12 @@ async function main() {
     )
 
     console.log('successful intent creation: ', tx)
-    console.log('nonce at: ')
+    console.log(
+      'event: ',
+      (
+        await intentSource.queryFilter(intentSource.getEvent('IntentCreated'))
+      )[0],
+    )
   } catch (e) {
     console.log(e)
   }
