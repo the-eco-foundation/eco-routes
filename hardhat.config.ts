@@ -3,7 +3,7 @@ import { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
 import '@nomicfoundation/hardhat-viem'
 import 'solidity-docgen'
-import 'hardhat-change-network'
+import './utils/changeNetwork'
 dotenv.config()
 const DEPLOY_PRIVATE_KEY = process.env.PRIVATE_KEY || '0x' + '11'.repeat(32) // this is to avoid hardhat error
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
@@ -86,6 +86,11 @@ const config: HardhatUserConfig = {
     ethMainnet: {
       chainId: 1,
       url: `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      accounts: [DEPLOY_PRIVATE_KEY],
+    },
+    sepolia: {
+      chainId: 11155111,
+      url: `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOY_PRIVATE_KEY],
     },
   },
