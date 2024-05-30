@@ -254,6 +254,7 @@ describe('Intent Source Test', (): void => {
           rewardTokens,
           rewardAmounts,
           expiry,
+          nonce,
         )
     })
   })

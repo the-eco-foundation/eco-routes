@@ -111,7 +111,8 @@ contract IntentSource is IIntentSource {
             _intent.data,
             _intent.rewardTokens,
             _intent.rewardAmounts,
-            _intent.expiryTime
+            _intent.expiryTime,
+            _intent.nonce
         );
     }
 
