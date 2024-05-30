@@ -66,29 +66,6 @@ describe('Intent Source Test', (): void => {
     await tokenB.connect(creator).approve(intentSource, mintAmount * 2)
   }
 
-  //   async function encodeIdentifier(
-  //     counter: number,
-  //     chainid: NumberLike,
-  //   ): Promise<DataHexString> {
-  //     const abiCoder = ethers.AbiCoder.defaultAbiCoder()
-  //     const encodedData = abiCoder.encode(
-  //       ['uint256', 'uint256'],
-  //       [counter, chainid],
-  //     )
-  //     return keccak256(encodedData)
-  //   }
-
-  //   async function encodeTransfer(
-  //     to: string,
-  //     value: number,
-  //   ): Promise<DataHexString> {
-  //     // Contract ABIs
-  //     const erc20ABI = ['function transfer(address to, uint256 value)']
-  //     const abiInterface = new ethers.Interface(erc20ABI)
-  //     const callData = abiInterface.encodeFunctionData('transfer', [to, value])
-  //     return callData
-  //   }
-
   beforeEach(async (): Promise<void> => {
     ;({ intentSource, tokenA, tokenB, creator, solver } =
       await loadFixture(deploySourceFixture))

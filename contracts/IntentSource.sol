@@ -76,10 +76,10 @@ contract IntentSource is IIntentSource {
             revert ExpiryTooSoon();
         }
 
-        bytes32 identifier = keccak256(abi.encode(counter, CHAIN_ID));
-        bytes32 intentHash = keccak256(abi.encode(identifier, _targets, _data, _expiryTime));
+        bytes32 _nonce = keccak256(abi.encode(counter, CHAIN_ID));
+        bytes32 intentHash = keccak256(abi.encode(_nonce, _targets, _data, _expiryTime));
 
-        intents[identifier] = Intent({
+        intents[intentHash] = Intent({
             creator: msg.sender,
             destinationChain: _destinationChain,
             targets: _targets,
@@ -88,7 +88,7 @@ contract IntentSource is IIntentSource {
             rewardAmounts: _rewardAmounts,
             expiryTime: _expiryTime,
             hasBeenWithdrawn: false,
-            intentHash: intentHash
+            nonce: _nonce
         });
 
         counter += 1;
@@ -97,14 +97,14 @@ contract IntentSource is IIntentSource {
             IERC20(_rewardTokens[i]).transferFrom(msg.sender, address(this), _rewardAmounts[i]);
         }
 
-        emitIntentCreated(identifier, intents[identifier]);
+        emitIntentCreated(intentHash, intents[intentHash]);
     }
 
-    function emitIntentCreated(bytes32 _identifier, Intent memory _intent) internal {
+    function emitIntentCreated(bytes32 _hash, Intent memory _intent) internal {
         //gets around Stack Too Deep
         //TODO: remove this, stacktoodeep is solved elsewhere
         emit IntentCreated(
-            _identifier,
+            _hash,
             msg.sender,
             _intent.destinationChain,
             _intent.targets,
@@ -113,13 +113,11 @@ contract IntentSource is IIntentSource {
             _intent.rewardAmounts,
             _intent.expiryTime
         );
-        // emit IntentCreatedRequirements(_identifier, msg.sender, _intent.destinationChain, _intent.targets, _intent.data);
-        // emit IntentCreatedRewards(_identifier, _intent.rewardTokens, _intent.rewardAmounts, _intent.expiryTime);
     }
 
-    function withdrawRewards(bytes32 _identifier) external {
-        Intent storage intent = intents[_identifier];
-        address provenBy = PROVER.provenIntents(intent.intentHash);
+    function withdrawRewards(bytes32 _hash) external {
+        Intent storage intent = intents[_hash];
+        address provenBy = PROVER.provenIntents(_hash);
         if (!intent.hasBeenWithdrawn) {
             if (
                 provenBy == msg.sender
@@ -130,27 +128,27 @@ contract IntentSource is IIntentSource {
                     IERC20(intent.rewardTokens[i]).transfer(msg.sender, intent.rewardAmounts[i]);
                 }
                 intent.hasBeenWithdrawn = true;
-                emit Withdrawal(_identifier, msg.sender);
+                emit Withdrawal(_hash, msg.sender);
                 return;
             }
-            revert UnauthorizedWithdrawal(_identifier);
+            revert UnauthorizedWithdrawal(_hash);
         }
-        revert NothingToWithdraw(_identifier);
+        revert NothingToWithdraw(_hash);
     }
 
-    function getTargets(bytes32 identifier) public view returns (address[] memory) {
-        return intents[identifier].targets;
+    function getTargets(bytes32 hash) public view returns (address[] memory) {
+        return intents[hash].targets;
     }
 
-    function getData(bytes32 identifier) public view returns (bytes[] memory) {
-        return intents[identifier].data;
+    function getData(bytes32 hash) public view returns (bytes[] memory) {
+        return intents[hash].data;
     }
 
-    function getRewardTokens(bytes32 identifier) public view returns (address[] memory) {
-        return intents[identifier].rewardTokens;
+    function getRewardTokens(bytes32 hash) public view returns (address[] memory) {
+        return intents[hash].rewardTokens;
     }
 
-    function getRewardAmounts(bytes32 identifier) public view returns (uint256[] memory) {
-        return intents[identifier].rewardAmounts;
+    function getRewardAmounts(bytes32 hash) public view returns (uint256[] memory) {
+        return intents[hash].rewardAmounts;
     }
 }
