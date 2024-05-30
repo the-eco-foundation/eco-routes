@@ -9,11 +9,12 @@ import { encodeTransfer } from '../utils/encode'
 import { AddressLike, BigNumberish, BytesLike } from 'ethers'
 
 // called from op sepolia
-const intentSourceAddress = ''
+const intentSourceAddress = '0x141847b34250441dCC1a19445Aaea44F8A1e8f9b'
 const destChainID: BigNumberish = 84532 // base sepolia
-const target = '0xAb1D243b07e99C91dE9E4B80DFc2B07a8332A2f7' // base sepolia usdc
-const destAddress = '0xCd80B973e7CBB93C21Cc5aC0A5F45D12A32582aa'
-const rewardTokenAddress = '0x00D2d1162c689179e8bA7a3b936f80A010A0b5CF' // optimism sepolia usdc
+const target = '0xAb1D243b07e99C91dE9E4B80DFc2B07a8332A2f7'.toLowerCase() // base sepolia usdc
+const destAddress = '0xCd80B973e7CBB93C21Cc5aC0A5F45D12A32582aa'.toLowerCase()
+const rewardTokenAddress =
+  '0x00D2d1162c689179e8bA7a3b936f80A010A0b5CF'.toLowerCase() // optimism sepolia usdc
 const amt = 1234
 const duration = 3600 // 1 hour
 
@@ -51,12 +52,12 @@ async function main() {
       expiryTime,
     )
 
-    console.log('successful intent creation: ', tx)
+    console.log('successful intent creation: ', tx.hash)
     console.log(
       'event: ',
       (
         await intentSource.queryFilter(intentSource.getEvent('IntentCreated'))
-      )[0],
+      )[0].topics[1],
     )
   } catch (e) {
     console.log(e)
