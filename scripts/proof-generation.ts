@@ -6,9 +6,9 @@ const PRIVATE_KEY = process.env.DEPLOY_PRIVATE_KEY || ''
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 const L1_NETWORK = 'sepolia'
 const L1Provider = new AlchemyProvider(L1_NETWORK, ALCHEMY_API_KEY)
+const L1signer: Signer = new Wallet(PRIVATE_KEY, L1Provider)
 const L2_NETWORK = 'base-sepolia'
 const L2Provider = new AlchemyProvider(L2_NETWORK, ALCHEMY_API_KEY)
-const L1signer: Signer = new Wallet(PRIVATE_KEY, L1Provider)
 const L2signer: Signer = new Wallet(PRIVATE_KEY, L2Provider)
 
 console.log(PRIVATE_KEY)
@@ -33,31 +33,32 @@ const storageSlot = hre.ethers.solidityPackedKeccak256(
 
 async function main() {
   // hre.changeNetwork(L2_NETWORK)
-  const txDetails = L2Provider.getTransaction(txToProve)
+  const txDetails = await L2Provider.getTransaction(txToProve)
   // console.log(hre.ethers.provider)
-  // console.log(txDetails)
+  console.log(txDetails)
   const txBlock = txDetails.blockNumber
 
   // await hre.changeNetwork(L1_NETWORK)
   // console.log(hre.ethers.provider)
   // const baseOutputContract = hre.ethers.ContractFactory.fromSolidity(
-  const baseOutputContract = hre.ethers.ContractFactory.fromSolidity(
+  const baseOutputContract = await hre.ethers.ContractFactory.fromSolidity(
     L2OutputArtifact,
     L1signer,
-  )
-    // (await hre.ethers.getSigners())[0],
-    .attach(baseOutputContractAddress)
+  ).attach(baseOutputContractAddress)
   console.log('here now')
-  console.log(L1signer)
-  console.log(baseOutputContract)
-  const outputIndex =
-    await baseOutputContract.functions.getL2OutputIndexAfter(txBlock)
-  const outputData = (
-    await baseOutputContract.functions.getL2OutputAfter(txBlock)
-  )[0]
-  const l2EndBatchBlock = outputData.l2BlockNumber.toHexString()
+  // console.log(L1signer)
+  // console.log(baseOutputContract)
+  const outputIndex = await baseOutputContract.getL2OutputIndexAfter(txBlock)
+  console.log(outputIndex)
+  const outputData = await baseOutputContract.getL2OutputAfter(txBlock)
+  console.log('outputData: %s', outputData)
+  // console.log(JSON.stringify(outputData))
+  // const l2EndBatchBlock = outputData.l2BlockNumber.toHexString()
+  const l2EndBatchBlock = outputData.l2BlockNumber
+  console.log(l2EndBatchBlock)
   // eslint-disable-next-line no-unused-vars
   const outputRoot = outputData.outputRoot
+  console.log(outputRoot)
 
   await hre.changeNetwork(L2_NETWORK)
   const l2OutputStorageRoot = (
