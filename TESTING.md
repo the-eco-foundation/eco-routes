@@ -61,3 +61,22 @@ T
 
 1. Intent Creation
 2. Claw Back Funds
+
+## Appendix A - L2StateProof
+
+The following gives a walkthrough of proving an L2 State Root from Base Sepolia using
+the function `proveOutputRoot` on `Prover.sol`
+
+This proves the state root for an intent which was solved with transaction
+[0xd204719a950d76039da2ce6e91f12085afc66541a3c37626d187a98e592a4f48](https://sepolia-optimism.etherscan.io/tx/0xd204719a950d76039da2ce6e91f12085afc66541a3c37626d187a98e592a4f48)
+
+## Input Parameters
+
+- `bytes32 l2WorldStateRoot,`
+- bytes32 l2MessagePasserStateRoot,
+- bytes32 l2LatestBlockHash,
+- uint256 l2OutputIndex,
+- bytes[] calldata l1StorageProof,
+- bytes calldata rlpEncodedOutputOracleData,
+- bytes[] calldata l1AccountProof,
+- bytes32 l1WorldStateRoot
