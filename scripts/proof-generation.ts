@@ -47,11 +47,9 @@ async function main() {
   const outputIndex = await baseOutputContract.getL2OutputIndexAfter(txBlock)
   const outputData = await baseOutputContract.getL2OutputAfter(txBlock)
   const l2EndBatchBlock = hexlify(toBytes(outputData.l2BlockNumber))
-  console.log(l2EndBatchBlock)
 
   // eslint-disable-next-line no-unused-vars
   const outputRoot = outputData.outputRoot
-  console.log(outputRoot)
 
   const l2OutputStorageRoot = (
     await L2Provider.send('eth_getBlockByNumber', [l2EndBatchBlock, false])
@@ -67,23 +65,24 @@ async function main() {
       ? '0x'
       : // eslint-disable-next-line no-self-compare
         proof.balance.length & (1 === 1)
-        ? hre.ethers.utils.hexZeroPad(proof.balance, 1)
+        ? hre.ethers.zeroPadValue(toBytes(proof.balance), 1)
         : proof.balance
   const nonce =
     proof.nonce === '0x0'
       ? '0x'
       : // eslint-disable-next-line no-self-compare
         proof.nonce.length & (1 === 1)
-        ? hre.ethers.utils.hexZeroPad(proof.nonce, 1)
+        ? hre.ethers.zeroPadValue(toBytes(proof.nonce), 1)
         : proof.nonce
 
   const proveIntentParams = [
     proof.storageProof[0].value,
     inboxContract,
     intentHash,
-    outputIndex - 1, // see comment in contract
+    Number(outputIndex) - 1, // see comment in contract
     proof.storageProof[0].proof,
-    hre.ethers.utils.RLP.encode([
+    hre.ethers.encodeRlp([
+      // hre.ethers.utils.RLP.encode([
       nonce,
       balance,
       proof.storageHash,
