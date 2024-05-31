@@ -35,15 +35,10 @@ async function main() {
   // console.log(hre.ethers.provider)
   const txBlock = txDetails!.blockNumber
 
-  // await hre.changeNetwork(L1_NETWORK)
-  // console.log(hre.ethers.provider)
-  // const baseOutputContract = hre.ethers.ContractFactory.fromSolidity(
   const baseOutputContract = await hre.ethers.ContractFactory.fromSolidity(
     L2OutputArtifact,
     L1signer,
   ).attach(baseOutputContractAddress)
-  // console.log(L1signer)
-  // console.log(baseOutputContract)
   const outputIndex = await baseOutputContract.getL2OutputIndexAfter(txBlock)
   const outputData = await baseOutputContract.getL2OutputAfter(txBlock)
   const l2EndBatchBlock = hexlify(toBytes(outputData.l2BlockNumber))
@@ -81,26 +76,13 @@ async function main() {
     intentHash,
     Number(outputIndex) - 1, // see comment in contract
     proof.storageProof[0].proof,
-    hre.ethers.encodeRlp([
-      // hre.ethers.utils.RLP.encode([
-      nonce,
-      balance,
-      proof.storageHash,
-      proof.codeHash,
-    ]),
+    hre.ethers.encodeRlp([nonce, balance, proof.storageHash, proof.codeHash]),
     proof.accountProof,
     l2OutputStorageRoot,
   ]
   console.log(proveIntentParams)
 
-  const timestamp = Date.now()
-  //   writeFileSync(
-  //     `output/proofGenerationOutput_${timestamp}.txt`,
-  //     JSON.stringify(proveIntentParams),
-  //     {
-  //       flag: 'w',
-  //     },
-  //   )
+  // const timestamp = Date.now()
   writeFile(
     `output/proofGenerationOutput.json`,
     JSON.stringify(proveIntentParams),
