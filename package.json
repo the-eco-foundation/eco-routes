@@ -52,6 +52,7 @@
     "deploySourceAndProver": "hardhat run --network sepoliaOptimismBlockscout scripts/deploySourceAndProver.ts",
     "createIntent": "hardhat run --network sepoliaOptimismBlockscout scripts/createIntent.ts",
     "generateProof": "hardhat run --network sepoliaOptimismBlockscout scripts/proof-generation.ts",
+    "proveIntent": "hardhat run --network sepoliaOptimismBlockscout scripts/proveIntent.ts",
     "withdrawRewards": "hardhat run --network sepoliaOptimismBlockscout scripts/withdrawRewards.ts"
   },
   "files": [

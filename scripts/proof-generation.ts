@@ -2,6 +2,7 @@ import hre from 'hardhat'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
 import { AlchemyProvider, Wallet, Signer, hexlify } from 'ethers'
 import { toBytes } from 'viem'
+import { writeFile } from 'fs'
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || ''
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
@@ -10,7 +11,6 @@ const L1Provider = new AlchemyProvider(L1_NETWORK, ALCHEMY_API_KEY)
 const L1signer: Signer = new Wallet(PRIVATE_KEY, L1Provider)
 const L2_NETWORK = 'base-sepolia'
 const L2Provider = new AlchemyProvider(L2_NETWORK, ALCHEMY_API_KEY)
-const L2signer: Signer = new Wallet(PRIVATE_KEY, L2Provider)
 
 const baseOutputContractAddress = '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254' // sepolia address
 
@@ -92,6 +92,22 @@ async function main() {
     l2OutputStorageRoot,
   ]
   console.log(proveIntentParams)
+
+  const timestamp = Date.now()
+  //   writeFileSync(
+  //     `output/proofGenerationOutput_${timestamp}.txt`,
+  //     JSON.stringify(proveIntentParams),
+  //     {
+  //       flag: 'w',
+  //     },
+  //   )
+  writeFile(
+    `output/proofGenerationOutput.json`,
+    JSON.stringify(proveIntentParams),
+    (error) => {
+      if (error) throw error
+    },
+  )
 }
 
 main().catch((error) => {
