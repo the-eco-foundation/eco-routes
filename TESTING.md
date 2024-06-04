@@ -28,24 +28,49 @@ It runs through two use cases
 
 ### Funding
 
+For Testing wallets will need ETH and USDC. USDC Testned Addresses can be found [here](https://developers.circle.com/stablecoins/docs/usdc-on-test-networks) and the faucet is [here](https://faucet.circle.com/). Note for Testnet ETH most faucets require a mainnet balance of ETH, so reach out internally and colleagues may be able to transfer ETH to you.
+
 The following wallets should be funded for end to end testing.
 
-- Deployment Wallet
-- Intent Creator
-- Solver
-- Prover
+- Deployment Wallet - 0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4
+  - Base Sepoli - ETH
+  - Optimism Sepolia - ETH
+- Intent Creator - 0x448729e46C442B55C43218c6DB91c4633D36dFC0
+  - Optimism Sepolia - ETH, USDC
+- Solver - 0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E
+  - Base Sepolia - ETH, USDC
+- Prover - 0x923d4fDfD0Fb231FDA7A71545953Acca41123652
+  - Optimism Sepolia - ETH
 
 ### Existing Contracts
 
 The following existing contracts should be identified
 
-- USDC on both Optimism and Sepolia
-- L2OutputOracle on Sepolia
-  - [0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254](https://sepolia.etherscan.io/address/0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254#readProxyContract)
+- USDC on both Optimism and Base Sepolia
+
+  - Optimism Sepolia - [0x5fd84259d66Cd46123540766Be93DFE6D43130D7](https://sepolia-optimism.etherscan.io/address/0x5fd84259d66Cd46123540766Be93DFE6D43130D7)
+  - Base Sepolia - [0x036CbD53842c5426634e7929541eC2318f3dCF7e](https://base-sepolia.blockscout.com/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e)
+
+- [Optimsim System Contracts](https://docs.optimism.io/chain/addresses)
+
+  - L2OutputOracle on Sepolia
+    - [0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254](https://sepolia.etherscan.io/address/0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254#readProxyContract)
+
+- [Base System Contracts](https://docs.base.org/docs/base-contracts)
 
 ## Deployment
 
-T
+The following scripts are setup for Deployment
+
+Source Chain (Optimism Sepolia)
+
+- [deploySourceAndProver.ts](https://github.com/eco/ecoism/blob/main/scripts/deploySourceAndProver.ts): Deploys [Prover.sol](https://github.com/eco/ecoism/blob/main/contracts/Prover.sol) and [IntentSource.sol](https://github.com/eco/ecoism/blob/main/contracts/IntentSource.sol)
+
+Destination Chain (Base Sepolia)
+
+- [deploy-inbox.ts](https://github.com/eco/ecoism/blob/main/scripts/deploy-inbox.ts): Deploys [Inbox.sol](https://github.com/eco/ecoism/blob/main/contracts/Inbox.sol)
+
+### Verification
 
 ## End to End Testing
 
@@ -56,6 +81,12 @@ T
 3. Proof Generation
 4. Prover Update
 5. Claim Rewards
+
+```bash
+# Intent creation
+yarn createIntent
+
+```
 
 ### Positive Walkthrough Clawback
 
