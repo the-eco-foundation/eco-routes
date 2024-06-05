@@ -6,7 +6,7 @@ import { Prover, Prover__factory } from '../typechain-types'
 const pk = process.env.PRIVATE_KEY || ''
 const apikey = process.env.ALCHEMY_API_KEY || ''
 
-const blockNumber = numberToHex(9934320)
+const blockNumber = numberToHex(5903085)
 // const hexBlockNumber = hexlify(blockNumber)
 const L1RPCURL = 'https://eth-sepolia.g.alchemy.com/v2/'
 const baseRPCURL = 'https://base-sepolia.g.alchemy.com/v2/'
@@ -36,6 +36,15 @@ async function proveOutputRoot() {
   //     [],
   //     L1SubmissionBlock,
   //   ])
+  const storageSlot = hre.ethers.solidityPackedKeccak256(
+    ['bytes'],
+    [
+      hre.ethers.AbiCoder.defaultAbiCoder().encode(
+        ['bytes32', 'uint256'],
+        [intentHash, 0],
+      ),
+    ],
+  )
   const proofOutput = await baseProvider.send('eth_getProof', [
     L2toL1MessagePasser,
     [],
