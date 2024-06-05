@@ -6,10 +6,11 @@ import { Prover, Prover__factory } from '../typechain-types'
 const pk = process.env.PRIVATE_KEY || ''
 const apikey = process.env.ALCHEMY_API_KEY || ''
 
-const blockNumber = '0x5a12ed'
+const blockNumber = process.env.FULFILLMENT_BLOCK_NUMBER || '0x5a12ed'
 const L1RPCURL = 'https://eth-sepolia.g.alchemy.com/v2/'
 const L2RPCURL = 'https://opt-sepolia.g.alchemy.com/v2/'
-const proverAddress = '0xBA820f11f874D39d8bc6097F051Fc7A238b62f0e'
+const proverAddress =
+  process.env.PROVER_ADDRESS || '0xBA820f11f874D39d8bc6097F051Fc7A238b62f0e'
 
 async function proveL1WorldState(_blockNumber: string) {
   const L1provider: Provider = ethers.getDefaultProvider(L1RPCURL + apikey)
@@ -21,6 +22,7 @@ async function proveL1WorldState(_blockNumber: string) {
     _blockNumber,
     false,
   ])
+  console.log('Block:', block)
   let blockData = assembleBlockData(block)
   blockData = await cleanBlockData(blockData)
 
@@ -75,6 +77,8 @@ function cleanBlockData(blockData) {
   const indicesToCheck = [7, 8, 9, 10, 11, 14, 15, 17, 18]
   for (let i = 0; i < indicesToCheck.length; i++) {
     const index = indicesToCheck[i]
+    console.log('index:', index)
+    console.log('blockData[index]', blockData[index])
     blockData[index] =
       blockData[index] === '0x0'
         ? '0x'
@@ -89,5 +93,4 @@ function cleanBlockData(blockData) {
   return blockData
 }
 
-
-// proveL1WorldState(blockNumber)
+proveL1WorldState(blockNumber)
