@@ -1,4 +1,4 @@
-import { ethers } from 'hardhat'
+import { ethers, run } from 'hardhat'
 import { Inbox } from '../typechain-types'
 
 async function main() {
@@ -8,6 +8,11 @@ async function main() {
 
   const inbox: Inbox = await inboxFactory.deploy()
   console.log('Inbox deployed to:', await inbox.getAddress())
+
+  await run('verify:verify', {
+    address: await inbox.getAddress(),
+    constructorArguments: [],
+  })
 }
 
 main().catch((error) => {

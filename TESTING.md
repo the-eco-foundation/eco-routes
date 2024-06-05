@@ -66,11 +66,52 @@ Source Chain (Optimism Sepolia)
 
 - [deploySourceAndProver.ts](https://github.com/eco/ecoism/blob/main/scripts/deploySourceAndProver.ts): Deploys [Prover.sol](https://github.com/eco/ecoism/blob/main/contracts/Prover.sol) and [IntentSource.sol](https://github.com/eco/ecoism/blob/main/contracts/IntentSource.sol)
 
+```bash
+ecoism (ECO-1885-JW-TEST)$ yarn deploySourceAndProver
+yarn run v1.22.22
+$ hardhat run --network sepoliaOptimismBlockscout scripts/deploySourceAndProver.ts
+Deploying contracts with the account: 0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4
+prover deployed to: 0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3
+Successfully submitted source code for contract
+contracts/Prover.sol:Prover at 0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3
+for verification on the block explorer. Waiting for verification result...
+
+Successfully verified contract Prover on the block explorer.
+https://optimism-sepolia.blockscout.com/address/0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3#code
+
+intentSource deployed to: 0xdcF77d6a12Dfc717D43c941F9026105E7092e534
+Successfully submitted source code for contract
+contracts/IntentSource.sol:IntentSource at 0xdcF77d6a12Dfc717D43c941F9026105E7092e534
+for verification on the block explorer. Waiting for verification result...
+
+Successfully verified contract IntentSource on the block explorer.
+https://optimism-sepolia.blockscout.com/address/0xdcF77d6a12Dfc717D43c941F9026105E7092e534#code
+```
+
 Destination Chain (Base Sepolia)
 
 - [deploy-inbox.ts](https://github.com/eco/ecoism/blob/main/scripts/deploy-inbox.ts): Deploys [Inbox.sol](https://github.com/eco/ecoism/blob/main/contracts/Inbox.sol)
 
+```bash
+ecoism (ECO-1885-JW-TEST)$ yarn deployInbox
+yarn run v1.22.22
+$ hardhat run --network baseSepolia scripts/deployInbox.ts
+Deploying contracts with the account: 0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4
+Inbox deployed to: 0x4520be39A6E407B0313042Efb05323efB76B506a
+The contract 0x4520be39A6E407B0313042Efb05323efB76B506a has already been verified on the block explorer. If you're trying to verify a partially verified contract, please use the --force flag.
+https://sepolia.basescan.org/address/0x4520be39A6E407B0313042Efb05323efB76B506a#code
+```
+
 ### Verification
+
+The following commands will verify the contracts
+
+```bash
+# verify Optimism Sepolia Intent Source
+npx hardhat verify --network sepoliaOptimismBlockscout "0xAca455CCfbE4F02b2091413ECe0EF2424eb8D6fb"
+# verify Optimsim Sepolia Prover
+npx hardhat verify --network sepoliaOptimismBlockscout 0x84b9b3521b20E4dCF10e743548362df09840D202 "
+```
 
 ## End to End Testing
 
