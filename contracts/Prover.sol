@@ -80,7 +80,17 @@ contract Prover {
 
         provenL1States[l1WorldStateRoot] = l1BlockhashOracle.number();
     }
-
+    /** 
+     * @notice (still formulating exactly what this does)
+     * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
+     * @param l2MessagePasserStateRoot
+     * @param l2LatestBlockHash the hash of the last block in the batch
+     * @param l2OutputIndex the batch number
+     * @param l1StorageProof
+     * @param rlpEncodedOutputOracleData
+     * @param l1AccountProof
+     * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
+     */
     function proveOutputRoot(
         bytes32 l2WorldStateRoot,
         bytes32 l2MessagePasserStateRoot,
