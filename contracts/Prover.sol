@@ -143,11 +143,11 @@ contract Prover {
     * @param claimant the address that can claim the reward
     * @param inboxContract the address of the inbox contract
     * @param intentHash the intent hash
-    * @param intentOutputIndex
-    * @param l2StorageProof
-    * @param rlpEncodedInboxData
-    * @param l2AccountProof
-    * @param l2WorldStateRoot
+    * @param intentOutputIndex todo
+    * @param l2StorageProof todo
+    * @param rlpEncodedInboxData todo
+    * @param l2AccountProof todo 
+    * @param l2WorldStateRoot todo
     */
     function proveIntent(
         address claimant,

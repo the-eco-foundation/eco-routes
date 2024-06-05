@@ -54,7 +54,7 @@
     "generateProof": "hardhat run --network sepoliaOptimismBlockscout scripts/proofGeneration.ts",
     "proveIntent": "hardhat run --network sepoliaOptimismBlockscout scripts/proveIntent.ts",
     "withdrawRewards": "hardhat run --network sepoliaOptimismBlockscout scripts/withdrawRewards.ts",
-    "proveL1WorldState": "hardhat run scripts/proverPrep.ts",
+    "proveL1WorldState": "hardhat run scripts/proveL1WorldState.ts",
     "proveOutputRoot": "hardhat run scripts/proveOutputRoot.ts"
   },
   "files": [
