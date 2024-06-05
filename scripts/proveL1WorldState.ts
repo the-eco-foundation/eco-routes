@@ -33,6 +33,7 @@ async function proveL1WorldState(_blockNumber: string) {
       await prover.rlpEncodeDataLibList(blockData),
     )
     await tx.wait()
+    console.log(`proven L1 world state root: ${blockData[3]}`)
   } catch (e) {
     console.log(e)
   }
@@ -88,4 +89,5 @@ function cleanBlockData(blockData) {
   return blockData
 }
 
-proveL1WorldState(blockNumber)
+
+// proveL1WorldState(blockNumber)
