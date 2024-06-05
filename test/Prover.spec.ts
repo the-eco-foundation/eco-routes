@@ -47,11 +47,12 @@ const l2ContractData = [
   '0xe7560e2b071e0e66064efb4e4076a1b250386cb69b41c2da0bf1ba223e748e46',
 ]
 
+// from eth_getProof(L2OutputOracle, [], the block in which fill tx data was submitted to L1 --> numberToHex(5897036))
 const l1ContractData = [
-  '0x01',
-  '0x',
-  '0x4d14fc0663fc0c255a3fa651f29eab4745b50a9eb24c0da64c765a8d69de21d4',
-  '0xfa8c9db6c6cab7108dea276f4cd09d575674eb0852c0fa3187e59e98ef977998',
+  '0x01', // nonce
+  '0x', // balance
+  '0x4d14fc0663fc0c255a3fa651f29eab4745b50a9eb24c0da64c765a8d69de21d4', // unsure
+  '0xfa8c9db6c6cab7108dea276f4cd09d575674eb0852c0fa3187e59e98ef977998', // codehash
 ]
 // L1 blockdata
 const blockData = [

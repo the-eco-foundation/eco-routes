@@ -13,6 +13,7 @@ contract Prover {
 
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
+    // L2OutputOracle on Sepolia Eth
     address public constant L1_OUTPUT_ORACLE_ADDRESS = 0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block. 
@@ -83,12 +84,12 @@ contract Prover {
     /** 
      * @notice (still formulating exactly what this does)
      * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
-     * @param l2MessagePasserStateRoot
+     * @param l2MessagePasserStateRoot todo
      * @param l2LatestBlockHash the hash of the last block in the batch
      * @param l2OutputIndex the batch number
-     * @param l1StorageProof
-     * @param rlpEncodedOutputOracleData
-     * @param l1AccountProof
+     * @param l1StorageProof todo
+     * @param rlpEncodedOutputOracleData todo
+     * @param l1AccountProof todo
      * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
      */
     function proveOutputRoot(
