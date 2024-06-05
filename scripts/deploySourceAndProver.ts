@@ -5,7 +5,7 @@ import { IntentSource, Prover } from '../typechain-types'
 
 const pk = process.env.PRIVATE_KEY || ''
 const apikey = process.env.ALCHEMY_API_KEY || ''
-const l1BlockAddress = process.env.L1BLOCK || ''
+const l1BlockAddress = process.env.L1BLOCK_ADDRESS || ''
 
 async function main() {
   const [deployer] = await ethers.getSigners()

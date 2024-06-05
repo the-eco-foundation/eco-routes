@@ -12,6 +12,7 @@ const L1signer: Signer = new Wallet(PRIVATE_KEY, L1Provider)
 const L2_NETWORK = 'base-sepolia'
 const L2Provider = new AlchemyProvider(L2_NETWORK, ALCHEMY_API_KEY)
 
+// L2OutputOracle on L1
 const baseOutputContractAddress = '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254' // sepolia address
 
 // Albert Original
@@ -26,8 +27,11 @@ const txToProve =
   '0x60a200bc0d29f1fe6e7c64a51f48d417a1a8d76c5ed7740e03207d46ecf193ee'
 const inboxContract = '0xa506283526A6948619Ac101f0ee7d21a86FcBEDA'
 const intentHash =
-  '0xaac8c197b419c8be5545949d5a1a6dc3514dd018dabd603f0e3c9006dec55105'
+  '0x4321000000000000000000000000000000000000000000000000000000000000'
 
+// storage location on inbox contract.
+// fulfilled intents mapping is at the top of the contract --> 0
+// which information are we seeking in that mapping --> intentHash
 const storageSlot = hre.ethers.solidityPackedKeccak256(
   ['bytes'],
   [

@@ -71,21 +71,23 @@ ecoism (ECO-1885-JW-TEST)$ yarn deploySourceAndProver
 yarn run v1.22.22
 $ hardhat run --network sepoliaOptimismBlockscout scripts/deploySourceAndProver.ts
 Deploying contracts with the account: 0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4
-prover deployed to: 0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3
+prover deployed to: 0x653f38527B6271F8624316B92b4BaA2B06D1aa57
 Successfully submitted source code for contract
-contracts/Prover.sol:Prover at 0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3
+contracts/Prover.sol:Prover at 0x653f38527B6271F8624316B92b4BaA2B06D1aa57
 for verification on the block explorer. Waiting for verification result...
 
 Successfully verified contract Prover on the block explorer.
-https://optimism-sepolia.blockscout.com/address/0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3#code
+https://optimism-sepolia.blockscout.com/address/0x653f38527B6271F8624316B92b4BaA2B06D1aa57#code
 
-intentSource deployed to: 0xdcF77d6a12Dfc717D43c941F9026105E7092e534
+intentSource deployed to: 0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46
 Successfully submitted source code for contract
-contracts/IntentSource.sol:IntentSource at 0xdcF77d6a12Dfc717D43c941F9026105E7092e534
+contracts/IntentSource.sol:IntentSource at 0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46
 for verification on the block explorer. Waiting for verification result...
 
 Successfully verified contract IntentSource on the block explorer.
-https://optimism-sepolia.blockscout.com/address/0xdcF77d6a12Dfc717D43c941F9026105E7092e534#code
+https://optimism-sepolia.blockscout.com/address/0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46#code
+
+✨  Done in 30.85s.
 ```
 
 Destination Chain (Base Sepolia)
@@ -97,20 +99,11 @@ ecoism (ECO-1885-JW-TEST)$ yarn deployInbox
 yarn run v1.22.22
 $ hardhat run --network baseSepolia scripts/deployInbox.ts
 Deploying contracts with the account: 0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4
-Inbox deployed to: 0x4520be39A6E407B0313042Efb05323efB76B506a
-The contract 0x4520be39A6E407B0313042Efb05323efB76B506a has already been verified on the block explorer. If you're trying to verify a partially verified contract, please use the --force flag.
-https://sepolia.basescan.org/address/0x4520be39A6E407B0313042Efb05323efB76B506a#code
-```
+Inbox deployed to: 0x84b9b3521b20E4dCF10e743548362df09840D202
+The contract 0x84b9b3521b20E4dCF10e743548362df09840D202 has already been verified on the block explorer. If you're trying to verify a partially verified contract, please use the --force flag.
+https://sepolia.basescan.org/address/0x84b9b3521b20E4dCF10e743548362df09840D202#code
 
-### Verification
-
-The following commands will verify the contracts
-
-```bash
-# verify Optimism Sepolia Intent Source
-npx hardhat verify --network sepoliaOptimismBlockscout "0xAca455CCfbE4F02b2091413ECe0EF2424eb8D6fb"
-# verify Optimsim Sepolia Prover
-npx hardhat verify --network sepoliaOptimismBlockscout 0x84b9b3521b20E4dCF10e743548362df09840D202 "
+✨  Done in 8.41s.
 ```
 
 ## End to End Testing

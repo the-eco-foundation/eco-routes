@@ -13,6 +13,7 @@ contract Prover {
 
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
+    // L2OutputOracle on Sepolia Eth
     address public constant L1_OUTPUT_ORACLE_ADDRESS = 0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block. 
@@ -80,7 +81,17 @@ contract Prover {
 
         provenL1States[l1WorldStateRoot] = l1BlockhashOracle.number();
     }
-
+    /** 
+     * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
+     * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
+     * @param l2MessagePasserStateRoot // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
+     * @param l2LatestBlockHash the hash of the last block in the batch
+     * @param l2OutputIndex the batch number
+     * @param l1StorageProof todo
+     * @param rlpEncodedOutputOracleData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
+     * @param l1AccountProof accountProof from eth_getProof(L2OutputOracle, [], )
+     * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
+     */
     function proveOutputRoot(
         bytes32 l2WorldStateRoot,
         bytes32 l2MessagePasserStateRoot,
@@ -101,11 +112,18 @@ contract Prover {
         );
 
         bytes32 outputRootStorageSlot =
-            bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
+            bytes32(
+                abi.encode(
+                    (uint256
+                        (keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2
+                    )
+                )
+            );
 
         bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
         require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
+
 
         proveStorage(
             abi.encodePacked(outputRootStorageSlot),
@@ -120,7 +138,17 @@ contract Prover {
 
         provenL2States[l2WorldStateRoot] = l2OutputIndex;
     }
-
+    /** 
+    * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
+    * @param claimant the address that can claim the reward
+    * @param inboxContract the address of the inbox contract
+    * @param intentHash the intent hash
+    * @param intentOutputIndex todo
+    * @param l2StorageProof todo
+    * @param rlpEncodedInboxData todo
+    * @param l2AccountProof todo 
+    * @param l2WorldStateRoot todo
+    */
     function proveIntent(
         address claimant,
         address inboxContract,

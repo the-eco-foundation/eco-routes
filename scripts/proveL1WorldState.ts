@@ -1,16 +1,38 @@
 import { Block, Provider, hexlify, keccak256 } from 'ethers'
 import { ethers } from 'hardhat'
-import { toBytes } from 'viem'
-import { Prover, Prover__factory } from '../typechain-types'
+import { numberToHex, toBytes } from 'viem'
+import {
+  IL1Block,
+  IL1Block__factory,
+  Prover,
+  Prover__factory,
+} from '../typechain-types'
 
 const pk = process.env.PRIVATE_KEY || ''
 const apikey = process.env.ALCHEMY_API_KEY || ''
 
-const blockNumber = process.env.FULFILLMENT_BLOCK_NUMBER || '0x5a12ed'
+// const blockNumber = process.env.FULFILLMENT_BLOCK_NUMBER || '0x5a12ed'
+// const blockNumber = '0x5a12ed'
+// const blockNumber = numberToHex(6046560)
 const L1RPCURL = 'https://eth-sepolia.g.alchemy.com/v2/'
 const L2RPCURL = 'https://opt-sepolia.g.alchemy.com/v2/'
 const proverAddress =
-  process.env.PROVER_ADDRESS || '0xBA820f11f874D39d8bc6097F051Fc7A238b62f0e'
+  process.env.PROVER_CONTRACT_ADDRESS ||
+  '0xBA820f11f874D39d8bc6097F051Fc7A238b62f0e'
+
+async function proveCurrent() {
+  const L2provider = ethers.getDefaultProvider(L2RPCURL + apikey)
+  const wallet = new ethers.Wallet(pk, L2provider)
+  const prover: Prover = Prover__factory.connect(proverAddress, wallet)
+  const l1block: IL1Block = IL1Block__factory.connect(
+    await prover.l1BlockhashOracle(),
+    wallet,
+  )
+  const currentBlock = await l1block.number()
+  console.log(`true hash: ${await l1block.hash()}`)
+
+  await proveL1WorldState(numberToHex(currentBlock))
+}
 
 async function proveL1WorldState(_blockNumber: string) {
   const L1provider: Provider = ethers.getDefaultProvider(L1RPCURL + apikey)
@@ -26,7 +48,7 @@ async function proveL1WorldState(_blockNumber: string) {
   let blockData = assembleBlockData(block)
   blockData = await cleanBlockData(blockData)
 
-  //   console.log(keccak256(await prover.rlpEncodeDataLibList(blockData)))
+  console.log(keccak256(await prover.rlpEncodeDataLibList(blockData)))
   //   console.log(block.hash)
   //
   let tx
@@ -93,4 +115,5 @@ function cleanBlockData(blockData) {
   return blockData
 }
 
-proveL1WorldState(blockNumber)
+// proveL1WorldState(blockNumber)
+proveCurrent()
