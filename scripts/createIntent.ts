@@ -10,8 +10,9 @@ import { AddressLike, BigNumberish, BytesLike } from 'ethers'
 
 // called from op sepolia
 const intentSourceAddress =
-  process.env.INTENT_SOURCE || '0x141847b34250441dCC1a19445Aaea44F8A1e8f9b'
-const destChainID: BigNumberish = 84532 // base sepolia
+  process.env.INTENT_SOURCE_ADDRESS ||
+  '0x141847b34250441dCC1a19445Aaea44F8A1e8f9b'
+const destChainID: BigNumberish = process.env.INTENT_DESTINATION || 84532 // base sepolia
 const target =
   process.env.USDC_BASE_SEPOLIA_ADDRESS ||
   '0xAb1D243b07e99C91dE9E4B80DFc2B07a8332A2f7'.toLowerCase() // base sepolia usdc
@@ -21,8 +22,8 @@ const destAddress =
 const rewardTokenAddress =
   process.env.USDC_OPTIMISM_SEPOLIA_ADDRESS ||
   '0x00D2d1162c689179e8bA7a3b936f80A010A0b5CF'.toLowerCase() // optimism sepolia usdc
-const amt = 1234
-const duration = 3600 // 1 hour
+const amt = process.env.INTENT_AMOUNT || 1234
+const duration = process.env.INTENT_DURATION || 3600 // 1 hour
 
 let targets: AddressLike[]
 let data: BytesLike[]
@@ -31,7 +32,7 @@ let rewardAmounts: BigNumberish[]
 let expiryTime: BigNumberish
 
 async function main() {
-  const [creator] = await ethers.getSigners()
+  const [deployer, creator, prover, solver] = await ethers.getSigners()
 
   // approve lockup
   const rewardToken: ERC20 = ERC20__factory.connect(rewardTokenAddress, creator)
@@ -60,10 +61,8 @@ async function main() {
 
     console.log('successful intent creation: ', tx.hash)
     console.log(
-      'event: ',
-      (
-        await intentSource.queryFilter(intentSource.getEvent('IntentCreated'))
-      )[0].topics[1],
+      'Intent Hash Events: ',
+      await intentSource.queryFilter(intentSource.getEvent('IntentCreated')),
     )
   } catch (e) {
     console.log(e)

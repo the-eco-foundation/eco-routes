@@ -5,6 +5,12 @@ import '@nomicfoundation/hardhat-viem'
 import 'solidity-docgen'
 dotenv.config()
 const DEPLOY_PRIVATE_KEY = process.env.PRIVATE_KEY || '0x' + '11'.repeat(32) // this is to avoid hardhat error
+const INTENT_CREATOR_PRIVATE_KEY =
+  process.env.INTENT_CREATOR_PRIVATE_KEY || '0x' + '11'.repeat(32) // this is to avoid hardhat error
+const PROVER_PRIVATE_KEY =
+  process.env.PROVER_PRIVATE_KEY || '0x' + '11'.repeat(32) // this is to avoid hardhat error
+const SOLVER_PRIVATE_KEY =
+  process.env.SOLVER_PRIVATE_KEY || '0x' + '11'.repeat(32) // this is to avoid hardhat error
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const config: HardhatUserConfig = {
@@ -44,12 +50,6 @@ const config: HardhatUserConfig = {
       gasPrice: 100000000,
       accounts: [DEPLOY_PRIVATE_KEY],
     },
-    optimismGoerli: {
-      chainId: 420,
-      url: `https://opt-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      gasPrice: 500000000,
-      accounts: [DEPLOY_PRIVATE_KEY],
-    },
     sepolia: {
       chainId: 11155111,
       url: `https://sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
@@ -60,32 +60,37 @@ const config: HardhatUserConfig = {
       chainId: 11155420,
       url: `https://opt-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       gasPrice: 500000000,
-      accounts: [DEPLOY_PRIVATE_KEY],
+      accounts: [
+        DEPLOY_PRIVATE_KEY,
+        INTENT_CREATOR_PRIVATE_KEY,
+        PROVER_PRIVATE_KEY,
+        SOLVER_PRIVATE_KEY,
+      ],
     },
     sepoliaOptimismBlockscout: {
       chainId: 11155420,
       url: `https://opt-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       gasPrice: 500000000,
-      accounts: [DEPLOY_PRIVATE_KEY],
-    },
-    baseGoerli: {
-      chainId: 84531,
-      url: `https://base-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      accounts: [DEPLOY_PRIVATE_KEY],
+      accounts: [
+        DEPLOY_PRIVATE_KEY,
+        INTENT_CREATOR_PRIVATE_KEY,
+        PROVER_PRIVATE_KEY,
+        SOLVER_PRIVATE_KEY,
+      ],
     },
     baseSepolia: {
       chainId: 84532,
       url: `https://base-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      accounts: [DEPLOY_PRIVATE_KEY],
+      accounts: [
+        DEPLOY_PRIVATE_KEY,
+        INTENT_CREATOR_PRIVATE_KEY,
+        PROVER_PRIVATE_KEY,
+        SOLVER_PRIVATE_KEY,
+      ],
     },
     baseMainnet: {
       chainId: 8453,
       url: `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      accounts: [DEPLOY_PRIVATE_KEY],
-    },
-    ethGoerli: {
-      chainId: 5,
-      url: `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOY_PRIVATE_KEY],
     },
     ethMainnet: {
