@@ -76,11 +76,13 @@ Destination Chain (Base Sepolia)
 
 ### Positive Walkthrough - Claimant
 
-1. Intent Creation
-2. Intent Solving
-3. Proof Generation
-4. Prover Update
-5. Claim Rewards
+1. Intent Creation - createIntent.ts
+2. Intent Solving - fulfill-intent.ts
+3. Proof Generation - proof-generation.ts
+4. Prove L1 WorldState - proveL1WorldState.ts (this block is in this batch which has been settled to L1)
+5. Prove OutputRoot.ts - (proveOutput Root)
+6. Prover Update - proveIntent.ts + proof-generation.ts
+7. Claim Rewards - withdrawReward.ts
 
 ```bash
 # Intent creation

@@ -14,11 +14,20 @@ const L2Provider = new AlchemyProvider(L2_NETWORK, ALCHEMY_API_KEY)
 
 const baseOutputContractAddress = '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254' // sepolia address
 
+// Albert Original
+// const txToProve =
+//   '0x423566ff4d43c56c60c5aa8051044632fa7d5e2b59cd1a55835c01fa9af07d05'
+// const inboxContract = '0xCfC89c06B5499ee50dfAf451078D85Ad71D76079'
+// const intentHash =
+//   '0x4321000000000000000000000000000000000000000000000000000000000000'
+
+// Our Latest
 const txToProve =
   '0x60a200bc0d29f1fe6e7c64a51f48d417a1a8d76c5ed7740e03207d46ecf193ee'
-const inboxContract = '0xCfC89c06B5499ee50dfAf451078D85Ad71D76079'
+const inboxContract = '0xa506283526A6948619Ac101f0ee7d21a86FcBEDA'
 const intentHash =
-  '0x4321000000000000000000000000000000000000000000000000000000000000'
+  '0xaac8c197b419c8be5545949d5a1a6dc3514dd018dabd603f0e3c9006dec55105'
+
 const storageSlot = hre.ethers.solidityPackedKeccak256(
   ['bytes'],
   [
@@ -49,6 +58,9 @@ async function main() {
   const l2OutputStorageRoot = (
     await L2Provider.send('eth_getBlockByNumber', [l2EndBatchBlock, false])
   ).stateRoot
+  console.log('Hi')
+  console.log(storageSlot)
+  console.log(l2EndBatchBlock)
   const proof = await L2Provider.send('eth_getProof', [
     inboxContract,
     [storageSlot],
