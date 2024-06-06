@@ -29,6 +29,7 @@ async function proveCurrent() {
     wallet,
   )
   const currentBlock = await l1block.number()
+  console.log('currentBlock: ', currentBlock)
   console.log(`true hash: ${await l1block.hash()}`)
 
   await proveL1WorldState(numberToHex(currentBlock))
