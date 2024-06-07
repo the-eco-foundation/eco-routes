@@ -4,6 +4,14 @@ import { deploy } from './utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { MockL1Block__factory, Prover__factory } from '../typechain-types'
 
+// Albert Original
+// const txToProve =
+//   '0x423566ff4d43c56c60c5aa8051044632fa7d5e2b59cd1a55835c01fa9af07d05'
+// const inboxContract = '0xCfC89c06B5499ee50dfAf451078D85Ad71D76079'
+// const intentHash =
+//   '0x4321000000000000000000000000000000000000000000000000000000000000'
+//  Fulfillment Block   - 9934282 or 0x9795CA
+//  Last Block in Batch - 9934320 or 0x9795F0
 const l2StorageProof = [
   '0xf838a120ceaa546d78134283b3b4a86b6ae3d0d57bb8166c714a3893d80b26ecd35ccb9f9594445575a842c3f13b4625f1de6b4ee96c721e580a',
 ]
