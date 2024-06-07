@@ -28,11 +28,14 @@ async function proveCurrent() {
     await prover.l1BlockhashOracle(),
     wallet,
   )
-  const currentBlock = await l1block.number()
-  console.log('currentBlock: ', currentBlock)
-  console.log(`true hash: ${await l1block.hash()}`)
+  // const currentBlock = 6047062
+  while (1 === 1) {
+    const currentBlock = await l1block.number()
+    console.log('currentBlock: ', currentBlock)
+    console.log(`true hash: ${await l1block.hash()}`)
 
-  await proveL1WorldState(numberToHex(currentBlock))
+    await proveL1WorldState(numberToHex(currentBlock))
+  }
 }
 
 async function proveL1WorldState(_blockNumber: string) {
@@ -45,11 +48,11 @@ async function proveL1WorldState(_blockNumber: string) {
     _blockNumber,
     false,
   ])
-  console.log('Block:', block)
+  // console.log('Block:', block)
   let blockData = assembleBlockData(block)
   blockData = await cleanBlockData(blockData)
 
-  console.log(keccak256(await prover.rlpEncodeDataLibList(blockData)))
+  // console.log(keccak256(await prover.rlpEncodeDataLibList(blockData)))
   //   console.log(block.hash)
   //
   let tx
@@ -100,8 +103,8 @@ function cleanBlockData(blockData) {
   const indicesToCheck = [7, 8, 9, 10, 11, 14, 15, 17, 18]
   for (let i = 0; i < indicesToCheck.length; i++) {
     const index = indicesToCheck[i]
-    console.log('index:', index)
-    console.log('blockData[index]', blockData[index])
+    // console.log('index:', index)
+    // console.log('blockData[index]', blockData[index])
     blockData[index] =
       blockData[index] === '0x0'
         ? '0x'
