@@ -64,10 +64,6 @@ const l2L1MessageParserAddress = ethers.getAddress(
 )
 
 async function main() {
-  const fullfillmentL1Block = Number(process.env.FULFILLMENT_L1BLOCK || '0')
-  const l1BatchEndBlockUsed = Number(
-    process.env.FULFILLMENT_L1BLOCK || '6054921',
-  )
   const txDetails = await L2DestinationProvider.getTransaction(txToProve)
   const txBlock = txDetails!.blockNumber
   const txBlockHex = hexlify(toBytes(txBlock || 0))
@@ -98,12 +94,6 @@ async function main() {
       false,
     ])
   ).stateRoot
-  const L2_BATCH_LATEST_BLOCK_HASH = (
-    await L2DestinationProvider.send('eth_getBlockByNumber', [
-      l2EndBatchBlock,
-      false,
-    ])
-  ).hash
   console.log('l2OutputStorageRoot: ', l2OutputStorageRoot)
   const proof = await L2DestinationProvider.send('eth_getProof', [
     inboxContract,
@@ -137,10 +127,10 @@ async function main() {
   //   l2OutputStorageRoot,
   // ]
 
-  const BATCH_INDEX = Number(process.env.FULFILLMENT_BLOCK_BATCH || '82785')
-  // const L2_BATCH_LATEST_BLOCK_HASH =
-  //   process.env.FULFILLMENT_BLOCK_BATCH_LAST_BLOCK_HASH ||
-  //   '0x38a352d17ebab79b125d97f331a7b6cec88ce80ae858a12054391781ca77fe6d'
+  const BATCH_INDEX = process.env.FULFILLMENT_BLOCK_BATCH || 82785
+  const L2_BATCH_LATEST_BLOCK_HASH =
+    process.env.FULFILLMENT_BLOCK_BATCH_LAST_BLOCK_HASH ||
+    '0x38a352d17ebab79b125d97f331a7b6cec88ce80ae858a12054391781ca77fe6d'
   // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
   const L2_MESSAGE_PASSER_STORAGE_ROOT = await L2DestinationProvider.send(
     'eth_getProof',
@@ -157,6 +147,15 @@ async function main() {
   // Using storageSlot 0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f747F1D
   // const l1txBlockHash =
   //   '0xddbab69aac369068d1591a69ce60fffee3a9c5049e44ff7e5099d462cabffd4f'
+  const fullfillmentL1Block = Number(process.env.FULFILLMENT_L1BLOCK || '0')
+  const fullfillmentL1BlockNext =
+    Number(process.env.FULFILLMENT_L1BLOCK || '0') + 1
+  console.log(
+    'fullfillmentL1Block+next: ',
+    // fullfillmentL1Block,
+    fullfillmentL1BlockNext,
+  )
+  // const l1txBlockHash = hexlify(toBytes(fullfillmentL1BlockNext))
   console.log(hexlify(toBytes(fullfillmentL1Block)))
   // const l1txBlockHash = (
   //   await L1Provider.send('eth_getBlockByNumber', [
@@ -169,7 +168,8 @@ async function main() {
   const l1l2OutputOracleProof = await L1Provider.send('eth_getProof', [
     L2DestinationOutputOracleAddress,
     [storageSlotOutputOracle],
-    hexlify(toBytes(l1BatchEndBlockUsed)),
+    hexlify(toBytes(fullfillmentL1BlockNext)),
+    // l1txBlockHash,
   ])
   // console.log('l1l2OutputOracleProof: ', l1l2OutputOracleProof.storageProof)
   const l1StorageProof = l1l2OutputOracleProof.storageProof
@@ -178,12 +178,6 @@ async function main() {
     '0x', // balance
     l1l2OutputOracleProof.storageHash, // storageHash
     l1l2OutputOracleProof.codeHash, // CodeHash
-  ]
-  const l2ContractData = [
-    '0x01',
-    '0x',
-    '0x02db022d2959526a910b41f5686736103098af4ba16c5e014e0255e0289bcc04',
-    '0xe7560e2b071e0e66064efb4e4076a1b250386cb69b41c2da0bf1ba223e748e46',
   ]
   // console.log('l1ContractData: ', l1ContractData)
   const l1AccountProof = l1l2OutputOracleProof.accountProof
@@ -200,8 +194,8 @@ async function main() {
   // proven L1 world state root: 0x36d64773e998ab95b84681b791c400e371608604196a7ce60c926ac6664b71ba
 
   const L1_WORLD_STATE_ROOT =
-    process.env.FULFILLMENT_L1_WORLD_STATE_ROOT ||
-    '0x43399d539577a23a93d713934c6b490210c69915aba2f1c4c9203618cc141c64' // L1 Batch Settlement Block
+    // '0xbffb76d782f51dde41ea7d7f9715664b4dd0617fc7373ba20a670281645ba135' // L1 Batch Settlement Block
+    '0x36d64773e998ab95b84681b791c400e371608604196a7ce60c926ac6664b71ba' // L1 Batch Settlement Block +1
   console.log('l1ContractData: ', l1ContractData)
   console.log('p1:', l2OutputStorageRoot)
   console.log('p2:', L2_MESSAGE_PASSER_STORAGE_ROOT.storageHash)
@@ -222,7 +216,7 @@ async function main() {
     L1_WORLD_STATE_ROOT,
   )
 
-  // console.log('l2OutputStorageRoot: ', l2OutputStorageRoot)
+  console.log('l2OutputStorageRoot: ', l2OutputStorageRoot)
   // await prover.proveIntent(
   //   proof.storageProof[0].value,
   //   inboxContract,

@@ -177,10 +177,17 @@ Validates L2 world state by ensuring that the passed in l2 world state root corr
 - `l2MessagePasserStateRoot` // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
 - `l2LatestBlockHash` the hash of the last block in the batch
 - `l2OutputIndex` the batch number
-- `l1StorageProof` todo
+- `l1StorageProof` is the storageProof of the
+  - `L2DestinationOutputOracleAddress`
+  - `storageSlotOutputOracle`
+  - `l1ContractData`
 - `rlpEncodedOutputOracleData` rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
 - `l1AccountProof` accountProof from eth_getProof(L2OutputOracle, [], )
 - `l1WorldStateRoot` the l1 world state root that was proven in proveL1WorldState
+
+<details>
+  <summary>Sample Call Data</summary>
+  <ol>
 
 ```TEXT
 p1: 0xb14d9f17dc0617917016f2618c0dfd6eb7b76d7932950a86d23b7d036c6259e7
@@ -209,6 +216,8 @@ p7: [
 p8: 0xbffb76d782f51dde41ea7d7f9715664b4dd0617fc7373ba20a670281645ba135
 ```
 
+  </ol>
+</details>
 Logic Overview
 
 - Check that the L1 State has been proved
@@ -221,7 +230,18 @@ Logic Overview
   ```
 
 - gets the `outputRootStorageSlot`
-- gets the `outputOracleStateRoot`
+
+  - Input Parameters
+    - `L2_OUTPUT_ROOT_VERSION_NUMBER` = 0
+    - `l2WorldStateRoot` = the state root of the last block in the batch which contains the block in which the fulfill tx happened
+    - `l2MessagePasserStateRoot` = storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
+    - `l2LatestBlockHash` = the hash of the last block in the batch
+
+- gets the `outputOracleStateRoot` from the `rlpEncodedOutputOracleData` from `eth_getProof(L2OutputOracle, [], L1_BLOCK_NUMBER)` where the `L1_BLOCK_NUMBER` is greater than the block where the batch was submitted from L2 (original test used 649 greater, submission block 5897036 L1_BLOCK_NUMBER 5903085)
+
+  - `L2OutputOracle` = The L2 Output Oracle from Base deployed on Sepolia at `0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254`
+  - `L1_BLOCK_NUMBER` =
+
 - proves the Storage
 - proves the Account
 

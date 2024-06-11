@@ -33,18 +33,16 @@ const L2DestinationSigner: Signer = new Wallet(
 )
 
 const L2DestinationOutputOracleAddress = ethers.getAddress(
-  process.env.L2_OUTPUT_ORACLE_ADDRESS ||
-    '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
+  '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
 ) // sepolia address
 
 const proverAddress =
   process.env.PROVER_CONTRACT_ADDRESS ||
   '0xBA820f11f874D39d8bc6097F051Fc7A238b62f0e'
 const txToProve =
-  process.env.FULFILLMENT_TRANSACTION ||
-  '0x60a200bc0d29f1fe6e7c64a51f48d417a1a8d76c5ed7740e03207d46ecf193ee'
+  '0x423566ff4d43c56c60c5aa8051044632fa7d5e2b59cd1a55835c01fa9af07d05'
 const inboxContract = ethers.getAddress(
-  process.env.INBOX_ADDRESS || '0xCfC89c06B5499ee50dfAf451078D85Ad71D76079',
+  '0xCfC89c06B5499ee50dfAf451078D85Ad71D76079',
 )
 const intentHash =
   process.env.INTENT_HASH ||
@@ -64,15 +62,19 @@ const l2L1MessageParserAddress = ethers.getAddress(
 )
 
 async function main() {
-  const fullfillmentL1Block = Number(process.env.FULFILLMENT_L1BLOCK || '0')
-  const l1BatchEndBlockUsed = Number(
-    process.env.FULFILLMENT_L1BLOCK || '6054921',
-  )
+  const l2Block = 9934282
+  const l2BlockBatchEnd = 9934320
+  const l2BlockBatchEndHash =
+    '0x38a352d17ebab79b125d97f331a7b6cec88ce80ae858a12054391781ca77fe6d'
+  const l2BatchIndex = 82785
+  const l1BatchTransaction =
+    '0xf7bb6590a11ca794e841560c7987125af7a7c0560724e013ae036af8459b5202'
+  const l1BatchEndBlock = 5897036
+  const l1BatchEndBlockUsed = 5903085
+
   const txDetails = await L2DestinationProvider.getTransaction(txToProve)
   const txBlock = txDetails!.blockNumber
   const txBlockHex = hexlify(toBytes(txBlock || 0))
-  // console.log('txBlock:', txBlock)
-  // console.log('txBlockHex:', txBlockHex)
 
   const baseOutputContract = await ethers.ContractFactory.fromSolidity(
     L2OutputArtifact,
@@ -83,14 +85,15 @@ async function main() {
     L2SourceSigner,
   )
   const outputIndex = await baseOutputContract.getL2OutputIndexAfter(txBlock)
-  // console.log('outputIndex: ', outputIndex)
+  console.log('outputIndex: ', outputIndex)
   const outputData = await baseOutputContract.getL2OutputAfter(txBlock)
+  console.log('outputData: ', outputData)
   const l2EndBatchBlock = hexlify(toBytes(outputData.l2BlockNumber))
-  console.log('l2EndBatchBlock:', l2EndBatchBlock)
+  console.log('l2EndBatchBlock: ', l2EndBatchBlock)
 
   // eslint-disable-next-line no-unused-vars
   const outputRoot = outputData.outputRoot
-  // console.log('outputRoot:', outputRoot)
+  console.log('outputRoot:', outputRoot)
 
   const l2OutputStorageRoot = (
     await L2DestinationProvider.send('eth_getBlockByNumber', [
@@ -98,12 +101,6 @@ async function main() {
       false,
     ])
   ).stateRoot
-  const L2_BATCH_LATEST_BLOCK_HASH = (
-    await L2DestinationProvider.send('eth_getBlockByNumber', [
-      l2EndBatchBlock,
-      false,
-    ])
-  ).hash
   console.log('l2OutputStorageRoot: ', l2OutputStorageRoot)
   const proof = await L2DestinationProvider.send('eth_getProof', [
     inboxContract,
@@ -137,27 +134,15 @@ async function main() {
   //   l2OutputStorageRoot,
   // ]
 
-  const BATCH_INDEX = Number(process.env.FULFILLMENT_BLOCK_BATCH || '82785')
-  // const L2_BATCH_LATEST_BLOCK_HASH =
-  //   process.env.FULFILLMENT_BLOCK_BATCH_LAST_BLOCK_HASH ||
-  //   '0x38a352d17ebab79b125d97f331a7b6cec88ce80ae858a12054391781ca77fe6d'
+  const BATCH_INDEX = l2BatchIndex
+  const L2_BATCH_LATEST_BLOCK_HASH = l2BlockBatchEndHash
   // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
   const L2_MESSAGE_PASSER_STORAGE_ROOT = await L2DestinationProvider.send(
     'eth_getProof',
     [l2L1MessageParserAddress, [], txBlockHex],
   )
 
-  // accountProof piece of eth_getProof()
-  // retreived by getting eth_getProof of the L2_OUTPUT_ORACLE for a block later than the
-  // block that settled the L2 Fulfillment
-  // e.g. L2_OUTPUT_ORACLE on Sepolia Testnet is 0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254
-  // Fulfillment Transaction in example was 0x423566ff4d43c56c60c5aa8051044632fa7d5e2b59cd1a55835c01fa9af07d05
-  // which was a L1 State Root Submission tx of 0xf7bb6590a11ca794e841560c7987125af7a7c0560724e013ae036af8459b5202
-  // which had an L1 block of 5897036, we used an L1 block of 5903085
-  // Using storageSlot 0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f747F1D
-  // const l1txBlockHash =
-  //   '0xddbab69aac369068d1591a69ce60fffee3a9c5049e44ff7e5099d462cabffd4f'
-  console.log(hexlify(toBytes(fullfillmentL1Block)))
+  console.log(hexlify(toBytes(l1BatchEndBlockUsed)))
   // const l1txBlockHash = (
   //   await L1Provider.send('eth_getBlockByNumber', [
   //     hexlify(toBytes(fullfillmentL1BlockNext)),
@@ -170,6 +155,7 @@ async function main() {
     L2DestinationOutputOracleAddress,
     [storageSlotOutputOracle],
     hexlify(toBytes(l1BatchEndBlockUsed)),
+    // l1txBlockHash,
   ])
   // console.log('l1l2OutputOracleProof: ', l1l2OutputOracleProof.storageProof)
   const l1StorageProof = l1l2OutputOracleProof.storageProof
@@ -200,15 +186,16 @@ async function main() {
   // proven L1 world state root: 0x36d64773e998ab95b84681b791c400e371608604196a7ce60c926ac6664b71ba
 
   const L1_WORLD_STATE_ROOT =
-    process.env.FULFILLMENT_L1_WORLD_STATE_ROOT ||
-    '0x43399d539577a23a93d713934c6b490210c69915aba2f1c4c9203618cc141c64' // L1 Batch Settlement Block
-  console.log('l1ContractData: ', l1ContractData)
+    '0x80be241290d08c1e19fd83e4afd9a68e6594afc91d3af207b60f01ffd5434c79'
+  // '0xbffb76d782f51dde41ea7d7f9715664b4dd0617fc7373ba20a670281645ba135' // L1 Batch Settlement Block
+  // '0x36d64773e998ab95b84681b791c400e371608604196a7ce60c926ac6664b71ba' // L1 Batch Settlement Block +1
+  console.log('l2ContractData: ', l2ContractData)
   console.log('p1:', l2OutputStorageRoot)
   console.log('p2:', L2_MESSAGE_PASSER_STORAGE_ROOT.storageHash)
   console.log('p3:', L2_BATCH_LATEST_BLOCK_HASH)
   console.log('p4:', BATCH_INDEX)
   console.log('p5:', l1StorageProof[0].proof)
-  console.log('p6:', await prover.rlpEncodeDataLibList(l1ContractData))
+  console.log('p6:', await prover.rlpEncodeDataLibList(l2ContractData))
   console.log('p7:', l1AccountProof)
   console.log('p8:', L1_WORLD_STATE_ROOT)
   await prover.proveOutputRoot(
@@ -217,12 +204,12 @@ async function main() {
     L2_BATCH_LATEST_BLOCK_HASH,
     BATCH_INDEX,
     l1StorageProof[0].proof,
-    await prover.rlpEncodeDataLibList(l1ContractData),
+    await prover.rlpEncodeDataLibList(l2ContractData),
     l1AccountProof,
     L1_WORLD_STATE_ROOT,
   )
 
-  // console.log('l2OutputStorageRoot: ', l2OutputStorageRoot)
+  console.log('l2OutputStorageRoot: ', l2OutputStorageRoot)
   // await prover.proveIntent(
   //   proof.storageProof[0].value,
   //   inboxContract,
