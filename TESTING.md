@@ -112,11 +112,11 @@ https://sepolia.basescan.org/address/0x84b9b3521b20E4dCF10e743548362df09840D202#
 
 1. Intent Creation - createIntent.ts
 2. Intent Solving - fulfill-intent.ts
-3. Proof Generation - proof-generation.ts
-4. Prove L1 WorldState - proveL1WorldState.ts (this block is in this batch which has been settled to L1)
-5. Prove OutputRoot.ts - (proveOutput Root)
-6. Prover Update - proveIntent.ts + proof-generation.ts
-7. Claim Rewards - withdrawReward.ts
+3. Prove L1 WorldState - proveL1WorldState.ts (checks the fullillment transaction (Inbox transaction on Sepolia Base) is in L1Batch which has been settled to L1 (Sepolia) and the L1 (Sepolia) Block this was settled in has been propogated to the source chain (Optimism Sepolia). It does this by checking the L1BLOCK_ADDRESS contract on the sourch chain (Optmism Sepolia) against the L1 (Sepolia) Batch Settlement Block data queried from L1 (Sepolia).
+4. Prove OutputRoot.ts - proveOutput Root This calls two functions
+   1. generateOutput - checks the state of the L1L2MessageParser (the contract that stores the L1(Sepolia) Blocks on L2 Destination(Sepolia Base) to make sure that the last block in the L1Batch for the fullfillment transaction (Sepolia Base) been settled on L1 and replicated back to L2 Destination (Sepolia Base).
+   2. proveIntent - checks that the intent has been proved on the Destination Chain (Base Sepolia) and the L1 (Sepolia) World State for that Batch has been updated as settled. If so it then marks the intent as proved on the Source Chain (Optimism Sepolia). So the funds can be claimed.
+5. Claim Rewards - withdrawReward.ts
 
 ```bash
 # Intent creation
