@@ -1,13 +1,30 @@
-import { ethers } from 'hardhat'
+import {
+  Block,
+  Provider,
+  hexlify,
+  keccak256,
+  Wallet,
+  Signer,
+  AlchemyProvider,
+} from 'ethers'
 import { IntentSource, IntentSource__factory } from '../typechain-types'
 
-const intentSourceAddress = '0x141847b34250441dCC1a19445Aaea44F8A1e8f9b'
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
+const CLAIMANT_PRIVATE_KEY = process.env.CLAIMANT_PRIVATE_KEY || ''
+const L2SourceNetwork = 'optimism-sepolia'
+const L2SourceProvider = new AlchemyProvider(L2SourceNetwork, ALCHEMY_API_KEY)
+const claimant: Signer = new Wallet(CLAIMANT_PRIVATE_KEY, L2SourceProvider)
+const intentSourceAddress =
+  process.env.INTENT_SOURCE_ADDRESS ||
+  '0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46'
 const intentHash =
-  '0xaac8c197b419c8be5545949d5a1a6dc3514dd018dabd603f0e3c9006dec55105'
+  process.env.INTENT_HASH ||
+  '0x53819d1039447c99d2fc31960ac5b56a389d961cddde355941a02f8ff0b7d9c8'
 
 async function main() {
-  const [claimant] = await ethers.getSigners()
-  console.log('claiming rewards with the account:', claimant.address)
+  // const claimant: Signer = new Wallet(CLAIMANT_PRIVATE_KEY, L1Provider)
+  // const [claimant] = await ethers.getSigners()
+  console.log('claiming rewards with the account:', claimant.getAddress())
 
   const intentSource: IntentSource = IntentSource__factory.connect(
     intentSourceAddress,
