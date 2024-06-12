@@ -253,7 +253,7 @@ async function main() {
   // )
   // console.log('p7:', l1AccountProof)
   // console.log('p8:', L1_WORLD_STATE_ROOT)
-  await prover.proveOutputRoot(
+  const proveOutputTX = await prover.proveOutputRoot(
     l2OutputStorageRoot,
     L2_MESSAGE_PASSER_STORAGE_ROOT.storageHash,
     L2_BATCH_LATEST_BLOCK_HASH,
@@ -263,11 +263,12 @@ async function main() {
     l1AccountProof,
     L1_WORLD_STATE_ROOT,
   )
+  await proveOutputTX.wait()
 
   // Prove Intent
   console.log('Prove Intent')
   const l2InboxContractData = [
-    '0x01',
+    '0x16',
     '0x',
     '0x26519e7ddd3031083d5aefdeaee6f851c55607e96f7e62cb85126c74252234cc',
     '0x733c0ec5c30f2dff7e7ae4a577acf23266929fe04a5cf6599e0d772374b1ec98',
@@ -300,6 +301,25 @@ async function main() {
   //   proof.accountProof,
   //   l2OutputStorageRoot,
   // ]
+
+  // const l2InboxContractData = [
+  //   '0x16',
+  //   '0x',
+  //   '0x26519e7ddd3031083d5aefdeaee6f851c55607e96f7e62cb85126c74252234cc',
+  //   '0x733c0ec5c30f2dff7e7ae4a577acf23266929fe04a5cf6599e0d772374b1ec98',
+  // ]
+
+  // const proverNonce = await L2DestinationProvider.send(
+  //   'eth_getTransactionCount',
+  //   [proverAddress, 'pending'],
+  // )
+  // console.log('proverNonce: ', proverNonce)
+  const proverNonce = '0x01'
+  const proverFiller = '0x'
+  const proverStorageHash =
+    '0x26519e7ddd3031083d5aefdeaee6f851c55607e96f7e62cb85126c74252234cc'
+  const proverCodeHash =
+    '0x733c0ec5c30f2dff7e7ae4a577acf23266929fe04a5cf6599e0d772374b1ec98'
   const claimant = ethers.getAddress(
     '0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58',
   )
@@ -308,10 +328,12 @@ async function main() {
   console.log('ProveIntent p3: ', intentHash)
   console.log('ProveIntent p4:  ', Number(outputIndex) - 1)
   console.log('ProveIntent p5: ', proof.storageProof[0].proof)
-  console.log(
-    'ProveIntent p6: ',
-    await prover.rlpEncodeDataLibList(l2InboxContractData),
-  )
+  console.log('ProveIntent p6: ', [
+    proverNonce,
+    proverFiller,
+    proverStorageHash,
+    proverCodeHash,
+  ])
   console.log('ProveIntent p7: ', proof.accountProof)
   console.log('ProveIntent p8: ', l2OutputStorageRoot)
   await prover.proveIntent(
@@ -321,7 +343,13 @@ async function main() {
     Number(outputIndex) - 1, // see comment in contract
     proof.storageProof[0].proof,
     // ethers.encodeRlp([nonce, balance, proof.storageHash, proof.codeHash]),
-    await prover.rlpEncodeDataLibList(l2InboxContractData),
+    // await prover.rlpEncodeDataLibList(l2InboxContractData),
+    await prover.rlpEncodeDataLibList([
+      proverNonce,
+      proverFiller,
+      proverStorageHash,
+      proverCodeHash,
+    ]),
     proof.accountProof,
     l2OutputStorageRoot,
   )
