@@ -52,9 +52,7 @@
     "createIntent": "hardhat run --network sepoliaOptimismBlockscout scripts/createIntent.ts",
     "fulfillIntent": "hardhat run --network baseSepolia scripts/fulfillIntent.ts",
     "proveL1WorldState": "hardhat run scripts/proveL1WorldState.ts",
-    "proveOutputRoot": "hardhat run scripts/proveOutputRoot.ts",
-    "proveOutputRootOriginal": "hardhat run scripts/proveOutputRootOriginal.ts",
-    "generateProof": "hardhat run --network sepoliaOptimismBlockscout scripts/proofGeneration.ts",
+    "proveL2WorldState": "hardhat run scripts/proveL2WorldState.ts",
     "proveIntent": "hardhat run --network sepoliaOptimismBlockscout scripts/proveIntent.ts",
     "withdrawRewards": "hardhat run --network sepoliaOptimismBlockscout scripts/withdrawRewards.ts"
   },
