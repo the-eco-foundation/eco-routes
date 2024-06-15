@@ -118,14 +118,14 @@ Transaction Flow (with links to transactions)
 - [Sepolia Base L2 World State Proven](https://optimism-sepolia.blockscout.com/tx/0xb8d84173ca20eb1c2eb3a5f41734a5705963c11ac4460b0133d526d790f4e677)
   - Proves the world state of the L2 transaction on Sepolia Base
   - Input
-    - `bytes32 l2WorldStateRoot,`
-    - `bytes32 l2MessagePasserStateRoot,`
-    - `bytes32 l2LatestBlockHash,`
-    - `uint256 l2OutputIndex,`
-    - `bytes[] calldata l1StorageProof,`
-    - `bytes calldata rlpEncodedOutputOracleData,`
-    - `bytes[] calldata l1AccountProof,`
-    - `bytes32 l1WorldStateRoot`
+    - `l2WorldStateRoot`: `0xb14d9f17dc0617917016f2618c0dfd6eb7b76d7932950a86d23b7d036c6259e7` this is the stateRoot from the last block in the L1Batch on the L2 Destination chain (Sepolia Base) for the intent we are trying to prove
+    - `l2MessagePasserStateRoot` this is the State root from the message parser contract (i.e. the storageHash) Note it is retrieved from the block the intent was executed in (not the last block of the batch)
+    - `l2LatestBlockHash`: The hash of the latest L2 Destination (Sepolia Base) block in the L1 Batch
+    - `l2OutputIndex`: The L1 State Batch Index retrieved from the L2 Destination Chain (Base Sepolia) for the L1 Batch of the transaction the intent was solved in.
+    - `l1StorageProof`
+    - `rlpEncodedOutputOracleData`
+    - `l1AccountProof`
+    - `l1WorldStateRoot`
   - Output
     - Transaction Hash
     - **TBD** may want to add an event here with information about what we have just proven
