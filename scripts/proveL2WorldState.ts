@@ -26,7 +26,7 @@ const DEPLOY_PRIVATE_KEY = process.env.DEPLOY_PRIVATE_KEY || ''
 const PROVER_PRIVATE_KEY = process.env.PROVER_PRIVATE_KEY || ''
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
-// Chaiin Connection Configuration
+// Chain Connection Configuration
 const L1_NETWORK = 'sepolia'
 const L1Provider = new AlchemyProvider(L1_NETWORK, ALCHEMY_API_KEY)
 const L1signer: Signer = new Wallet(DEPLOY_PRIVATE_KEY, L1Provider)

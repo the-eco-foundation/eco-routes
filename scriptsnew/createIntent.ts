@@ -34,7 +34,7 @@ const targetAmounts = config.intent.targetAmounts
 const recipient = config.intent.recipient
 const duration = config.intent.duration
 
-async function main() {
+export async function createIntent() {
   const [deployer, creator, prover, solver] = await ethers.getSigners()
 
   // approve lockup
@@ -90,8 +90,3 @@ async function main() {
     console.log(e)
   }
 }
-
-main().catch((error) => {
-  console.error(error)
-  process.exitCode = 1
-})

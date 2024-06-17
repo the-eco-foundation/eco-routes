@@ -408,10 +408,44 @@ Sepolia (L1)
 
 ## Additional Proving example with sample data
 
-# Additional References
+## Additional References
 
+Proving
+
+- [EIP-1186: RPC-Method to get Merkle Proofs - eth_getProof](https://eips.ethereum.org/EIPS/eip-1186)
 - [Ethereum Merkle Patricia Trie Explained](https://medium.com/@chiqing/merkle-patricia-trie-explained-ae3ac6a7e123)
 - [Verify Ethereum Account Balance with State Proof](https://medium.com/@chiqing/verify-ethereum-account-balance-with-state-proof-83b51ceb15cf): used for proveAccount
 - [Verify Ethereum Smart Contract State with Proof](https://medium.com/@chiqing/verify-ethereum-smart-contract-state-with-proof-1a8a0b4c8008) : Used for proveStorage
+- [How to use Ethereum Proofs](https://www.infura.io/blog/post/how-to-use-ethereum-proofs-2)
+- [Deep dive into Merkle proofs and eth_getProof (Chainstack)](https://docs.chainstack.com/docs/deep-dive-into-merkle-proofs-and-eth-getproof-ethereum-rpc-method)
+- [SecureMerkleTrie.sol (Optimism)](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol)
+
+Storage Layout
+
 - [Alchemy - Smart Contract Storage Layout](https://docs.alchemy.com/docs/smart-contract-storage-layout): good explanation of storage and storage slots
+- [Alchmey eth_createAccessList](https://docs.alchemy.com/reference/eth-createaccesslist)
+
+Proving Protocols
+
+- [Blockchain Interoperability Part III: Storage Proofs, Powering new cross-chain use cases](https://mirror.xyz/0xsuperscrypt.eth/-H1mV7irQ79Sy2KqtGQ050vUh8ENayRNjTx0YWbfRf4)
+- [The current state of storage proofs (Dec 2023)](https://defi.sucks/insights/current-state-of-storage-proofs)
+
+Solvers
+
 - [Illuminating Ethereum's Order Flow Landscape](https://writings.flashbots.net/illuminate-the-order-flow)
+
+## ToDo List
+
+- [ ] Query Capabilities for Open Intents
+  - [ ] see [Iterable Mappings](https://docs.soliditylang.org/en/v0.8.13/types.html#iterable-mappings)
+  - [ ] [Iterable Mappings by example](https://solidity-by-example.org/app/iterable-mapping/)
+- [ ] Refactor Chain Monitoring to use preferred tool
+  - [ ] [Substream](https://substreams.streamingfast.io/)
+  - [ ] [Ponder vs. subgraphs, incl. hosting options](https://x.com/LukeYoungblood/status/1784244530071605612)
+    - [ ] [Moonwell subgraph](https://github.com/moonwell-fi/moonwell-subgraph)
+  - [ ] [Ponder Documentation](https://ponder.sh/docs/getting-started/new-project)
+  - [ ] [Goldsky](https://goldsky.com/products/subgraphs)
+- [ ] Review and update Specification
+  - [ ] [Ecoism Component Overview](https://docs.google.com/document/d/1uRRl4LKN1Ob24dUs0A0l4tzY1rEwHG44iC5OAs0agmQ/edit)
+  - [ ] [Ecoism Research](https://www.notion.so/eco-corp/ECOism-Research-5afa3c34c9f343c1ac8c697af019a679)
+  - [ ] [Ecoism Protocol Hub](https://www.notion.so/eco-corp/Ecoism-Protocol-Hub-434388a819e84238979281f408c02db4)
