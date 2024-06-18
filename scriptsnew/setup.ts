@@ -62,7 +62,7 @@ export namespace Constants {
     layer2DestinationProvider,
   )
   // Contracts
-  // Note: we use providers for all System Contracts and Singers for Intent Protocol Contracts
+  // Note: we use providers for all System Contracts and Signers for Intent Protocol Contracts
   // Layer 1 Sepolia
   export const layer1Layer2DestinationOutputOracleContract = new Contract(
     config.layer1.l2BaseOutputOracleAddress,

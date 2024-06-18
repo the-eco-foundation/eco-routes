@@ -21,7 +21,7 @@ import {
 } from 'ethers'
 import { numberToHex, toBytes } from 'viem'
 import config from '../config/config'
-import { Constants } from './constants'
+import { Constants } from './setup'
 // import { proveCurrent } from './proveL1WorldState'
 
 // called from op sepolia
@@ -70,6 +70,7 @@ export async function createIntent() {
         latestBlockNumberHex,
       )
     for (const intenthHashEvent of intentHashEvents) {
+      console.log('intenthHashEvent: ', JSON.stringify(intenthHashEvent, 0, 2))
       if (intenthHashEvent.transactionHash === intentTx.hash) {
         intentHash = intenthHashEvent.topics[1]
         break
@@ -212,7 +213,24 @@ function cleanBlockData(blockData) {
 }
 
 async function proveL2WorldState() {
+  // Get the L1 Batch Number for the transaction we are proving
+  // Get the the L2 End Batch Block for the intent
+  // Get the storage Slot information
+  // Get the L1 Batch Block we are proving against
+  // Get all the proving data
+
   try {
+    // const proveOutputTX = await prover.proveOutputRoot(
+    //   l2OutputStorageRoot,
+    //   L2_MESSAGE_PASSER_STORAGE_ROOT.storageHash,
+    //   L2_BATCH_LATEST_BLOCK_HASH,
+    //   BATCH_INDEX,
+    //   l1StorageProof[0].proof,
+    //   await prover.rlpEncodeDataLibList(l1l2OutputOraceContractData),
+    //   l1AccountProof,
+    //   L1_WORLD_STATE_ROOT,
+    // )
+    // await proveOutputTX.wait()
     return 'layer2WorldStateRoot'
   } catch (e) {
     console.log(e)
@@ -221,6 +239,24 @@ async function proveL2WorldState() {
 
 async function proveIntent(intentHash) {
   try {
+    // const proveIntentTx = await prover.proveIntent(
+    //   claimant,
+    //   inboxContract,
+    //   intentHash,
+    //   Number(outputIndex) - 1, // see comment in contract
+    //   proof.storageProof[0].proof,
+    //   // ethers.encodeRlp([nonce, balance, proof.storageHash, proof.codeHash]),
+    //   // await prover.rlpEncodeDataLibList(l2InboxContractData),
+    //   await prover.rlpEncodeDataLibList([
+    //     proverNonce,
+    //     proverFiller,
+    //     proverStorageHash,
+    //     proverCodeHash,
+    //   ]),
+    //   proof.accountProof,
+    //   l2OutputStorageRoot,
+    // )
+    // wait proveIntentTx.wait()
     return intentHash
   } catch (e) {
     console.log(e)
@@ -262,10 +298,10 @@ async function main() {
     // proven L1 world state root: layer1WorldStateRoot}
     // layer1WorldStateRoot:  0xc3ec687942c104609632c78a124cc429f59e0fce28702358aeb8f80431376795
     console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
-    const layer2WorldStateRoot = await proveL2WorldState()
-    console.log('layer2WorldStateRoot: ', layer2WorldStateRoot)
-    const intentProofTx = await proveIntent(intentHash)
-    console.log('intentProofTx: ', intentProofTx)
+    // const layer2WorldStateRoot = await proveL2WorldState()
+    // console.log('layer2WorldStateRoot: ', layer2WorldStateRoot)
+    // const intentProofTx = await proveIntent(intentHash)
+    // console.log('intentProofTx: ', intentProofTx)
     const withdrawRewardTx = await withdrawReward(intentHash)
     console.log('withdrawRewardTx: ', withdrawRewardTx)
   } catch (e) {
