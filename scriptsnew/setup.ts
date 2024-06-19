@@ -1,5 +1,12 @@
 import config from '../config/config'
-import { BigNumberish, AlchemyProvider, Contract, Wallet, Signer } from 'ethers'
+import {
+  AbiCoder,
+  BigNumberish,
+  AlchemyProvider,
+  Contract,
+  Wallet,
+  Signer,
+} from 'ethers'
 import {
   Inbox__factory,
   IntentSource__factory,
@@ -9,8 +16,10 @@ import {
   ERC20__factory,
 } from '../typechain-types'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
-// import * as L2ToL1MessagePasser from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
-export namespace Constants {
+import * as L2ToL1MessagePasser from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
+export namespace s {
+  // default AbiCoder
+  export const abiCoder = AbiCoder.defaultAbiCoder()
   // Private Keys
   export const DEPLOY_PRIVATE_KEY = process.env.DEPLOY_PRIVATE_KEY || ''
   export const INTENT_CREATOR_PRIVATE_KEY =
@@ -97,11 +106,11 @@ export namespace Constants {
     Inbox__factory.abi,
     layer2DestinationSolver,
   )
-  // export const Layer2DestinationMessagePasserContract = new Contract(
-  //   config.layer2Destination.l2l1MessageParserAddress,
-  //   L2ToL1MessagePasser.abi,
-  //   Constants.layer2DestinationProvider,
-  // )
+  export const Layer2DestinationMessagePasserContract = new Contract(
+    config.layer2Destination.l2l1MessageParserAddress,
+    L2ToL1MessagePasser.abi,
+    layer2DestinationProvider,
+  )
   export const layer2DestinationUSDCContract = new Contract(
     config.layer2Destination.usdcAddress,
     ERC20__factory.abi,

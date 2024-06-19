@@ -24,6 +24,9 @@ export default {
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
+  noncePacking: 1,
+  l2OutputOracleSlotNumber: 3,
+  l2OutputVersionNumber: 0,
   actors: {
     deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
     intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
