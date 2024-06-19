@@ -119,13 +119,13 @@ export async function fulfillIntent(intentHash) {
 }
 
 async function proveL1WorldState() {
-  const currentBlock = await s.layer2Layer1BlockAddressContract.number()
-  console.log('currentBlock: ', currentBlock.toString())
-  const currentBlockTag = hexlify(toQuantity(currentBlock))
-  console.log('currentBlockTag: ', currentBlockTag)
+  const layer1Block = await s.layer2Layer1BlockAddressContract.number()
+  console.log('layer1Block: ', layer1Block.toString())
+  const layer1BlockTag = hexlify(toQuantity(layer1Block))
+  console.log('layer1BlockTag: ', layer1BlockTag)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
-    currentBlockTag,
+    layer1BlockTag,
     false,
   ])
   // console.log('Block:', block)
@@ -142,8 +142,8 @@ async function proveL1WorldState() {
     )
     await tx.wait()
     const layer1WorldStateRoot = blockData[3]
-    console.log(`proven L1 world state root: layer1WorldStateRoot}`)
-    return layer1WorldStateRoot
+    console.log('proven L1 world state root:', layer1WorldStateRoot)
+    return { layer1Block, layer1BlockTag, layer1WorldStateRoot }
   } catch (e) {
     console.log(e)
   }
@@ -211,13 +211,18 @@ function cleanBlockData(blockData) {
   return blockData
 }
 
-async function proveL2WorldState(intentFulfillmentTransaction) {
+async function proveL2WorldState(
+  layer1BlockTag,
+  intentFulfillmentTransaction,
+  layer1WorldStateRoot,
+) {
   // Get the L1 Batch Number for the transaction we are proving
   const txDetails = await s.layer2DestinationProvider.getTransaction(
     intentFulfillmentTransaction,
   )
   const intentFulfillmentBlock = txDetails!.blockNumber
   const intentFulfillmentBlockHex = hexlify(toBytes(intentFulfillmentBlock))
+  console.log('intentFulfillmentBlockHex: ', intentFulfillmentBlockHex)
   const l1BatchIndex =
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputIndexAfter(
       intentFulfillmentBlock,
@@ -234,6 +239,7 @@ async function proveL2WorldState(intentFulfillmentTransaction) {
     'eth_getBlockByNumber',
     [l2EndBatchBlockHex, false],
   )
+  console.log('l2EndBatchBlockData: ', l2EndBatchBlockData)
   // Get the Message Parser State Root at the block the intent was fulfilled
   const l2MesagePasserProof = await s.layer2DestinationProvider.send(
     'eth_getProof',
@@ -245,50 +251,18 @@ async function proveL2WorldState(intentFulfillmentTransaction) {
   )
 
   // Get the storage Slot information
-  // storageHashOutputOracle = calculated from the batch number *2 + output slot 3
+  // l1BatchSlot = calculated from the batch number *2 + output slot 3
   // In Solidity
   // bytes32 outputRootStorageSlot =
   // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
-  const storageHashOutputOracle = solidityPackedKeccak256(
-    ['bytes'],
-    [
-      s.abiCoder.encode(
-        ['uint256'],
-        // [config.l2OutputOracleSlotNumber + l1BatchIndex * 2],
-        [config.l2OutputOracleSlotNumber + Number(l1BatchIndex) * 2],
-        // [
-        //   solidityPackedKeccak256(
-        //     ['uint256'],
-        //     [config.l2OutputOracleSlotNumber],
-        //   ) +
-        //     Number(l1BatchIndex) * 2,
-        // ],
-      ),
-    ],
+  const arrayLengthSlot = zeroPadValue(
+    toBytes(config.l2OutputOracleSlotNumber),
+    32,
   )
-
-  console.log('storageHashOutputOracle: ', storageHashOutputOracle)
-  console.log(
-    'storageAt: ',
-    await s.layer1Provider.getStorage(
-      config.layer1.l2BaseOutputOracleAddress,
-      '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f74dfa3',
-      // hexlify(toBytes(6124738)),
-    ),
-  )
-  const arrayLengthSlot = zeroPadValue(toBytes(0x3), 32)
-  console.log('arrayLengthSlot: ', arrayLengthSlot)
   const firstElementSlot = solidityPackedKeccak256(
     ['bytes32'],
     [arrayLengthSlot],
   )
-  console.log('firstElementSlot: ', firstElementSlot)
-  const l1BatchIndexHex = zeroPadValue(toBytes(l1BatchIndex), 32)
-  console.log('l1BatchIndexHex : ', l1BatchIndexHex)
-  // const l1BatchSlot = concat([firstElementSlot, l1BatchIndexHex])
-  // const l1BatchSlot = (
-  //   parseInt(firstElementSlot, 16) + parseInt(l1BatchIndexHex, 16)
-  // ).toString(16)
   const l1BatchSlot = toBeHex(
     BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
     32,
@@ -300,20 +274,35 @@ async function proveL2WorldState(intentFulfillmentTransaction) {
   // Original '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f74c311'
   // Get the L1 Batch Block we are proving against
   // Get all the proving data
+  console.log('In layer1BlockTag:', layer1BlockTag)
+  const layer1BaseOutputOracleProof = await s.layer1Provider.send(
+    'eth_getProof',
+    [config.layer1.l2BaseOutputOracleAddress, [l1BatchSlot], layer1BlockTag],
+  )
+  console.log('out')
+
+  const layer1BaseOutputOracleContractData = [
+    '0x01', // nonce
+    '0x', // balance
+    layer1BaseOutputOracleProof.storageHash, // storageHash
+    layer1BaseOutputOracleProof.codeHash, // CodeHash
+  ]
 
   try {
-    // const proveOutputTX = await s.layer2SourceProverContract.proveOutputRoot(
-    //   l2EndBatchBlockData.stateRoot,
-    //   l2MesagePasserProof.storageHash,
-    //   l2EndBatchBlockData.hash,
-    //   l1Batch,
-    //   l1StorageProof[0].proof,
-    //   await prover.rlpEncodeDataLibList(l1l2OutputOraceContractData),
-    //   l1AccountProof,
-    //   L1_WORLD_STATE_ROOT,
-    // )
-    // await proveOutputTX.wait()
-    return 'layer2WorldStateRoot'
+    const proveOutputTX = await s.layer2SourceProverContract.proveOutputRoot(
+      l2EndBatchBlockData.stateRoot,
+      l2MesagePasserProof.storageHash,
+      l2EndBatchBlockData.hash,
+      l1BatchIndex,
+      layer1BaseOutputOracleProof[0].proof,
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        layer1BaseOutputOracleContractData,
+      ),
+      layer1BaseOutputOracleProof.accountProof,
+      layer1WorldStateRoot,
+    )
+    await proveOutputTX.wait()
+    return proveOutputTX
   } catch (e) {
     console.log(e)
   }
@@ -361,32 +350,50 @@ async function main() {
   // define the variables used for each state of the intent lifecycle
   let intentHash,
     intentFulfillTransaction,
+    layer1Block,
+    layer1BlockTag,
     layer1WorldStateRoot,
     layer2WorldStateRoot,
+    proveOutputTX,
     intentProofTx,
     withdrawRewardTx
   try {
-    // intentHash = await createIntent()
-    intentHash =
-      '0x8e035df9221b39512f9a7e17b4f3d41fce1572a448b98b96e7af6c29fc4be0f9'
+    // console.log('In Main')
+    // intentHash =
+    //   '0xc36a7e294af6e2a43d6dd7518259c6650acab9e25dab27cfdc209b97f1ecf6d7'
+    // proveOutputTX = await proveL2WorldState(
+    //   '0x5da80e',
+    //   '0x7c9477aa544e8fac4d09c9eb3939fa3cbb381dc0bcda22707948233f2520b873',
+    //   '0xcf2f84f5a83dc823027034d3b852999fbea8795524a78ec79efe9945a05a71d1',
+    // )
+    // console.log('Called proveL2WorldState')
+    // Real code
+    intentHash = await createIntent()
     console.log('Created Intent Hash: ', intentHash)
-    // intentFulfillTransaction = await fulfillIntent(intentHash)
-    intentFulfillTransaction =
-      '0xa372d5b8062a2624aeba2aa77b499b37e89f4e2f93a679418d10c1f7bf049259'
+    intentFulfillTransaction = await fulfillIntent(intentHash)
+    // intentFulfillTransaction =
+    //   '0xa372d5b8062a2624aeba2aa77b499b37e89f4e2f93a679418d10c1f7bf049259'
     console.log('intentFulfillTransaction', intentFulfillTransaction)
     // wait for 180 seconds for L1 batch to be Settled
-    // await setTimeout(180000)
-    // console.log('Waited 180 seconds')
-    // layer1WorldStateRoot = await proveL1WorldState()
-    const layer1WorldStateRoot =
-      '0xc3ec687942c104609632c78a124cc429f59e0fce28702358aeb8f80431376795'
+    await setTimeout(600000)
+    console.log('Waited 600 seconds')
+    const { layer1Block, layer1BlockTag, layer1WorldStateRoot } =
+      await proveL1WorldState()
+    // const layer1WorldStateRoot =
+    //   '0xc3ec687942c104609632c78a124cc429f59e0fce28702358aeb8f80431376795'
     // currentBlock:  6124968
     // currentBlockTag:  0x5d75a8
     // proven L1 world state root: layer1WorldStateRoot}
     // layer1WorldStateRoot:  0xc3ec687942c104609632c78a124cc429f59e0fce28702358aeb8f80431376795
+    console.log('layer1Block         : ', layer1Block)
+    console.log('layer1BlockTag      : ', layer1BlockTag)
     console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
-    layer2WorldStateRoot = await proveL2WorldState(intentFulfillTransaction)
-    console.log('layer2WorldStateRoot: ', layer2WorldStateRoot)
+    proveOutputTX = await proveL2WorldState(
+      layer1BlockTag,
+      intentFulfillTransaction,
+      layer1WorldStateRoot,
+    )
+    console.log('proveOutputTX: ', proveOutputTX)
     // intentProofTx = await proveIntent(intentHash)
     // console.log('intentProofTx: ', intentProofTx)
     withdrawRewardTx = await withdrawReward(intentHash)

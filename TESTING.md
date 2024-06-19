@@ -424,6 +424,7 @@ Storage Layout
 
 - [Alchemy - Smart Contract Storage Layout](https://docs.alchemy.com/docs/smart-contract-storage-layout): good explanation of storage and storage slots
 - [Alchmey eth_createAccessList](https://docs.alchemy.com/reference/eth-createaccesslist)
+- [Storage in Solidity](https://leanmind.es/en/blog/storage-in-solidity/): explains how to calculate the storage slot using kecakk256 and adding the array element to it.
 
 Proving Protocols
 
