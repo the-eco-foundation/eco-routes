@@ -89,6 +89,11 @@ export namespace s {
     IntentSource__factory.abi,
     layer2SourceIntentCreator,
   )
+  export const layer2SourceIntentSourceContractClaimant = new Contract(
+    config.layer2Source.intentSourceAddress,
+    IntentSource__factory.abi,
+    layer2SourceClaimant,
+  )
   export const layer2SourceProverContract = new Contract(
     config.layer2Source.proverContractAddress,
     Prover__factory.abi,

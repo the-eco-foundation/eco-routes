@@ -72,7 +72,7 @@ export async function createIntent() {
         latestBlockNumberHex,
       )
     for (const intenthHashEvent of intentHashEvents) {
-      console.log('intenthHashEvent: ', JSON.stringify(intenthHashEvent, 0, 2))
+      // console.log('intenthHashEvent: ', JSON.stringify(intenthHashEvent, 0, 2))
       if (intenthHashEvent.transactionHash === intentTx.hash) {
         intentHash = intenthHashEvent.topics[1]
         break
@@ -123,9 +123,9 @@ export async function fulfillIntent(intentHash) {
 async function proveL1WorldState() {
   console.log('In proveL1WorldState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
-  console.log('layer1Block: ', layer1Block.toString())
+  // console.log('layer1Block: ', layer1Block.toString())
   const layer1BlockTag = hexlify(toQuantity(layer1Block))
-  console.log('layer1BlockTag: ', layer1BlockTag)
+  // console.log('layer1BlockTag: ', layer1BlockTag)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
     layer1BlockTag,
@@ -349,9 +349,9 @@ async function proveIntent(
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 0])],
   )
-  console.log('inboxStorageSlot: ', inboxStorageSlot)
+  // console.log('inboxStorageSlot: ', inboxStorageSlot)
 
-  console.log('l2EndBatchBlockData.number : ', l2EndBatchBlockData.number)
+  // console.log('l2EndBatchBlockData.number : ', l2EndBatchBlockData.number)
   const intentInboxProof = await s.layer2DestinationProvider.send(
     'eth_getProof',
     [
@@ -361,7 +361,7 @@ async function proveIntent(
     ],
   )
 
-  console.log('intentInboxProof.balance: ', intentInboxProof.balance)
+  // console.log('intentInboxProof.balance: ', intentInboxProof.balance)
   const balance =
     intentInboxProof.balance === '0x0'
       ? '0x'
@@ -369,8 +369,8 @@ async function proveIntent(
         proof.balance.length & (1 === 1)
         ? zeroPadValue(toBytes(intentInboxProof.balance), 1)
         : intentInboxProof.balance
-  console.log('balance: ', balance)
-  console.log('intentInboxProof.nonce: ', intentInboxProof.nonce)
+  // console.log('balance: ', balance)
+  // console.log('intentInboxProof.nonce: ', intentInboxProof.nonce)
   const nonce =
     intentInboxProof.nonce === '0x0'
       ? '0x'
@@ -378,23 +378,23 @@ async function proveIntent(
         intentInboxProof.nonce.length & (1 === 1)
         ? zeroPadValue(toBytes(intentInboxProof.nonce), 1)
         : intentInboxProof.nonce
-  console.log('nonce: ', nonce)
-  console.log('p1: ', config.actors.claimant)
-  console.log('p2: ', config.layer2Destination.inboxAddress)
-  console.log('p3: ', intentHash)
-  console.log('p4: ', Number(l1BatchIndex) - 1)
-  console.log('p5: ', intentInboxProof.storageProof[0].proof)
-  console.log(
-    'p6: ',
-    await s.layer2SourceProverContract.rlpEncodeDataLibList([
-      nonce,
-      balance,
-      intentInboxProof.storageHash,
-      intentInboxProof.codeHash,
-    ]),
-  )
-  console.log('p7: ', intentInboxProof.accountProof)
-  console.log('p8: ', l2EndBatchBlockData.stateRoot)
+  // console.log('nonce: ', nonce)
+  // console.log('p1: ', config.actors.claimant)
+  // console.log('p2: ', config.layer2Destination.inboxAddress)
+  // console.log('p3: ', intentHash)
+  // console.log('p4: ', Number(l1BatchIndex) - 1)
+  // console.log('p5: ', intentInboxProof.storageProof[0].proof)
+  // console.log(
+  //   'p6: ',
+  //   await s.layer2SourceProverContract.rlpEncodeDataLibList([
+  //     nonce,
+  //     balance,
+  //     intentInboxProof.storageHash,
+  //     intentInboxProof.codeHash,
+  //   ]),
+  // )
+  // console.log('p7: ', intentInboxProof.accountProof)
+  // console.log('p8: ', l2EndBatchBlockData.stateRoot)
   try {
     const proveIntentTx = await s.layer2SourceProverContract.proveIntent(
       config.actors.claimant,
@@ -432,14 +432,16 @@ async function withdrawReward(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
-      await s.layer2SourceIntentSourceContract.withdrawRewards(intentHash)
+      await s.layer2SourceIntentSourceContractClaimant.withdrawRewards(
+        intentHash,
+      )
     await withdrawTx.wait()
     console.log('withdraw complete: ', withdrawTx.hash)
     return withdrawTx.hash
   } catch (e) {
-    if (e.data && s.layer2SourceProverContract) {
+    if (e.data && s.layer2SourceIntentSourceContractClaimant) {
       const decodedError =
-        s.layer2SourceIntentSourceContract.interface.parseError(e.data)
+        s.layer2SourceIntentSourceContractClaimant.interface.parseError(e.data)
       console.log(
         `Transaction failed in withdrawReward : ${decodedError?.name}`,
       )
@@ -462,23 +464,24 @@ async function main() {
     withdrawRewardTx
   try {
     console.log('In Main')
-    // intentHash = await createIntent()
-    intentHash =
-      '0xf749096dffa1c27665cae488e012e245f8ccea481c3ee6be0de79dfde87d4db5'
+    intentHash = await createIntent()
+    // intentHash =
+    //   '0xf749096dffa1c27665cae488e012e245f8ccea481c3ee6be0de79dfde87d4db5'
     console.log('Created Intent Hash: ', intentHash)
-    // intentFulfillTransaction = await fulfillIntent(intentHash)
-    intentFulfillTransaction =
-      '0xb8409eaf9602290bf174176ad65bb4e00202538e9d32ab10a48879fdf63ccd60'
+    intentFulfillTransaction = await fulfillIntent(intentHash)
+    // intentFulfillTransaction =
+    //   '0xb8409eaf9602290bf174176ad65bb4e00202538e9d32ab10a48879fdf63ccd60'
     console.log('intentFulfillTransaction', intentFulfillTransaction)
     // wait for 600 seconds for L1 batch to be Settled (it takes around 7 mins to show as settled on basescan)
-    // await setTimeout(600000)
-    // console.log('Waited 600 seconds')
-    // const { layer1Block, layer1BlockTag, layer1WorldStateRoot } =
-    //   await proveL1WorldState()
-    layer1Block = 6143128
-    layer1BlockTag = '0x5dbc98'
-    layer1WorldStateRoot =
-      '0x02f6b2ce141a90dd3419db142508c41b205886b8f73ed42d1ab49ae2810f2f72'
+    console.log('Waiting for 600 seconds for Batch to settle')
+    await setTimeout(600000)
+    console.log('Waited 600 seconds')
+    const { layer1Block, layer1BlockTag, layer1WorldStateRoot } =
+      await proveL1WorldState()
+    // layer1Block = 6143128
+    // layer1BlockTag = '0x5dbc98'
+    // layer1WorldStateRoot =
+    //   '0x02f6b2ce141a90dd3419db142508c41b205886b8f73ed42d1ab49ae2810f2f72'
     console.log('layer1Block         : ', layer1Block)
     console.log('layer1BlockTag      : ', layer1BlockTag)
     console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
