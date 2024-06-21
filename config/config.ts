@@ -45,28 +45,4 @@ export default {
     rewardAmounts: [1237],
     duration: 3600,
   },
-  intentTransaction: {
-    transaction:
-      '0xdcec879122df8469101d4d18dabb382312acee435ff8fc138b2dbc1c7d058595',
-    hash: '0x53819d1039447c99d2fc31960ac5b56a389d961cddde355941a02f8ff0b7d9c8',
-    nonce: '0xbdf8aa3e891eaf55796069c59400592f18ace63bccfc836dab094d09c3ed6ce3',
-  },
-  fullfillmentTransaction: {
-    transaction:
-      '0x73a239917783af3d1b9bbaf6152ed19de757096b34636d168a42ef3450d5906f',
-    blockNumber: 10978073,
-    blockHash:
-      '0xcc682ef8fc55061db71007cc76662d1a109ca2a94168e5aa7d3f9aebd38364fa',
-    blockBatch: 91483,
-    blockBatchLastBlock: 10978080,
-    blockBatchLastBlockHash:
-      '0xe41b89c14bc987d9c557742e790dfaee50ddb1bf981c5e9854fe5c50a96646fb',
-    l1Block: 6054921,
-    l1BlockHash:
-      '0x43399d539577a23a93d713934c6b490210c69915aba2f1c4c9203618cc141c64',
-    l1WorldStateRoot:
-      '0xbffb76d782f51dde41ea7d7f9715664b4dd0617fc7373ba20a670281645ba135',
-    l1StateRootSubmissionTransaction:
-      '0xbc0d0b35f144aeb2239b3d97c36b56b7e0d933618e3d9bf6c6ab16882a464f8a',
-  },
 }
