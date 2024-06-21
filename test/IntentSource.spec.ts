@@ -238,7 +238,7 @@ describe('Intent Source Test', (): void => {
           .connect(creator)
           .createIntent(
             chainId,
-            targets,
+            targets,x
             data,
             rewardTokens,
             rewardAmounts,
@@ -290,7 +290,8 @@ describe('Intent Source Test', (): void => {
         )
     })
     context('before expiry, no proof', () => {
-      it('cant be withdrawn by solver or creator (or anyone else)', async () => {
+      it.only('cant be withdrawn by solver or creator (or anyone else)', async () => {
+        console.log(await intentSource.getIntent(identifier))
         await expect(
           intentSource.connect(creator).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
