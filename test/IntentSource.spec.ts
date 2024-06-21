@@ -43,6 +43,7 @@ describe('Intent Source Test', (): void => {
     const intentSource = await intentSourceFactory.deploy(
       prover,
       minimumDuration,
+      0,
     )
 
     // deploy ERC20 test

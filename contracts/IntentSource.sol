@@ -36,11 +36,14 @@ contract IntentSource is IIntentSource {
     /**
      * @param _prover the prover address
      * @param _minimumDuration the minimum duration of an intent originating on this chain
+     * @param _counterStart the initial value of the counter
+     * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs redeployed.
      */
-    constructor(address _prover, uint256 _minimumDuration) {
+    constructor(address _prover, uint256 _minimumDuration, uint256 _counterStart) {
         CHAIN_ID = block.chainid;
         PROVER = IProver(_prover);
         MINIMUM_DURATION = _minimumDuration;
+        counter = _counterStart;
     }
 
     /**
