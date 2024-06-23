@@ -1,5 +1,5 @@
 /* -*- c-basic-offset: 4 -*- */
-// SPDX-License-Identifier: MIT
+// SPDX-License-hash: MIT
 pragma solidity ^0.8.26;
 
 /**
@@ -13,15 +13,15 @@ interface IIntentSource {
     /**
      * @notice emitted on a call to withdraw() by someone who is not entitled to the rewards for a
      * given intent.
-     * @param _identifier the identifier of the intent on which withdraw was attempted
+     * @param _hash the hash of the intent, also the key to the intents mapping
      */
-    error UnauthorizedWithdrawal(bytes32 _identifier);
+    error UnauthorizedWithdrawal(bytes32 _hash);
 
     /**
      * @notice emitted on a call to withdraw() for an intent whose rewards have already been withdrawn.
-     * @param _identifier the identifier of the intent on which withdraw was attempted
+     * @param _hash the hash of the intent on which withdraw was attempted
      */
-    error NothingToWithdraw(bytes32 _identifier);
+    error NothingToWithdraw(bytes32 _hash);
 
     /**
      * @notice emitted on a call to createIntent where _expiry is less than MINIMUM_DURATION
@@ -41,7 +41,7 @@ interface IIntentSource {
 
     /**
      * @notice emitted on a successful call to createIntent
-     * @param _identifier the key of the intents mapping that can be used to fetch the intent
+     * @param _hash the hash of the intent, also the key to the intents mapping
      * @param _creator the address that created the intent
      * @param _destinationChain the destination chain
      * @param _targets the address on _destinationChain at which the instruction sets need to be executed
@@ -52,22 +52,23 @@ interface IIntentSource {
      */
     //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
     event IntentCreated(
-        bytes32 _identifier,
+        bytes32 indexed _hash,
         address _creator,
         uint256 indexed _destinationChain,
         address[] _targets,
         bytes[] _data,
         address[] _rewardTokens,
         uint256[] _rewardAmounts,
-        uint256 indexed _expiryTime
+        uint256 indexed _expiryTime,
+        bytes32 nonce
     );
 
     /**
      * @notice emitted on successful call to withdraw
-     * @param _identifier the identifier of the intent on which withdraw was attempted
+     * @param _hash the hash of the intent on which withdraw was attempted
      * @param _recipient the address that received the rewards for this intent
      */
-    event Withdrawal(bytes32 _identifier, address indexed _recipient);
+    event Withdrawal(bytes32 _hash, address indexed _recipient);
 
     /**
      * @notice Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets.
@@ -92,31 +93,30 @@ interface IIntentSource {
 
     /**
      * @notice allows withdrawal of reward funds locked up for a given intent
-     * @param _identifier the key corresponding to this intent in the intents mapping
+     * @param _hash the key corresponding to this intent in the intents mapping
      */
-    function withdrawRewards(bytes32 _identifier) external;
+    function withdrawRewards(bytes32 _hash) external;
 
     /**
      * @notice fetches targets array from intent
-     * @param _identifier the identifier for the intent
+     * @param _hash the hash for the intent
      */
-    function getTargets(bytes32 _identifier) external view returns (address[] memory);
-
+    function getTargets(bytes32 _hash) external view returns (address[] memory);
     /**
      * @notice fetches data array from intent
-     * @param _identifier the identifier for the intent
+     * @param _hash the hash for the intent
      */
-    function getData(bytes32 _identifier) external view returns (bytes[] memory);
+    function getData(bytes32 _hash) external view returns (bytes[] memory);
 
     /**
      * @notice fetches reward tokens array from intent
-     * @param _identifier the identifier for the intent
+     * @param _hash the hash for the intent
      */
-    function getRewardTokens(bytes32 _identifier) external view returns (address[] memory);
+    function getRewardTokens(bytes32 _hash) external view returns (address[] memory);
 
     /**
      * @notice fetches reward amounts array from intent
-     * @param _identifier the identifier for the intent
+     * @param _hash the hash for the intent
      */
-    function getRewardAmounts(bytes32 _identifier) external view returns (uint256[] memory);
+    function getRewardAmounts(bytes32 _hash) external view returns (uint256[] memory);
 }

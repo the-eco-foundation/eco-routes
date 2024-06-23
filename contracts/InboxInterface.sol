@@ -22,13 +22,13 @@ interface InboxInterface {
     ) external returns (bytes[] memory);
 
     // Event emitted when an intent is succesfully fulfilled
-    event Fulfillment(bytes32 indexed _nonce);
+    event Fulfillment(bytes32 indexed _hash);
 
     // Event emitted when the intent can no longer be fulfilled because its timestamp has expired
     error IntentExpired();
 
     // Event emitted when the intent has already been fulfilled
-    error IntentAlreadyFulfilled(bytes32 _nonce);
+    error IntentAlreadyFulfilled(bytes32 _hash);
 
     // Event emitted when the intent call failed while itertating through the callAddresses
     error IntentCallFailed(address _addr, bytes _data, bytes _returnData);

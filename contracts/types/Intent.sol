@@ -19,6 +19,6 @@ struct Intent {
     uint256 expiryTime;
     // true if it has been withdrawn already
     bool hasBeenWithdrawn;
-    // hash of identifier, targets, calldatas
-    bytes32 intentHash;
+    // hash of counter, chainid
+    bytes32 nonce;
 }

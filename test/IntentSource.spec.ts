@@ -18,12 +18,13 @@ describe('Intent Source Test', (): void => {
   const minimumDuration = 1000
 
   let expiry: number
-  let identifier: BytesLike
+  let intentHash: BytesLike
   let chainId: number
   let targets: string[]
   let data: BytesLike[]
   let rewardTokens: string[]
   let rewardAmounts: number[]
+  let nonce: BytesLike
 
   async function deploySourceFixture(): Promise<{
     intentSource: IntentSource
@@ -66,29 +67,6 @@ describe('Intent Source Test', (): void => {
     await tokenB.connect(creator).approve(intentSource, mintAmount * 2)
   }
 
-  //   async function encodeIdentifier(
-  //     counter: number,
-  //     chainid: NumberLike,
-  //   ): Promise<DataHexString> {
-  //     const abiCoder = ethers.AbiCoder.defaultAbiCoder()
-  //     const encodedData = abiCoder.encode(
-  //       ['uint256', 'uint256'],
-  //       [counter, chainid],
-  //     )
-  //     return keccak256(encodedData)
-  //   }
-
-  //   async function encodeTransfer(
-  //     to: string,
-  //     value: number,
-  //   ): Promise<DataHexString> {
-  //     // Contract ABIs
-  //     const erc20ABI = ['function transfer(address to, uint256 value)']
-  //     const abiInterface = new ethers.Interface(erc20ABI)
-  //     const callData = abiInterface.encodeFunctionData('transfer', [to, value])
-  //     return callData
-  //   }
-
   beforeEach(async (): Promise<void> => {
     ;({ intentSource, tokenA, tokenB, creator, solver } =
       await loadFixture(deploySourceFixture))
@@ -110,15 +88,21 @@ describe('Intent Source Test', (): void => {
   describe('intent creation', async () => {
     beforeEach(async (): Promise<void> => {
       expiry = (await time.latest()) + minimumDuration + 10
-      identifier = await encodeIdentifier(
-        0,
-        (await ethers.provider.getNetwork()).chainId,
-      )
       chainId = 1
       targets = [await tokenA.getAddress()]
       data = [await encodeTransfer(creator.address, mintAmount)]
       rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
       rewardAmounts = [mintAmount, mintAmount * 2]
+      nonce = await encodeIdentifier(
+        0,
+        (await ethers.provider.getNetwork()).chainId,
+      )
+      const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+      const encodedData = abiCoder.encode(
+        ['bytes32', 'address[]', 'bytes[]', 'uint256'],
+        [nonce, targets, data, expiry],
+      )
+      intentHash = keccak256(encodedData)
     })
     context('fails if', () => {
       it('targets or data length is 0, or if they are mismatched', async () => {
@@ -203,25 +187,21 @@ describe('Intent Source Test', (): void => {
           rewardAmounts,
           expiry,
         )
-      const intent = await intentSource.intents(identifier)
+      const intent = await intentSource.intents(intentHash)
       // value types
       expect(intent.creator).to.eq(creator.address)
       expect(intent.destinationChain).to.eq(chainId)
       expect(intent.expiryTime).to.eq(expiry)
       expect(intent.hasBeenWithdrawn).to.eq(false)
-      const abiCoder = ethers.AbiCoder.defaultAbiCoder()
-      const encodedData = abiCoder.encode(
-        ['bytes32', 'address[]', 'bytes[]', 'uint256'],
-        [identifier, targets, data, expiry],
-      )
-      expect(intent.intentHash).to.eq(keccak256(encodedData))
+
+      expect(intent.nonce).to.eq(nonce)
       // reference types
-      expect(await intentSource.getTargets(identifier)).to.deep.eq(targets)
-      expect(await intentSource.getData(identifier)).to.deep.eq(data)
-      expect(await intentSource.getRewardTokens(identifier)).to.deep.eq(
+      expect(await intentSource.getTargets(intentHash)).to.deep.eq(targets)
+      expect(await intentSource.getData(intentHash)).to.deep.eq(data)
+      expect(await intentSource.getRewardTokens(intentHash)).to.deep.eq(
         rewardTokens,
       )
-      expect(await intentSource.getRewardAmounts(identifier)).to.deep.eq(
+      expect(await intentSource.getRewardAmounts(intentHash)).to.deep.eq(
         rewardAmounts,
       )
     })
@@ -266,7 +246,7 @@ describe('Intent Source Test', (): void => {
       )
         .to.emit(intentSource, 'IntentCreated')
         .withArgs(
-          identifier,
+          intentHash,
           await creator.getAddress(),
           chainId,
           targets,
@@ -274,13 +254,14 @@ describe('Intent Source Test', (): void => {
           rewardTokens,
           rewardAmounts,
           expiry,
+          nonce,
         )
     })
   })
   describe('claiming rewards', async () => {
     beforeEach(async (): Promise<void> => {
       expiry = (await time.latest()) + minimumDuration + 10
-      identifier = await encodeIdentifier(
+      nonce = await encodeIdentifier(
         0,
         (await ethers.provider.getNetwork()).chainId,
       )
@@ -289,6 +270,12 @@ describe('Intent Source Test', (): void => {
       data = [await encodeTransfer(creator.address, mintAmount)]
       rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
       rewardAmounts = [mintAmount, mintAmount * 2]
+      const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+      const encodedData = abiCoder.encode(
+        ['bytes32', 'address[]', 'bytes[]', 'uint256'],
+        [nonce, targets, data, expiry],
+      )
+      intentHash = keccak256(encodedData)
 
       await intentSource
         .connect(creator)
@@ -304,11 +291,11 @@ describe('Intent Source Test', (): void => {
     context('before expiry, no proof', () => {
       it('cant be withdrawn by solver or creator (or anyone else)', async () => {
         await expect(
-          intentSource.connect(creator).withdrawRewards(identifier),
+          intentSource.connect(creator).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
 
         await expect(
-          intentSource.connect(solver).withdrawRewards(identifier),
+          intentSource.connect(solver).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
       })
     })
@@ -316,14 +303,11 @@ describe('Intent Source Test', (): void => {
       beforeEach(async (): Promise<void> => {
         await prover
           .connect(creator)
-          .addProvenIntent(
-            (await intentSource.intents(identifier)).intentHash,
-            await solver.getAddress(),
-          )
+          .addProvenIntent(intentHash, await solver.getAddress())
       })
       it('cannot be withdrawn by non-solver', async () => {
         await expect(
-          intentSource.connect(creator).withdrawRewards(identifier),
+          intentSource.connect(creator).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
       })
       it('can be withdrawn by solver', async () => {
@@ -333,12 +317,12 @@ describe('Intent Source Test', (): void => {
         const initialBalanceB = await tokenB.balanceOf(
           await solver.getAddress(),
         )
-        expect((await intentSource.intents(identifier)).hasBeenWithdrawn).to.be
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .false
 
-        await intentSource.connect(solver).withdrawRewards(identifier)
+        await intentSource.connect(solver).withdrawRewards(intentHash)
 
-        expect((await intentSource.intents(identifier)).hasBeenWithdrawn).to.be
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .true
         expect(await tokenA.balanceOf(await solver.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
@@ -348,14 +332,14 @@ describe('Intent Source Test', (): void => {
         )
       })
       it('emits event', async () => {
-        await expect(intentSource.connect(solver).withdrawRewards(identifier))
+        await expect(intentSource.connect(solver).withdrawRewards(intentHash))
           .to.emit(intentSource, 'Withdrawal')
-          .withArgs(identifier, await solver.getAddress())
+          .withArgs(intentHash, await solver.getAddress())
       })
       it('does not allow repeat withdrawal', async () => {
-        await intentSource.connect(solver).withdrawRewards(identifier)
+        await intentSource.connect(solver).withdrawRewards(intentHash)
         await expect(
-          intentSource.connect(solver).withdrawRewards(identifier),
+          intentSource.connect(solver).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, 'NothingToWithdraw')
       })
     })
@@ -365,7 +349,7 @@ describe('Intent Source Test', (): void => {
       })
       it('cannot be withdrawn by non-creator', async () => {
         await expect(
-          intentSource.connect(solver).withdrawRewards(identifier),
+          intentSource.connect(solver).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
       })
       it('can be withdrawn by creator', async () => {
@@ -375,12 +359,12 @@ describe('Intent Source Test', (): void => {
         const initialBalanceB = await tokenB.balanceOf(
           await creator.getAddress(),
         )
-        expect((await intentSource.intents(identifier)).hasBeenWithdrawn).to.be
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .false
 
-        await intentSource.connect(creator).withdrawRewards(identifier)
+        await intentSource.connect(creator).withdrawRewards(intentHash)
 
-        expect((await intentSource.intents(identifier)).hasBeenWithdrawn).to.be
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .true
         expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
@@ -394,19 +378,16 @@ describe('Intent Source Test', (): void => {
       beforeEach(async (): Promise<void> => {
         await prover
           .connect(creator)
-          .addProvenIntent(
-            (await intentSource.intents(identifier)).intentHash,
-            await solver.getAddress(),
-          )
+          .addProvenIntent(intentHash, await solver.getAddress())
         await time.increaseTo(expiry)
       })
       it('cannot be withdrawn by non-solver', async () => {
         await expect(
-          intentSource.connect(creator).withdrawRewards(identifier),
+          intentSource.connect(creator).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
       })
       it('can be withdrawn by solver', async () => {
-        await expect(intentSource.connect(solver).withdrawRewards(identifier))
+        await expect(intentSource.connect(solver).withdrawRewards(intentHash))
           .to.not.be.reverted
       })
     })

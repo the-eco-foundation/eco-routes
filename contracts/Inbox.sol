@@ -10,18 +10,9 @@ import "./InboxInterface.sol";
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
 contract Inbox is InboxInterface {
-    /**
-     * Struct that stores the hash and address for a fulfilled intent.
-     * Both of these fields are needed for a prover to claim the reward on t
-     * the src chain
-     */
-    struct IntentFulfillment {
-        bytes32 hash;
-        address claimer;
-    }
 
-    // Mapping of intent nonce on the src chain to its fulfillment
-    mapping(bytes32 => IntentFulfillment) public fulfilled;
+    // Mapping of intent hash on the src chain to its fulfillment
+    mapping(bytes32 => address) public fulfilled;
 
     // Check that the intent has not expired
     modifier validTimestamp(uint256 _expireTimestamp) {
@@ -29,15 +20,6 @@ contract Inbox is InboxInterface {
             _;
         } else {
             revert IntentExpired();
-        }
-    }
-
-    // Check that the intent hash has not been fulfilled
-    modifier unfulfilled(bytes32 _nonce) {
-        if (fulfilled[_nonce].claimer == address(0)) {
-            _;
-        } else {
-            revert IntentAlreadyFulfilled(_nonce);
         }
     }
 
@@ -49,7 +31,7 @@ contract Inbox is InboxInterface {
      * @param _targets The addresses to call
      * @param _datas The calldata to call
      * @param _expireTimestamp The timestamp at which the intent expires
-     * @param _claimer The address who can claim the reward on the src chain. Not part of the hash
+     * @param _claimant The address who can claim the reward on the src chain. Not part of the hash
      * @return results The results of the calls as an array of bytes
      */
     function fulfill(
@@ -57,8 +39,13 @@ contract Inbox is InboxInterface {
         address[] calldata _targets,
         bytes[] calldata _datas,
         uint256 _expireTimestamp,
-        address _claimer
-    ) external unfulfilled(_nonce) validTimestamp(_expireTimestamp) returns (bytes[] memory) {
+        address _claimant
+    ) external validTimestamp(_expireTimestamp) returns (bytes[] memory) {
+        bytes32 intentHash = encodeHash(_nonce, _targets, _datas, _expireTimestamp);
+        // revert if intent has already been fulfilled
+        if(fulfilled[intentHash] != address(0)) {
+            revert IntentAlreadyFulfilled(intentHash);
+        }
         // Store the results of the calls
         bytes[] memory results = new bytes[](_datas.length);
         // Call the addresses with the calldata
@@ -70,10 +57,10 @@ contract Inbox is InboxInterface {
             results[i] = result;
         }
         // Mark the intent as fulfilled
-        fulfilled[_nonce] = IntentFulfillment(encodeHash(_nonce, _targets, _datas, _expireTimestamp), _claimer);
+        fulfilled[intentHash] = _claimant;
 
         // Emit an event
-        emit Fulfillment(_nonce);
+        emit Fulfillment(intentHash);
 
         // Return the results
         return results;
