@@ -12,7 +12,6 @@ import {
   IntentSource__factory,
   IL1Block__factory,
   Prover__factory,
-  ERC20,
   ERC20__factory,
 } from '../typechain-types'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'

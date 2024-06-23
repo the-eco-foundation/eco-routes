@@ -124,7 +124,7 @@ async function proveL1WorldState() {
     await tx.wait()
     layer1WorldStateRoot = blockData[3]
     console.log('proven L1 world state root:', layer1WorldStateRoot)
-    return { layer1Block, layer1BlockTag, layer1WorldStateRoot }
+    return { layer1BlockTag, layer1WorldStateRoot }
   } catch (e) {
     if (e.data && s.layer2SourceProverContract) {
       const decodedError = s.layer2SourceProverContract.interface.parseError(
@@ -269,11 +269,8 @@ async function proveL2WorldState(
       layer1WorldStateRoot,
     )
     await proveOutputTX.wait()
-    const proveL2WorldStateTxHash = proveOutputTX.hash
     return {
-      proveL2WorldStateTxHash,
       l1BatchIndex,
-      layer1BaseOutputOracleProof,
       l2EndBatchBlockData,
     }
   } catch (e) {
@@ -290,12 +287,7 @@ async function proveL2WorldState(
   }
 }
 
-async function proveIntent(
-  intentHash,
-  layer1WorldStateRoot,
-  l1BatchIndex,
-  l2EndBatchBlockData,
-) {
+async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
   console.log('In proveIntent')
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
@@ -314,7 +306,7 @@ async function proveIntent(
     intentInboxProof.balance === '0x0'
       ? '0x'
       : // eslint-disable-next-line no-self-compare
-        proof.balance.length & (1 === 1)
+        intentInboxProof.balance.length & (1 === 1)
         ? zeroPadValue(toBytes(intentInboxProof.balance), 1)
         : intentInboxProof.balance
   const nonce =
@@ -391,21 +383,14 @@ async function main() {
     console.log('Waiting for 600 seconds for Batch to settle')
     await setTimeout(600000)
     console.log('Waited 600 seconds')
-    const { layer1Block, layer1BlockTag, layer1WorldStateRoot } =
-      await proveL1WorldState()
-    const {
-      proveL2WorldStateTxHash,
-      l1BatchIndex,
-      layer1BaseOutputOracleProof,
-      l2EndBatchBlockData,
-    } = await proveL2WorldState(
+    const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
+    const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,
       layer1WorldStateRoot,
     )
     intentProofTxHash = await proveIntent(
       intentHash,
-      layer1WorldStateRoot,
       l1BatchIndex,
       l2EndBatchBlockData,
     )
