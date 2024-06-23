@@ -3,7 +3,6 @@ import { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
 import '@nomicfoundation/hardhat-viem'
 import 'solidity-docgen'
-import 'hardhat-change-network'
 dotenv.config()
 const DEPLOY_PRIVATE_KEY = process.env.PRIVATE_KEY || '0x' + '11'.repeat(32) // this is to avoid hardhat error
 const INTENT_CREATOR_PRIVATE_KEY =
