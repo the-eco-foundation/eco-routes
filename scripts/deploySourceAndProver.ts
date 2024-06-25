@@ -1,5 +1,7 @@
 import { ethers, run } from 'hardhat'
 import { IntentSource, Prover } from '../typechain-types'
+import config from '../config/config'
+import { s } from './setup'
 
 // import { ethers } from 'ethers'
 
@@ -10,7 +12,10 @@ async function main() {
   console.log('Deploying contracts with the account:', deployer.address)
 
   const proverFactory = await ethers.getContractFactory('Prover')
-  const prover: Prover = await proverFactory.deploy(l1BlockAddress)
+  const prover: Prover = await proverFactory.deploy(
+    l1BlockAddress,
+    config.layer1.l2BaseOutputOracleAddress,
+  )
   console.log('prover deployed to:', await prover.getAddress())
 
   await run('verify:verify', {

@@ -8,7 +8,7 @@ For the purposes of the inital walkthrough we use the following chains
 
 1. Optimism Sepolia - Source chain where intents are created and funds are claimed by the solver.
 2. Base Sepolia - destination chain where intents are solved by solvers transferring funds to the recipients via the Inbox.sol
-3. Sepolia - Layer 1 used in proof generation to ensure that solver transactions on the destination chain (Base, an optimistic rollup) have been "settled" on the Layer 1 chain.
+3. Sepolia - Layer 1 used in proof generation to ensure that solver transactions on the destination chain (Base, an optimistic rollup) have been "settled" on the Layer 1 chain. _Note: Both Optimism Sepolia and Base Sepolia settle to the Sepolia Chain._
 
 It runs through two use cases
 
