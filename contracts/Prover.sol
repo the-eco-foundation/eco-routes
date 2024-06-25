@@ -13,8 +13,12 @@ contract Prover {
 
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
+    // L2OutputOracle on Sepolia Eth
     address public constant L1_OUTPUT_ORACLE_ADDRESS = 0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254;
 
+    // This contract lives on an L2 and contains the data for the 'current' L1 block.
+    // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
+    // But optimism maintains a service that posts L1 block data on L2.
     IL1Block public immutable l1BlockhashOracle;
 
     // mapping from l1 world state root hashes to block numbers they correspond to
@@ -59,6 +63,14 @@ contract Prover {
         return RLPWriter.writeList(dataList);
     }
 
+    /**
+     * @notice validates input L1 block state against the L1 oracle contract.
+     * @param rlpEncodedL1BlockData properly encoded L1 block data
+     * @dev inputting the correct block's data encoded as expected will result in its hash matching
+     * the blockhash found on the L1 oracle contract. This means that the world state root found
+     * in that block corresponds to the block on the oracle contract, and that it represents a valid
+     * state.
+     */
     function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public {
         require(keccak256(rlpEncodedL1BlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
@@ -69,6 +81,17 @@ contract Prover {
 
         provenL1States[l1WorldStateRoot] = l1BlockhashOracle.number();
     }
+    /**
+     * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
+     * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
+     * @param l2MessagePasserStateRoot // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
+     * @param l2LatestBlockHash the hash of the last block in the batch
+     * @param l2OutputIndex the batch number
+     * @param l1StorageProof todo
+     * @param rlpEncodedOutputOracleData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
+     * @param l1AccountProof accountProof from eth_getProof(L2OutputOracle, [], )
+     * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
+     */
 
     function proveOutputRoot(
         bytes32 l2WorldStateRoot,
@@ -109,6 +132,17 @@ contract Prover {
 
         provenL2States[l2WorldStateRoot] = l2OutputIndex;
     }
+    /**
+     * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
+     * @param claimant the address that can claim the reward
+     * @param inboxContract the address of the inbox contract
+     * @param intentHash the intent hash
+     * @param intentOutputIndex todo
+     * @param l2StorageProof todo
+     * @param rlpEncodedInboxData todo
+     * @param l2AccountProof todo
+     * @param l2WorldStateRoot todo
+     */
 
     function proveIntent(
         address claimant,

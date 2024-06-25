@@ -31,7 +31,7 @@ contract IntentSource is IIntentSource {
     uint256 public immutable MINIMUM_DURATION;
 
     // stores the intents
-    mapping(bytes32 => Intent) public intents;
+    mapping(bytes32 intenthash => Intent) public intents;
 
     /**
      * @param _prover the prover address

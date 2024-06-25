@@ -90,4 +90,5 @@ docs/slither/vulnerability.txt
 #Deployment data
 deploy/deployments
 
-
+# outputs
+output/proofGenerationOutput.json
