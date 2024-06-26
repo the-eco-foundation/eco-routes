@@ -1,7 +1,7 @@
 import { ethers, run } from 'hardhat'
 import { IntentSource, Prover } from '../typechain-types'
 import config from '../config/config'
-import { setTimeout } from 'timers/promises'
+// import { setTimeout } from 'timers/promises'
 
 // import { ethers } from 'ethers'
 
