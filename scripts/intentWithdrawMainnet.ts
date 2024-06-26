@@ -1,9 +1,5 @@
-import { setTimeout } from 'timers/promises'
-import { encodeTransfer } from '../utils/encode'
 import {
-  BigNumberish,
   Block,
-  BytesLike,
   hexlify,
   solidityPackedKeccak256,
   toQuantity,
@@ -14,101 +10,10 @@ import { toBytes } from 'viem'
 import config from '../config/config'
 import { s } from './setupMainnet'
 
-export async function createIntent() {
-  console.log('In createIntent')
-  // approve lockup
-  const rewardToken = s.layer2SourceUSDCContract
-  const approvalTx = await rewardToken.approve(
-    config.optimism.intentSourceAddress,
-    s.intentRewardAmounts[0],
-  )
-  await approvalTx.wait()
-
-  // get the block before creating the intent
-  const latestBlock = await s.layer2SourceProvider.getBlock('latest')
-  const latestBlockNumberHex = toQuantity(latestBlock.number)
-
-  // create intent
-  const data: BytesLike[] = [
-    await encodeTransfer(s.intentRecipient, s.intentTargetAmounts[0]),
-  ]
-  const expiryTime: BigNumberish =
-    (await s.layer2SourceProvider.getBlock('latest'))!.timestamp +
-    s.intentDuration
-
-  try {
-    const intentTx = await s.layer2SourceIntentSourceContract.createIntent(
-      s.intentDestinationChainId,
-      s.intentTargetTokens,
-      data,
-      s.intentRewardTokens,
-      s.intentRewardAmounts,
-      expiryTime,
-    )
-    await intentTx.wait()
-
-    console.log('successful intent creation: ', intentTx.hash)
-    let intentHash
-    // Get the event from the latest Block checking transaction hash
-    const intentHashEvents =
-      await s.layer2SourceIntentSourceContract.queryFilter(
-        s.layer2SourceIntentSourceContract.getEvent('IntentCreated'),
-        latestBlockNumberHex,
-      )
-    for (const intenthHashEvent of intentHashEvents) {
-      if (intenthHashEvent.transactionHash === intentTx.hash) {
-        intentHash = intenthHashEvent.topics[1]
-        break
-      }
-    }
-    console.log('Created Intent Hash: ', intentHash)
-    return intentHash
-  } catch (e) {
-    console.log(e)
-  }
-}
-
-export async function fulfillIntent(intentHash) {
-  console.log('In fulfillIntent')
-  try {
-    // get intent Information
-    const thisIntent =
-      await s.layer2SourceIntentSourceContract.intents(intentHash)
-    const targetTokens =
-      await s.layer2SourceIntentSourceContract.getTargets(intentHash)
-    const calldata =
-      await s.layer2SourceIntentSourceContract.getData(intentHash)
-
-    // transfer the intent tokens to the Inbox Contract
-    const targetToken = s.layer2DestinationUSDCContract
-    const fundTx = await targetToken.transfer(
-      config.base.inboxAddress,
-      s.intentTargetAmounts[0],
-    )
-    await fundTx.wait()
-
-    // fulfill the intent
-
-    const fulfillTx = await s.layer2DestinationInboxContract.fulfill(
-      thisIntent.nonce,
-      targetTokens.toArray(),
-      calldata.toArray(),
-      thisIntent.expiryTime,
-      config.actors.claimant,
-    )
-    await fulfillTx.wait()
-    return fulfillTx.hash
-  } catch (e) {
-    console.log(e)
-  }
-}
-
 async function proveL1WorldState() {
   console.log('In proveL1WorldState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
   const layer1BlockTag = toQuantity(layer1Block)
-  console.log('layer1Block: ', layer1Block)
-  console.log('layer1BlockTag: ', layer1BlockTag)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
     layer1BlockTag,
@@ -203,22 +108,16 @@ async function proveL2WorldState(
   )
   const intentFulfillmentBlock = txDetails!.blockNumber
   const intentFulfillmentBlockHex = hexlify(toBytes(intentFulfillmentBlock))
-  console.log('intentFulfillmentBlock: ', intentFulfillmentBlock)
-  console.log('intentFulfillmentBlockHex: ', intentFulfillmentBlockHex)
   const l1BatchIndex =
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputIndexAfter(
       intentFulfillmentBlock,
     )
-  console.log('l1BatchIndex: ', l1BatchIndex)
-  console.log('Hey')
   // Get the the L2 End Batch Block for the intent
   const l1BatchData =
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputAfter(
       intentFulfillmentBlock,
     )
-  console.log('l1BatchData.l2BlockNumber: ', l1BatchData.l2BlockNumber)
   const l2EndBatchBlockHex = hexlify(toBytes(l1BatchData.l2BlockNumber))
-  console.log('l2EndBatchBlockHex: ', l2EndBatchBlockHex)
   const l2EndBatchBlockData = await s.layer2DestinationProvider.send(
     'eth_getBlockByNumber',
     [l2EndBatchBlockHex, false],
@@ -228,7 +127,6 @@ async function proveL2WorldState(
     'eth_getProof',
     [config.base.l2l1MessageParserAddress, [], intentFulfillmentBlockHex],
   )
-  console.log('Hi')
   // Get the storage Slot information
   // l1BatchSlot = calculated from the batch number *2 + output slot 3
   // In Solidity
@@ -246,13 +144,6 @@ async function proveL2WorldState(
     BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
     32,
   )
-  console.log('l1BatchSlot: ', l1BatchSlot)
-  console.log(
-    'config.mainnet.l2BaseOutputOracleAddress: ',
-    config.mainnet.l2BaseOutputOracleAddress,
-  )
-  console.log('l1BatchSlot: ', l1BatchSlot)
-  console.log('layer1BlockTag: ', layer1BlockTag)
   const layer1BaseOutputOracleProof = await s.layer1Provider.send(
     'eth_getProof',
     [config.mainnet.l2BaseOutputOracleAddress, [l1BatchSlot], layer1BlockTag],
@@ -263,27 +154,6 @@ async function proveL2WorldState(
     layer1BaseOutputOracleProof.storageHash, // storageHash
     layer1BaseOutputOracleProof.codeHash, // CodeHash
   ]
-  console.log(
-    'layer1BaseOutputOracleProof.storageHash: ',
-    layer1BaseOutputOracleProof.storageHash,
-  )
-  console.log(
-    'layer1BaseOutputOracleProof.codeHash: ',
-    layer1BaseOutputOracleProof.codeHash,
-  )
-  console.log('Here we go')
-  console.log('p1: ', l2EndBatchBlockData.stateRoot)
-  console.log('p2: ', l2MesagePasserProof.storageHash)
-  console.log('p3: ', l2EndBatchBlockData.hash)
-  console.log('p4: ', layer1BaseOutputOracleProof.storageProof[0].proof)
-  console.log(
-    'p5: ',
-    await s.layer2SourceProverContract.rlpEncodeDataLibList(
-      layer1BaseOutputOracleContractData,
-    ),
-  )
-  console.log('p6: ', layer1BaseOutputOracleProof.accountProof)
-  console.log('p7: ', layer1WorldStateRoot)
   try {
     console.log('prove Output p1:  ', l2EndBatchBlockData.stateRoot)
     const proveOutputTX = await s.layer2SourceProverContract.proveOutputRoot(
@@ -405,9 +275,6 @@ async function main() {
     intentHash = config.mainnetIntent.intentHash
     intentFulfillTransaction = config.mainnetIntent.intentFulfillTransaction
     const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
-    // const layer1BlockTag = '0x133df19'
-    // const layer1WorldStateRoot =
-    //   '0x1937a0a96089eb2f1d3c9537e40a6a7fa2d8f63c463634c46329eeff953a18aa'
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,
