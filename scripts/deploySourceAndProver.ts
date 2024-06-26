@@ -14,7 +14,7 @@ let outputOracleAddress
 
 console.log('Deploying to Network: ', networkName)
 
-if (networkName === 'mainnet') {
+if (networkName === 'optimism') {
   l1BlockAddress = l1BlockAddressMainnet
   outputOracleAddress = outputOracleAddressMainnet
 } else {

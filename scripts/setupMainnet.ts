@@ -124,14 +124,14 @@ export namespace s {
   // const rewardToken: ERC20 = ERC20__factory.connect(rewardTokens[0], creator)
 
   // Intent Parameters
-  export const intentCreator = config.intent.creator
+  export const intentCreator = config.mainnetIntent.creator
   export const intentSourceAddress = config.optimism.intentSourceAddress
-  export const intentRewardAmounts = config.intent.rewardAmounts
-  export const intentRewardTokens = config.intent.rewardTokens
+  export const intentRewardAmounts = config.mainnetIntent.rewardAmounts
+  export const intentRewardTokens = config.mainnetIntent.rewardTokens
   export const intentDestinationChainId: BigNumberish =
-    config.intent.destinationChainId
-  export const intentTargetTokens = config.intent.targetTokens
-  export const intentTargetAmounts = config.intent.targetAmounts
-  export const intentRecipient = config.intent.recipient
-  export const intentDuration = config.intent.duration
+    config.mainnetIntent.destinationChainId
+  export const intentTargetTokens = config.mainnetIntent.targetTokens
+  export const intentTargetAmounts = config.mainnetIntent.targetAmounts
+  export const intentRecipient = config.mainnetIntent.recipient
+  export const intentDuration = config.mainnetIntent.duration
 }

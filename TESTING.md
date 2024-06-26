@@ -26,13 +26,51 @@ It runs through two use cases
 
 ## Existing Contracts
 
-### Sepolia - L1
+### Mainnet
+
+#### Ethereum - L1
+
+| Contract                | Address                                                                                                               | Description                                                                 |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| L2_OUTPUT_ORACLE (BASE) | [0x56315b90c40730925ec5485cf004d835058518A0](https://etherscan.io/address/0x56315b90c40730925ec5485cf004d835058518A0) | Settles a batch of blocks (1800) from L2 Base to L1 Ethereum - Every 1 hour |
+
+#### Optimism - L2 Source Chain
+
+| Contract      | Address                                                                                                                          | Description                                                                                                                                                                                                                            |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| L1BLOCK       | [0x4200000000000000000000000000000000000015](https://optimistic.etherscan.io/address/0x4200000000000000000000000000000000000015) | Updates L2 Optimism with the latest block information from L1 Ethreum every time a new block is generated on L2 Optimsm (every 2 seconds). Only stores the last blocks information                                                     |
+| INTENT_SOURCE | [0x4b63e23D0f4cB63047b283A14f3036F0111747D2](https://optimistic.etherscan.io/address/0x4b63e23D0f4cB63047b283A14f3036F0111747D2) | Intent Management Contract on the source chain. Includes creation, query, clawback and withdrawal function for intents keyed by inent_hash. Sample intent_hash is `0x1d528d2dddf799f19ab967bda28276cb6024bf9afbe5fe2aa76664bc42679496` |
+| PROVER        | [0x5d0cab22a8E2F01CE4482F2CbFE304627d8F1816](https://optimistic.etherscan.io/address/0x5d0cab22a8E2F01CE4482F2CbFE304627d8F1816) | Proving Contract includes functionality to prove L1 and L2 states and intents. Also has helper functions. This contract is checked by INTENT_SOURCE when withdrawing funds or doing a clawback.                                        |
+| USDC          | [0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85](https://optimistic.etherscan.io/address/0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85) | StableCoin used in intents.                                                                                                                                                                                                            |
+
+#### Base - L2 Destination Chain
+
+| Contract             | Address                                                                                                               | Description                                                                                                                                                                                                |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| L2_L1_MESSAGE_PARSER | [0x4200000000000000000000000000000000000016](https://basescan.org/address/0x4200000000000000000000000000000000000016) | a dedicated contract where messages that are being sent from L2 to L1 are stored.                                                                                                                          |
+| INBOX                | [0x4520be39A6E407B0313042Efb05323efB76B506a](https://basescan.org/address/0x4520be39A6E407B0313042Efb05323efB76B506a) | Inbox contract manages the fulfillment of Intents by Solvers it allows querying of whether intents are fullfilled by intent_hash e.g. `0x1d528d2dddf799f19ab967bda28276cb6024bf9afbe5fe2aa76664bc42679496` |
+| USDC                 | [0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913](https://basescan.org/address/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913) | StableCoin used in intents.                                                                                                                                                                                |
+
+#### Sample Transaction Walkthrough
+
+| Event                | Transaction                                                                                                                                                                  | Key                                                                                                                  |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Intent Created       | [0xd9e6de24b88e7f6dbefce011f8c4fd1cec34eb5e40647c10a29821d016f98a85](https://optimistic.etherscan.io/tx/0xd9e6de24b88e7f6dbefce011f8c4fd1cec34eb5e40647c10a29821d016f98a85)) | Intent Hash: 0x68adfbd50ded4b84efe4044192467daedab8c1d65d1de5aca9b8a572f4abf27a                                      |
+| Intent Fulfillment   | [0xaeea40a56220e99e89a7f8e08538044d1b952207281c3ad191f1e4d98b7db9cd](https://basescan.org/tx/0xaeea40a56220e99e89a7f8e08538044d1b952207281c3ad191f1e4d98b7db9cd)             | L1 Batch: 9061                                                                                                       |
+| Prove L1 World State | [0xb9eed68379046c6cb744ae26a2ec3edea16b16c390a93dba2cf0bbfff89c5f86](0xb9eed68379046c6cb744ae26a2ec3edea16b16c390a93dba2cf0bbfff89c5f86)                                     | Block:20176665 (0x133df19) , L1 World State Root: 0x1937a0a96089eb2f1d3c9537e40a6a7fa2d8f63c463634c46329eeff953a18aa |
+| Prove L2 World State | [0x9d7badc4e12c46d8e10e2c788fc74373a6f61bd0bcfc7d0bbffbc7bcf16f23bf](0x9d7badc4e12c46d8e10e2c788fc74373a6f61bd0bcfc7d0bbffbc7bcf16f23bf)                                     | L1 Batch: 9061                                                                                                       |
+| Prove Intent         | [0x0e12abf90db3dfce79753362de176906b93c095c52735d94c25c946dbcebb7fb](https://optimistic.etherscan.io/tx/0x0e12abf90db3dfce79753362de176906b93c095c52735d94c25c946dbcebb7fb)  | Intent Hash: 0x68adfbd50ded4b84efe4044192467daedab8c1d65d1de5aca9b8a572f4abf27a                                      |
+| Withdrawal           | [0x34fdf48c028ab9c9e71d2afbb089d386c0b47ce2edbaaea120506ee97ed5a572](https://optimistic.etherscan.io/tx/0x34fdf48c028ab9c9e71d2afbb089d386c0b47ce2edbaaea120506ee97ed5a572)  | Intent Hash: 0x68adfbd50ded4b84efe4044192467daedab8c1d65d1de5aca9b8a572f4abf27a                                      |
+
+### Testnet
+
+#### Sepolia - L1
 
 | Contract                | Address                                                                                                                       | Description                                                                  |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | L2_OUTPUT_ORACLE (BASE) | [0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254](https://sepolia.etherscan.io/address/0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254) | Settles a batch of blocks (120) from L2 Base to L1 Sepolia - Every 3 minutes |
 
-### Sepolia Optimism - L2 Source Chain
+#### Sepolia Optimism - L2 Source Chain
 
 | Contract      | Address                                                                                                                                  | Description                                                                                                                                                                                                                            |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -41,7 +79,7 @@ It runs through two use cases
 | PROVER        | [0x653f38527B6271F8624316B92b4BaA2B06D1aa57](https://optimism-sepolia.blockscout.com/address/0x653f38527B6271F8624316B92b4BaA2B06D1aa57) | Proving Contract includes functionality to prove L1 and L2 states and intents. Also has helper functions. This contract is checked by INTENT_SOURCE when withdrawing funds or doing a clawback.                                        |
 | USDC          | [0x5fd84259d66Cd46123540766Be93DFE6D43130D7](https://sepolia-optimism.etherscan.io/address/0x5fd84259d66Cd46123540766Be93DFE6D43130D7)   | StableCoin used in intents, The faucet is [here](https://faucet.circle.com/)                                                                                                                                                           |
 
-### Sepolia Base - L2 Destination Chain
+#### Sepolia Base - L2 Destination Chain
 
 | Contract             | Address                                                                                                                              | Description                                                                                                                                                                                                |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

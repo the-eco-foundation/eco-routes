@@ -39,8 +39,8 @@ export default {
     network: 'optimism',
     chainId: 10,
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    intentSourceAddress: '0x0Ecf5CD3E270FbB93be7f2162DC19935e4748338',
-    proverContractAddress: '0x4520be39A6E407B0313042Efb05323efB76B506a',
+    intentSourceAddress: '0x4b63e23D0f4cB63047b283A14f3036F0111747D2',
+    proverContractAddress: '0x5d0cab22a8E2F01CE4482F2CbFE304627d8F1816',
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
   },
   base: {
@@ -72,5 +72,19 @@ export default {
     rewardTokens: ['0x5fd84259d66Cd46123540766Be93DFE6D43130D7'],
     rewardAmounts: [1239],
     duration: 3600,
+  },
+  mainnetIntent: {
+    creator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
+    destinationChainId: 84533,
+    recipient: `0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9`,
+    targetTokens: [`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`],
+    targetAmounts: [1238],
+    rewardTokens: ['0x0b2c639c533813f4aa9d7837caf62653d097ff85'],
+    rewardAmounts: [1239],
+    duration: 7200,
+    intentHash:
+      '0x68adfbd50ded4b84efe4044192467daedab8c1d65d1de5aca9b8a572f4abf27a',
+    intentFulfillTransaction:
+      '0xaeea40a56220e99e89a7f8e08538044d1b952207281c3ad191f1e4d98b7db9cd',
   },
 }
