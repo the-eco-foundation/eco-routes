@@ -80,6 +80,7 @@ const config: HardhatUserConfig = {
       baseSepolia: process.env.BASE_SCAN_API_KEY || '',
       optimism: process.env.OPTIMISM_SCAN_API_KEY || '',
       base: process.env.BASE_SCAN_API_KEY || '',
+      optimisticEthereum: process.env.OPTIMISM_SCAN_API_KEY || '',
     },
     customChains: [
       {

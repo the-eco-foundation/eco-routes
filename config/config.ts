@@ -6,10 +6,6 @@ export default {
     network: 'sepolia',
     chainId: 11155111,
     l2BaseOutputOracleAddress: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
-    l2BaseOutputOracleStorgeSlot:
-      '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f747F1D',
-    l2BaseOutputOracleStorageRoot:
-      '0x4d14fc0663fc0c255a3fa651f29eab4745b50a9eb24c0da64c765a8d69de21d4',
   },
   optimismSepolia: {
     layer: 2,
@@ -29,6 +25,32 @@ export default {
     inboxAddress: '0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3',
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+  },
+  mainnet: {
+    layer: 1,
+    role: ['Settlement'],
+    network: 'mainnet',
+    chainId: 1,
+    l2BaseOutputOracleAddress: '0x56315b90c40730925ec5485cf004d835058518A0',
+  },
+  optimism: {
+    layer: 2,
+    role: ['Source'],
+    network: 'optimism',
+    chainId: 10,
+    l1BlockAddress: '0x4200000000000000000000000000000000000015',
+    intentSourceAddress: '0x0Ecf5CD3E270FbB93be7f2162DC19935e4748338',
+    proverContractAddress: '0x4520be39A6E407B0313042Efb05323efB76B506a',
+    usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+  },
+  base: {
+    layer: 2,
+    role: ['Destination'],
+    network: 'base',
+    chainId: 8453,
+    inboxAddress: '0x4520be39A6E407B0313042Efb05323efB76B506a',
+    l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+    usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   },
   noncePacking: 1,
   l2OutputOracleSlotNumber: 3,
