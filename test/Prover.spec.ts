@@ -160,6 +160,7 @@ describe('Prover Test', () => {
     )
     prover = await deploy(alice, Prover__factory, [
       await blockDataSource.getAddress(),
+      L1_OUTPUT_ORACLE_ADDRESS,
     ])
   })
 

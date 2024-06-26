@@ -19,7 +19,7 @@ export async function createIntent() {
   // approve lockup
   const rewardToken = s.layer2SourceUSDCContract
   const approvalTx = await rewardToken.approve(
-    config.layer2Source.intentSourceAddress,
+    config.optimismSepolia.intentSourceAddress,
     s.intentRewardAmounts[0],
   )
   await approvalTx.wait()
@@ -82,7 +82,7 @@ export async function fulfillIntent(intentHash) {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.layer2DestinationUSDCContract
     const fundTx = await targetToken.transfer(
-      config.layer2Destination.inboxAddress,
+      config.baseSepolia.inboxAddress,
       s.intentTargetAmounts[0],
     )
     await fundTx.wait()
@@ -219,7 +219,7 @@ async function proveL2WorldState(
   const l2MesagePasserProof = await s.layer2DestinationProvider.send(
     'eth_getProof',
     [
-      config.layer2Destination.l2l1MessageParserAddress,
+      config.baseSepolia.l2l1MessageParserAddress,
       [],
       intentFulfillmentBlockHex,
     ],
@@ -245,7 +245,7 @@ async function proveL2WorldState(
 
   const layer1BaseOutputOracleProof = await s.layer1Provider.send(
     'eth_getProof',
-    [config.layer1.l2BaseOutputOracleAddress, [l1BatchSlot], layer1BlockTag],
+    [config.sepolia.l2BaseOutputOracleAddress, [l1BatchSlot], layer1BlockTag],
   )
   const layer1BaseOutputOracleContractData = [
     '0x01', // nonce
@@ -296,7 +296,7 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
   const intentInboxProof = await s.layer2DestinationProvider.send(
     'eth_getProof',
     [
-      config.layer2Destination.inboxAddress,
+      config.baseSepolia.inboxAddress,
       [inboxStorageSlot],
       l2EndBatchBlockData.number,
     ],
@@ -319,7 +319,7 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
   try {
     const proveIntentTx = await s.layer2SourceProverContract.proveIntent(
       config.actors.claimant,
-      config.layer2Destination.inboxAddress,
+      config.baseSepolia.inboxAddress,
       intentHash,
       Number(l1BatchIndex) - 1, // see comment in contract
       intentInboxProof.storageProof[0].proof,
