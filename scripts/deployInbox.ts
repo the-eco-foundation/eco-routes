@@ -8,8 +8,6 @@ async function main() {
 
   const inbox: Inbox = await inboxFactory.deploy()
   console.log('Inbox deployed to:', await inbox.getAddress())
-  // console.log('waiting 30 seconds to ensure bytecode is on chain')
-  // await setTimeout(30000)
 
   await run('verify:verify', {
     address: await inbox.getAddress(),
