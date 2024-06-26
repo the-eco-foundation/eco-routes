@@ -139,22 +139,6 @@ contract IntentSource is IIntentSource {
         }
         revert NothingToWithdraw(_hash);
     }
-
-    function getTargets(bytes32 hash) public view returns (address[] memory) {
-        return intents[hash].targets;
-    }
-
-    function getData(bytes32 hash) public view returns (bytes[] memory) {
-        return intents[hash].data;
-    }
-
-    function getRewardTokens(bytes32 hash) public view returns (address[] memory) {
-        return intents[hash].rewardTokens;
-    }
-
-    function getRewardAmounts(bytes32 hash) public view returns (uint256[] memory) {
-        return intents[hash].rewardAmounts;
-    }
     
     function getIntent(bytes32 identifier) public view returns (Intent memory) {
         Intent memory intent = intents[identifier];

@@ -197,14 +197,16 @@ describe('Intent Source Test', (): void => {
 
       expect(intent.nonce).to.eq(nonce)
       // reference types
-      expect(await intentSource.getTargets(intentHash)).to.deep.eq(targets)
-      expect(await intentSource.getData(intentHash)).to.deep.eq(data)
-      expect(await intentSource.getRewardTokens(intentHash)).to.deep.eq(
-        rewardTokens,
+      expect((await intentSource.getIntent(intentHash)).targets).to.deep.eq(
+        targets,
       )
-      expect(await intentSource.getRewardAmounts(intentHash)).to.deep.eq(
-        rewardAmounts,
-      )
+      expect((await intentSource.getIntent(intentHash)).data).to.deep.eq(data)
+      expect(
+        (await intentSource.getIntent(intentHash)).rewardTokens,
+      ).to.deep.eq(rewardTokens)
+      expect(
+        (await intentSource.getIntent(intentHash)).rewardAmounts,
+      ).to.deep.eq(rewardAmounts)
     })
     it('increments counter and locks up tokens', async () => {
       const counter = await intentSource.counter()
@@ -238,7 +240,7 @@ describe('Intent Source Test', (): void => {
           .connect(creator)
           .createIntent(
             chainId,
-            targets,x
+            targets,
             data,
             rewardTokens,
             rewardAmounts,
@@ -290,8 +292,7 @@ describe('Intent Source Test', (): void => {
         )
     })
     context('before expiry, no proof', () => {
-      it.only('cant be withdrawn by solver or creator (or anyone else)', async () => {
-        console.log(await intentSource.getIntent(identifier))
+      it('cant be withdrawn by solver or creator (or anyone else)', async () => {
         await expect(
           intentSource.connect(creator).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
