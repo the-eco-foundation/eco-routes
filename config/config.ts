@@ -1,6 +1,8 @@
 /* eslint-disable no-magic-numbers */
 export default {
-  layer1: {
+  sepolia: {
+    layer: 1,
+    role: ['Settlement'],
     network: 'sepolia',
     chainId: 11155111,
     l2BaseOutputOracleAddress: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
@@ -9,18 +11,22 @@ export default {
     l2BaseOutputOracleStorageRoot:
       '0x4d14fc0663fc0c255a3fa651f29eab4745b50a9eb24c0da64c765a8d69de21d4',
   },
-  layer2Source: {
+  optimismSepolia: {
+    layer: 2,
+    role: ['Source'],
     network: 'optimism-sepolia',
     chainId: 11155420,
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    intentSourceAddress: '0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46',
-    proverContractAddress: '0x653f38527B6271F8624316B92b4BaA2B06D1aa57',
+    intentSourceAddress: '0x46C297311AdeF7275d4800fA6B89fAE1fDCD93fA',
+    proverContractAddress: '0x18E036f725360FEBa0826daA48A25f66b0014bbB',
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
-  layer2Destination: {
+  baseSepolia: {
+    layer: 2,
+    role: ['Destination'],
     network: 'base-sepolia',
     chainId: 84532,
-    inboxAddress: '0x84b9b3521b20E4dCF10e743548362df09840D202',
+    inboxAddress: '0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3',
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
@@ -40,9 +46,9 @@ export default {
     destinationChainId: 84532,
     recipient: `0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9`,
     targetTokens: [`0x036CbD53842c5426634e7929541eC2318f3dCF7e`],
-    targetAmounts: [1236],
+    targetAmounts: [1238],
     rewardTokens: ['0x5fd84259d66Cd46123540766Be93DFE6D43130D7'],
-    rewardAmounts: [1237],
+    rewardAmounts: [1239],
     duration: 3600,
   },
 }
