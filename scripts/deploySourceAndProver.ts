@@ -30,6 +30,7 @@ async function main() {
   const intentSource: IntentSource = await intentSourceFactory.deploy(
     await prover.getAddress(),
     1000,
+    0,
   )
   console.log('intentSource deployed to:', await intentSource.getAddress())
 
