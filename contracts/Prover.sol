@@ -14,7 +14,7 @@ contract Prover {
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
     // L2OutputOracle on Sepolia Eth
-    address public constant L1_OUTPUT_ORACLE_ADDRESS = 0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254;
+    address public immutable l1OutputOracleAddress;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
@@ -30,8 +30,9 @@ contract Prover {
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
-    constructor(address _l1BlockhashOracle) {
+    constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress) {
         l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
+        l1OutputOracleAddress = _l1OutputOracleAddress;
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
@@ -127,7 +128,7 @@ contract Prover {
         );
 
         proveAccount(
-            abi.encodePacked(L1_OUTPUT_ORACLE_ADDRESS), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot
+            abi.encodePacked(l1OutputOracleAddress), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot
         );
 
         provenL2States[l2WorldStateRoot] = l2OutputIndex;

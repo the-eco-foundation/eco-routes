@@ -47,7 +47,7 @@
     "variableOrder": "slither --print variable-order . 2>&1 | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' | tee  ./docs/slither/variable-order.txt",
     "vulnerability": "slither . --exclude-informational --exclude-low --exclude-medium 2>&1 | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' | tee  ./docs/slither/vulnerability.txt",
     "contractSummary": "slither --print contract-summary . 2>&1 | tee ./docs/slither/contract-summary.txt",
-    "deploySourceAndProver": "hardhat run --network sepoliaOptimismBlockscout scripts/deploySourceAndProver.ts",
+    "deploySourceAndProver": "hardhat run --network optimismSepoliaBlockscout scripts/deploySourceAndProver.ts",
     "deployInbox": "hardhat run --network baseSepolia scripts/deployInbox.ts",
     "intentWalkThrough": "hardhat run scripts/intentWalkThrough.ts"
   },
@@ -92,7 +92,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-promise": "^6.1.1",
     "ethers": "^6.9.0",
-    "hardhat": "^2.22.4",
+    "hardhat": "^2.22.5",
     "hardhat-gas-reporter": "^1.0.9",
     "prettier": "^3.1.1",
     "solhint": "^4.0.0",

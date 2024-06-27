@@ -30,15 +30,15 @@ export namespace s {
 
   // Providers
   export const layer1Provider = new AlchemyProvider(
-    config.layer1.network,
+    config.sepolia.network,
     ALCHEMY_API_KEY,
   )
   export const layer2SourceProvider = new AlchemyProvider(
-    config.layer2Source.network,
+    config.optimismSepolia.network,
     ALCHEMY_API_KEY,
   )
   export const layer2DestinationProvider = new AlchemyProvider(
-    config.layer2Destination.network,
+    config.baseSepolia.network,
     ALCHEMY_API_KEY,
   )
 
@@ -73,50 +73,50 @@ export namespace s {
   // Note: we use providers for all System Contracts and Signers for Intent Protocol Contracts
   // Layer 1 Sepolia
   export const layer1Layer2DestinationOutputOracleContract = new Contract(
-    config.layer1.l2BaseOutputOracleAddress,
+    config.sepolia.l2BaseOutputOracleAddress,
     L2OutputArtifact.abi,
     layer1Provider,
   )
   // Layer 2 Source Sepolia Optimism
   export const layer2Layer1BlockAddressContract = new Contract(
-    config.layer2Source.l1BlockAddress,
+    config.optimismSepolia.l1BlockAddress,
     IL1Block__factory.abi,
     layer2SourceProvider,
   )
   export const layer2SourceIntentSourceContract = new Contract(
-    config.layer2Source.intentSourceAddress,
+    config.optimismSepolia.intentSourceAddress,
     IntentSource__factory.abi,
     layer2SourceIntentCreator,
   )
   export const layer2SourceIntentSourceContractClaimant = new Contract(
-    config.layer2Source.intentSourceAddress,
+    config.optimismSepolia.intentSourceAddress,
     IntentSource__factory.abi,
     layer2SourceClaimant,
   )
   export const layer2SourceProverContract = new Contract(
-    config.layer2Source.proverContractAddress,
+    config.optimismSepolia.proverContractAddress,
     Prover__factory.abi,
     layer2SourceIntentProver,
   )
   export const layer2SourceUSDCContract = new Contract(
-    config.layer2Source.usdcAddress,
+    config.optimismSepolia.usdcAddress,
     ERC20__factory.abi,
     layer2SourceIntentCreator,
   )
 
   // Layer 2 Destination Sepolia Base
   export const layer2DestinationInboxContract = new Contract(
-    config.layer2Destination.inboxAddress,
+    config.baseSepolia.inboxAddress,
     Inbox__factory.abi,
     layer2DestinationSolver,
   )
   export const Layer2DestinationMessagePasserContract = new Contract(
-    config.layer2Destination.l2l1MessageParserAddress,
+    config.baseSepolia.l2l1MessageParserAddress,
     L2ToL1MessagePasser.abi,
     layer2DestinationProvider,
   )
   export const layer2DestinationUSDCContract = new Contract(
-    config.layer2Destination.usdcAddress,
+    config.baseSepolia.usdcAddress,
     ERC20__factory.abi,
     layer2DestinationSolver,
   )
@@ -125,7 +125,7 @@ export namespace s {
 
   // Intent Parameters
   export const intentCreator = config.intent.creator
-  export const intentSourceAddress = config.layer2Source.intentSourceAddress
+  export const intentSourceAddress = config.optimismSepolia.intentSourceAddress
   export const intentRewardAmounts = config.intent.rewardAmounts
   export const intentRewardTokens = config.intent.rewardTokens
   export const intentDestinationChainId: BigNumberish =
