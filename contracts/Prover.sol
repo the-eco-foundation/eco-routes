@@ -168,6 +168,7 @@ contract Prover {
 
         require(inboxStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
 
+        // proves that the claimaint address corresponds to the intentHash on the contract
         proveStorage(
             abi.encodePacked(messageMappingSlot),
             bytes.concat(hex"94", bytes20(claimant)),
@@ -175,6 +176,7 @@ contract Prover {
             bytes32(inboxStateRoot)
         );
 
+        // proves that the inbox data corresponds to the l2worldstate
         proveAccount(abi.encodePacked(inboxContract), rlpEncodedInboxData, l2AccountProof, l2WorldStateRoot);
 
         provenIntents[intentHash] = claimant;

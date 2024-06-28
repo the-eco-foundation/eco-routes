@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import "./InboxInterface.sol";
+import "./interfaces/IInbox.sol";
 
 /**
  * @title Inbox
@@ -9,7 +9,7 @@ import "./InboxInterface.sol";
  * It validates that the hash is the hash of the other parameters, and then executes the calldata.
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
-contract Inbox is InboxInterface {
+contract Inbox is IInbox {
 
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
