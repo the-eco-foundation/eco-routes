@@ -37,7 +37,7 @@ contract IntentSource is IIntentSource {
      * @param _prover the prover address
      * @param _minimumDuration the minimum duration of an intent originating on this chain
      * @param _counterStart the initial value of the counter
-     * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs redeployed.
+     * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs to be redeployed.
      */
     constructor(address _prover, uint256 _minimumDuration, uint256 _counterStart) {
         CHAIN_ID = block.chainid;
@@ -139,7 +139,7 @@ contract IntentSource is IIntentSource {
         }
         revert NothingToWithdraw(_hash);
     }
-    
+
     function getIntent(bytes32 identifier) public view returns (Intent memory) {
         Intent memory intent = intents[identifier];
         intent.targets = intents[identifier].targets;

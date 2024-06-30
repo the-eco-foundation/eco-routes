@@ -47,7 +47,7 @@ export async function createIntent() {
     )
     await intentTx.wait()
 
-    console.log('successful intent creation: ', intentTx.hash)
+    console.log('Intent creation tx: ', intentTx.hash)
     let intentHash
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
@@ -73,15 +73,9 @@ export async function fulfillIntent(intentHash) {
   try {
     // get intent Information
     const thisIntent =
-      await s.layer2SourceIntentSourceContract.intents(intentHash)
-    const targetTokens = thisIntent.targetTokens
+      await s.layer2SourceIntentSourceContract.getIntent(intentHash)
+    const targetTokens = thisIntent.targets
     const calldata = thisIntent.data
-    // const targetTokens = (
-    //   await s.layer2SourceIntentSourceContract.getIntent(intentHash)
-    // ).targets
-    // const calldata = (
-    //   await s.layer2SourceIntentSourceContract.getIntent(intentHash)
-    // ).data
 
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.layer2DestinationUSDCContract
@@ -101,6 +95,7 @@ export async function fulfillIntent(intentHash) {
       config.actors.claimant,
     )
     await fulfillTx.wait()
+    console.log('Fulfillment tx: ', fulfillTx.hash)
     return fulfillTx.hash
   } catch (e) {
     console.log(e)
@@ -126,8 +121,9 @@ async function proveL1WorldState() {
       await s.layer2SourceProverContract.rlpEncodeDataLibList(blockData),
     )
     await tx.wait()
+    console.log('Prove L1 world state tx: ', tx.hash)
     layer1WorldStateRoot = blockData[3]
-    console.log('proven L1 world state root:', layer1WorldStateRoot)
+    console.log('Proven L1 world state root:', layer1WorldStateRoot)
     return { layer1BlockTag, layer1WorldStateRoot }
   } catch (e) {
     if (e.data && s.layer2SourceProverContract) {
@@ -209,6 +205,7 @@ async function proveL2WorldState(
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputIndexAfter(
       intentFulfillmentBlock,
     )
+  console.log('Layer 1 Batch Number: ', l1BatchIndex)
   // Get the the L2 End Batch Block for the intent
   const l1BatchData =
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputAfter(
@@ -259,7 +256,6 @@ async function proveL2WorldState(
   ]
 
   try {
-    console.log('prove Output p1:  ', l2EndBatchBlockData.stateRoot)
     const proveOutputTX = await s.layer2SourceProverContract.proveOutputRoot(
       l2EndBatchBlockData.stateRoot,
       l2MesagePasserProof.storageHash,
@@ -273,6 +269,7 @@ async function proveL2WorldState(
       layer1WorldStateRoot,
     )
     await proveOutputTX.wait()
+    console.log('Prove L2 world state tx: ', proveOutputTX.hash)
     return {
       l1BatchIndex,
       l2EndBatchBlockData,
@@ -337,6 +334,7 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
       l2EndBatchBlockData.stateRoot,
     )
     await proveIntentTx.wait()
+    console.log('Prove Intent tx: ', proveIntentTx.hash)
     return proveIntentTx.hash
   } catch (e) {
     if (e.data && s.layer2SourceProverContract) {
@@ -359,7 +357,7 @@ async function withdrawReward(intentHash) {
         intentHash,
       )
     await withdrawTx.wait()
-    console.log('withdraw complete: ', withdrawTx.hash)
+    console.log('Withdrawal tx: ', withdrawTx.hash)
     return withdrawTx.hash
   } catch (e) {
     if (e.data && s.layer2SourceIntentSourceContractClaimant) {
@@ -376,13 +374,12 @@ async function withdrawReward(intentHash) {
 
 async function main() {
   // define the variables used for each state of the intent lifecycle
-  let intentHash, intentFulfillTransaction, intentProofTxHash, withdrawRewardTx
+  let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
     intentHash = await createIntent()
     console.log('Created Intent Hash: ', intentHash)
     intentFulfillTransaction = await fulfillIntent(intentHash)
-    console.log('intentFulfillTransaction', intentFulfillTransaction)
     // wait for 600 seconds for L1 batch to be Settled (it takes around 7 mins to show as settled on basescan)
     console.log('Waiting for 600 seconds for Batch to settle')
     await setTimeout(600000)
@@ -393,14 +390,8 @@ async function main() {
       intentFulfillTransaction,
       layer1WorldStateRoot,
     )
-    intentProofTxHash = await proveIntent(
-      intentHash,
-      l1BatchIndex,
-      l2EndBatchBlockData,
-    )
-    console.log('intentProofTxHash: ', intentProofTxHash)
-    withdrawRewardTx = await withdrawReward(intentHash)
-    console.log('withdrawRewardTx: ', withdrawRewardTx)
+    await proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData)
+    await withdrawReward(intentHash)
   } catch (e) {
     console.log(e)
   }

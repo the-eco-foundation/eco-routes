@@ -194,9 +194,19 @@ describe('Intent Source Test', (): void => {
       expect(intent.destinationChain).to.eq(chainId)
       expect(intent.expiryTime).to.eq(expiry)
       expect(intent.hasBeenWithdrawn).to.eq(false)
-
       expect(intent.nonce).to.eq(nonce)
-      // reference types
+      // getIntent complete call
+      const intentDetail = await intentSource.getIntent(intentHash)
+      expect(intentDetail.creator).to.eq(creator.address)
+      expect(intentDetail.destinationChain).to.eq(chainId)
+      expect(intentDetail.targets).to.deep.eq(targets)
+      expect(intentDetail.data).to.deep.eq(data)
+      expect(intentDetail.rewardTokens).to.deep.eq(rewardTokens)
+      expect(intentDetail.rewardAmounts).to.deep.eq(rewardAmounts)
+      expect(intentDetail.expiryTime).to.eq(expiry)
+      expect(intentDetail.hasBeenWithdrawn).to.eq(false)
+      expect(intentDetail.nonce).to.eq(nonce)
+      // reference types called individually
       expect((await intentSource.getIntent(intentHash)).targets).to.deep.eq(
         targets,
       )

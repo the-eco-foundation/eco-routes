@@ -34,29 +34,44 @@ async function main() {
     outputOracleAddress,
   )
   console.log('prover deployed to:', await prover.getAddress())
-  if (network.name !== 'hardhat') {
-    await run('verify:verify', {
-      address: await prover.getAddress(),
-      constructorArguments: [l1BlockAddress, outputOracleAddress],
-    })
-    console.log('prover verified at:', await prover.getAddress())
+  // adding a try catch as if the contract has previously been deployed will get a
+  // verification error when deploying the same bytecode to a new address
+  try {
+    if (network.name !== 'hardhat') {
+      await run('verify:verify', {
+        address: await prover.getAddress(),
+        constructorArguments: [l1BlockAddress, outputOracleAddress],
+      })
+      console.log('prover verified at:', await prover.getAddress())
+    }
+  } catch (e) {
+    console.log(`Error verifying prover`, e)
   }
 
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
   const intentSource: IntentSource = await intentSourceFactory.deploy(
     await prover.getAddress(),
     1000,
-    0,
+    config.intentSourceCounter,
   )
   console.log('intentSource deployed to:', await intentSource.getAddress())
 
-  if (network.name !== 'hardhat') {
-    await run('verify:verify', {
-      address: await intentSource.getAddress(),
-      constructorArguments: [await prover.getAddress(), 1000],
-    })
-
+  // adding a try catch as if the contract has previously been deployed will get a
+  // verification error when deploying the same bytecode to a new address
+  try {
+    if (network.name !== 'hardhat') {
+      await run('verify:verify', {
+        address: await intentSource.getAddress(),
+        constructorArguments: [
+          await prover.getAddress(),
+          1000,
+          config.intentSourceCounter,
+        ],
+      })
+    }
     console.log('intentSource verified at:', await intentSource.getAddress())
+  } catch (e) {
+    console.log(`Error verifying intentSoruc`, e)
   }
 }
 

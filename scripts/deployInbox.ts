@@ -9,13 +9,19 @@ async function main() {
   const inbox: Inbox = await inboxFactory.deploy()
   console.log('Inbox deployed to:', await inbox.getAddress())
 
-  if (network.name !== 'hardhat') {
-    await run('verify:verify', {
-      address: await inbox.getAddress(),
-      constructorArguments: [],
-    })
+  // adding a try catch as if the contract has previously been deployed will get a
+  // verification error when deploying the same bytecode to a new address
+  try {
+    if (network.name !== 'hardhat') {
+      await run('verify:verify', {
+        address: await inbox.getAddress(),
+        constructorArguments: [],
+      })
+    }
+    console.log('Inbox verified at:', await inbox.getAddress())
+  } catch (e) {
+    console.log(`Error verifying prover`, e)
   }
-  console.log('Inbox verified at:', await inbox.getAddress())
 }
 
 main().catch((error) => {

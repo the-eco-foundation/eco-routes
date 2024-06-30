@@ -13,8 +13,8 @@ export default {
     network: 'optimism-sepolia',
     chainId: 11155420,
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    intentSourceAddress: '0x46C297311AdeF7275d4800fA6B89fAE1fDCD93fA',
-    proverContractAddress: '0x18E036f725360FEBa0826daA48A25f66b0014bbB',
+    intentSourceAddress: '0xc61Ac926D7efE2251CdFeae384F75222FDAe7a3F',
+    proverContractAddress: '0x6798EbAf16b2E23EfcaD15Fe3493f25D6ed1C892',
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
   baseSepolia: {
@@ -53,6 +53,7 @@ export default {
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   },
   noncePacking: 1,
+  intentSourceCounter: 100,
   l2OutputOracleSlotNumber: 3,
   l2OutputVersionNumber: 0,
   actors: {
