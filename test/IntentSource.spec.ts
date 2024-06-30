@@ -43,6 +43,7 @@ describe('Intent Source Test', (): void => {
     const intentSource = await intentSourceFactory.deploy(
       prover,
       minimumDuration,
+      0,
     )
 
     // deploy ERC20 test
@@ -196,14 +197,16 @@ describe('Intent Source Test', (): void => {
 
       expect(intent.nonce).to.eq(nonce)
       // reference types
-      expect(await intentSource.getTargets(intentHash)).to.deep.eq(targets)
-      expect(await intentSource.getData(intentHash)).to.deep.eq(data)
-      expect(await intentSource.getRewardTokens(intentHash)).to.deep.eq(
-        rewardTokens,
+      expect((await intentSource.getIntent(intentHash)).targets).to.deep.eq(
+        targets,
       )
-      expect(await intentSource.getRewardAmounts(intentHash)).to.deep.eq(
-        rewardAmounts,
-      )
+      expect((await intentSource.getIntent(intentHash)).data).to.deep.eq(data)
+      expect(
+        (await intentSource.getIntent(intentHash)).rewardTokens,
+      ).to.deep.eq(rewardTokens)
+      expect(
+        (await intentSource.getIntent(intentHash)).rewardAmounts,
+      ).to.deep.eq(rewardAmounts)
     })
     it('increments counter and locks up tokens', async () => {
       const counter = await intentSource.counter()

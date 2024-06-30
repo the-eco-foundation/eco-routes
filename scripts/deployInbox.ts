@@ -1,6 +1,5 @@
-import { ethers, run } from 'hardhat'
+import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../typechain-types'
-import { setTimeout } from 'timers/promises'
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -9,13 +8,14 @@ async function main() {
 
   const inbox: Inbox = await inboxFactory.deploy()
   console.log('Inbox deployed to:', await inbox.getAddress())
-  console.log('waiting 30 seconds to ensure bytecode is on chain')
-  await setTimeout(30000)
 
-  await run('verify:verify', {
-    address: await inbox.getAddress(),
-    constructorArguments: [],
-  })
+  if (network.name !== 'hardhat') {
+    await run('verify:verify', {
+      address: await inbox.getAddress(),
+      constructorArguments: [],
+    })
+  }
+  console.log('Inbox verified at:', await inbox.getAddress())
 }
 
 main().catch((error) => {

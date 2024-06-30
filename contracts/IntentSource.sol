@@ -36,11 +36,14 @@ contract IntentSource is IIntentSource {
     /**
      * @param _prover the prover address
      * @param _minimumDuration the minimum duration of an intent originating on this chain
+     * @param _counterStart the initial value of the counter
+     * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs redeployed.
      */
-    constructor(address _prover, uint256 _minimumDuration) {
+    constructor(address _prover, uint256 _minimumDuration, uint256 _counterStart) {
         CHAIN_ID = block.chainid;
         PROVER = IProver(_prover);
         MINIMUM_DURATION = _minimumDuration;
+        counter = _counterStart;
     }
 
     /**
@@ -136,20 +139,14 @@ contract IntentSource is IIntentSource {
         }
         revert NothingToWithdraw(_hash);
     }
+    
+    function getIntent(bytes32 identifier) public view returns (Intent memory) {
+        Intent memory intent = intents[identifier];
+        intent.targets = intents[identifier].targets;
+        intent.data = intents[identifier].data;
+        intent.rewardTokens = intents[identifier].rewardTokens;
+        intent.rewardAmounts = intents[identifier].rewardAmounts;
 
-    function getTargets(bytes32 hash) public view returns (address[] memory) {
-        return intents[hash].targets;
-    }
-
-    function getData(bytes32 hash) public view returns (bytes[] memory) {
-        return intents[hash].data;
-    }
-
-    function getRewardTokens(bytes32 hash) public view returns (address[] memory) {
-        return intents[hash].rewardTokens;
-    }
-
-    function getRewardAmounts(bytes32 hash) public view returns (uint256[] memory) {
-        return intents[hash].rewardAmounts;
+        return intent;
     }
 }

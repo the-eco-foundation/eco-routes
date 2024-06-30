@@ -1,7 +1,7 @@
 import { ethers, run, network } from 'hardhat'
 import { IntentSource, Prover } from '../typechain-types'
 import config from '../config/config'
-import { setTimeout } from 'timers/promises'
+// import { setTimeout } from 'timers/promises'
 
 // import { ethers } from 'ethers'
 const networkName = network.name
@@ -34,28 +34,30 @@ async function main() {
     outputOracleAddress,
   )
   console.log('prover deployed to:', await prover.getAddress())
-  // console.log('waiting 30 seconds to ensure bytecode is on chain')
-  // await setTimeout(30000)
-  await run('verify:verify', {
-    address: await prover.getAddress(),
-    constructorArguments: [l1BlockAddress, outputOracleAddress],
-  })
-  console.log('prover verified at:', await prover.getAddress())
+  if (network.name !== 'hardhat') {
+    await run('verify:verify', {
+      address: await prover.getAddress(),
+      constructorArguments: [l1BlockAddress, outputOracleAddress],
+    })
+    console.log('prover verified at:', await prover.getAddress())
+  }
 
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
   const intentSource: IntentSource = await intentSourceFactory.deploy(
     await prover.getAddress(),
     1000,
+    0,
   )
   console.log('intentSource deployed to:', await intentSource.getAddress())
 
-  await setTimeout(30000)
-  await run('verify:verify', {
-    address: await intentSource.getAddress(),
-    constructorArguments: [await prover.getAddress(), 1000],
-  })
+  if (network.name !== 'hardhat') {
+    await run('verify:verify', {
+      address: await intentSource.getAddress(),
+      constructorArguments: [await prover.getAddress(), 1000],
+    })
 
-  console.log('intentSource verified at:', await intentSource.getAddress())
+    console.log('intentSource verified at:', await intentSource.getAddress())
+  }
 }
 
 main().catch((error) => {

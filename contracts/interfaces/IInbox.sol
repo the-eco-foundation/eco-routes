@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-interface InboxInterface {
+interface IInbox {
     /**
      * This function is the main entry point for fulfilling an intent. It validates that the hash is the hash of the other parameters.
      * It then calls the addresses with the calldata, and if successful marks the intent as fulfilled and emits an event.

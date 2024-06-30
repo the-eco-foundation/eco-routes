@@ -74,10 +74,14 @@ export async function fulfillIntent(intentHash) {
     // get intent Information
     const thisIntent =
       await s.layer2SourceIntentSourceContract.intents(intentHash)
-    const targetTokens =
-      await s.layer2SourceIntentSourceContract.getTargets(intentHash)
-    const calldata =
-      await s.layer2SourceIntentSourceContract.getData(intentHash)
+    const targetTokens = thisIntent.targetTokens
+    const calldata = thisIntent.data
+    // const targetTokens = (
+    //   await s.layer2SourceIntentSourceContract.getIntent(intentHash)
+    // ).targets
+    // const calldata = (
+    //   await s.layer2SourceIntentSourceContract.getIntent(intentHash)
+    // ).data
 
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.layer2DestinationUSDCContract
