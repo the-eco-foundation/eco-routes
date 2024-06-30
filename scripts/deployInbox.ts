@@ -1,5 +1,6 @@
 import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../typechain-types'
+import { setTimeout } from 'timers/promises'
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -13,6 +14,8 @@ async function main() {
   // verification error when deploying the same bytecode to a new address
   try {
     if (network.name !== 'hardhat') {
+      console.log('Waiting for 30 seconds for Bytecode to be on chain')
+      await setTimeout(30000)
       await run('verify:verify', {
         address: await inbox.getAddress(),
         constructorArguments: [],

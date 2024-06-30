@@ -12,7 +12,7 @@ export async function createIntent() {
     s.intentRewardAmounts[0],
   )
   await approvalTx.wait()
-  console.log('approvalTx: ', approvalTx.hash)
+  console.log('Approval tx: ', approvalTx.hash)
 
   // get the block before creating the intent
   const latestBlock = await s.layer2SourceProvider.getBlock('latest')
@@ -35,7 +35,7 @@ export async function createIntent() {
     )
     await intentTx.wait()
 
-    console.log('successful intent creation: ', intentTx.hash)
+    console.log('Intent Creation tx: ', intentTx.hash)
     let intentHash
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
@@ -61,11 +61,7 @@ export async function fulfillIntent(intentHash) {
   try {
     // get intent Information
     const thisIntent =
-      await s.layer2SourceIntentSourceContract.intents(intentHash)
-    const targetTokens =
-      await s.layer2SourceIntentSourceContract.getTargets(intentHash)
-    const calldata =
-      await s.layer2SourceIntentSourceContract.getData(intentHash)
+      await s.layer2SourceIntentSourceContract.getIntent(intentHash)
 
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.layer2DestinationUSDCContract
@@ -79,12 +75,13 @@ export async function fulfillIntent(intentHash) {
 
     const fulfillTx = await s.layer2DestinationInboxContract.fulfill(
       thisIntent.nonce,
-      targetTokens.toArray(),
-      calldata.toArray(),
+      thisIntent.targets.toArray(),
+      thisIntent.data.toArray(),
       thisIntent.expiryTime,
       config.actors.claimant,
     )
     await fulfillTx.wait()
+    console.log('Fulfillment tx: ', fulfillTx.hash)
     return fulfillTx.hash
   } catch (e) {
     console.log(e)
@@ -93,13 +90,11 @@ export async function fulfillIntent(intentHash) {
 
 async function main() {
   // define the variables used for each state of the intent lifecycle
-  let intentHash, intentFulfillTransaction
+  let intentHash
   try {
     console.log('In Main')
     intentHash = await createIntent()
-    console.log('Created Intent Hash: ', intentHash)
-    intentFulfillTransaction = await fulfillIntent(intentHash)
-    console.log('intentFulfillTransaction', intentFulfillTransaction)
+    await fulfillIntent(intentHash)
   } catch (e) {
     console.log(e)
   }

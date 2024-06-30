@@ -74,8 +74,6 @@ export async function fulfillIntent(intentHash) {
     // get intent Information
     const thisIntent =
       await s.layer2SourceIntentSourceContract.getIntent(intentHash)
-    const targetTokens = thisIntent.targets
-    const calldata = thisIntent.data
 
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.layer2DestinationUSDCContract
@@ -89,8 +87,8 @@ export async function fulfillIntent(intentHash) {
 
     const fulfillTx = await s.layer2DestinationInboxContract.fulfill(
       thisIntent.nonce,
-      targetTokens.toArray(),
-      calldata.toArray(),
+      thisIntent.targets.toArray(),
+      thisIntent.data.toArray(),
       thisIntent.expiryTime,
       config.actors.claimant,
     )
@@ -205,7 +203,7 @@ async function proveL2WorldState(
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputIndexAfter(
       intentFulfillmentBlock,
     )
-  console.log('Layer 1 Batch Number: ', l1BatchIndex)
+  console.log('Layer 1 Batch Number: ', l1BatchIndex.toString())
   // Get the the L2 End Batch Block for the intent
   const l1BatchData =
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputAfter(
@@ -378,7 +376,6 @@ async function main() {
   try {
     console.log('In Main')
     intentHash = await createIntent()
-    console.log('Created Intent Hash: ', intentHash)
     intentFulfillTransaction = await fulfillIntent(intentHash)
     // wait for 600 seconds for L1 batch to be Settled (it takes around 7 mins to show as settled on basescan)
     console.log('Waiting for 600 seconds for Batch to settle')

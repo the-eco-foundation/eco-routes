@@ -1,9 +1,8 @@
 import { ethers, run, network } from 'hardhat'
 import { IntentSource, Prover } from '../typechain-types'
 import config from '../config/config'
-// import { setTimeout } from 'timers/promises'
+import { setTimeout } from 'timers/promises'
 
-// import { ethers } from 'ethers'
 const networkName = network.name
 const l1BlockAddressSepolia = config.optimismSepolia.l1BlockAddress
 const outputOracleAddressSepolia = config.sepolia.l2BaseOutputOracleAddress
@@ -38,6 +37,8 @@ async function main() {
   // verification error when deploying the same bytecode to a new address
   try {
     if (network.name !== 'hardhat') {
+      console.log('Waiting for 30 seconds for Bytecode to be on chain')
+      await setTimeout(30000)
       await run('verify:verify', {
         address: await prover.getAddress(),
         constructorArguments: [l1BlockAddress, outputOracleAddress],
@@ -60,6 +61,8 @@ async function main() {
   // verification error when deploying the same bytecode to a new address
   try {
     if (network.name !== 'hardhat') {
+      console.log('Waiting for 30 seconds for Bytecode to be on chain')
+      await setTimeout(30000)
       await run('verify:verify', {
         address: await intentSource.getAddress(),
         constructorArguments: [

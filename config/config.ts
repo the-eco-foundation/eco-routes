@@ -13,8 +13,8 @@ export default {
     network: 'optimism-sepolia',
     chainId: 11155420,
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    intentSourceAddress: '0xc61Ac926D7efE2251CdFeae384F75222FDAe7a3F',
     proverContractAddress: '0x6798EbAf16b2E23EfcaD15Fe3493f25D6ed1C892',
+    intentSourceAddress: '0xc61Ac926D7efE2251CdFeae384F75222FDAe7a3F',
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
   baseSepolia: {
@@ -39,8 +39,8 @@ export default {
     network: 'optimism',
     chainId: 10,
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    intentSourceAddress: '0x4b63e23D0f4cB63047b283A14f3036F0111747D2',
-    proverContractAddress: '0x5d0cab22a8E2F01CE4482F2CbFE304627d8F1816',
+    proverContractAddress: '0xcFbbD67c9f43a8E6D3D9aF7Ab93d61397c7a08CE',
+    intentSourceAddress: '0xB005A84E3F203D91138b67d4E134Eadc0f462968',
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
   },
   base: {
@@ -84,8 +84,8 @@ export default {
     rewardAmounts: [1239],
     duration: 7200,
     intentHash:
-      '0xfe5f72732d0b38db5c506570455449b66ad89cb2fbb8a23cb831374a03e6d022',
+      '0x644eb70ca9c8cf1b4a9b23be702ba588041dbb55f0e29e91facea38fbcda8c56',
     intentFulfillTransaction:
-      '0x6eb22443619e4cae743d405020f44ebde5f03bc2d6a9bb211462383cf89cb9ac',
+      '0x61485d7cc041bb50ed2511f197e402bfcc8a21d8ba12506ca1e4c60be01728a8',
   },
 }
