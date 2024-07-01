@@ -29,6 +29,8 @@ async function proveL1WorldState() {
       await s.layer2SourceProverContract.rlpEncodeDataLibList(blockData),
     )
     await tx.wait()
+    console.log('Prove L1 World State block: ', layer1Block)
+    console.log('Prove L1 World State blocktag: ', layer1BlockTag)
     console.log('Prove L1 World State tx: ', tx.hash)
     layer1WorldStateRoot = blockData[3]
     console.log('Proven L1 world state root:', layer1WorldStateRoot)
@@ -157,6 +159,34 @@ async function proveL2WorldState(
     layer1BaseOutputOracleProof.codeHash, // CodeHash
   ]
   try {
+    console.log(
+      'config.mainnet.l2BaseOutputOracleAddress: ',
+      config.mainnet.l2BaseOutputOracleAddress,
+    )
+    console.log('l1BatchSlot: ', l1BatchSlot)
+    console.log('layer1BlockTag: ', layer1BlockTag)
+    console.log(
+      'layer1BaseOutputOracleProof.storageHash: ',
+      layer1BaseOutputOracleProof.storageHash,
+    )
+    console.log(
+      'layer1BaseOutputOracleProof.codeHash: ',
+      layer1BaseOutputOracleProof.codeHash,
+    )
+    console.log('p1: ', l2EndBatchBlockData.stateRoot)
+    console.log('p2: ', l2MesagePasserProof.storageHash)
+    console.log('p3: ', l2EndBatchBlockData.hash)
+    console.log('p4: ', l1BatchIndex)
+    console.log('p5: ', layer1BaseOutputOracleProof.storageProof[0].proof)
+    console.log(
+      'p6: ',
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        layer1BaseOutputOracleContractData,
+      ),
+    )
+    console.log('p7: ', layer1BaseOutputOracleProof.accountProof)
+    console.log('p8: ', layer1WorldStateRoot)
+
     const proveOutputTX = await s.layer2SourceProverContract.proveOutputRoot(
       l2EndBatchBlockData.stateRoot,
       l2MesagePasserProof.storageHash,
@@ -277,6 +307,8 @@ async function main() {
     console.log('In Main')
     intentHash = config.mainnetIntent.intentHash
     intentFulfillTransaction = config.mainnetIntent.intentFulfillTransaction
+    console.log('intentHash: ', intentHash)
+    console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
