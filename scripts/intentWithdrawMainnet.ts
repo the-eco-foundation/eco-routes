@@ -136,18 +136,32 @@ async function proveL2WorldState(
   // In Solidity
   // bytes32 outputRootStorageSlot =
   // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
-  const arrayLengthSlot = zeroPadValue(
-    toBytes(config.l2OutputOracleSlotNumber),
-    32,
-  )
-  const firstElementSlot = solidityPackedKeccak256(
-    ['bytes32'],
-    [arrayLengthSlot],
-  )
-  const l1BatchSlot = toBeHex(
-    BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
-    32,
-  )
+  // const arrayLengthSlot = zeroPadValue(
+  //   toBytes(config.l2OutputOracleSlotNumber),
+  //   // toBytes(config.l2OutputOracleSlotNumber),
+  //   32,
+  // )
+  // const firstElementSlot = solidityPackedKeccak256(
+  //   ['bytes32'],
+  //   [arrayLengthSlot],
+  // )
+  // const l1BatchSlot = toBeHex(
+  //   BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
+  //   32,
+  // )
+  // console.log('firstElementSlot: ', firstElementSlot)
+  // console.log('BigInt(firstElementSlot) :', BigInt(firstElementSlot))
+  // console.log('l1BatchIndex: ', l1BatchIndex)
+  // console.log('Number(l1BatchIndex) * 2', Number(l1BatchIndex) * 2)
+  // console.log(
+  //   'BigInt(Number(l1BatchIndex) * 2)',
+  //   BigInt(Number(l1BatchIndex) * 2),
+  // )
+  // return
+  const l1BatchSlot =
+    '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f723ffb'
+  console.log('l1BatchSlot: ', l1BatchSlot)
+
   const layer1BaseOutputOracleProof = await s.layer1Provider.send(
     'eth_getProof',
     [config.mainnet.l2BaseOutputOracleAddress, [l1BatchSlot], layer1BlockTag],
