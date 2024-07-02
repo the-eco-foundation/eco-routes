@@ -136,30 +136,30 @@ async function proveL2WorldState(
   // In Solidity
   // bytes32 outputRootStorageSlot =
   // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
-  // const arrayLengthSlot = zeroPadValue(
-  //   toBytes(config.l2OutputOracleSlotNumber),
-  //   // toBytes(config.l2OutputOracleSlotNumber),
-  //   32,
-  // )
-  // const firstElementSlot = solidityPackedKeccak256(
-  //   ['bytes32'],
-  //   [arrayLengthSlot],
-  // )
-  // const l1BatchSlot = toBeHex(
-  //   BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
-  //   32,
-  // )
-  // console.log('firstElementSlot: ', firstElementSlot)
-  // console.log('BigInt(firstElementSlot) :', BigInt(firstElementSlot))
-  // console.log('l1BatchIndex: ', l1BatchIndex)
-  // console.log('Number(l1BatchIndex) * 2', Number(l1BatchIndex) * 2)
-  // console.log(
-  //   'BigInt(Number(l1BatchIndex) * 2)',
-  //   BigInt(Number(l1BatchIndex) * 2),
-  // )
+  const arrayLengthSlot = zeroPadValue(
+    toBytes(config.l2OutputOracleSlotNumber),
+    // toBytes(config.l2OutputOracleSlotNumber),
+    32,
+  )
+  const firstElementSlot = solidityPackedKeccak256(
+    ['bytes32'],
+    [arrayLengthSlot],
+  )
+  const l1BatchSlot = toBeHex(
+    BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
+    32,
+  )
+  console.log('firstElementSlot: ', firstElementSlot)
+  console.log('BigInt(firstElementSlot) :', BigInt(firstElementSlot))
+  console.log('l1BatchIndex: ', l1BatchIndex)
+  console.log('Number(l1BatchIndex) * 2', Number(l1BatchIndex) * 2)
+  console.log(
+    'BigInt(Number(l1BatchIndex) * 2)',
+    BigInt(Number(l1BatchIndex) * 2),
+  )
   // return
-  const l1BatchSlot =
-    '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f723ffb'
+  // const l1BatchSlot =
+  //   '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f723ffb'
   console.log('l1BatchSlot: ', l1BatchSlot)
 
   const layer1BaseOutputOracleProof = await s.layer1Provider.send(
@@ -323,10 +323,10 @@ async function main() {
     intentFulfillTransaction = config.mainnetIntent.intentFulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    // const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
-    const layer1BlockTag = '0x13470aa'
-    const layer1WorldStateRoot =
-      '0xbfb97ffbfe612551c31a7b9a970f61e80cc4a07afbcb126c8eb0a3398ab1ea38'
+    const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
+    // const layer1BlockTag = '0x13470aa'
+    // const layer1WorldStateRoot =
+    //   '0xbfb97ffbfe612551c31a7b9a970f61e80cc4a07afbcb126c8eb0a3398ab1ea38'
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,
