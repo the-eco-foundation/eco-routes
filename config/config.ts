@@ -84,8 +84,8 @@ export default {
     rewardAmounts: [1241],
     duration: 7200,
     intentHash:
-      '0x644eb70ca9c8cf1b4a9b23be702ba588041dbb55f0e29e91facea38fbcda8c56',
+      '0x151f202ae366b9e23746c0cba3ce0b80e05a8c45d11071432f4ee3fa9f7a0003',
     intentFulfillTransaction:
-      '0x61485d7cc041bb50ed2511f197e402bfcc8a21d8ba12506ca1e4c60be01728a8',
+      '0xab09bf92ae0734750315eb5642a7d0792a0a5cbc84491b76bd73c9632dc9e2e7',
   },
 }
