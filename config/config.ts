@@ -75,7 +75,7 @@ export default {
   },
   mainnetIntent: {
     creator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
-    destinationChainId: 84533,
+    destinationChainId: 8453,
     recipient: `0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9`,
     targetTokens: [`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`],
     targetAmounts: [1238],
@@ -83,8 +83,8 @@ export default {
     rewardAmounts: [1239],
     duration: 7200,
     intentHash:
-      '0x68adfbd50ded4b84efe4044192467daedab8c1d65d1de5aca9b8a572f4abf27a',
+      '0x4efec7368e4791df3c753676efea7f4d7a3323fbc1f13ee390e509662e7fcb2c',
     intentFulfillTransaction:
-      '0xaeea40a56220e99e89a7f8e08538044d1b952207281c3ad191f1e4d98b7db9cd',
+      '0x8f233aa37639d27df78d5314694f0414190e9336ddb443cf390cfd9a6bd82e34',
   },
 }

@@ -4,13 +4,13 @@ import {
   BigNumberish,
   Block,
   BytesLike,
-  hexlify,
+  // hexlify,
   solidityPackedKeccak256,
   toQuantity,
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-import { toBytes } from 'viem'
+import { toBytes, toHex } from 'viem'
 import config from '../config/config'
 import { s } from './setup'
 
@@ -26,7 +26,7 @@ export async function createIntent() {
 
   // get the block before creating the intent
   const latestBlock = await s.layer2SourceProvider.getBlock('latest')
-  const latestBlockNumberHex = hexlify(toQuantity(latestBlock.number))
+  const latestBlockNumberHex = toHex(latestBlock.number)
 
   // create intent
   const data: BytesLike[] = [
@@ -106,7 +106,7 @@ export async function fulfillIntent(intentHash) {
 async function proveL1WorldState() {
   console.log('In proveL1WorldState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
-  const layer1BlockTag = hexlify(toQuantity(layer1Block))
+  const layer1BlockTag = toHex(layer1Block)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
     layer1BlockTag,
@@ -200,7 +200,7 @@ async function proveL2WorldState(
     intentFulfillmentTransaction,
   )
   const intentFulfillmentBlock = txDetails!.blockNumber
-  const intentFulfillmentBlockHex = hexlify(toBytes(intentFulfillmentBlock))
+  const intentFulfillmentBlockHex = toHex(intentFulfillmentBlock)
   const l1BatchIndex =
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputIndexAfter(
       intentFulfillmentBlock,
@@ -210,7 +210,7 @@ async function proveL2WorldState(
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputAfter(
       intentFulfillmentBlock,
     )
-  const l2EndBatchBlockHex = hexlify(toBytes(l1BatchData.l2BlockNumber))
+  const l2EndBatchBlockHex = toHex(l1BatchData.l2BlockNumber)
   const l2EndBatchBlockData = await s.layer2DestinationProvider.send(
     'eth_getBlockByNumber',
     [l2EndBatchBlockHex, false],
@@ -383,6 +383,10 @@ async function main() {
     console.log('Waiting for 600 seconds for Batch to settle')
     await setTimeout(600000)
     console.log('Waited 600 seconds')
+    // intentHash =
+    //   '0xa822be3d89fbf3dc1a93ebd8c9571cb48ff1f09f86385d472830baa73f201d2a'
+    // intentFulfillTransaction =
+    //   '0xa08a1a4fdf19638d1f44264389ffacaf7ab6c0351475deec1c8e2662e72e89f0'
     const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,

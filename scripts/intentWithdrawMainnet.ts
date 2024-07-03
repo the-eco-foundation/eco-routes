@@ -4,13 +4,13 @@ import {
   BigNumberish,
   Block,
   BytesLike,
-  hexlify,
+  // hexlify,
   solidityPackedKeccak256,
   toQuantity,
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-import { toBytes } from 'viem'
+import { toBytes, toHex } from 'viem'
 import config from '../config/config'
 import { s } from './setupMainnet'
 
@@ -106,8 +106,14 @@ export async function fulfillIntent(intentHash) {
 async function proveL1WorldState() {
   console.log('In proveL1WorldState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
-  const layer1BlockTag = toQuantity(layer1Block)
   console.log('layer1Block: ', layer1Block)
+  console.log('layer1Block.toString(16): ', layer1Block.toString(16))
+  console.log('layer1Block.toHex: ', toHex(layer1Block))
+  // console.log('layer1Block.toBytes: ', hexlify(toBytes(layer1Block)))
+  // console.log('layer1BlockHexlify16: ', hexlify(layer1Block.toString(16)))
+  // console.log('layer1BlockHexlify: ', hexlify(layer1Block))
+  // const layer1BlockTag = hexlify(Number(layer1Block))
+  const layer1BlockTag = toHex(layer1Block)
   console.log('layer1BlockTag: ', layer1BlockTag)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
@@ -202,7 +208,7 @@ async function proveL2WorldState(
     intentFulfillmentTransaction,
   )
   const intentFulfillmentBlock = txDetails!.blockNumber
-  const intentFulfillmentBlockHex = hexlify(toBytes(intentFulfillmentBlock))
+  const intentFulfillmentBlockHex = toHex(intentFulfillmentBlock)
   console.log('intentFulfillmentBlock: ', intentFulfillmentBlock)
   console.log('intentFulfillmentBlockHex: ', intentFulfillmentBlockHex)
   const l1BatchIndex =
@@ -217,7 +223,7 @@ async function proveL2WorldState(
       intentFulfillmentBlock,
     )
   console.log('l1BatchData.l2BlockNumber: ', l1BatchData.l2BlockNumber)
-  const l2EndBatchBlockHex = hexlify(toBytes(l1BatchData.l2BlockNumber))
+  const l2EndBatchBlockHex = toHex(l1BatchData.l2BlockNumber)
   console.log('l2EndBatchBlockHex: ', l2EndBatchBlockHex)
   const l2EndBatchBlockData = await s.layer2DestinationProvider.send(
     'eth_getBlockByNumber',
