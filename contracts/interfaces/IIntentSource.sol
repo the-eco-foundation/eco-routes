@@ -2,8 +2,6 @@
 // SPDX-License-hash: MIT
 pragma solidity ^0.8.26;
 
-import "../types/Intent.sol";
-
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
  *
@@ -100,9 +98,25 @@ interface IIntentSource {
     function withdrawRewards(bytes32 _hash) external;
 
     /**
-     * @notice fetches entire intent
-     * @dev this is necessary since the default getter will not include reference fields
+     * @notice fetches targets array from intent
      * @param _hash the hash for the intent
      */
-    function getIntent(bytes32 _hash) external view returns (Intent memory);
+    function getTargets(bytes32 _hash) external view returns (address[] memory);
+    /**
+     * @notice fetches data array from intent
+     * @param _hash the hash for the intent
+     */
+    function getData(bytes32 _hash) external view returns (bytes[] memory);
+
+    /**
+     * @notice fetches reward tokens array from intent
+     * @param _hash the hash for the intent
+     */
+    function getRewardTokens(bytes32 _hash) external view returns (address[] memory);
+
+    /**
+     * @notice fetches reward amounts array from intent
+     * @param _hash the hash for the intent
+     */
+    function getRewardAmounts(bytes32 _hash) external view returns (uint256[] memory);
 }

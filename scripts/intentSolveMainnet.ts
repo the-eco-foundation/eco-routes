@@ -60,8 +60,15 @@ export async function fulfillIntent(intentHash) {
   console.log('In fulfillIntent')
   try {
     // get intent Information
+    // const thisIntent =
+    //   await s.layer2SourceIntentSourceContract.getIntent(intentHash)
+
     const thisIntent =
-      await s.layer2SourceIntentSourceContract.getIntent(intentHash)
+      await s.layer2SourceIntentSourceContract.intents(intentHash)
+    const targetTokens =
+      await s.layer2SourceIntentSourceContract.getTargets(intentHash)
+    const calldata =
+      await s.layer2SourceIntentSourceContract.getData(intentHash)
 
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.layer2DestinationUSDCContract
@@ -74,9 +81,14 @@ export async function fulfillIntent(intentHash) {
     // fulfill the intent
 
     const fulfillTx = await s.layer2DestinationInboxContract.fulfill(
+      // thisIntent.nonce,
+      // thisIntent.targets.toArray(),
+      // thisIntent.data.toArray(),
+      // thisIntent.expiryTime,
+      // config.actors.claimant,
       thisIntent.nonce,
-      thisIntent.targets.toArray(),
-      thisIntent.data.toArray(),
+      targetTokens.toArray(),
+      calldata.toArray(),
       thisIntent.expiryTime,
       config.actors.claimant,
     )
