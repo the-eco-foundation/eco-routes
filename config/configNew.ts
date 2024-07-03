@@ -76,7 +76,7 @@ export default {
   },
   mainnetIntent: {
     creator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
-    destinationChainId: 84533,
+    destinationChainId: 8453,
     recipient: `0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9`,
     targetTokens: [`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`],
     targetAmounts: [1238],

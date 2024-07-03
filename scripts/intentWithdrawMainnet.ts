@@ -101,16 +101,18 @@ function cleanBlockData(blockData) {
 
 async function proveL2WorldState(
   layer1BlockTag,
-  intentFulfillmentTransaction,
+  intentFulfillTransaction,
   layer1WorldStateRoot,
 ) {
   console.log('In proveL2WorldState')
   // Get the L1 Batch Number for the transaction we are proving
   const txDetails = await s.layer2DestinationProvider.getTransaction(
-    intentFulfillmentTransaction,
+    intentFulfillTransaction,
   )
   const intentFulfillmentBlock = txDetails!.blockNumber
   const intentFulfillmentBlockHex = hexlify(toBytes(intentFulfillmentBlock))
+  console.log('intentFulfillmentBlock: ', intentFulfillmentBlock)
+  console.log('intentFulfillmentBlockHex: ', intentFulfillmentBlockHex)
   const l1BatchIndex =
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputIndexAfter(
       intentFulfillmentBlock,
@@ -145,34 +147,34 @@ async function proveL2WorldState(
     ['bytes32'],
     [arrayLengthSlot],
   )
-  // const l1BatchSlot = toBeHex(
-  //   BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
-  //   32,
-  // )
+  const l1BatchSlot = toBeHex(
+    BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
+    32,
+  )
   // https://viem.sh/docs/utilities/fromHex#hextobigint
   // https://viem.sh/docs/utilities/toHex
-  const l1BatchSlot = numberToHex(
-    hexToBigInt(firstElementSlot, { size: 32 }) +
-      BigInt(Number(l1BatchIndex) * 2),
-    { size: 32 },
-  )
-  console.log('firstElementSlot: ', firstElementSlot)
-  console.log(
-    'firstElementSlotBigInt: ',
-    hexToBigInt(firstElementSlot, { size: 32 }),
-  )
-  // console.log('BigInt(firstElementSlot) :', BigInt(firstElementSlot))
-  console.log('l1BatchIndex: ', l1BatchIndex)
-  console.log('Number(l1BatchIndex) * 2', Number(l1BatchIndex) * 2)
-  console.log(
-    'BigInt(Number(l1BatchIndex) * 2)',
-    BigInt(Number(l1BatchIndex) * 2),
-  )
-  console.log(
-    'BigIntBatchSlot: ',
-    hexToBigInt(firstElementSlot, { size: 32 }) +
-      BigInt(Number(l1BatchIndex) * 2 + 8),
-  )
+  // const l1BatchSlot = numberToHex(
+  //   hexToBigInt(firstElementSlot, { size: 32 }) +
+  //     BigInt(Number(l1BatchIndex) * 2),
+  //   { size: 32 },
+  // )
+  // console.log('firstElementSlot: ', firstElementSlot)
+  // console.log(
+  //   'firstElementSlotBigInt: ',
+  //   hexToBigInt(firstElementSlot, { size: 32 }),
+  // )
+  // // console.log('BigInt(firstElementSlot) :', BigInt(firstElementSlot))
+  // console.log('l1BatchIndex: ', l1BatchIndex)
+  // console.log('Number(l1BatchIndex) * 2', Number(l1BatchIndex) * 2)
+  // console.log(
+  //   'BigInt(Number(l1BatchIndex) * 2)',
+  //   BigInt(Number(l1BatchIndex) * 2),
+  // )
+  // console.log(
+  //   'BigIntBatchSlot: ',
+  //   hexToBigInt(firstElementSlot, { size: 32 }) +
+  //     BigInt(Number(l1BatchIndex) * 2 + 8),
+  // )
   // return
   // const l1BatchSlot =
   //   '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f723ffb'
@@ -203,19 +205,46 @@ async function proveL2WorldState(
       'layer1BaseOutputOracleProof.codeHash: ',
       layer1BaseOutputOracleProof.codeHash,
     )
-    // console.log('p1: ', l2EndBatchBlockData.stateRoot)
-    // console.log('p2: ', l2MesagePasserProof.storageHash)
-    // console.log('p3: ', l2EndBatchBlockData.hash)
-    // console.log('p4: ', l1BatchIndex)
-    // console.log('p5: ', layer1BaseOutputOracleProof.storageProof[0].proof)
-    // console.log(
-    //   'p6: ',
+    console.log('p1: ', l2EndBatchBlockData.stateRoot)
+    console.log('p2: ', l2MesagePasserProof.storageHash)
+    console.log('p3: ', l2EndBatchBlockData.hash)
+    console.log('p4: ', l1BatchIndex)
+    console.log('p5: ', layer1BaseOutputOracleProof.storageProof[0].proof)
+    console.log(
+      'p6: ',
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        layer1BaseOutputOracleContractData,
+      ),
+    )
+    console.log('p7: ', layer1BaseOutputOracleProof.accountProof)
+    console.log('p8: ', layer1WorldStateRoot)
+
+    // generate the Output Root
+    // const outputRoot = await s.layer2SourceProverContract.generateOutputRoot(
+    //   0,
+    //   layer1WorldStateRoot,
+    //   l2MesagePasserProof.storageHash,
+    //   l2EndBatchBlockData.hash,
+    // )
+    // console.log('outputRoot: ', outputRoot)
+
+    // // prove storage
+    // const l1StorageProof =
     //   await s.layer2SourceProverContract.rlpEncodeDataLibList(
     //     layer1BaseOutputOracleContractData,
-    //   ),
+    //   )
+    // console.log('l1StorageProof: ', l1StorageProof)
+    // await s.layer2SourceProverContract.proveStorage(
+    //   l1BatchSlot,
+    //   // outputRoot,
+    //   // '0xa082af251eb4e15ec624f3a0d8e891892e45272cc3b364dec56cd00a1b2f36f62d'
+    //   '0xa09e0623fba42b56d581e1cd5111fb734ad924d191eff3299c4313e122e906e981',
+    //   // bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+    //   l1StorageProof,
+    //   layer1BaseOutputOracleProof.storageHash,
     // )
-    // console.log('p7: ', layer1BaseOutputOracleProof.accountProof)
-    // console.log('p8: ', layer1WorldStateRoot)
+
+    // console.log('Proved Storage')
 
     const proveOutputTX = await s.layer2SourceProverContract.proveOutputRoot(
       l2EndBatchBlockData.stateRoot,
@@ -339,10 +368,15 @@ async function main() {
     intentFulfillTransaction = config.mainnetIntent.intentFulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    // const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
-    const layer1BlockTag = '0x13470aa'
-    const layer1WorldStateRoot =
-      '0xbfb97ffbfe612551c31a7b9a970f61e80cc4a07afbcb126c8eb0a3398ab1ea38'
+    const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
+    // Original
+    // const layer1BlockTag = '0x1347f89'
+    // const layer1WorldStateRoot =
+    //   '0xc31af802e82d28ba983b8e03fb70bb221a07a32979aec35ab65b38201ee62722'
+    // // Latest
+    // const layer1BlockTag = '0x1348edf'
+    // const layer1WorldStateRoot =
+    //   '0xe1e0cf0ffb349bf47ea4fd23ddfedc4f4b2cb1c854d5d315399cfca41359be46'
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,
