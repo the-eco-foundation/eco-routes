@@ -7,6 +7,8 @@ import {
   keccak256,
   toBeHex,
   encodeRlp,
+  getBytes,
+  toBeArray,
   solidityPackedKeccak256,
   stripZerosLeft,
   zeroPadValue,
@@ -350,14 +352,20 @@ describe('Prover Test', () => {
   })
 
   it('test Formatting', async () => {
-    // const input = '0x01c97b7b'
-    const input = '0x0'
+    const input = '0x01c97b7b'
     console.log('input           :', input)
     console.log('toQuantity      :', toQuantity(input))
     console.log('toBeHex         :', toBeHex(input))
     console.log('toBeHexStripped :', stripZerosLeft(toBeHex(input)))
     console.log('ecodeRlp        :', encodeRlp(toBeHex(input)))
     expect((await blockDataSource.hash()) === L1_BLOCK_HASH)
+
+    // getBytes Testing
+    console.log('getBytes testing')
+    const l2OutputOracleSlotNumber = 3
+    console.log('l2OutputOracleSlotNumber: ', l2OutputOracleSlotNumber)
+    console.log('tobytes: ', toBytes(l2OutputOracleSlotNumber))
+    console.log('toBeArray: ', toBeArray(l2OutputOracleSlotNumber))
   })
 
   it('has the correct block hash', async () => {

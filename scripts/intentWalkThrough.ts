@@ -9,8 +9,8 @@ import {
   hexlify,
   solidityPackedKeccak256,
   stripZerosLeft,
+  toBeArray,
   toQuantity,
-  toBytes,
   zeroPadValue,
   toBeHex,
 } from 'ethers'
@@ -149,7 +149,7 @@ async function proveL1WorldState() {
     //   await s.layer2SourceProverContract.rlpEncodeDataLibList(blockData)
     // console.log('rlpEncodedBlockData   : ', rlpEncodedBlockData)
     tx = await s.layer2SourceProverContract.proveL1WorldState(
-      getBytes(rlpEncodedBlockData),
+      getBytes(hexlify(rlpEncodedBlockData)),
     )
     await tx.wait()
     console.log('Prove L1 world state tx: ', tx.hash)
@@ -264,7 +264,7 @@ async function proveL2WorldState(
   // bytes32 outputRootStorageSlot =
   // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
   const arrayLengthSlot = zeroPadValue(
-    toBytes(config.l2OutputOracleSlotNumber),
+    toBeArray(config.l2OutputOracleSlotNumber),
     32,
   )
   const firstElementSlot = solidityPackedKeccak256(
@@ -340,14 +340,14 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
       ? '0x'
       : // eslint-disable-next-line no-self-compare
         intentInboxProof.balance.length & (1 === 1)
-        ? zeroPadValue(toBytes(intentInboxProof.balance), 1)
+        ? zeroPadValue(toBeArray(intentInboxProof.balance), 1)
         : intentInboxProof.balance
   const nonce =
     intentInboxProof.nonce === '0x0'
       ? '0x'
       : // eslint-disable-next-line no-self-compare
         intentInboxProof.nonce.length & (1 === 1)
-        ? zeroPadValue(toBytes(intentInboxProof.nonce), 1)
+        ? zeroPadValue(toBeArray(intentInboxProof.nonce), 1)
         : intentInboxProof.nonce
   try {
     const proveIntentTx = await s.layer2SourceProverContract.proveIntent(
