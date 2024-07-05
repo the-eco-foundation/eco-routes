@@ -4,9 +4,13 @@ import {
   BigNumberish,
   Block,
   BytesLike,
-  // hexlify,
+  encodeRlp,
+  getBytes,
+  hexlify,
   solidityPackedKeccak256,
+  stripZerosLeft,
   toQuantity,
+  toUtf8Bytes,
   zeroPadValue,
   toBeHex,
 } from 'ethers'
@@ -118,11 +122,35 @@ async function proveL1WorldState() {
   let tx
   let layer1WorldStateRoot
   try {
+    const rlpEncodedBlockDataNew = encodeRlp([
+      block.parentHash,
+      block.sha3Uncles,
+      block.miner,
+      block.stateRoot,
+      block.transactionsRoot,
+      block.receiptsRoot,
+      block.logsBloom,
+      stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+      toBeHex(block.number),
+      toBeHex(block.gasLimit),
+      toBeHex(block.gasUsed),
+      block.timestamp,
+      block.extraData,
+      block.mixHash,
+      block.nonce,
+      toBeHex(block.baseFeePerGas),
+      block.withdrawalsRoot,
+      stripZerosLeft(toBeHex(block.blobGasUsed)),
+      stripZerosLeft(toBeHex(block.excessBlobGas)),
+      block.parentBeaconBlockRoot,
+    ])
+    console.log('rlpEncodedBlockDataNew: ', rlpEncodedBlockDataNew)
     const rlpEncodedBlockData =
       await s.layer2SourceProverContract.rlpEncodeDataLibList(blockData)
-    console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    tx =
-      await s.layer2SourceProverContract.proveL1WorldState(rlpEncodedBlockData)
+    console.log('rlpEncodedBlockData   : ', rlpEncodedBlockData)
+    tx = await s.layer2SourceProverContract.proveL1WorldState(
+      getBytes(rlpEncodedBlockDataNew),
+    )
     await tx.wait()
     console.log('Prove L1 world state tx: ', tx.hash)
     layer1WorldStateRoot = blockData[3]
