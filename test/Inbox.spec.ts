@@ -104,7 +104,7 @@ describe('Inbox Test', (): void => {
           ],
         ),
       )
-      
+
       await expect(
         inbox.fulfill(
           nonce,
