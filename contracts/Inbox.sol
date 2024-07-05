@@ -39,9 +39,16 @@ contract Inbox is IInbox {
         address[] calldata _targets,
         bytes[] calldata _datas,
         uint256 _expireTimestamp,
-        address _claimant
+        address _claimant,
+        bytes32 _expectedHash
     ) external validTimestamp(_expireTimestamp) returns (bytes[] memory) {
         bytes32 intentHash = encodeHash(block.chainid, _targets, _datas, _expireTimestamp, _nonce);
+        
+        // revert if locally calculated hash does not match expected hash
+        if(intentHash != _expectedHash) {
+            revert InvalidHash(_expectedHash);
+        }
+        
         // revert if intent has already been fulfilled
         if(fulfilled[intentHash] != address(0)) {
             revert IntentAlreadyFulfilled(intentHash);

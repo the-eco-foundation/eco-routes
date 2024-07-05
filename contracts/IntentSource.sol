@@ -66,11 +66,12 @@ contract IntentSource is IIntentSource {
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime
     ) external {
-        if (_targets.length == 0 || _targets.length != _data.length) {
+        uint256 len = _targets.length;
+        if (len == 0 || len != _data.length) {
             revert CalldataMismatch();
         }
 
-        uint256 len = _rewardTokens.length;
+        len = _rewardTokens.length;
         if (len == 0 || len != _rewardAmounts.length) {
             revert RewardsMismatch();
         }

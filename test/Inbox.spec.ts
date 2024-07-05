@@ -86,12 +86,25 @@ describe('Inbox Test', (): void => {
           [calldata],
           timeStamp,
           dstAddr.address,
+          hash32,
         ),
       ).to.be.revertedWithCustomError(inbox, 'IntentExpired')
     })
 
     it('should revert if the data is invalid', async () => {
-      // empty addresses
+      const newHash = keccak256(
+        ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [
+            (await owner.provider.getNetwork()).chainId,
+            [],
+            [calldata, calldata],
+            timeStamp,
+            nonce,
+          ],
+        ),
+      )
+      
       await expect(
         inbox.fulfill(
           nonce,
@@ -99,8 +112,29 @@ describe('Inbox Test', (): void => {
           [calldata, calldata],
           timeStamp,
           dstAddr.address,
+          newHash,
         ),
       ).to.be.revertedWithPanic('0x32') // Array accessed at an out-of-bounds or negative index
+    })
+
+    it('should revert if the generated hash does not match the expected hash', async () => {
+      const goofyHash = keccak256(
+        ethers.AbiCoder.defaultAbiCoder().encode(
+          ['string'],
+          ["you wouldn't block a chain"],
+        ),
+      )
+      //   const asvfa = keccak256("you wouldn't block a chain")
+      await expect(
+        inbox.fulfill(
+          nonce,
+          [erc20Address],
+          [calldata],
+          timeStamp,
+          dstAddr.address,
+          goofyHash,
+        ),
+      ).to.be.revertedWithCustomError(inbox, 'InvalidHash')
     })
   })
 
@@ -113,6 +147,7 @@ describe('Inbox Test', (): void => {
           [calldata],
           timeStamp,
           dstAddr.address,
+          hash32,
         ),
       ).to.be.revertedWithCustomError(inbox, 'IntentCallFailed')
     })
@@ -135,6 +170,7 @@ describe('Inbox Test', (): void => {
             [calldata],
             timeStamp,
             dstAddr.address,
+            hash32,
           ),
       )
         .to.emit(inbox, 'Fulfillment')
@@ -161,6 +197,7 @@ describe('Inbox Test', (): void => {
             [calldata],
             timeStamp,
             dstAddr.address,
+            hash32,
           ),
       )
         .to.emit(inbox, 'Fulfillment')
@@ -175,6 +212,7 @@ describe('Inbox Test', (): void => {
             [calldata],
             timeStamp,
             dstAddr.address,
+            hash32,
           ),
       ).to.be.revertedWithCustomError(inbox, 'IntentAlreadyFulfilled')
     })

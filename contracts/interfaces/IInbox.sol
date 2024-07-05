@@ -11,6 +11,7 @@ interface IInbox {
      * @param _datas The calldata to call
      * @param _expireTimestamp The timestamp at which the intent expires
      * @param _claimer The address who can claim the reward on the src chain. Not part of the hash
+     * @param _expectedHash The hash of the intent as found on the intentSource contract
      * @return results The results of the calls as an array of bytes
      */
     function fulfill(
@@ -18,7 +19,8 @@ interface IInbox {
         address[] calldata _targets,
         bytes[] calldata _datas,
         uint256 _expireTimestamp,
-        address _claimer
+        address _claimer,
+        bytes32 _expectedHash
     ) external returns (bytes[] memory);
 
     // Event emitted when an intent is succesfully fulfilled
@@ -32,4 +34,7 @@ interface IInbox {
 
     // Event emitted when the intent call failed while itertating through the callAddresses
     error IntentCallFailed(address _addr, bytes _data, bytes _returnData);
+
+    // Event emitted when the hash generated on the inbox contract does not match the expected hash
+    error InvalidHash(bytes32 _expectedHash);
 }
