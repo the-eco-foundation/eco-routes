@@ -6,10 +6,108 @@ import { MockL1Block__factory, Prover__factory } from '../typechain-types'
 import {
   keccak256,
   toBeHex,
+  encodeRlp,
   solidityPackedKeccak256,
+  stripZerosLeft,
   zeroPadValue,
+  toQuantity,
 } from 'ethers'
 import { toBytes, hexToBigInt, toHex, numberToHex } from 'viem'
+
+// Test Data taken from Testnet
+// Intent Creation tx: 0x05072bdf72e4ef97ce2bb8a016aaa461ac1dfcbe9bcffacd2cbf201920e48ef1
+// intent Hash 0x033aa105235feb7bcfe28f1e9c4ff787d743ccff9226aff68df40e11a09d7527
+// Fulfillment tx:  0x7c7c5200002fc31bdbd6f95de3fb808437ca24fff3517ea3b2b89c12df073a27
+// L1 Settlement Batch: 101812
+// L1 Settlement Batch Last Block: 12217560 (0xba6cd8)
+// L1 State Root Submission tx: 0x5b765f43123f90125698f95d69f7309e79c749448938f7725b290e4d72ef5ded
+// Layer1 Block Used for Proving: 6252382 (0x5f675e)
+// Prove L1 world state tx:  0x2d8a93670abdf964ca2880495be27b91d6cfe0e15b554b86fa92e48682add2da
+// Proven L1 world state root: 0x8ec56e24bfc7bb4268b379c090115f620541ab715b696902b05cf691b294ed9c
+// In proveL2WorldState
+// Layer 1 Batch Number:  101812
+// Prove L2 world state tx:  0x93df5fbbe123cc5bcd4de7f5d965b2c1bb21f2b68589da536974ed32323d8008
+// In proveIntent
+// Prove Intent tx:  0x5ad7404f322ef10b5db8c137ae0ed49f0861ac68d092f7d9a92c5bfeb32860bb
+// In withdrawReward
+// Withdrawal tx:  0xa0ee48b981289a9d1fd1c2c92d9ce45651438c76df8b9c7d35cea1c1b552e373
+//
+// L1 blockdata Note: * indicates field is a uint and length could be odd and may need to be cleaned
+const testnetL1BlockNumber = '0x5f675e'
+const testnetL1BLockDataHash =
+  '0x7b8b0cdf46d1ad72ec627f9ac23ec072b4c55f7fd10494d1179e593ce300089d'
+
+const testnetRawL1BlockData = [
+  '0x68eb2d082ac10adbeeb3f0f0cda011124b9fd59c9b168a80dffa385ec707f839', // parentHash bytes32
+  '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347', // sha3Uncles bytes32
+  '0x9b7e335088762ad8061c04d08c37902abc8acb87', // miner address
+  '0x8ec56e24bfc7bb4268b379c090115f620541ab715b696902b05cf691b294ed9c', // stateRoot bytes32
+  '0x542f860255cbac49d08d86978475cc404aa41bfa004d3f78aeb4f177389d0fa1', // transactionsRoot bytes32
+  '0x9e321cafcc951d9775e0439f45e492dc3ea54a4cdbfea6e206314f34e1fb4917', // receiptsRoot bytes32
+  '0x2700888ca81048c80210545718988068000146001010044750240828474202523a4d104040e24081401208a1042409801030341006048ca410a0321303ac001a9010b088846c02aec080200a122200421440568082c442372102280b160434903e8100100a0a40c080100c000040890268288080414142200428439815880204a288022c0c504523e58080190529853290101c20200621408201234235680008231c2023118312803062838e4100001c204805a81084834a0430221a9c4b46794250300290b0020014216c01180ac01001820ba8905088056202b7640501f03a701882000684008018491008a4281128030c3280aabc0e053d08028408dc6e00', // logsBloom bytes
+  '0x0', // *difficulty uint
+  '0x5f675e', // *number uint
+  '0x1c9c380', // *gasLimit uint
+  '0xae5edd', // *gasUsed uint
+  '0x66883a40', // *timestamp uint
+  '0xd883010d0b846765746888676f312e32312e36856c696e7578', // extraData bytes
+  '0x1594d181da3506a721d2fbe3c86329f2ece8fb8fb79c6c0e818e043bb6dc6431', // mixHash bytes32
+  '0x0000000000000000', // *nonce uint
+  '0x17fc4c7d0', // *baseFeePerGas uint
+  '0xa233010a5e1d320114fde60d009b1268a477ffbd7e23070fdbf4d78d07c12712', // withdrawalsRoot bytes32
+  '0x20000', // *blobGasUsed uint
+  '0x33c0000', // *excessBlobGas uint
+  '0xc557d1416e01aeb569aee4db59e396613a3d93892a6c3036d82a7b2261f2af68', // parentBeaconBlockRoot
+]
+const testnetAssembledL1BlockData = [
+  '0x68eb2d082ac10adbeeb3f0f0cda011124b9fd59c9b168a80dffa385ec707f839', // parentHash
+  '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347', // sha3Uncles
+  '0x9b7e335088762ad8061c04d08c37902abc8acb87', // miner
+  '0x8ec56e24bfc7bb4268b379c090115f620541ab715b696902b05cf691b294ed9c', // stateRoot
+  '0x542f860255cbac49d08d86978475cc404aa41bfa004d3f78aeb4f177389d0fa1', // transactionsRoot
+  '0x9e321cafcc951d9775e0439f45e492dc3ea54a4cdbfea6e206314f34e1fb4917', // receiptsRoot
+  '0x2700888ca81048c80210545718988068000146001010044750240828474202523a4d104040e24081401208a1042409801030341006048ca410a0321303ac001a9010b088846c02aec080200a122200421440568082c442372102280b160434903e8100100a0a40c080100c000040890268288080414142200428439815880204a288022c0c504523e58080190529853290101c20200621408201234235680008231c2023118312803062838e4100001c204805a81084834a0430221a9c4b46794250300290b0020014216c01180ac01001820ba8905088056202b7640501f03a701882000684008018491008a4281128030c3280aabc0e053d08028408dc6e00', // logsBloom
+  '0x0', // *difficulty
+  '0x5f675e', // *number
+  '0x1c9c380', // *gasLimit
+  '0xae5edd', // *gasUsed
+  '0x66883a40', // *timestamp
+  '0xd883010d0b846765746888676f312e32312e36856c696e7578', // extraData
+  '0x1594d181da3506a721d2fbe3c86329f2ece8fb8fb79c6c0e818e043bb6dc6431', // mixHash
+  '0x0000000000000000', // *nonce
+  '0x17fc4c7d0', // *baseFeePerGas
+  '0xa233010a5e1d320114fde60d009b1268a477ffbd7e23070fdbf4d78d07c12712', // withdrawalsRoot
+  '0x20000', // *blobGasUsed
+  '0x33c0000', // *excessBlobGas
+  '0xc557d1416e01aeb569aee4db59e396613a3d93892a6c3036d82a7b2261f2af68', // parentBeaconBlockRoot
+]
+
+const testnetCleanedL1BlockData = [
+  '0x68eb2d082ac10adbeeb3f0f0cda011124b9fd59c9b168a80dffa385ec707f839', // parentHash
+  '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347', // sha3Uncles
+  '0x9b7e335088762ad8061c04d08c37902abc8acb87', // miner
+  '0x8ec56e24bfc7bb4268b379c090115f620541ab715b696902b05cf691b294ed9c', // stateRoot
+  '0x542f860255cbac49d08d86978475cc404aa41bfa004d3f78aeb4f177389d0fa1', // transactionsRoot
+  '0x9e321cafcc951d9775e0439f45e492dc3ea54a4cdbfea6e206314f34e1fb4917', // receiptsRoot
+  '0x2700888ca81048c80210545718988068000146001010044750240828474202523a4d104040e24081401208a1042409801030341006048ca410a0321303ac001a9010b088846c02aec080200a122200421440568082c442372102280b160434903e8100100a0a40c080100c000040890268288080414142200428439815880204a288022c0c504523e58080190529853290101c20200621408201234235680008231c2023118312803062838e4100001c204805a81084834a0430221a9c4b46794250300290b0020014216c01180ac01001820ba8905088056202b7640501f03a701882000684008018491008a4281128030c3280aabc0e053d08028408dc6e00', // logsBloom
+  '0x', // *difficulty ***
+  '0x5f675e', // *number
+  '0x01c9c380', // *gasLimit ***
+  '0xae5edd', // *gasUsed
+  '0x66883a40', // *timestamp
+  '0xd883010d0b846765746888676f312e32312e36856c696e7578', // extraData
+  '0x1594d181da3506a721d2fbe3c86329f2ece8fb8fb79c6c0e818e043bb6dc6431', // mixHash
+  '0x0000000000000000', // *nonce
+  '0x017fc4c7d0', // *baseFeePerGas ***
+  '0xa233010a5e1d320114fde60d009b1268a477ffbd7e23070fdbf4d78d07c12712', // withdrawalsRoot
+  '0x020000', // *blobGasUsed ***
+  '0x033c0000', // *excessBlobGas ***
+  '0xc557d1416e01aeb569aee4db59e396613a3d93892a6c3036d82a7b2261f2af68', // parentBeaconBlockRoot
+]
+
+const testnetL1RLPEncodedBlockData =
+  '0xf90265a068eb2d082ac10adbeeb3f0f0cda011124b9fd59c9b168a80dffa385ec707f839a01dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347949b7e335088762ad8061c04d08c37902abc8acb87a08ec56e24bfc7bb4268b379c090115f620541ab715b696902b05cf691b294ed9ca0542f860255cbac49d08d86978475cc404aa41bfa004d3f78aeb4f177389d0fa1a09e321cafcc951d9775e0439f45e492dc3ea54a4cdbfea6e206314f34e1fb4917b901002700888ca81048c80210545718988068000146001010044750240828474202523a4d104040e24081401208a1042409801030341006048ca410a0321303ac001a9010b088846c02aec080200a122200421440568082c442372102280b160434903e8100100a0a40c080100c000040890268288080414142200428439815880204a288022c0c504523e58080190529853290101c20200621408201234235680008231c2023118312803062838e4100001c204805a81084834a0430221a9c4b46794250300290b0020014216c01180ac01001820ba8905088056202b7640501f03a701882000684008018491008a4281128030c3280aabc0e053d08028408dc6e0080835f675e8401c9c38083ae5edd8466883a4099d883010d0b846765746888676f312e32312e36856c696e7578a01594d181da3506a721d2fbe3c86329f2ece8fb8fb79c6c0e818e043bb6dc643188000000000000000085017fc4c7d0a0a233010a5e1d320114fde60d009b1268a477ffbd7e23070fdbf4d78d07c127128302000084033c0000a0c557d1416e01aeb569aee4db59e396613a3d93892a6c3036d82a7b2261f2af68'
+
 // Test Data taken from Mainnet
 // intent Hash 0xc0f1131d76d144be71e53f3bfd7bd6ee5df8bf8333fd79863ba354684e6c3108
 // Intent Creation tx: 0x526542aa64ceed90e45588338da69eee63ec212760ff1886d107bd72a41c58d6
@@ -20,7 +118,89 @@ import { toBytes, hexToBigInt, toHex, numberToHex } from 'viem'
 // Layer1 Block Used for Proving: 0x134c2ae
 //
 
+const mainnetL1BlockNumber = '0x134c5cb'
+const mainnetL1BLockDataHash =
+  '0x69e25388f79ab730df37d97f9e93ce60ee6524211a2f00a55bb268499c442f27'
+
+// L1 blockdata Note: * indicates lenght could be odd and may need to be cleaned using toBeHex as
+const mainnetRawBlockData = [
+  '0x7e8a7024b4c81e3eb07c5ebf78de460654d9341d90ed9d2e08102dd612f3a010', // parentHash
+  '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347', // sha3Uncles
+  '0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5', // miner
+  '0x69d3c2c844414686d48dffee7c5b3d319f538fb5a182e9a802d79c91e07c6fac', // stateRoot
+  '0xbf649d8f8084880007757343e24018db98911ad53565812733fd5e3b8a1a2bdf', // transactionsRoot
+  '0xd92b678d134d1b03cbf299efa84f911abfb23b9ad8bd3c4d06a659c5b2c58b21', // receiptsRoot
+  '0xbfbfe5a971e397fcf7ab7b76c2d93f75b67fbbd5d9fc0a9b64dfeb7ffd868f61f79bf3d6ffbe6e9adef87b46ffafcb7ee76dfbbdef7fef37ffa3dbfbdb2f3fb77e6af6096574eafbfb8ffe7affd4fcef726f18b1efdf7cdb77d3eff1efffe39bf3cff7bfeeecfeafcdfff8bad2c2ddfbeaf69efd147fbd7e4e37a53feaebeedf5cfed7de86ededfbebffff5fbffa07779cfbffe1bd9f3ecfefeca35afdf97f267fff7ebfff7be7d77f7b7efa9bd3fff38f73ecf96fffed0f579faed779c39a7afb9e46afb71cfb39888b16bedecbff6fbfe989d3bb7d65bd73ebf53e7cd9f6df7ffdb967aea77f9377bcbff77d9af7875be7f66978b237fee8dbfb47bbfd74e5', // logsBloom
+  '0x0', // *difficulty
+  '0x134c5cb', // *number
+  '0x1c9c380', // *gasLimit
+  '0x1c97b7b', // *gasUsed
+  '0x66870eff', // *timestamp
+  '0x6265617665726275696c642e6f7267', // extraData
+  '0xad13639d8887da1ab898c727d58f693ec1d04158957556bb1632780fe76e06ed', // mixHash
+  '0x0000000000000000', // *nonce
+  '0x12804e1fe', // *baseFeePerGas
+  '0xe32735932f1ec21f4120d5e090d7dc2e749d72775926c91d7263edc7c9bde91e', // withdrawalsRoot
+  '0xc0000', // *blobGasUsed
+  '0xe60000', // *excessBlobGas
+  '0x128663e7a4dfff98aa92d30429b7a65e0da8f464e89f92182daed40db01a0044', // parentBeaconBlockRoot
+]
+
+const mainnetAssembledL1BlockData = [
+  '0x7e8a7024b4c81e3eb07c5ebf78de460654d9341d90ed9d2e08102dd612f3a010',
+  '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
+  '0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5',
+  '0x69d3c2c844414686d48dffee7c5b3d319f538fb5a182e9a802d79c91e07c6fac',
+  '0xbf649d8f8084880007757343e24018db98911ad53565812733fd5e3b8a1a2bdf',
+  '0xd92b678d134d1b03cbf299efa84f911abfb23b9ad8bd3c4d06a659c5b2c58b21',
+  '0xbfbfe5a971e397fcf7ab7b76c2d93f75b67fbbd5d9fc0a9b64dfeb7ffd868f61f79bf3d6ffbe6e9adef87b46ffafcb7ee76dfbbdef7fef37ffa3dbfbdb2f3fb77e6af6096574eafbfb8ffe7affd4fcef726f18b1efdf7cdb77d3eff1efffe39bf3cff7bfeeecfeafcdfff8bad2c2ddfbeaf69efd147fbd7e4e37a53feaebeedf5cfed7de86ededfbebffff5fbffa07779cfbffe1bd9f3ecfefeca35afdf97f267fff7ebfff7be7d77f7b7efa9bd3fff38f73ecf96fffed0f579faed779c39a7afb9e46afb71cfb39888b16bedecbff6fbfe989d3bb7d65bd73ebf53e7cd9f6df7ffdb967aea77f9377bcbff77d9af7875be7f66978b237fee8dbfb47bbfd74e5',
+  '0x0',
+  '0x134c5cb',
+  '0x1c9c380',
+  '0x1c97b7b',
+  '0x66870eff',
+  '0x6265617665726275696c642e6f7267',
+  '0xad13639d8887da1ab898c727d58f693ec1d04158957556bb1632780fe76e06ed',
+  '0x0000000000000000',
+  '0x12804e1fe',
+  '0xe32735932f1ec21f4120d5e090d7dc2e749d72775926c91d7263edc7c9bde91e',
+  '0xc0000',
+  '0xe60000',
+  '0x128663e7a4dfff98aa92d30429b7a65e0da8f464e89f92182daed40db01a0044',
+]
+
+const mainnetCleanedL1BlockData = [
+  '0x7e8a7024b4c81e3eb07c5ebf78de460654d9341d90ed9d2e08102dd612f3a010',
+  '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
+  '0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5',
+  '0x69d3c2c844414686d48dffee7c5b3d319f538fb5a182e9a802d79c91e07c6fac',
+  '0xbf649d8f8084880007757343e24018db98911ad53565812733fd5e3b8a1a2bdf',
+  '0xd92b678d134d1b03cbf299efa84f911abfb23b9ad8bd3c4d06a659c5b2c58b21',
+  '0xbfbfe5a971e397fcf7ab7b76c2d93f75b67fbbd5d9fc0a9b64dfeb7ffd868f61f79bf3d6ffbe6e9adef87b46ffafcb7ee76dfbbdef7fef37ffa3dbfbdb2f3fb77e6af6096574eafbfb8ffe7affd4fcef726f18b1efdf7cdb77d3eff1efffe39bf3cff7bfeeecfeafcdfff8bad2c2ddfbeaf69efd147fbd7e4e37a53feaebeedf5cfed7de86ededfbebffff5fbffa07779cfbffe1bd9f3ecfefeca35afdf97f267fff7ebfff7be7d77f7b7efa9bd3fff38f73ecf96fffed0f579faed779c39a7afb9e46afb71cfb39888b16bedecbff6fbfe989d3bb7d65bd73ebf53e7cd9f6df7ffdb967aea77f9377bcbff77d9af7875be7f66978b237fee8dbfb47bbfd74e5',
+  '0x00', // *difficulty ***
+  '0x0134c5cb', // *number ***********
+  '0x01c9c380', // *gasLimit ***
+  '0x01c97b7b', // *gasUsed ***
+  '0x66870eff', // *timestamp
+  '0x6265617665726275696c642e6f7267',
+  '0xad13639d8887da1ab898c727d58f693ec1d04158957556bb1632780fe76e06ed',
+  '0x0000000000000000', // *nonce
+  '0x012804e1fe', // *baseFeePerGas ***
+  '0xe32735932f1ec21f4120d5e090d7dc2e749d72775926c91d7263edc7c9bde91e',
+  '0x0c0000', // *blobGasUsed ***
+  '0xe60000', // *excessBlobGas
+  '0x128663e7a4dfff98aa92d30429b7a65e0da8f464e89f92182daed40db01a0044',
+]
+const mainnetL1RLPEncodedBlockData =
+  '0xf9025ca07e8a7024b4c81e3eb07c5ebf78de460654d9341d90ed9d2e08102dd612f3a010a01dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d493479495222290dd7278aa3ddd389cc1e1d165cc4bafe5a069d3c2c844414686d48dffee7c5b3d319f538fb5a182e9a802d79c91e07c6faca0bf649d8f8084880007757343e24018db98911ad53565812733fd5e3b8a1a2bdfa0d92b678d134d1b03cbf299efa84f911abfb23b9ad8bd3c4d06a659c5b2c58b21b90100bfbfe5a971e397fcf7ab7b76c2d93f75b67fbbd5d9fc0a9b64dfeb7ffd868f61f79bf3d6ffbe6e9adef87b46ffafcb7ee76dfbbdef7fef37ffa3dbfbdb2f3fb77e6af6096574eafbfb8ffe7affd4fcef726f18b1efdf7cdb77d3eff1efffe39bf3cff7bfeeecfeafcdfff8bad2c2ddfbeaf69efd147fbd7e4e37a53feaebeedf5cfed7de86ededfbebffff5fbffa07779cfbffe1bd9f3ecfefeca35afdf97f267fff7ebfff7be7d77f7b7efa9bd3fff38f73ecf96fffed0f579faed779c39a7afb9e46afb71cfb39888b16bedecbff6fbfe989d3bb7d65bd73ebf53e7cd9f6df7ffdb967aea77f9377bcbff77d9af7875be7f66978b237fee8dbfb47bbfd74e580840134c5cb8401c9c3808401c97b7b8466870eff8f6265617665726275696c642e6f7267a0ad13639d8887da1ab898c727d58f693ec1d04158957556bb1632780fe76e06ed88000000000000000085012804e1fea0e32735932f1ec21f4120d5e090d7dc2e749d72775926c91d7263edc7c9bde91e830c000083e60000a0128663e7a4dfff98aa92d30429b7a65e0da8f464e89f92182daed40db01a0044'
+
 // Intent Creation Information
+const l1ContractData = [
+  '0x01', // nonce
+  '0x', // balance
+  '0x4d14fc0663fc0c255a3fa651f29eab4745b50a9eb24c0da64c765a8d69de21d4', // storageRoot/storageHash
+  '0xfa8c9db6c6cab7108dea276f4cd09d575674eb0852c0fa3187e59e98ef977998', // codehash
+]
 
 const l2StorageProof = [
   '0xf838a120ceaa546d78134283b3b4a86b6ae3d0d57bb8166c714a3893d80b26ecd35ccb9f9594445575a842c3f13b4625f1de6b4ee96c721e580a',
@@ -64,66 +244,6 @@ const l2ContractData = [
   '0x02db022d2959526a910b41f5686736103098af4ba16c5e014e0255e0289bcc04',
   '0xe7560e2b071e0e66064efb4e4076a1b250386cb69b41c2da0bf1ba223e748e46',
 ]
-
-// from eth_getProof(L2OutputOracle, [], L1_BLOCK_NUMBER)
-// trying to figure out what is special about this block...maybe nothing..
-const l1ContractData = [
-  '0x01', // nonce
-  '0x', // balance
-  '0x4d14fc0663fc0c255a3fa651f29eab4745b50a9eb24c0da64c765a8d69de21d4', // storageRoot/storageHash
-  '0xfa8c9db6c6cab7108dea276f4cd09d575674eb0852c0fa3187e59e98ef977998', // codehash
-]
-// L1 blockdata Note: * indicates lenght could be odd and may need to be cleaned using toBeHex as
-const rawBlockData = [
-  '0x7e8a7024b4c81e3eb07c5ebf78de460654d9341d90ed9d2e08102dd612f3a010', // parentHash
-  '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347', // sha3Uncles
-  '0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5', // miner
-  '0x69d3c2c844414686d48dffee7c5b3d319f538fb5a182e9a802d79c91e07c6fac', // stateRoot
-  '0xbf649d8f8084880007757343e24018db98911ad53565812733fd5e3b8a1a2bdf', // transactionsRoot
-  '0xd92b678d134d1b03cbf299efa84f911abfb23b9ad8bd3c4d06a659c5b2c58b21', // receiptsRoot
-  '0xbfbfe5a971e397fcf7ab7b76c2d93f75b67fbbd5d9fc0a9b64dfeb7ffd868f61f79bf3d6ffbe6e9adef87b46ffafcb7ee76dfbbdef7fef37ffa3dbfbdb2f3fb77e6af6096574eafbfb8ffe7affd4fcef726f18b1efdf7cdb77d3eff1efffe39bf3cff7bfeeecfeafcdfff8bad2c2ddfbeaf69efd147fbd7e4e37a53feaebeedf5cfed7de86ededfbebffff5fbffa07779cfbffe1bd9f3ecfefeca35afdf97f267fff7ebfff7be7d77f7b7efa9bd3fff38f73ecf96fffed0f579faed779c39a7afb9e46afb71cfb39888b16bedecbff6fbfe989d3bb7d65bd73ebf53e7cd9f6df7ffdb967aea77f9377bcbff77d9af7875be7f66978b237fee8dbfb47bbfd74e5', // logsBloom
-  '0x0', // *difficulty
-  '0x134c5cb', // *number
-  '0x1c9c380', // *gasLimit
-  '0x1c97b7b', // *gasUsed
-  '0x66870eff', // *timestamp
-  '0x6265617665726275696c642e6f7267', // extraData
-  '0xad13639d8887da1ab898c727d58f693ec1d04158957556bb1632780fe76e06ed', // mixHash
-  '0x0000000000000000', // *nonce
-  '0x12804e1fe', // *baseFeePerGas
-  '0xe32735932f1ec21f4120d5e090d7dc2e749d72775926c91d7263edc7c9bde91e', // withdrawalsRoot
-  '0xc0000', // *blobGasUsed
-  '0xe60000', // *excessBlobGas
-  '0x128663e7a4dfff98aa92d30429b7a65e0da8f464e89f92182daed40db01a0044', // parentBeaconBlockRoot
-]
-
-const testL1BlockNumber = '0x134c5cb'
-const testL1BLockDataHash =
-  '0x69e25388f79ab730df37d97f9e93ce60ee6524211a2f00a55bb268499c442f27'
-const testL1BlockData = [
-  '0x7e8a7024b4c81e3eb07c5ebf78de460654d9341d90ed9d2e08102dd612f3a010',
-  '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
-  '0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5',
-  '0x69d3c2c844414686d48dffee7c5b3d319f538fb5a182e9a802d79c91e07c6fac',
-  '0xbf649d8f8084880007757343e24018db98911ad53565812733fd5e3b8a1a2bdf',
-  '0xd92b678d134d1b03cbf299efa84f911abfb23b9ad8bd3c4d06a659c5b2c58b21',
-  '0xbfbfe5a971e397fcf7ab7b76c2d93f75b67fbbd5d9fc0a9b64dfeb7ffd868f61f79bf3d6ffbe6e9adef87b46ffafcb7ee76dfbbdef7fef37ffa3dbfbdb2f3fb77e6af6096574eafbfb8ffe7affd4fcef726f18b1efdf7cdb77d3eff1efffe39bf3cff7bfeeecfeafcdfff8bad2c2ddfbeaf69efd147fbd7e4e37a53feaebeedf5cfed7de86ededfbebffff5fbffa07779cfbffe1bd9f3ecfefeca35afdf97f267fff7ebfff7be7d77f7b7efa9bd3fff38f73ecf96fffed0f579faed779c39a7afb9e46afb71cfb39888b16bedecbff6fbfe989d3bb7d65bd73ebf53e7cd9f6df7ffdb967aea77f9377bcbff77d9af7875be7f66978b237fee8dbfb47bbfd74e5',
-  '0x00',
-  '0x0134c5cb',
-  '0x01c9c380',
-  '0x01c97b7b',
-  '0x66870eff',
-  '0x6265617665726275696c642e6f7267',
-  '0xad13639d8887da1ab898c727d58f693ec1d04158957556bb1632780fe76e06ed',
-  '0x00',
-  '0x012804e1fe',
-  '0xe32735932f1ec21f4120d5e090d7dc2e749d72775926c91d7263edc7c9bde91e',
-  '0x0c0000',
-  '0xe60000',
-  '0x128663e7a4dfff98aa92d30429b7a65e0da8f464e89f92182daed40db01a0044',
-]
-const testL1RLPEncodedBlockData =
-  '0xf90254a07e8a7024b4c81e3eb07c5ebf78de460654d9341d90ed9d2e08102dd612f3a010a01dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d493479495222290dd7278aa3ddd389cc1e1d165cc4bafe5a069d3c2c844414686d48dffee7c5b3d319f538fb5a182e9a802d79c91e07c6faca0bf649d8f8084880007757343e24018db98911ad53565812733fd5e3b8a1a2bdfa0d92b678d134d1b03cbf299efa84f911abfb23b9ad8bd3c4d06a659c5b2c58b21b90100bfbfe5a971e397fcf7ab7b76c2d93f75b67fbbd5d9fc0a9b64dfeb7ffd868f61f79bf3d6ffbe6e9adef87b46ffafcb7ee76dfbbdef7fef37ffa3dbfbdb2f3fb77e6af6096574eafbfb8ffe7affd4fcef726f18b1efdf7cdb77d3eff1efffe39bf3cff7bfeeecfeafcdfff8bad2c2ddfbeaf69efd147fbd7e4e37a53feaebeedf5cfed7de86ededfbebffff5fbffa07779cfbffe1bd9f3ecfefeca35afdf97f267fff7ebfff7be7d77f7b7efa9bd3fff38f73ecf96fffed0f579faed779c39a7afb9e46afb71cfb39888b16bedecbff6fbfe989d3bb7d65bd73ebf53e7cd9f6df7ffdb967aea77f9377bcbff77d9af7875be7f66978b237fee8dbfb47bbfd74e500840134c5cb8401c9c3808401c97b7b8466870eff8f6265617665726275696c642e6f7267a0ad13639d8887da1ab898c727d58f693ec1d04158957556bb1632780fe76e06ed0085012804e1fea0e32735932f1ec21f4120d5e090d7dc2e749d72775926c91d7263edc7c9bde91e830c000083e60000a0128663e7a4dfff98aa92d30429b7a65e0da8f464e89f92182daed40db01a0044'
 
 const INBOX_CONTRACT = '0xCfC89c06B5499ee50dfAf451078D85Ad71D76079'
 
@@ -212,11 +332,11 @@ describe('Prover Test', () => {
     // only the number and hash matters here
     await blockDataSource.setL1BlockValues(
       // L1_BLOCK_NUMBER,
-      testL1BlockNumber,
+      mainnetL1BlockNumber,
       0,
       0,
       // L1_BLOCK_HASH,
-      testL1BLockDataHash,
+      mainnetL1BLockDataHash,
       // '0x8d232525fd45b5fd4bd1ee9a6c84abd2fe70129de20596442b1a5667a719be64',
       0,
       '0x' + '00'.repeat(32),
@@ -227,6 +347,17 @@ describe('Prover Test', () => {
       await blockDataSource.getAddress(),
       L1_OUTPUT_ORACLE_ADDRESS,
     ])
+  })
+
+  it('test Formatting', async () => {
+    // const input = '0x01c97b7b'
+    const input = '0x0'
+    console.log('input           :', input)
+    console.log('toQuantity      :', toQuantity(input))
+    console.log('toBeHex         :', toBeHex(input))
+    console.log('toBeHexStripped :', stripZerosLeft(toBeHex(input)))
+    console.log('ecodeRlp        :', encodeRlp(toBeHex(input)))
+    expect((await blockDataSource.hash()) === L1_BLOCK_HASH)
   })
 
   it('has the correct block hash', async () => {
@@ -241,8 +372,9 @@ describe('Prover Test', () => {
     //   newBlockData.push(toBeHex(data))
     // }
     // Hand manipulation of data
-    let newBlockData = rawBlockData
+    let newBlockData = mainnetAssembledL1BlockData
     newBlockData = await cleanBlockData(newBlockData)
+    // expect(newBlockData).to.deep.equal(mainnetCleanedL1BlockData)
 
     // expect(newBlockData).to.deep.equal(testL1BlockData)
     const rlpEncodedBlockData = solidityPackedKeccak256(
@@ -268,14 +400,16 @@ describe('Prover Test', () => {
         'uint', // excessBlobGas
         'bytes32', // parentBeaconBlockRoot
       ],
-      rawBlockData,
+      mainnetRawBlockData,
     )
+    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
     // const rlpEncodedBlockData = await prover.rlpEncodeDataLibList(newBlockData)
-    expect(testL1RLPEncodedBlockData).to.equal(rlpEncodedBlockData)
+    // expect(mainnetL1RLPEncodedBlockData).to.equal(rlpEncodedBlockData)
     // expect(testL1BLockDataHash).to.equal(keccak256(rlpEncodedBlockData))
-    console.log('there')
+    // console.log('there')
 
-    prover.proveL1WorldState(rlpEncodedBlockData)
+    await prover.proveL1WorldState(mainnetL1RLPEncodedBlockData)
+    // await expect(prover.proveL1WorldState(rlpEncodedBlockData)).to.be.reverted
   })
 
   it('can prove L2 storage', async () => {
@@ -319,7 +453,9 @@ describe('Prover Test', () => {
   })
 
   it('full proof', async () => {
-    await prover.proveL1WorldState(await prover.rlpEncodeDataLibList(blockData))
+    await prover.proveL1WorldState(
+      await prover.rlpEncodeDataLibList(mainnetAssembledL1BlockData),
+    )
 
     await prover.proveOutputRoot(
       L2_WORLD_STATE_ROOT,

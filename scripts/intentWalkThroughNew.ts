@@ -4,13 +4,13 @@ import {
   BigNumberish,
   Block,
   BytesLike,
-  hexlify,
+  // hexlify,
   solidityPackedKeccak256,
   toQuantity,
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-import { toBytes } from 'viem'
+import { toBytes, toHex } from 'viem'
 import config from '../config/config'
 import { s } from './setup'
 
@@ -26,7 +26,7 @@ export async function createIntent() {
 
   // get the block before creating the intent
   const latestBlock = await s.layer2SourceProvider.getBlock('latest')
-  const latestBlockNumberHex = hexlify(toQuantity(latestBlock.number))
+  const latestBlockNumberHex = toHex(latestBlock.number)
 
   // create intent
   const data: BytesLike[] = [
@@ -103,7 +103,7 @@ export async function fulfillIntent(intentHash) {
 async function proveL1WorldState() {
   console.log('In proveL1WorldState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
-  const layer1BlockTag = hexlify(toQuantity(layer1Block))
+  const layer1BlockTag = toHex(layer1Block)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
     layer1BlockTag,
@@ -175,7 +175,7 @@ function cleanBlockData(blockData) {
     const index = indicesToCheck[i]
     blockData[index] =
       blockData[index] === '0x0'
-        ? '0x'
+        ? '0x00'
         : // eslint-disable-next-line no-self-compare
           blockData[index].length & (1 === 1)
           ? zeroPadValue(
@@ -198,7 +198,7 @@ async function proveL2WorldState(
     intentFulfillmentTransaction,
   )
   const intentFulfillmentBlock = txDetails!.blockNumber
-  const intentFulfillmentBlockHex = hexlify(toBytes(intentFulfillmentBlock))
+  const intentFulfillmentBlockHex = toHex(intentFulfillmentBlock)
   const l1BatchIndex =
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputIndexAfter(
       intentFulfillmentBlock,
@@ -209,7 +209,7 @@ async function proveL2WorldState(
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputAfter(
       intentFulfillmentBlock,
     )
-  const l2EndBatchBlockHex = hexlify(toBytes(l1BatchData.l2BlockNumber))
+  const l2EndBatchBlockHex = toHex(l1BatchData.l2BlockNumber)
   const l2EndBatchBlockData = await s.layer2DestinationProvider.send(
     'eth_getBlockByNumber',
     [l2EndBatchBlockHex, false],
@@ -254,6 +254,34 @@ async function proveL2WorldState(
   ]
 
   try {
+    console.log(
+      'config.sepolia.l2BaseOutputOracleAddress: ',
+      config.sepolia.l2BaseOutputOracleAddress,
+    )
+    console.log('l1BatchSlot: ', l1BatchSlot)
+    console.log('layer1BlockTag: ', layer1BlockTag)
+    console.log(
+      'layer1BaseOutputOracleProof.storageHash: ',
+      layer1BaseOutputOracleProof.storageHash,
+    )
+    console.log(
+      'layer1BaseOutputOracleProof.codeHash: ',
+      layer1BaseOutputOracleProof.codeHash,
+    )
+    console.log('p1: ', l2EndBatchBlockData.stateRoot)
+    console.log('p2: ', l2MesagePasserProof.storageHash)
+    console.log('p3: ', l2EndBatchBlockData.hash)
+    console.log('p4: ', l1BatchIndex)
+    console.log('p5: ', layer1BaseOutputOracleProof.storageProof[0].proof)
+    console.log(
+      'p6: ',
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        layer1BaseOutputOracleContractData,
+      ),
+    )
+    console.log('p7: ', layer1BaseOutputOracleProof.accountProof)
+    console.log('p8: ', layer1WorldStateRoot)
+
     const proveOutputTX = await s.layer2SourceProverContract.proveOutputRoot(
       l2EndBatchBlockData.stateRoot,
       l2MesagePasserProof.storageHash,
@@ -381,6 +409,10 @@ async function main() {
     console.log('Waiting for 600 seconds for Batch to settle')
     await setTimeout(600000)
     console.log('Waited 600 seconds')
+    // intentHash =
+    //   '0xae99ecf44405fd4fb96d54bb8aee785bf9e873dd2715224cfd963c07b5fd9c6a'
+    // intentFulfillTransaction =
+    //   '0x4b66a8e3d474a2a6ff15befc7e1217850c0ffa3a911d7eb820da4b0f2d28d5f5'
     const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
