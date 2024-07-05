@@ -100,8 +100,8 @@ describe('Intent Source Test', (): void => {
       )
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
       const encodedData = abiCoder.encode(
-        ['bytes32', 'address[]', 'bytes[]', 'uint256'],
-        [nonce, targets, data, expiry],
+        ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+        [chainId, targets, data, expiry, nonce],
       )
       intentHash = keccak256(encodedData)
     })
@@ -275,8 +275,8 @@ describe('Intent Source Test', (): void => {
       rewardAmounts = [mintAmount, mintAmount * 2]
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
       const encodedData = abiCoder.encode(
-        ['bytes32', 'address[]', 'bytes[]', 'uint256'],
-        [nonce, targets, data, expiry],
+        ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+        [chainId, targets, data, expiry, nonce],
       )
       intentHash = keccak256(encodedData)
 

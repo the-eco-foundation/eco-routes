@@ -64,8 +64,14 @@ describe('Inbox Test', (): void => {
     timeStamp = (await time.latest()) + timeDelta
     const abiCoder = ethers.AbiCoder.defaultAbiCoder()
     const encodedData = abiCoder.encode(
-      ['bytes32', 'address[]', 'bytes[]', 'uint256'],
-      [nonce, [erc20Address], [calldata], timeStamp],
+      ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+      [
+        (await owner.provider.getNetwork()).chainId,
+        [erc20Address],
+        [calldata],
+        timeStamp,
+        nonce,
+      ],
     )
     hash32 = ethers.keccak256(encodedData)
   })

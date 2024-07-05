@@ -80,7 +80,7 @@ contract IntentSource is IIntentSource {
         }
 
         bytes32 _nonce = keccak256(abi.encode(counter, CHAIN_ID));
-        bytes32 intentHash = keccak256(abi.encode(_nonce, _targets, _data, _expiryTime));
+        bytes32 intentHash = keccak256(abi.encode(_destinationChain, _targets, _data, _expiryTime, _nonce));
 
         intents[intentHash] = Intent({
             creator: msg.sender,
