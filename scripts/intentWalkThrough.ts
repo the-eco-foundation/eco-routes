@@ -14,7 +14,6 @@ import {
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-// import { toBytes } from 'viem'
 import config from '../config/config'
 import { s } from './setup'
 
@@ -113,11 +112,7 @@ async function proveL1WorldState() {
     layer1BlockTag,
     false,
   ])
-  console.log('block: ', block)
-  // let blockData = assembleBlockData(block)
-  // console.log('Assembled blockData: ', blockData)
-  // blockData = await cleanBlockData(blockData)
-  // console.log('Cleaned blockData: ', blockData)
+  // console.log('block: ', block)
 
   let tx
   let layer1WorldStateRoot
@@ -144,10 +139,7 @@ async function proveL1WorldState() {
       stripZerosLeft(toBeHex(block.excessBlobGas)),
       block.parentBeaconBlockRoot,
     ])
-    console.log('rlpEncodedBlockDataNew: ', rlpEncodedBlockData)
-    // const rlpEncodedBlockData =
-    //   await s.layer2SourceProverContract.rlpEncodeDataLibList(blockData)
-    // console.log('rlpEncodedBlockData   : ', rlpEncodedBlockData)
+    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
     tx = await s.layer2SourceProverContract.proveL1WorldState(
       getBytes(hexlify(rlpEncodedBlockData)),
     )
@@ -169,57 +161,6 @@ async function proveL1WorldState() {
   }
   //   have successfully proven L1 state
 }
-
-// function assembleBlockData(block: Block) {
-//   console.log('In assembleBlockData')
-//   const blockData = []
-//   blockData.push(block.parentHash)
-//   blockData.push(block.sha3Uncles)
-//   blockData.push(block.miner)
-//   blockData.push(block.stateRoot)
-//   blockData.push(block.transactionsRoot)
-//   blockData.push(block.receiptsRoot)
-//   blockData.push(block.logsBloom)
-//   blockData.push(block.difficulty) // check
-//   blockData.push(block.number) // check
-//   blockData.push(block.gasLimit) // check
-//   blockData.push(block.gasUsed) // check
-//   blockData.push(block.timestamp) // check
-//   blockData.push(block.extraData)
-//   blockData.push(block.mixHash)
-//   blockData.push(block.nonce) // check
-//   blockData.push(block.baseFeePerGas) // check
-//   blockData.push(block.withdrawalsRoot)
-//   blockData.push(block.blobGasUsed) // check
-//   blockData.push(block.excessBlobGas) // check
-//   blockData.push(block.parentBeaconBlockRoot)
-
-//   return blockData
-// }
-
-// function cleanBlockData(blockData) {
-//   console.log('In cleanBlockData')
-//   // need to do some zero padding and replacements.
-//   // these are all the fields that can be odd-length (i think)
-//   // we zero pad them by 1 if they are odd length
-//   // and set to 0x if the value is 0x0
-//   // voila, its a valid Byteslike!
-//   const indicesToCheck = [7, 8, 9, 10, 11, 14, 15, 17, 18]
-//   for (let i = 0; i < indicesToCheck.length; i++) {
-//     const index = indicesToCheck[i]
-//     blockData[index] =
-//       blockData[index] === '0x0'
-//         ? '0x'
-//         : // eslint-disable-next-line no-self-compare
-//           blockData[index].length & (1 === 1)
-//           ? zeroPadValue(
-//               toBytes(blockData[index]),
-//               (blockData[index].length + 1 - 2) / 2,
-//             )
-//           : blockData[index]
-//   }
-//   return blockData
-// }
 
 async function proveL2WorldState(
   layer1BlockTag,
@@ -313,6 +254,7 @@ async function proveL2WorldState(
       )
       console.log(
         `Transaction failed in proveL2WorldState : ${decodedError?.name}`,
+        console.log(`Error in proveL2WorldState:`, e.shortMessage),
       )
     } else {
       console.log(`Error in proveL2WorldState:`, e)
@@ -416,9 +358,9 @@ async function main() {
     await setTimeout(600000)
     console.log('Waited 600 seconds')
     // intentHash =
-    //   '0xb043a14474833282af61f0ba6b1b9881ec2c679042a3ae9579cbc6dbe7cdd98d'
+    //   '0xf96e97dafae8d0825895e8f5c93766d3738d92e4eed7fbd3417be83edfbc6a59'
     // intentFulfillTransaction =
-    //   '0x2ee1e037bbf33c38311f9a7a5daba4fbdd3bd6406141cc19ad3401fba9672f75'
+    //   '0xfeecbd2827fd6fb01ae7c77d26c3c4cc96ea1f41f5c75b653cdbb96ccce62415'
     const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,

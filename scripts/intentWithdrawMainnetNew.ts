@@ -1,83 +1,35 @@
 import {
+  BigNumberish,
   Block,
+  BytesLike,
   encodeRlp,
-  // hexlify,
+  getBytes,
+  hexlify,
   solidityPackedKeccak256,
+  stripZerosLeft,
+  toBeArray,
   toQuantity,
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-import { toBytes, toHex, hexToBigInt } from 'viem'
 import config from '../config/config'
 import { s } from './setupMainnet'
 
 async function proveL1WorldState() {
   console.log('In proveL1WorldState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
-  const layer1BlockTag = toHex(layer1Block)
-  // const layer1BlockTag = '0x134c5cb'
-  console.log('layer1BlockTag: ', layer1BlockTag)
+  const layer1BlockTag = toQuantity(layer1Block)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
     layer1BlockTag,
     false,
   ])
-  console.log('layer1Block.hash: ', block.hash)
-  // console.log('block: ', block)
-  // const blockData = assembleBlockData(block)
-  // console.log('blockData: ', blockData)
+  console.log('block: ', block)
 
   let tx
   let layer1WorldStateRoot
-  console.log('about to prove L1 world state')
   try {
-    // const rlpEncodedKeccak = solidityPackedKeccak256(
-    //   [
-    //     'bytes32', // parentHash
-    //     'bytes32', // sha3Uncles
-    //     'address', // miner
-    //     'bytes32', // stateRoot
-    //     'bytes32', // transactionsRoot
-    //     'bytes32', // receiptsRoot
-    //     'bytes', // logsBloom
-    //     'uint', // difficulty
-    //     'uint', // number
-    //     'uint', // gasLimit
-    //     'uint', // gasUsed
-    //     'uint', // timestamp
-    //     'bytes', // extraData
-    //     'bytes32', // mixHash
-    //     'uint', // nonce
-    //     'uint', // baseFeePerGas
-    //     'bytes32', // withdrawalsRoot
-    //     'uint', // blobGasUsed
-    //     'uint', // excessBlobGas
-    //     'bytes32', // parentBeaconBlockRoot
-    //   ],
-    //   [
-    //     block.parentHash,
-    //     block.sha3Uncles,
-    //     block.miner,
-    //     block.stateRoot,
-    //     block.transactionsRoot,
-    //     block.receiptsRoot,
-    //     block.logsBloom,
-    //     block.difficulty,
-    //     block.number,
-    //     block.gasLimit,
-    //     block.gasUsed,
-    //     block.timestamp,
-    //     block.extraData,
-    //     block.mixHash,
-    //     block.nonce,
-    //     block.baseFeePerGas,
-    //     block.withdrawalsRoot,
-    //     block.blobGasUsed,
-    //     block.excessBlobGas,
-    //     block.parentBeaconBlockRoot,
-    //   ],
-    // )
-    const rlpEncodedBlockDataNew = encodeRlp([
+    const rlpEncodedBlockData = encodeRlp([
       block.parentHash,
       block.sha3Uncles,
       block.miner,
@@ -85,30 +37,26 @@ async function proveL1WorldState() {
       block.transactionsRoot,
       block.receiptsRoot,
       block.logsBloom,
-      toBeHex(block.difficulty),
+      stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
       toBeHex(block.number),
       toBeHex(block.gasLimit),
       toBeHex(block.gasUsed),
       block.timestamp,
       block.extraData,
       block.mixHash,
-      toBeHex(block.nonce),
+      block.nonce,
       toBeHex(block.baseFeePerGas),
       block.withdrawalsRoot,
-      toBeHex(block.blobGasUsed),
-      toBeHex(block.excessBlobGas),
+      stripZerosLeft(toBeHex(block.blobGasUsed)),
+      stripZerosLeft(toBeHex(block.excessBlobGas)),
       block.parentBeaconBlockRoot,
     ])
-    // const rlpEncodedBlockDataOld =
-    //   await s.layer2SourceProverContract.rlpEncodeDataLibList(blockData)
-    console.log('Have encoded blockdata')
-    console.log('rlpEncodedBlockDataNew: ', rlpEncodedBlockDataNew)
-    // console.log('rlpEncodedBlockDataOld: ', rlpEncodedBlockDataOld)
+    console.log('rlpEncodedBlockDataNew: ', rlpEncodedBlockData)
     tx = await s.layer2SourceProverContract.proveL1WorldState(
-      rlpEncodedBlockDataNew,
+      getBytes(hexlify(rlpEncodedBlockData)),
     )
     await tx.wait()
-    console.log('Prove L1 World State tx: ', tx.hash)
+    console.log('Prove L1 world state tx: ', tx.hash)
     layer1WorldStateRoot = block.stateRoot
     console.log('Proven L1 world state root:', layer1WorldStateRoot)
     return { layer1BlockTag, layer1WorldStateRoot }
@@ -119,40 +67,11 @@ async function proveL1WorldState() {
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
       console.log(`Error in proveL1WorldState:`, e.shortMessage)
-      // console.log(`Error in proveL1WorldState:`, e)
     } else {
       console.log(`Error in proveL1WorldState:`, e)
     }
   }
   //   have successfully proven L1 state
-}
-
-function assembleBlockData(block: Block) {
-  console.log('In assembleBlockData')
-  const blockData = []
-  blockData.push(block.parentHash)
-  blockData.push(block.sha3Uncles)
-  blockData.push(block.miner)
-  blockData.push(block.stateRoot)
-  blockData.push(block.transactionsRoot)
-  blockData.push(block.receiptsRoot)
-  blockData.push(block.logsBloom)
-  blockData.push(block.difficulty.toString()) // check
-  blockData.push(block.number.toString()) // check
-  blockData.push(block.gasLimit.toString()) // check
-  blockData.push(block.gasUsed.toString()) // check
-  blockData.push(block.timestamp.toString()) // check
-  blockData.push(block.extraData)
-  blockData.push(block.mixHash)
-  blockData.push(block.nonce) // check
-  blockData.push(block.baseFeePerGas.toString()) // check
-  blockData.push(block.withdrawalsRoot)
-  blockData.push(block.blobGasUsed.toString()) // check
-  blockData.push(block.excessBlobGas?.toString()) // check
-  blockData.push(block.parentBeaconBlockRoot)
-  console.log('assembled block data')
-  // console.log('blockData: ', blockData)
-  return blockData
 }
 
 async function proveL2WorldState(
@@ -166,7 +85,7 @@ async function proveL2WorldState(
     intentFulfillTransaction,
   )
   const intentFulfillmentBlock = txDetails!.blockNumber
-  const intentFulfillmentBlockHex = toHex(intentFulfillmentBlock)
+  const intentFulfillmentBlockHex = toQuantity(intentFulfillmentBlock)
   console.log('intentFulfillmentBlock: ', intentFulfillmentBlock)
   console.log('intentFulfillmentBlockHex: ', intentFulfillmentBlockHex)
   const l1BatchIndex =
@@ -179,7 +98,7 @@ async function proveL2WorldState(
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputAfter(
       intentFulfillmentBlock,
     )
-  const l2EndBatchBlockHex = toHex(l1BatchData.l2BlockNumber)
+  const l2EndBatchBlockHex = toQuantity(l1BatchData.l2BlockNumber)
   const l2EndBatchBlockData = await s.layer2DestinationProvider.send(
     'eth_getBlockByNumber',
     [l2EndBatchBlockHex, false],
@@ -195,8 +114,7 @@ async function proveL2WorldState(
   // bytes32 outputRootStorageSlot =
   // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
   const arrayLengthSlot = zeroPadValue(
-    toBytes(config.l2OutputOracleSlotNumber),
-    // toBytes(config.l2OutputOracleSlotNumber),
+    toBeArray(config.l2OutputOracleSlotNumber),
     32,
   )
   const firstElementSlot = solidityPackedKeccak256(
@@ -329,6 +247,7 @@ async function proveL2WorldState(
         `Transaction failed in proveL2WorldState : ${decodedError?.name}`,
       )
       console.log('Error: ', e)
+      console.log(`Error in proveL2WorldState:`, e.shortMessage)
     } else {
       console.log(`Error in proveL2WorldState:`, e)
     }
@@ -351,14 +270,14 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
       ? '0x'
       : // eslint-disable-next-line no-self-compare
         intentInboxProof.balance.length & (1 === 1)
-        ? zeroPadValue(toBytes(intentInboxProof.balance), 1)
+        ? zeroPadValue(toBeArray(intentInboxProof.balance), 1)
         : intentInboxProof.balance
   const nonce =
     intentInboxProof.nonce === '0x0'
       ? '0x'
       : // eslint-disable-next-line no-self-compare
         intentInboxProof.nonce.length & (1 === 1)
-        ? zeroPadValue(toBytes(intentInboxProof.nonce), 1)
+        ? zeroPadValue(toBeArray(intentInboxProof.nonce), 1)
         : intentInboxProof.nonce
   try {
     const proveIntentTx = await s.layer2SourceProverContract.proveIntent(
