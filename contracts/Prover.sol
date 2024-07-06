@@ -44,6 +44,7 @@ contract Prover {
             console.logBytes(_proof[i]);
         }
         console.logBytes32(_root);
+        console.log("=================================");
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
     }
 
@@ -54,6 +55,7 @@ contract Prover {
         require(SecureMerkleTrie.verifyInclusionProof(_address, _data, _proof, _root), "failed to prove account");
     }
 
+    // logic is documented at https://specs.optimism.io/protocol/proposals.html#l2-output-commitment-construction
     function generateOutputRoot(
         uint256 version,
         bytes32 worldStateRoot,
@@ -81,8 +83,8 @@ contract Prover {
      * state.
      */
     function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public {
-        console.logBytes32(keccak256(rlpEncodedL1BlockData));
-        console.logBytes32(keccak256(rlpEncodedL1BlockData));
+        // console.logBytes32(keccak256(rlpEncodedL1BlockData));
+        // console.logBytes32(keccak256(rlpEncodedL1BlockData));
         require(keccak256(rlpEncodedL1BlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
         bytes32 l1WorldStateRoot = bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedL1BlockData)[3]));
@@ -119,12 +121,27 @@ contract Prover {
         // failing the need for all that, change the mapping to map to bool
         require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
 
+        console.log("L2 WORLD STATE about to generateOutputRoot");
+        console.logUint(L2_OUTPUT_ROOT_VERSION_NUMBER);
+        console.logBytes32(l2WorldStateRoot);
+        console.logBytes32(l2MessagePasserStateRoot);
+        console.logBytes32(l2LatestBlockHash);
+        console.log("++++++++++++++++++++++");
+
         bytes32 outputRoot = generateOutputRoot(
             L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash
         );
+        console.log("Generated Output Root");
+        console.logBytes32(outputRoot);
 
         bytes32 outputRootStorageSlot =
             bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
+        console.log("outputRootStorageSlot");
+        console.logBytes32(outputRootStorageSlot);
+
+        // Testnet then Mainnet bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+        // 0xa0874cbb13b40d0bca44814a32cf725f118070942463f1e396fd1943affce6ddbb
+        // 0xa0a7f5660bdc1efe3f61dbe345a0b24cbfdcf293f4b0d33c6a852c6e5134306770
 
         bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 

@@ -5,11 +5,14 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { MockL1Block__factory, Prover__factory } from '../typechain-types'
 import {
   encodeRlp,
+  getBigInt,
   getBytes,
+  getUint,
   hexlify,
   keccak256,
   toBeArray,
   toBeHex,
+  toBigInt,
   solidityPackedKeccak256,
   toQuantity,
   stripZerosLeft,
@@ -170,7 +173,7 @@ const mainnetL1BlockNumber = '0x134c5cb'
 const mainnetL1BLockDataHash =
   '0x69e25388f79ab730df37d97f9e93ce60ee6524211a2f00a55bb268499c442f27'
 
-// L1 blockdata Note: * indicates lenght could be odd and may need to be cleaned using toBeHex as
+// L1 blockdata Note: * indicates length could be odd and may need to be cleaned using toBeHex as
 const mainnetRawBlockData = [
   '0x7e8a7024b4c81e3eb07c5ebf78de460654d9341d90ed9d2e08102dd612f3a010', // parentHash
   '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347', // sha3Uncles
@@ -261,6 +264,7 @@ const mainnetL2_WORLD_STATE_ROOT =
 const mainnetL2_MESSAGE_PASSER_STORAGE_ROOT =
   '0x3ad05bbc32c2cd870074282d3677f7e84596100707cd31fa2fa94f2642525a8d'
 
+// l2EndBatchBlockData.hash
 const mainnetL2_BATCH_LATEST_BLOCK_HASH =
   '0x121957c3affb2ffc0fa59facef858612cddb4faabff083288e4dc9e960f7e3c0'
 
@@ -469,6 +473,51 @@ describe('Prover Test', () => {
     // console.log('l2OutputOracleSlotNumber: ', l2OutputOracleSlotNumber)
     // console.log('tobytes: ', toBytes(l2OutputOracleSlotNumber))
     // console.log('toBeArray: ', toBeArray(l2OutputOracleSlotNumber))
+
+    // Mainnet Original (working) intent
+    // intentHash: 0x68adfbd50ded4b84efe4044192467daedab8c1d65d1de5aca9b8a572f4abf27a
+    // Fulfillment tx: 0xaeea40a56220e99e89a7f8e08538044d1b952207281c3ad191f1e4d98b7db9cd
+    // Expected 0x4e25a70ffe43c03244af75a83547054daf067eabf9529b6af4308ff09c4ab432
+    // l2WorldStateRoot = l2EndBatchBlockData.stateRoot, 0xfa953177491556f5a52201cde22550d2f8b3cf8669d87207739eb1163120b6c1
+    // l2MessagePasserStateRoot = l2MesagePasserProof.storageHash, 0xd8e1f702b91d878cdb5158b80a48d6a09547fc4da265b6da8e02e400bc7070fc
+    // l2LatestBlockHash = l2EndBatchBlockData.hash 0x6bfaba5eec32daf51506ee1eafc1c03c47310b853f4aa50ed5887c9b74a24323
+    console.log('Testing original generateOutputRoot')
+    const mainnetOutputRootOriginal = solidityPackedKeccak256(
+      ['uint256', 'bytes32', 'bytes32', 'bytes32'],
+      [
+        0,
+        '0xfa953177491556f5a52201cde22550d2f8b3cf8669d87207739eb1163120b6c1',
+        '0xd8e1f702b91d878cdb5158b80a48d6a09547fc4da265b6da8e02e400bc7070fc',
+        '0x6bfaba5eec32daf51506ee1eafc1c03c47310b853f4aa50ed5887c9b74a24323',
+      ],
+    )
+    expect(mainnetOutputRootOriginal).to.equal(
+      '0x4e25a70ffe43c03244af75a83547054daf067eabf9529b6af4308ff09c4ab432',
+    )
+
+    // Generate Output Root is wrong for mainnet current
+    // Expected 0xdd6bb4535a7f07c5098c3c3b36969ec63632891673c80f2f76d994bb5bf63683
+    // Getting  0xa7f5660bdc1efe3f61dbe345a0b24cbfdcf293f4b0d33c6a852c6e5134306770
+    // outputRoot = generateOutputRoot(L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash);
+    // L2_OUTPUT_ROOT_VERSION_NUMBER = 0
+    // l2WorldStateRoot = l2EndBatchBlockData.stateRoot,
+    // l2MessagePasserStateRoot = l2MesagePasserProof.storageHash,
+    // l2LatestBlockHash = l2EndBatchBlockData.hash
+
+    console.log('Testing current generateOutputRoot')
+
+    const mainnetOutputRoot = solidityPackedKeccak256(
+      ['uint256', 'bytes32', 'bytes32', 'bytes32'],
+      [
+        0,
+        mainnetL2_WORLD_STATE_ROOT,
+        mainnetL2_MESSAGE_PASSER_STORAGE_ROOT,
+        mainnetL2_BATCH_LATEST_BLOCK_HASH,
+      ],
+    )
+    expect(mainnetOutputRoot).to.equal(
+      '0xdd6bb4535a7f07c5098c3c3b36969ec63632891673c80f2f76d994bb5bf63683',
+    )
   })
 
   it('has the correct block hash', async () => {
@@ -578,6 +627,39 @@ describe('Prover Test', () => {
     //   hexlify(encodeRlp(mainnetCleanedL1BlockData)),
     // )
     await mainnetProver.proveL1WorldState(mainnetL1RLPEncodedBlockDataFull)
+
+    // Validate proveStorage
+    // key = OracleProof StorageSlot
+    const key =
+      '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f72407d'
+    // val = bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+    // Generate Output Root is wrong for mainnet
+    // Expected 0xdd6bb4535a7f07c5098c3c3b36969ec63632891673c80f2f76d994bb5bf63683
+    // Getting  0xa7f5660bdc1efe3f61dbe345a0b24cbfdcf293f4b0d33c6a852c6e5134306770
+    // outputRoot = generateOutputRoot(L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash);
+    // L2_OUTPUT_ROOT_VERSION_NUMBER = 0
+    // l2WorldStateRoot = l2EndBatchBlockData.stateRoot,
+    // l2MessagePasserStateRoot = l2MesagePasserProof.storageHash,
+    // l2LatestBlockHash = l2EndBatchBlockData.hash
+
+    const mainnetOutputRoot = solidityPackedKeccak256(
+      ['uint256', 'bytes32', 'bytes32', 'bytes32'],
+      [
+        5,
+        mainnetL2_WORLD_STATE_ROOT,
+        mainnetL2_MESSAGE_PASSER_STORAGE_ROOT,
+        mainnetL2_BATCH_LATEST_BLOCK_HASH,
+      ],
+    )
+    console.log('mainnetOutputRoot: ', mainnetOutputRoot)
+
+    const val =
+      '0xa0a7f5660bdc1efe3f61dbe345a0b24cbfdcf293f4b0d33c6a852c6e5134306770'
+    const proof = mainnetl1StorageProof // OracleProof Storage Proof
+    const root =
+      '0x559107e834c19bd65e18c3c30942074e30778de8ca9dc4e57bf42c691978d003' // OracleProof StorageHash
+
+    // await mainnetProver.proveStorage(key, val, proof, root)
 
     await mainnetProver.proveOutputRoot(
       mainnetL2_WORLD_STATE_ROOT,
