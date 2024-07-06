@@ -5,6 +5,7 @@ import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/tr
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
+import "hardhat/console.sol";
 
 contract Prover {
     uint16 public constant NONCE_PACKING = 1;
@@ -36,6 +37,13 @@ contract Prover {
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
+        console.log("In proveStorage _key, _val, _proof, _root");
+        console.logBytes(_key);
+        console.logBytes(_val);
+        for (uint256 i = 0; i < _proof.length; i++) {
+            console.logBytes(_proof[i]);
+        }
+        console.logBytes32(_root);
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
     }
 
@@ -73,6 +81,8 @@ contract Prover {
      * state.
      */
     function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public {
+        console.logBytes32(keccak256(rlpEncodedL1BlockData));
+        console.logBytes32(keccak256(rlpEncodedL1BlockData));
         require(keccak256(rlpEncodedL1BlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
         bytes32 l1WorldStateRoot = bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedL1BlockData)[3]));

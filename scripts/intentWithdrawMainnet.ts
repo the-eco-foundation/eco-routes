@@ -1,12 +1,17 @@
 import {
+  BigNumberish,
   Block,
+  BytesLike,
+  encodeRlp,
+  getBytes,
   hexlify,
   solidityPackedKeccak256,
+  stripZerosLeft,
+  toBeArray,
   toQuantity,
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-import { toBytes, hexToBigInt, toHex, numberToHex } from 'viem'
 import config from '../config/config'
 import { s } from './setupMainnet'
 
@@ -14,32 +19,46 @@ async function proveL1WorldState() {
   console.log('In proveL1WorldState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
   const layer1BlockTag = toQuantity(layer1Block)
-  // const layer1BlockTag = hexlify(toBytes(layer1Block))
-  // const layer1BlockTag = '0x134c5cb'
-  console.log('Prove L1 World State block: ', layer1Block)
-  console.log('Prove L1 World State blocktag: ', layer1BlockTag)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
     layer1BlockTag,
     false,
   ])
   // console.log('block: ', block)
-  let blockData = assembleBlockData(block)
-  // console.log('Assembled blockData: ', blockData)
-  blockData = await cleanBlockData(blockData)
-  // console.log('Cleaned blockData: ', blockData)
 
   let tx
   let layer1WorldStateRoot
   try {
-    const rlpEncodedBlockData =
-      await s.layer2SourceProverContract.rlpEncodeDataLibList(blockData)
-    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    tx =
-      await s.layer2SourceProverContract.proveL1WorldState(rlpEncodedBlockData)
+    const rlpEncodedBlockData = encodeRlp([
+      block.parentHash,
+      block.sha3Uncles,
+      block.miner,
+      block.stateRoot,
+      block.transactionsRoot,
+      block.receiptsRoot,
+      block.logsBloom,
+      stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+      toBeHex(block.number),
+      toBeHex(block.gasLimit),
+      toBeHex(block.gasUsed),
+      block.timestamp,
+      block.extraData,
+      block.mixHash,
+      block.nonce,
+      toBeHex(block.baseFeePerGas),
+      block.withdrawalsRoot,
+      stripZerosLeft(toBeHex(block.blobGasUsed)),
+      stripZerosLeft(toBeHex(block.excessBlobGas)),
+      block.parentBeaconBlockRoot,
+    ])
+    console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
+    tx = await s.layer2SourceProverContract.proveL1WorldState(
+      getBytes(hexlify(rlpEncodedBlockData)),
+    )
     await tx.wait()
-    console.log('Prove L1 World State tx: ', tx.hash)
-    layer1WorldStateRoot = blockData[3]
+    console.log('Prove L1 world state tx: ', tx.hash)
+    layer1WorldStateRoot = block.stateRoot
+    console.log('Proven L1 world state block: ', layer1Block, layer1BlockTag)
     console.log('Proven L1 world state root:', layer1WorldStateRoot)
     return { layer1BlockTag, layer1WorldStateRoot }
   } catch (e) {
@@ -48,62 +67,12 @@ async function proveL1WorldState() {
         e.data,
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
+      console.log(`Error in proveL1WorldState:`, e.shortMessage)
     } else {
       console.log(`Error in proveL1WorldState:`, e)
     }
   }
   //   have successfully proven L1 state
-}
-
-function assembleBlockData(block: Block) {
-  console.log('In assembleBlockData')
-  const blockData = []
-  blockData.push(block.parentHash)
-  blockData.push(block.sha3Uncles)
-  blockData.push(block.miner)
-  blockData.push(block.stateRoot)
-  blockData.push(block.transactionsRoot)
-  blockData.push(block.receiptsRoot)
-  blockData.push(block.logsBloom)
-  blockData.push(block.difficulty) // check
-  blockData.push(block.number) // check
-  blockData.push(block.gasLimit) // check
-  blockData.push(block.gasUsed) // check
-  blockData.push(block.timestamp) // check
-  blockData.push(block.extraData)
-  blockData.push(block.mixHash)
-  blockData.push(block.nonce) // check
-  blockData.push(block.baseFeePerGas) // check
-  blockData.push(block.withdrawalsRoot)
-  blockData.push(block.blobGasUsed) // check
-  blockData.push(block.excessBlobGas) // check
-  blockData.push(block.parentBeaconBlockRoot)
-
-  return blockData
-}
-
-function cleanBlockData(blockData) {
-  console.log('In cleanBlockData')
-  // need to do some zero padding and replacements.
-  // these are all the fields that can be odd-length (i think)
-  // we zero pad them by 1 if they are odd length
-  // and set to 0x if the value is 0x0
-  // voila, its a valid Byteslike!
-  const indicesToCheck = [7, 8, 9, 10, 11, 14, 15, 17, 18]
-  for (let i = 0; i < indicesToCheck.length; i++) {
-    const index = indicesToCheck[i]
-    blockData[index] =
-      blockData[index] === '0x0'
-        ? '0x'
-        : // eslint-disable-next-line no-self-compare
-          blockData[index].length & (1 === 1)
-          ? zeroPadValue(
-              toBytes(blockData[index]),
-              (blockData[index].length + 1 - 2) / 2,
-            )
-          : blockData[index]
-  }
-  return blockData
 }
 
 async function proveL2WorldState(
@@ -131,7 +100,6 @@ async function proveL2WorldState(
       intentFulfillmentBlock,
     )
   const l2EndBatchBlockHex = toQuantity(l1BatchData.l2BlockNumber)
-  console.log('l2EndBatchBlockHex: ', l2EndBatchBlockHex)
   const l2EndBatchBlockData = await s.layer2DestinationProvider.send(
     'eth_getBlockByNumber',
     [l2EndBatchBlockHex, false],
@@ -147,8 +115,7 @@ async function proveL2WorldState(
   // bytes32 outputRootStorageSlot =
   // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
   const arrayLengthSlot = zeroPadValue(
-    toBytes(config.l2OutputOracleSlotNumber),
-    // toBytes(config.l2OutputOracleSlotNumber),
+    toBeArray(config.l2OutputOracleSlotNumber),
     32,
   )
   const firstElementSlot = solidityPackedKeccak256(
@@ -281,6 +248,7 @@ async function proveL2WorldState(
         `Transaction failed in proveL2WorldState : ${decodedError?.name}`,
       )
       console.log('Error: ', e)
+      console.log(`Error in proveL2WorldState:`, e.shortMessage)
     } else {
       console.log(`Error in proveL2WorldState:`, e)
     }
@@ -303,14 +271,14 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
       ? '0x'
       : // eslint-disable-next-line no-self-compare
         intentInboxProof.balance.length & (1 === 1)
-        ? zeroPadValue(toBytes(intentInboxProof.balance), 1)
+        ? zeroPadValue(toBeArray(intentInboxProof.balance), 1)
         : intentInboxProof.balance
   const nonce =
     intentInboxProof.nonce === '0x0'
       ? '0x'
       : // eslint-disable-next-line no-self-compare
         intentInboxProof.nonce.length & (1 === 1)
-        ? zeroPadValue(toBytes(intentInboxProof.nonce), 1)
+        ? zeroPadValue(toBeArray(intentInboxProof.nonce), 1)
         : intentInboxProof.nonce
   try {
     const proveIntentTx = await s.layer2SourceProverContract.proveIntent(
@@ -381,10 +349,10 @@ async function main() {
     // const layer1BlockTag = '0x1347f89'
     // const layer1WorldStateRoot =
     //   '0xc31af802e82d28ba983b8e03fb70bb221a07a32979aec35ab65b38201ee62722'
-    // // Latest
-    // const layer1BlockTag = '0x1348edf'
+    // Latest
+    // const layer1BlockTag = '0x134c5cb'
     // const layer1WorldStateRoot =
-    //   '0xe1e0cf0ffb349bf47ea4fd23ddfedc4f4b2cb1c854d5d315399cfca41359be46'
+    //   '0x69d3c2c844414686d48dffee7c5b3d319f538fb5a182e9a802d79c91e07c6fac'
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,
