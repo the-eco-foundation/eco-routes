@@ -259,14 +259,20 @@ const mainnetL1RLPEncodedBlockDataFull =
 
 const mainnetL2_WORLD_STATE_ROOT =
   '0x314406d8d77907e757a659b74931beacf4c32bcc0376638d241a5d88fb95fb47'
+const mainnetL2_WORLD_STATE_ROOT_ORIGINAL =
+  '0xfa953177491556f5a52201cde22550d2f8b3cf8669d87207739eb1163120b6c1'
 
 // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
 const mainnetL2_MESSAGE_PASSER_STORAGE_ROOT =
   '0x3ad05bbc32c2cd870074282d3677f7e84596100707cd31fa2fa94f2642525a8d'
+const mainnetL2_MESSAGE_PASSER_STORAGE_ROOT_ORIGINAL =
+  '0xd8e1f702b91d878cdb5158b80a48d6a09547fc4da265b6da8e02e400bc7070fc'
 
 // l2EndBatchBlockData.hash
 const mainnetL2_BATCH_LATEST_BLOCK_HASH =
   '0x121957c3affb2ffc0fa59facef858612cddb4faabff083288e4dc9e960f7e3c0'
+const mainnetL2_BATCH_LATEST_BLOCK_HASH_ORIGINAL =
+  '0x6bfaba5eec32daf51506ee1eafc1c03c47310b853f4aa50ed5887c9b74a24323'
 
 const mainnetBATCH_INDEX = 9233n
 
@@ -486,9 +492,12 @@ describe('Prover Test', () => {
       ['uint256', 'bytes32', 'bytes32', 'bytes32'],
       [
         0,
-        '0xfa953177491556f5a52201cde22550d2f8b3cf8669d87207739eb1163120b6c1',
-        '0xd8e1f702b91d878cdb5158b80a48d6a09547fc4da265b6da8e02e400bc7070fc',
-        '0x6bfaba5eec32daf51506ee1eafc1c03c47310b853f4aa50ed5887c9b74a24323',
+        mainnetL2_WORLD_STATE_ROOT_ORIGINAL,
+        mainnetL2_MESSAGE_PASSER_STORAGE_ROOT_ORIGINAL,
+        mainnetL2_BATCH_LATEST_BLOCK_HASH_ORIGINAL,
+        // '0xfa953177491556f5a52201cde22550d2f8b3cf8669d87207739eb1163120b6c1',
+        // '0xd8e1f702b91d878cdb5158b80a48d6a09547fc4da265b6da8e02e400bc7070fc',
+        // '0x6bfaba5eec32daf51506ee1eafc1c03c47310b853f4aa50ed5887c9b74a24323',
       ],
     )
     expect(mainnetOutputRootOriginal).to.equal(
