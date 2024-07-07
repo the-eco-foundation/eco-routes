@@ -104,10 +104,10 @@ async function proveL2WorldState(
     'eth_getBlockByNumber',
     [l2EndBatchBlockHex, false],
   )
-  // Get the Message Parser State Root at the block the intent was fulfilled
+  // Get the Message Parser State Root at the end block of the batch
   const l2MesagePasserProof = await s.layer2DestinationProvider.send(
     'eth_getProof',
-    [config.base.l2l1MessageParserAddress, [], intentFulfillmentBlockHex],
+    [config.base.l2l1MessageParserAddress, [], l2EndBatchBlockHex],
   )
   // Get the storage Slot information
   // l1BatchSlot = calculated from the batch number *2 + output slot 3
@@ -160,8 +160,10 @@ async function proveL2WorldState(
     [config.mainnet.l2BaseOutputOracleAddress, [l1BatchSlot], layer1BlockTag],
   )
   const layer1BaseOutputOracleContractData = [
-    '0x01', // nonce
-    '0x', // balance
+    // '0x01', // nonce
+    // '0x', // balance
+    toBeHex(layer1BaseOutputOracleProof.nonce), // nonce
+    stripZerosLeft(toBeHex(layer1BaseOutputOracleProof.balance)), // balance
     layer1BaseOutputOracleProof.storageHash, // storageHash
     layer1BaseOutputOracleProof.codeHash, // CodeHash
   ]
@@ -266,20 +268,20 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
     [config.base.inboxAddress, [inboxStorageSlot], l2EndBatchBlockData.number],
   )
 
-  const balance =
-    intentInboxProof.balance === '0x0'
-      ? '0x'
-      : // eslint-disable-next-line no-self-compare
-        intentInboxProof.balance.length & (1 === 1)
-        ? zeroPadValue(toBeArray(intentInboxProof.balance), 1)
-        : intentInboxProof.balance
-  const nonce =
-    intentInboxProof.nonce === '0x0'
-      ? '0x'
-      : // eslint-disable-next-line no-self-compare
-        intentInboxProof.nonce.length & (1 === 1)
-        ? zeroPadValue(toBeArray(intentInboxProof.nonce), 1)
-        : intentInboxProof.nonce
+  const balance = stripZerosLeft(toBeHex(intentInboxProof.balance)) // balance
+  // intentInboxProof.balance === '0x0'
+  //   ? '0x'
+  //   : // eslint-disable-next-line no-self-compare
+  //     intentInboxProof.balance.length & (1 === 1)
+  //     ? zeroPadValue(toBeArray(intentInboxProof.balance), 1)
+  //     : intentInboxProof.balance
+  const nonce = toBeHex(intentInboxProof.nonce) // nonce
+  // intentInboxProof.nonce === '0x0'
+  //   ? '0x'
+  //   : // eslint-disable-next-line no-self-compare
+  //     intentInboxProof.nonce.length & (1 === 1)
+  //     ? zeroPadValue(toBeArray(intentInboxProof.nonce), 1)
+  //     : intentInboxProof.nonce
   try {
     const proveIntentTx = await s.layer2SourceProverContract.proveIntent(
       config.actors.claimant,
@@ -297,7 +299,7 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
       l2EndBatchBlockData.stateRoot,
     )
     await proveIntentTx.wait()
-    console.log('Prove Intent tx:', proveIntentTx.tx)
+    console.log('Prove Intent tx:', proveIntentTx.hash)
     return proveIntentTx.hash
   } catch (e) {
     if (e.data && s.layer2SourceProverContract) {
@@ -344,15 +346,15 @@ async function main() {
     intentFulfillTransaction = config.mainnetIntent.intentFulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    // const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
     // Original
     // const layer1BlockTag = '0x1347f89'
     // const layer1WorldStateRoot =
     //   '0xc31af802e82d28ba983b8e03fb70bb221a07a32979aec35ab65b38201ee62722'
     // Latest
-    const layer1BlockTag = '0x134e6e9'
-    const layer1WorldStateRoot =
-      '0x0d9122c8db2a40f38b9ccc1349f96c3960dcc6cec8f0774e11a4036b61ae1d46'
+    // const layer1BlockTag = '0x134e6e9'
+    // const layer1WorldStateRoot =
+    //   '0x0d9122c8db2a40f38b9ccc1349f96c3960dcc6cec8f0774e11a4036b61ae1d46'
+    const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,

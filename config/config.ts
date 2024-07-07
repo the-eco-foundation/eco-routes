@@ -88,9 +88,9 @@ export default {
     intentFulfillTransactionOriginal:
       '0xaeea40a56220e99e89a7f8e08538044d1b952207281c3ad191f1e4d98b7db9cd',
     intentHash:
-      '0xc0f1131d76d144be71e53f3bfd7bd6ee5df8bf8333fd79863ba354684e6c3108',
+      '0x32bc3c157b051238da933559544f795746ad7995aac82704a0ba576e34d908e8',
     intentFulfillTransaction:
-      '0xf2625e0ed2133be838ddc96e4c5c72092f12ef4a272bbbd813a22f4164978054',
+      '0x595e834e34a78a61f4231732390c5414ccefc760f074277c4cfc33d89663e70d',
     intentHashNew:
       '0xc0f1131d76d144be71e53f3bfd7bd6ee5df8bf8333fd79863ba354684e6c3108',
     intentFulfillTransactionNew:
