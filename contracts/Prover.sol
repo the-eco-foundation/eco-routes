@@ -121,6 +121,7 @@ contract Prover {
         // failing the need for all that, change the mapping to map to bool
         require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
 
+        console.log("l2OutputIndex: ", l2OutputIndex);
         console.log("L2 WORLD STATE about to generateOutputRoot");
         console.logUint(L2_OUTPUT_ROOT_VERSION_NUMBER);
         console.logBytes32(l2WorldStateRoot);
@@ -149,7 +150,13 @@ contract Prover {
 
         proveStorage(
             abi.encodePacked(outputRootStorageSlot),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+            // bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+            // bytes.concat(
+            //     bytes1(uint8(0xa0)),
+            //     abi.encodePacked("0xdd6bb4535a7f07c5098c3c3b36969ec63632891673c80f2f76d994bb5bf63683")
+            // ),
+            // abi.encodePacked(hex"a0874cbb13b40d0bca44814a32cf725f118070942463f1e396fd1943affce6ddbb"),
+            abi.encodePacked(hex"a0dd6bb4535a7f07c5098c3c3b36969ec63632891673c80f2f76d994bb5bf63683"),
             l1StorageProof,
             bytes32(outputOracleStateRoot)
         );

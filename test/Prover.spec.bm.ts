@@ -5,6 +5,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { MockL1Block__factory, Prover__factory } from '../typechain-types'
 import {
   encodeRlp,
+  getAddress,
   getBigInt,
   getBytes,
   getUint,
@@ -168,7 +169,8 @@ const testnetL1_WORLD_STATE_ROOT =
 // L1 State Root Submission tx: 0x4321d688adb406ced3e48814e37e78371ccfae580fa393b09a2049b6b2a5f3e3
 // L1 State Root Submission Block: 20227902 (0x134a73e)
 // Layer1 Transaction Used for Proving: 0x134c5cb - original for testing L1Block Proofs
-
+const L1_MAINNET_OUTPUT_ORACLE_ADDRESS =
+  '0x56315b90c40730925ec5485cf004d835058518A0'
 const mainnetL1BlockNumber = '0x134c5cb'
 const mainnetL1BLockDataHash =
   '0x69e25388f79ab730df37d97f9e93ce60ee6524211a2f00a55bb268499c442f27'
@@ -247,7 +249,7 @@ const mainnetL1RLPEncodedBlockData =
 
 // Full Proving data
 // Latest used for end to end tests
-// Layer1 Block Used for Proving: 20244201 (0x134e6c9)
+// Layer1 Block Used for Proving: 20244201 (0x134e6e9)
 // Layer1 Block Hash used for proving: 0xc01073383b3dbe12ee66074ba091c7e684d89c682891edc106227ea3d8742366
 // Layer1 Block Used for Proving State Root 0x0d9122c8db2a40f38b9ccc1349f96c3960dcc6cec8f0774e11a4036b61ae1d46
 
@@ -466,6 +468,12 @@ describe('Prover Test', () => {
   })
 
   it('test Formatting', async () => {
+    expect('0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254').to.equal(
+      getAddress('0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254'),
+    )
+    expect('0x56315b90c40730925ec5485cf004d835058518A0').to.equal(
+      getAddress('0x56315b90c40730925ec5485cf004d835058518A0'),
+    )
     // const input = '0x01c97b7b'
     // console.log('input           :', input)
     // console.log('toQuantity      :', toQuantity(input))
@@ -580,7 +588,7 @@ describe('Prover Test', () => {
     )
   })
 
-  it('full proof', async () => {
+  it('full testnet proof', async () => {
     const rlpEncodedBlockData = getBytes(
       hexlify(encodeRlp(testnetCleanedL1BlockData)),
     )
@@ -629,7 +637,7 @@ describe('Prover Test', () => {
     )
     const mainnetProver = await deploy(alice, Prover__factory, [
       await mainnetBlockDataSource.getAddress(),
-      L1_OUTPUT_ORACLE_ADDRESS,
+      L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
     ])
 
     // const rlpEncodedBlockData = getBytes(
@@ -662,11 +670,11 @@ describe('Prover Test', () => {
     )
     console.log('mainnetOutputRoot: ', mainnetOutputRoot)
 
-    const val =
-      '0xa0a7f5660bdc1efe3f61dbe345a0b24cbfdcf293f4b0d33c6a852c6e5134306770'
-    const proof = mainnetl1StorageProof // OracleProof Storage Proof
-    const root =
-      '0x559107e834c19bd65e18c3c30942074e30778de8ca9dc4e57bf42c691978d003' // OracleProof StorageHash
+    // const val =
+    //   '0xa0a7f5660bdc1efe3f61dbe345a0b24cbfdcf293f4b0d33c6a852c6e5134306770'
+    // const proof = mainnetl1StorageProof // OracleProof Storage Proof
+    // const root =
+    //   '0x559107e834c19bd65e18c3c30942074e30778de8ca9dc4e57bf42c691978d003' // OracleProof StorageHash
 
     // await mainnetProver.proveStorage(key, val, proof, root)
 

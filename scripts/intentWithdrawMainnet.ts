@@ -344,15 +344,15 @@ async function main() {
     intentFulfillTransaction = config.mainnetIntent.intentFulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
+    // const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
     // Original
     // const layer1BlockTag = '0x1347f89'
     // const layer1WorldStateRoot =
     //   '0xc31af802e82d28ba983b8e03fb70bb221a07a32979aec35ab65b38201ee62722'
     // Latest
-    // const layer1BlockTag = '0x134c5cb'
-    // const layer1WorldStateRoot =
-    //   '0x69d3c2c844414686d48dffee7c5b3d319f538fb5a182e9a802d79c91e07c6fac'
+    const layer1BlockTag = '0x134e6e9'
+    const layer1WorldStateRoot =
+      '0x0d9122c8db2a40f38b9ccc1349f96c3960dcc6cec8f0774e11a4036b61ae1d46'
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,
