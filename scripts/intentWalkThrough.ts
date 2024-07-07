@@ -222,10 +222,6 @@ async function proveL2WorldState(
   ]
 
   try {
-    console.log(
-      'config.mainnet.l2BaseOutputOracleAddress: ',
-      config.mainnet.l2BaseOutputOracleAddress,
-    )
     const proveOutputTX = await s.layer2SourceProverContract.proveOutputRoot(
       l2EndBatchBlockData.stateRoot,
       l2MesagePasserProof.storageHash,
