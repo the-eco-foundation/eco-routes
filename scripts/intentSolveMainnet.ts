@@ -12,7 +12,6 @@ export async function createIntent() {
     s.intentRewardAmounts[0],
   )
   await approvalTx.wait()
-  console.log('Approval tx: ', approvalTx.hash)
 
   // get the block before creating the intent
   const latestBlock = await s.layer2SourceProvider.getBlock('latest')
