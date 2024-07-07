@@ -119,6 +119,10 @@ contract Prover {
         // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
+
+        // Note: values passed to proveStorage need to be RLP encoded that is why we concatenate
+        // hex values based on their length to the beginning of the value passed.
+        // See https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/
         require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
 
         console.log("l2OutputIndex: ", l2OutputIndex);
