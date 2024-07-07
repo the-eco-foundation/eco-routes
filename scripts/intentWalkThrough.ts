@@ -171,9 +171,6 @@ async function proveL2WorldState(
     intentFulfillmentTransaction,
   )
   const intentFulfillmentBlock = txDetails!.blockNumber
-  const intentFulfillmentBlockHex = toQuantity(intentFulfillmentBlock)
-  console.log('intentFulfillmentBlock: ', intentFulfillmentBlock)
-  console.log('intentFulfillmentBlockHex: ', intentFulfillmentBlockHex)
   const l1BatchIndex =
     await s.layer1Layer2DestinationOutputOracleContract.getL2OutputIndexAfter(
       intentFulfillmentBlock,
