@@ -35,9 +35,7 @@ export async function createIntent() {
   const data: BytesLike[] = [
     await encodeTransfer(s.intentRecipient, s.intentTargetAmounts[0]),
   ]
-  const expiryTime: BigNumberish =
-    (await s.layer2SourceProvider.getBlock('latest'))!.timestamp +
-    s.intentDuration
+  const expiryTime: BigNumberish = latestBlock!.timestamp + s.intentDuration
 
   try {
     const intentTx = await s.layer2SourceIntentSourceContract.createIntent(

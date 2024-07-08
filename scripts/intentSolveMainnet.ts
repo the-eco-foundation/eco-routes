@@ -20,9 +20,7 @@ export async function createIntent() {
   const data: BytesLike[] = [
     await encodeTransfer(s.intentRecipient, s.intentTargetAmounts[0]),
   ]
-  const expiryTime: BigNumberish =
-    (await s.layer2SourceProvider.getBlock('latest'))!.timestamp +
-    s.intentDuration
+  const expiryTime: BigNumberish = latestBlock?.timestamp + s.intentDuration
   try {
     const intentTx = await s.layer2SourceIntentSourceContract.createIntent(
       s.intentDestinationChainId,
@@ -42,9 +40,9 @@ export async function createIntent() {
         s.layer2SourceIntentSourceContract.getEvent('IntentCreated'),
         latestBlockNumberHex,
       )
-    for (const intenthHashEvent of intentHashEvents) {
-      if (intenthHashEvent.transactionHash === intentTx.hash) {
-        intentHash = intenthHashEvent.topics[1]
+    for (const intentHashEvent of intentHashEvents) {
+      if (intentHashEvent.transactionHash === intentTx.hash) {
+        intentHash = intentHashEvent.topics[1]
         break
       }
     }

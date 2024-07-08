@@ -23,7 +23,7 @@ async function main() {
     }
     console.log('Inbox verified at:', await inbox.getAddress())
   } catch (e) {
-    console.log(`Error verifying prover`, e)
+    console.log(`Error verifying inbox`, e)
   }
 }
 
