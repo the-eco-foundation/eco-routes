@@ -6,10 +6,6 @@ export default {
     network: 'sepolia',
     chainId: 11155111,
     l2BaseOutputOracleAddress: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
-    l2BaseOutputOracleStorgeSlot:
-      '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f747F1D',
-    l2BaseOutputOracleStorageRoot:
-      '0x4d14fc0663fc0c255a3fa651f29eab4745b50a9eb24c0da64c765a8d69de21d4',
   },
   optimismSepolia: {
     layer: 2,
@@ -17,8 +13,8 @@ export default {
     network: 'optimism-sepolia',
     chainId: 11155420,
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    intentSourceAddress: '0x46C297311AdeF7275d4800fA6B89fAE1fDCD93fA',
-    proverContractAddress: '0x18E036f725360FEBa0826daA48A25f66b0014bbB',
+    proverContractAddress: '0x6798EbAf16b2E23EfcaD15Fe3493f25D6ed1C892',
+    intentSourceAddress: '0xc61Ac926D7efE2251CdFeae384F75222FDAe7a3F',
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
   baseSepolia: {
@@ -30,7 +26,34 @@ export default {
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
+  mainnet: {
+    layer: 1,
+    role: ['Settlement'],
+    network: 'mainnet',
+    chainId: 1,
+    l2BaseOutputOracleAddress: '0x56315b90c40730925ec5485cf004d835058518A0',
+  },
+  optimism: {
+    layer: 2,
+    role: ['Source'],
+    network: 'optimism',
+    chainId: 10,
+    l1BlockAddress: '0x4200000000000000000000000000000000000015',
+    proverContractAddress: '0x3812325c34CFb3144b15B6E69cB5Bb7357624c26',
+    intentSourceAddress: '0x5F8c665a76c65E34A7Ff88c4EbF68D64596f84B7',
+    usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+  },
+  base: {
+    layer: 2,
+    role: ['Destination'],
+    network: 'base',
+    chainId: 8453,
+    inboxAddress: '0xAca455CCfbE4F02b2091413ECe0EF2424eb8D6fb',
+    l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+    usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  },
   noncePacking: 1,
+  intentSourceCounter: 100,
   l2OutputOracleSlotNumber: 3,
   l2OutputVersionNumber: 0,
   actors: {
@@ -46,9 +69,23 @@ export default {
     destinationChainId: 84532,
     recipient: `0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9`,
     targetTokens: [`0x036CbD53842c5426634e7929541eC2318f3dCF7e`],
-    targetAmounts: [1238],
+    targetAmounts: [1241],
     rewardTokens: ['0x5fd84259d66Cd46123540766Be93DFE6D43130D7'],
-    rewardAmounts: [1239],
+    rewardAmounts: [1242],
     duration: 3600,
+  },
+  mainnetIntent: {
+    creator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
+    destinationChainId: 8453,
+    recipient: `0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9`,
+    targetTokens: [`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`],
+    targetAmounts: [1241],
+    rewardTokens: ['0x0b2c639c533813f4aa9d7837caf62653d097ff85'],
+    rewardAmounts: [1242],
+    duration: 7200,
+    intentHash:
+      '0xf09d47657185c335e6875b60bd5791fe35589762667b32fb4b90d38d6e46a8b0',
+    intentFulfillTransaction:
+      '0xe3af9e0562d411947ca5c20cb5c9491cd9186cc74a0cbf4a063583ccd1738a3f',
   },
 }
