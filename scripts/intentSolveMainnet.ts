@@ -76,6 +76,7 @@ export async function fulfillIntent(intentHash) {
       thisIntent.data.toArray(),
       thisIntent.expiryTime,
       config.actors.claimant,
+      intentHash,
     )
     await fulfillTx.wait()
     console.log('Fulfillment tx: ', fulfillTx.hash)

@@ -66,11 +66,12 @@ contract IntentSource is IIntentSource {
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime
     ) external {
-        if (_targets.length == 0 || _targets.length != _data.length) {
+        uint256 len = _targets.length;
+        if (len == 0 || len != _data.length) {
             revert CalldataMismatch();
         }
 
-        uint256 len = _rewardTokens.length;
+        len = _rewardTokens.length;
         if (len == 0 || len != _rewardAmounts.length) {
             revert RewardsMismatch();
         }
@@ -80,7 +81,7 @@ contract IntentSource is IIntentSource {
         }
 
         bytes32 _nonce = keccak256(abi.encode(counter, CHAIN_ID));
-        bytes32 intentHash = keccak256(abi.encode(_nonce, _targets, _data, _expiryTime));
+        bytes32 intentHash = keccak256(abi.encode(_destinationChain, _targets, _data, _expiryTime, _nonce));
 
         intents[intentHash] = Intent({
             creator: msg.sender,

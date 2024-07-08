@@ -92,12 +92,21 @@ export async function fulfillIntent(intentHash) {
       thisIntent.data.toArray(),
       thisIntent.expiryTime,
       config.actors.claimant,
+      intentHash,
     )
     await fulfillTx.wait()
     console.log('Fulfillment tx: ', fulfillTx.hash)
     return fulfillTx.hash
   } catch (e) {
-    console.log(e)
+    if (e.data && s.layer2DestinationInboxContract) {
+      const decodedError =
+        s.layer2DestinationInboxContract.interface.parseError(e.data)
+      console.log(`Transaction failed: ${decodedError?.name}`)
+      console.log(`with args: ${decodedError?.args}`)
+      console.log(`Error in fulfill:`, e.shortMessage)
+    } else {
+      console.log(`Error in fulfill:`, e)
+    }
   }
 }
 
