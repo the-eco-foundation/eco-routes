@@ -490,6 +490,52 @@ describe('Prover Test', () => {
     // console.log('tobytes: ', toBytes(l2OutputOracleSlotNumber))
     // console.log('toBeArray: ', toBeArray(l2OutputOracleSlotNumber))
 
+    // Optimism Cannon Root Claim Implementation
+    // https://specs.optimism.io/fault-proof/index.html
+    // Relevant Contract Addresses
+    // https://docs.optimism.io/chain/addresses
+    // Ethereum
+    // Proposer: 0x473300df21D047806A082244b417f96b32f13A33
+    // DisputeGameFactory: 0xe5965Ab5962eDc7477C8520243A95517CD252fA9
+    // FaultDisputeGame Instance : 0xc65c6e71c5639d989c79497dc1dbfb05745bbef9
+    // Optimism
+    // LL2ToL1MessagePasser: 0x4200000000000000000000000000000000000016
+    // Relevant Transactions
+    // Proposer: 0x001378a0993047a732b6c56aabab97cfc7a8b5934b70ba5d58aa7169de0fb419
+    // Proposer RootClaim: 0xbb7d60e03580594837f907cc093413c79d57f438165c23e810740aac361ddfa1
+    // Dispute Game Factory: 0x001378a0993047a732b6c56aabab97cfc7a8b5934b70ba5d58aa7169de0fb419
+    // Dispute Game Factory: _gameType 0
+    // Dispute Game Factory Root Claim: 0xbb7d60e03580594837f907cc093413c79d57f438165c23e810740aac361ddfa1
+    // Dispute Game Factory _extraData: 0x00000000000000000000000000000000000000000000000000000000074b8fba
+    // Fault Dispute Game Instance:  0x001378a0993047a732b6c56aabab97cfc7a8b5934b70ba5d58aa7169de0fb419
+    // Fault Dispute Game Root Claim: 0xbb7d60e03580594837f907cc093413c79d57f438165c23e810740aac361ddfa1
+    // Fault Dispute Game l2BlockNumber: 122392506
+    // Data to Test
+    // root_claim 0xbb7d60e03580594837f907cc093413c79d57f438165c23e810740aac361ddfa1
+    // l2BlockNumber: 122392506 (0x74b8fba)
+    // intentHash: tbd
+    // Fulfillment tx: tbd
+    // Expected 0xbb7d60e03580594837f907cc093413c79d57f438165c23e810740aac361ddfa1
+    // l2WorldStateRoot = l2EndBatchBlockData.stateRoot, 0x0df68f220b56ca051718e18e243769fae3296859243b8cf391b9198314f7eef8
+    // l2MessagePasserStateRoot = l2MesagePasserProof.storageHash, 0x0dad8f82574fb890e31def513e65431fae8b7d253769c7b8a8f89d6f2a06e79c
+    // l2LatestBlockHash = l2EndBatchBlockData.hash 0x6e423d26e1beba75c5d8d0f02ad9c8ae7e7085f16419b6fa4a3b9d726e1fe1bc
+    console.log('Testing original generateOutputRoot')
+    const mainnetOutputRootOptimism = solidityPackedKeccak256(
+      ['uint256', 'bytes32', 'bytes32', 'bytes32'],
+      [
+        0,
+        // mainnetL2_WORLD_STATE_ROOT_ORIGINAL,
+        // mainnetL2_MESSAGE_PASSER_STORAGE_ROOT_ORIGINAL,
+        // mainnetL2_BATCH_LATEST_BLOCK_HASH_ORIGINAL,
+        '0x0df68f220b56ca051718e18e243769fae3296859243b8cf391b9198314f7eef8',
+        '0x0dad8f82574fb890e31def513e65431fae8b7d253769c7b8a8f89d6f2a06e79c',
+        '0x6e423d26e1beba75c5d8d0f02ad9c8ae7e7085f16419b6fa4a3b9d726e1fe1bc',
+      ],
+    )
+    expect(mainnetOutputRootOptimism).to.equal(
+      '0xbb7d60e03580594837f907cc093413c79d57f438165c23e810740aac361ddfa1',
+    )
+
     // Mainnet Original (working) intent
     // intentHash: 0x68adfbd50ded4b84efe4044192467daedab8c1d65d1de5aca9b8a572f4abf27a
     // Fulfillment tx: 0xaeea40a56220e99e89a7f8e08538044d1b952207281c3ad191f1e4d98b7db9cd
