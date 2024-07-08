@@ -74,7 +74,7 @@ async function main() {
     }
     console.log('intentSource verified at:', await intentSource.getAddress())
   } catch (e) {
-    console.log(`Error verifying intentSoruc`, e)
+    console.log(`Error verifying intentSource`, e)
   }
 }
 
