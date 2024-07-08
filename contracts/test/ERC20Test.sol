@@ -11,4 +11,9 @@ contract ERC20Test is ERC20 {
     ) ERC20(name_, symbol_) {
         _mint(msg.sender, amount * 1 ether);
     }
+
+    function mint(address _recipient, uint256 _amount) public {
+        _mint(_recipient, _amount);
+    }
+
 }
