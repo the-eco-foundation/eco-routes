@@ -13,8 +13,8 @@ export default {
     network: 'optimism-sepolia',
     chainId: 11155420,
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    proverContractAddress: '0x6798EbAf16b2E23EfcaD15Fe3493f25D6ed1C892',
-    intentSourceAddress: '0xc61Ac926D7efE2251CdFeae384F75222FDAe7a3F',
+    proverContractAddress: '0x97EEd05007Dd68F6bC108db38e6F683adfAED96C',
+    intentSourceAddress: '0x6B79cD3fE2Eccd3a69c52e621a81d26E75983787',
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
   baseSepolia: {
@@ -22,7 +22,7 @@ export default {
     role: ['Destination'],
     network: 'base-sepolia',
     chainId: 84532,
-    inboxAddress: '0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3',
+    inboxAddress: '0x5d0cab22a8E2F01CE4482F2CbFE304627d8F1816',
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
@@ -39,8 +39,8 @@ export default {
     network: 'optimism',
     chainId: 10,
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    proverContractAddress: '0x3812325c34CFb3144b15B6E69cB5Bb7357624c26',
-    intentSourceAddress: '0x5F8c665a76c65E34A7Ff88c4EbF68D64596f84B7',
+    proverContractAddress: '0xb42d852beE31e810018f311653d2cC4ce7993c6D',
+    intentSourceAddress: '0x2e8C9a05804b0Ff497C71950E2Ddd506AcDd602b',
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
   },
   base: {
@@ -48,7 +48,7 @@ export default {
     role: ['Destination'],
     network: 'base',
     chainId: 8453,
-    inboxAddress: '0xAca455CCfbE4F02b2091413ECe0EF2424eb8D6fb',
+    inboxAddress: '0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3',
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   },
@@ -84,8 +84,8 @@ export default {
     rewardAmounts: [1242],
     duration: 7200,
     intentHash:
-      '0xf09d47657185c335e6875b60bd5791fe35589762667b32fb4b90d38d6e46a8b0',
+      '0x17dd658e22dcf93f30391abe0407a1f3cbd05b408183b1ef70dd8111fb2c8942',
     intentFulfillTransaction:
-      '0xe3af9e0562d411947ca5c20cb5c9491cd9186cc74a0cbf4a063583ccd1738a3f',
+      '0x7a751a7fa00a6c702f04f64958958852de479bb4e05bf8fe09450e7dc8dc29d8',
   },
 }
