@@ -211,7 +211,7 @@ describe('Prover Test', () => {
   it('full proof', async () => {
     await prover.proveL1WorldState(await prover.rlpEncodeDataLibList(blockData))
 
-    await prover.proveOutputRoot(
+    await prover.proveL2WorldStateBedrock(
       L2_WORLD_STATE_ROOT,
       L2_MESSAGE_PASSER_STORAGE_ROOT,
       L2_BATCH_LATEST_BLOCK_HASH,

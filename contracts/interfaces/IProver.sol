@@ -16,19 +16,15 @@ interface IProver {
     function provenL1States(bytes32) external view returns (uint256);
 
     function provenL2States(bytes32) external view returns (uint256);
-    
+
     function provenIntents(bytes32) external view returns (address);
 
     // useful helper function but should probably be removed
-    function rlpEncodeDataLibList(
-        bytes[] memory dataList
-    ) external pure returns (bytes memory);
+    function rlpEncodeDataLibList(bytes[] memory dataList) external pure returns (bytes memory);
 
-    function proveL1WorldState(
-        bytes calldata rlpEncodedL1BlockData
-    ) external;
+    function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) external;
 
-    function proveOutputRoot(
+    function proveL2WorldStateBedrock(
         bytes32 l2WorldStateRoot,
         bytes32 l2MessagePasserStateRoot,
         bytes32 l2LatestBlockHash,

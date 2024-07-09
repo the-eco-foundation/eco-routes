@@ -1,5 +1,5 @@
 import { setTimeout } from 'timers/promises'
-import { encodeTransfer } from '../utils/encode'
+import { encodeTransfer } from '../../utils/encode'
 import {
   BigNumberish,
   Block,
@@ -14,8 +14,8 @@ import {
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-import config from '../config/config'
-import { s } from './setup'
+import config from '../../config/config'
+import { s } from '../setup'
 
 export async function createIntent() {
   console.log('In createIntent')
@@ -229,18 +229,19 @@ async function proveL2WorldState(
   ]
 
   try {
-    const proveOutputTX = await s.layer2SourceProverContract.proveOutputRoot(
-      l2EndBatchBlockData.stateRoot,
-      l2MesagePasserProof.storageHash,
-      l2EndBatchBlockData.hash,
-      l1BatchIndex,
-      layer1BaseOutputOracleProof.storageProof[0].proof,
-      await s.layer2SourceProverContract.rlpEncodeDataLibList(
-        layer1BaseOutputOracleContractData,
-      ),
-      layer1BaseOutputOracleProof.accountProof,
-      layer1WorldStateRoot,
-    )
+    const proveOutputTX =
+      await s.layer2SourceProverContract.proveL2WorldStateBedrock(
+        l2EndBatchBlockData.stateRoot,
+        l2MesagePasserProof.storageHash,
+        l2EndBatchBlockData.hash,
+        l1BatchIndex,
+        layer1BaseOutputOracleProof.storageProof[0].proof,
+        await s.layer2SourceProverContract.rlpEncodeDataLibList(
+          layer1BaseOutputOracleContractData,
+        ),
+        layer1BaseOutputOracleProof.accountProof,
+        layer1WorldStateRoot,
+      )
     await proveOutputTX.wait()
     console.log('Prove L2 world state tx: ', proveOutputTX.hash)
     return {

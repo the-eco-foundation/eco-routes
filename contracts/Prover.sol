@@ -94,7 +94,7 @@ contract Prover {
      * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
      */
 
-    function proveOutputRoot(
+    function proveL2WorldStateBedrock(
         bytes32 l2WorldStateRoot,
         bytes32 l2MessagePasserStateRoot,
         bytes32 l2LatestBlockHash,
@@ -133,6 +133,62 @@ contract Prover {
 
         provenL2States[l2WorldStateRoot] = l2OutputIndex;
     }
+
+    /**
+     * @notice Validates L2 world state for Cannon by validating the following Storage proofs for the faultDisputeGame.
+     * @notice 1) the rootClaim is correct
+     * @notice 2) the l2BlockNumber is correct
+     * @notice 3) the status is complete (2)
+     * @notice this gives a total of 3 StorageProofs and 1 AccountProof which must be validated.
+     * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
+     * @param l2MessagePasserStateRoot // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
+     * @param l2LatestBlockHash the hash of the last block in the batch
+     * @param l2OutputIndex the batch number
+     * @param l1StorageProof todo
+     * @param rlpEncodedOutputOracleData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
+     * @param l1AccountProof accountProof from eth_getProof(L2OutputOracle, [], )
+     * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
+     */
+    function proveL2WorldStateCannon(
+        bytes32 l2WorldStateRoot,
+        bytes32 l2MessagePasserStateRoot,
+        bytes32 l2LatestBlockHash,
+        uint256 l2OutputIndex,
+        bytes[] calldata l1StorageProof,
+        bytes calldata rlpEncodedOutputOracleData,
+        bytes[] calldata l1AccountProof,
+        bytes32 l1WorldStateRoot
+    ) public {
+        // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
+        // can also use timestamp instead of block when this is proven for better crosschain knowledge
+        // failing the need for all that, change the mapping to map to bool
+        require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
+
+        bytes32 outputRoot = generateOutputRoot(
+            L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash
+        );
+
+        bytes32 outputRootStorageSlot =
+            bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
+
+        bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
+
+        require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
+
+        proveStorage(
+            abi.encodePacked(outputRootStorageSlot),
+            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+            l1StorageProof,
+            bytes32(outputOracleStateRoot)
+        );
+
+        proveAccount(
+            abi.encodePacked(l1OutputOracleAddress), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot
+        );
+
+        provenL2States[l2WorldStateRoot] = l2OutputIndex;
+    }
+
     /**
      * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
      * @param claimant the address that can claim the reward
@@ -144,7 +200,6 @@ contract Prover {
      * @param l2AccountProof todo
      * @param l2WorldStateRoot todo
      */
-
     function proveIntent(
         address claimant,
         address inboxContract,
