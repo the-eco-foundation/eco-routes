@@ -1,4 +1,4 @@
-import config from '../config/config'
+import config from '../../config/testnet/config'
 import {
   AbiCoder,
   BigNumberish,
@@ -13,7 +13,7 @@ import {
   IL1Block__factory,
   Prover__factory,
   ERC20__factory,
-} from '../typechain-types'
+} from '../../typechain-types'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
 import * as L2ToL1MessagePasser from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
 export namespace s {
@@ -30,15 +30,15 @@ export namespace s {
 
   // Providers
   export const layer1Provider = new AlchemyProvider(
-    config.mainnet.network,
+    config.sepolia.network,
     ALCHEMY_API_KEY,
   )
   export const layer2SourceProvider = new AlchemyProvider(
-    config.optimism.network,
+    config.optimismSepolia.network,
     ALCHEMY_API_KEY,
   )
   export const layer2DestinationProvider = new AlchemyProvider(
-    config.base.network,
+    config.baseSepolia.network,
     ALCHEMY_API_KEY,
   )
 
@@ -71,52 +71,52 @@ export namespace s {
   )
   // Contracts
   // Note: we use providers for all System Contracts and Signers for Intent Protocol Contracts
-  // Layer 1 mainnet
+  // Layer 1 Sepolia
   export const layer1Layer2DestinationOutputOracleContract = new Contract(
-    config.mainnet.l2BaseOutputOracleAddress,
+    config.sepolia.l2BaseOutputOracleAddress,
     L2OutputArtifact.abi,
     layer1Provider,
   )
-  // Layer 2 Source mainnet Optimism
+  // Layer 2 Source Sepolia Optimism
   export const layer2Layer1BlockAddressContract = new Contract(
-    config.optimism.l1BlockAddress,
+    config.optimismSepolia.l1BlockAddress,
     IL1Block__factory.abi,
     layer2SourceProvider,
   )
   export const layer2SourceIntentSourceContract = new Contract(
-    config.optimism.intentSourceAddress,
+    config.optimismSepolia.intentSourceAddress,
     IntentSource__factory.abi,
     layer2SourceIntentCreator,
   )
   export const layer2SourceIntentSourceContractClaimant = new Contract(
-    config.optimism.intentSourceAddress,
+    config.optimismSepolia.intentSourceAddress,
     IntentSource__factory.abi,
     layer2SourceClaimant,
   )
   export const layer2SourceProverContract = new Contract(
-    config.optimism.proverContractAddress,
+    config.optimismSepolia.proverContractAddress,
     Prover__factory.abi,
     layer2SourceIntentProver,
   )
   export const layer2SourceUSDCContract = new Contract(
-    config.optimism.usdcAddress,
+    config.optimismSepolia.usdcAddress,
     ERC20__factory.abi,
     layer2SourceIntentCreator,
   )
 
-  // Layer 2 Destination mainnet Base
+  // Layer 2 Destination Sepolia Base
   export const layer2DestinationInboxContract = new Contract(
-    config.base.inboxAddress,
+    config.baseSepolia.inboxAddress,
     Inbox__factory.abi,
     layer2DestinationSolver,
   )
   export const Layer2DestinationMessagePasserContract = new Contract(
-    config.base.l2l1MessageParserAddress,
+    config.baseSepolia.l2l1MessageParserAddress,
     L2ToL1MessagePasser.abi,
     layer2DestinationProvider,
   )
   export const layer2DestinationUSDCContract = new Contract(
-    config.base.usdcAddress,
+    config.baseSepolia.usdcAddress,
     ERC20__factory.abi,
     layer2DestinationSolver,
   )
@@ -124,14 +124,14 @@ export namespace s {
   // const rewardToken: ERC20 = ERC20__factory.connect(rewardTokens[0], creator)
 
   // Intent Parameters
-  export const intentCreator = config.mainnetIntent.creator
-  export const intentSourceAddress = config.optimism.intentSourceAddress
-  export const intentRewardAmounts = config.mainnetIntent.rewardAmounts
-  export const intentRewardTokens = config.mainnetIntent.rewardTokens
+  export const intentCreator = config.intent.creator
+  export const intentSourceAddress = config.optimismSepolia.intentSourceAddress
+  export const intentRewardAmounts = config.intent.rewardAmounts
+  export const intentRewardTokens = config.intent.rewardTokens
   export const intentDestinationChainId: BigNumberish =
-    config.mainnetIntent.destinationChainId
-  export const intentTargetTokens = config.mainnetIntent.targetTokens
-  export const intentTargetAmounts = config.mainnetIntent.targetAmounts
-  export const intentRecipient = config.mainnetIntent.recipient
-  export const intentDuration = config.mainnetIntent.duration
+    config.intent.destinationChainId
+  export const intentTargetTokens = config.intent.targetTokens
+  export const intentTargetAmounts = config.intent.targetAmounts
+  export const intentRecipient = config.intent.recipient
+  export const intentDuration = config.intent.duration
 }
