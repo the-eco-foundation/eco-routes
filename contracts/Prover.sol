@@ -8,6 +8,9 @@ import {IL1Block} from "./interfaces/IL1Block.sol";
 import {ProverRouter} from "./ProverRouter.sol";
 
 contract Prover {
+
+    error NotFromRouter();
+
     uint16 public constant NONCE_PACKING = 1;
 
     uint256 public constant L2_OUTPUT_SLOT_NUMBER = 3;
@@ -15,7 +18,7 @@ contract Prover {
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
     // the address of the prover router
-    ProverRouter public immutable proverRouter;
+    address public immutable proverRouter;
 
     // L2OutputOracle on Sepolia Eth
     address public immutable l1OutputOracleAddress;
@@ -34,10 +37,17 @@ contract Prover {
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
+    modifier onlyRouter() {
+        if(msg.sender != proverRouter) {
+            revert NotFromRouter();
+        }
+        _;
+    }
+
     constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress, address _proverRouter) {
         l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
         l1OutputOracleAddress = _l1OutputOracleAddress;
-        proverRouter = ProverRouter(_proverRouter);
+        proverRouter = _proverRouter;
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
@@ -159,7 +169,7 @@ contract Prover {
         bytes calldata rlpEncodedInboxData,
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
-    ) public {
+    ) public onlyRouter {
         require(provenL2States[l2WorldStateRoot] > intentOutputIndex, "l2 state root not yet proven"); // intentOutputIndex can never be less than zero, so this always ensures the root was proven
 
         bytes32 messageMappingSlot = keccak256(
