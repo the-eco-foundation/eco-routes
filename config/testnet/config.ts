@@ -19,9 +19,9 @@ export default {
     role: ['Source', 'Destination'],
     provingMechanism: 'cannon',
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    proverContractAddress: '0x97EEd05007Dd68F6bC108db38e6F683adfAED96C',
-    intentSourceAddress: '0x6B79cD3fE2Eccd3a69c52e621a81d26E75983787',
-    inboxAddress: '0x8831967844AA280E8F0Ac47977AdB4d947BAE536',
+    proverContractAddress: '0x2470b9B23F3A2934574E04a3Bcb7C6B43438D582',
+    intentSourceAddress: '0x3f222827D8466E85d6c19594564b55Dc4a1c1DcF',
+    inboxAddress: '0x32388BB27E07db4bdda11Cc1EC919634cc6afF65',
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
@@ -32,11 +32,20 @@ export default {
     role: ['Source', 'Destination'],
     provingMechanism: 'bedrock',
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    proverContractAddress: '0xD680eF529AA9340ba8754157Fc06055f18E3a151',
-    intentSourceAddress: '0x2b16FD1Bd15d1cC73f50B8780cE8D82bcc835f17',
-    inboxAddress: '0x5d0cab22a8E2F01CE4482F2CbFE304627d8F1816',
+    proverContractAddress: '0xbe271EC06776e4B27AF854dA6511B3bb84313544',
+    intentSourceAddress: '0xcFbbD67c9f43a8E6D3D9aF7Ab93d61397c7a08CE',
+    inboxAddress: '0xbE6562D1F5cB7687ec3617Ec993A645104d77b5c',
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    registry: {
+      destinationChains: [
+        {
+          chainId: 11155420,
+          prover: '0xD680eF529AA9340ba8754157Fc06055f18E3a151',
+          inbox: '0x8831967844AA280E8F0Ac47977AdB4d947BAE536',
+        },
+      ],
+    },
   },
   noncePacking: 1,
   intentSourceCounter: 100,
@@ -60,6 +69,10 @@ export default {
       rewardTokens: ['0x5fd84259d66Cd46123540766Be93DFE6D43130D7'],
       rewardAmounts: [1242],
       duration: 3600,
+      intentHash:
+        '0x484cea121edd714e3d33dbd9882b7bd8c86e0df55e795de5ab1eaff252ad3952',
+      intentFulfillTransaction:
+        '0xba339fca2d1bbcced87a66845bdb43b62451513756f10b9f0800341cf5ae0a8b',
     },
     optimismSepolia: {
       creator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
@@ -70,6 +83,10 @@ export default {
       rewardTokens: ['0x036CbD53842c5426634e7929541eC2318f3dCF7e'],
       rewardAmounts: [1242],
       duration: 3600,
+      intentHash:
+        '0xede356179c8f295d21327bb56d9fd91f29cdd7bfe42714de0fef3bae7bf2ce3c',
+      intentFulfillTransaction:
+        '0x19b05b2f33d9427a0cc3adad5a7d7cb5caedae42847e893b0e7a3c7d1c65c1ac',
     },
   },
 }

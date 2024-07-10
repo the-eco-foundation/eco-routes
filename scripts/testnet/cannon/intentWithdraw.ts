@@ -1,9 +1,5 @@
-import { setTimeout } from 'timers/promises'
-import { encodeTransfer } from '../../utils/encode'
 import {
-  BigNumberish,
   Block,
-  BytesLike,
   encodeRlp,
   getBytes,
   hexlify,
@@ -14,101 +10,8 @@ import {
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-import config from '../../config/config'
-import { s } from '../setup'
-
-export async function createIntent() {
-  console.log('In createIntent')
-  // approve lockup
-  const rewardToken = s.layer2SourceUSDCContract
-  const approvalTx = await rewardToken.approve(
-    config.optimismSepolia.intentSourceAddress,
-    s.intentRewardAmounts[0],
-  )
-  await approvalTx.wait()
-
-  // get the block before creating the intent
-  const latestBlock = await s.layer2SourceProvider.getBlock('latest')
-  const latestBlockNumberHex = toQuantity(latestBlock.number)
-
-  // create intent
-  const data: BytesLike[] = [
-    await encodeTransfer(s.intentRecipient, s.intentTargetAmounts[0]),
-  ]
-  const expiryTime: BigNumberish = latestBlock!.timestamp + s.intentDuration
-
-  try {
-    const intentTx = await s.layer2SourceIntentSourceContract.createIntent(
-      s.intentDestinationChainId,
-      s.intentTargetTokens,
-      data,
-      s.intentRewardTokens,
-      s.intentRewardAmounts,
-      expiryTime,
-    )
-    await intentTx.wait()
-
-    console.log('Intent creation tx: ', intentTx.hash)
-    let intentHash
-    // Get the event from the latest Block checking transaction hash
-    const intentHashEvents =
-      await s.layer2SourceIntentSourceContract.queryFilter(
-        s.layer2SourceIntentSourceContract.getEvent('IntentCreated'),
-        latestBlockNumberHex,
-      )
-    for (const intenthHashEvent of intentHashEvents) {
-      if (intenthHashEvent.transactionHash === intentTx.hash) {
-        intentHash = intenthHashEvent.topics[1]
-        break
-      }
-    }
-    console.log('Created Intent Hash: ', intentHash)
-    return intentHash
-  } catch (e) {
-    console.log(e)
-  }
-}
-
-export async function fulfillIntent(intentHash) {
-  console.log('In fulfillIntent')
-  try {
-    // get intent Information
-    const thisIntent =
-      await s.layer2SourceIntentSourceContract.getIntent(intentHash)
-
-    // transfer the intent tokens to the Inbox Contract
-    const targetToken = s.layer2DestinationUSDCContract
-    const fundTx = await targetToken.transfer(
-      config.baseSepolia.inboxAddress,
-      s.intentTargetAmounts[0],
-    )
-    await fundTx.wait()
-
-    // fulfill the intent
-
-    const fulfillTx = await s.layer2DestinationInboxContract.fulfill(
-      thisIntent.nonce,
-      thisIntent.targets.toArray(),
-      thisIntent.data.toArray(),
-      thisIntent.expiryTime,
-      config.actors.claimant,
-      intentHash,
-    )
-    await fulfillTx.wait()
-    console.log('Fulfillment tx: ', fulfillTx.hash)
-    return fulfillTx.hash
-  } catch (e) {
-    if (e.data && s.layer2DestinationInboxContract) {
-      const decodedError =
-        s.layer2DestinationInboxContract.interface.parseError(e.data)
-      console.log(`Transaction failed: ${decodedError?.name}`)
-      console.log(`with args: ${decodedError?.args}`)
-      console.log(`Error in fulfill:`, e.shortMessage)
-    } else {
-      console.log(`Error in fulfill:`, e)
-    }
-  }
-}
+import config from '../../../config/testnet/config'
+import { s } from './setup'
 
 async function proveL1WorldState() {
   console.log('In proveL1WorldState')
@@ -119,6 +22,7 @@ async function proveL1WorldState() {
     layer1BlockTag,
     false,
   ])
+  console.log('block: ', block)
 
   let tx
   let layer1WorldStateRoot
@@ -151,6 +55,7 @@ async function proveL1WorldState() {
     await tx.wait()
     console.log('Prove L1 world state tx: ', tx.hash)
     layer1WorldStateRoot = block.stateRoot
+    console.log('Proven L1 world state block: ', layer1Block, layer1BlockTag)
     console.log('Proven L1 world state root:', layer1WorldStateRoot)
     return { layer1BlockTag, layer1WorldStateRoot }
   } catch (e) {
@@ -169,13 +74,13 @@ async function proveL1WorldState() {
 
 async function proveL2WorldState(
   layer1BlockTag,
-  intentFulfillmentTransaction,
+  intentFulfillTransaction,
   layer1WorldStateRoot,
 ) {
   console.log('In proveL2WorldState')
   // Get the L1 Batch Number for the transaction we are proving
   const txDetails = await s.layer2DestinationProvider.getTransaction(
-    intentFulfillmentTransaction,
+    intentFulfillTransaction,
   )
   const intentFulfillmentBlock = txDetails!.blockNumber
   const l1BatchIndex =
@@ -193,12 +98,11 @@ async function proveL2WorldState(
     'eth_getBlockByNumber',
     [l2EndBatchBlockHex, false],
   )
-  // Get the Message Parser State Root at the the end block of the batch
+  // Get the Message Parser State Root at the end block of the batch
   const l2MesagePasserProof = await s.layer2DestinationProvider.send(
     'eth_getProof',
-    [config.baseSepolia.l2l1MessageParserAddress, [], l2EndBatchBlockHex],
+    [config.optimismSepolia.l2l1MessageParserAddress, [], l2EndBatchBlockHex],
   )
-
   // Get the storage Slot information
   // l1BatchSlot = calculated from the batch number *2 + output slot 3
   // In Solidity
@@ -216,6 +120,7 @@ async function proveL2WorldState(
     BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
     32,
   )
+  console.log('l1BatchSlot: ', l1BatchSlot)
 
   const layer1BaseOutputOracleProof = await s.layer1Provider.send(
     'eth_getProof',
@@ -227,7 +132,6 @@ async function proveL2WorldState(
     layer1BaseOutputOracleProof.storageHash, // storageHash
     layer1BaseOutputOracleProof.codeHash, // CodeHash
   ]
-
   try {
     const proveOutputTX =
       await s.layer2SourceProverContract.proveL2WorldStateBedrock(
@@ -243,7 +147,7 @@ async function proveL2WorldState(
         layer1WorldStateRoot,
       )
     await proveOutputTX.wait()
-    console.log('Prove L2 world state tx: ', proveOutputTX.hash)
+    console.log('Prove L2 World State tx: ', proveOutputTX.hash)
     return {
       l1BatchIndex,
       l2EndBatchBlockData,
@@ -255,8 +159,9 @@ async function proveL2WorldState(
       )
       console.log(
         `Transaction failed in proveL2WorldState : ${decodedError?.name}`,
-        console.log(`Error in proveL2WorldState:`, e.shortMessage),
       )
+      console.log('Error: ', e)
+      console.log(`Error in proveL2WorldState:`, e.shortMessage)
     } else {
       console.log(`Error in proveL2WorldState:`, e)
     }
@@ -272,7 +177,7 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
   const intentInboxProof = await s.layer2DestinationProvider.send(
     'eth_getProof',
     [
-      config.baseSepolia.inboxAddress,
+      config.optimismSepolia.inboxAddress,
       [inboxStorageSlot],
       l2EndBatchBlockData.number,
     ],
@@ -283,7 +188,7 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
   try {
     const proveIntentTx = await s.layer2SourceProverContract.proveIntent(
       config.actors.claimant,
-      config.baseSepolia.inboxAddress,
+      config.optimismSepolia.inboxAddress,
       intentHash,
       Number(l1BatchIndex) - 1, // see comment in contract
       intentInboxProof.storageProof[0].proof,
@@ -297,7 +202,7 @@ async function proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData) {
       l2EndBatchBlockData.stateRoot,
     )
     await proveIntentTx.wait()
-    console.log('Prove Intent tx: ', proveIntentTx.hash)
+    console.log('Prove Intent tx:', proveIntentTx.hash)
     return proveIntentTx.hash
   } catch (e) {
     if (e.data && s.layer2SourceProverContract) {
@@ -340,12 +245,11 @@ async function main() {
   let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
-    intentHash = await createIntent()
-    intentFulfillTransaction = await fulfillIntent(intentHash)
-    // wait for 600 seconds for L1 batch to be Settled (it takes around 7 mins to show as settled on basescan)
-    console.log('Waiting for 900 seconds for Batch to settle')
-    await setTimeout(900000)
-    console.log('Waited 900 seconds')
+    intentHash = config.intents.optimismSepolia.intentHash
+    intentFulfillTransaction =
+      config.intents.optimismSepolia.intentFulfillTransaction
+    console.log('intentHash: ', intentHash)
+    console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,

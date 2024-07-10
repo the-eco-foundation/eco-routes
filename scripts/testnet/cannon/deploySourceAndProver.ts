@@ -1,16 +1,19 @@
-import { ethers, run, network, getAddress } from 'hardhat'
-import { IntentSource, Prover } from '../typechain-types'
-import config from '../config/config'
+import { ethers, run, network } from 'hardhat'
+import { IntentSource, Prover } from '../../../typechain-types'
+import config from '../../../config/testnet/config'
 import { setTimeout } from 'timers/promises'
+import { getAddress } from 'ethers'
 
 const networkName = network.name
-const l1BlockAddressSepolia = config.optimismSepolia.l1BlockAddress
-const outputOracleAddressSepolia = config.sepolia.l2BaseOutputOracleAddress
+const l1BlockAddressSepolia = getAddress(config.optimismSepolia.l1BlockAddress)
+const outputOracleAddressSepolia = getAddress(
+  config.sepolia.l2BaseOutputOracleAddress,
+)
+const l2OptimismDisputeGameFactory = getAddress(
+  config.sepolia.l2OptimismDisputeGameFactory,
+)
 
 console.log('Deploying to Network: ', networkName)
-
-console.log('l1BlockAddress: ', l1BlockAddressSepolia)
-console.log('outputOracleAddress: ', outputOracleAddressSepolia)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -18,8 +21,9 @@ async function main() {
 
   const proverFactory = await ethers.getContractFactory('Prover')
   const prover: Prover = await proverFactory.deploy(
-    l1BlockAddress,
-    outputOracleAddress,
+    l1BlockAddressSepolia,
+    outputOracleAddressSepolia,
+    l2OptimismDisputeGameFactory,
   )
   console.log('prover deployed to:', await prover.getAddress())
   // adding a try catch as if the contract has previously been deployed will get a
@@ -30,7 +34,11 @@ async function main() {
       await setTimeout(30000)
       await run('verify:verify', {
         address: await prover.getAddress(),
-        constructorArguments: [l1BlockAddress, outputOracleAddress],
+        constructorArguments: [
+          l1BlockAddressSepolia,
+          outputOracleAddressSepolia,
+          l2OptimismDisputeGameFactory,
+        ],
       })
       console.log('prover verified at:', await prover.getAddress())
     }

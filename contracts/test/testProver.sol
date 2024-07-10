@@ -6,8 +6,9 @@ import "../Prover.sol";
 
 contract TestProver is Prover {
     address public constant baseL1OutputOracleAddress = 0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254;
+    address public constant l2OptimismDisputeGameFactory = 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1;
 
-    constructor() Prover(address(this), baseL1OutputOracleAddress) {}
+    constructor() Prover(address(this), baseL1OutputOracleAddress, l2OptimismDisputeGameFactory) {}
 
     function addProvenIntent(bytes32 identifier, address withdrawableBy) public {
         provenIntents[identifier] = withdrawableBy;

@@ -13,8 +13,11 @@ contract Prover {
 
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
-    // L2OutputOracle on Sepolia Eth
+    // L2OutputOracle on Ethereum used for Bedrock (Base) Proving
     address public immutable l1OutputOracleAddress;
+
+    // FaultGameFactory on Ethereum used for Cannon (Optimism) Proving
+    address public immutable faultGameFactory;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
@@ -30,9 +33,10 @@ contract Prover {
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
-    constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress) {
+    constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress, address _faultGameFactory) {
         l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
         l1OutputOracleAddress = _l1OutputOracleAddress;
+        faultGameFactory = _faultGameFactory;
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
@@ -182,9 +186,7 @@ contract Prover {
             bytes32(outputOracleStateRoot)
         );
 
-        proveAccount(
-            abi.encodePacked(l1OutputOracleAddress), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot
-        );
+        proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot);
 
         provenL2States[l2WorldStateRoot] = l2OutputIndex;
     }

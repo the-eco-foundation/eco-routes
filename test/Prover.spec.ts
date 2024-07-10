@@ -4,6 +4,10 @@ import { deploy } from './utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { MockL1Block__factory, Prover__factory } from '../typechain-types'
 
+const L1_OUTPUT_ORACLE_ADDRESS_BASE =
+  '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254'
+const L1_DISPURE_GAME_FACTORY_OPTIMISM =
+  '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1'
 // Albert Original
 // const txToProve =
 //   '0x423566ff4d43c56c60c5aa8051044632fa7d5e2b59cd1a55835c01fa9af07d05'
@@ -115,8 +119,6 @@ const L2_WORLD_STATE_ROOT =
 const L2_BATCH_LATEST_BLOCK_HASH =
   '0x38a352d17ebab79b125d97f331a7b6cec88ce80ae858a12054391781ca77fe6d'
 
-const L1_OUTPUT_ORACLE_ADDRESS = '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254'
-
 const L1_OUTPUT_ORACLE_STORAGE_ROOT =
   '0x4d14fc0663fc0c255a3fa651f29eab4745b50a9eb24c0da64c765a8d69de21d4'
 
@@ -160,7 +162,8 @@ describe('Prover Test', () => {
     )
     prover = await deploy(alice, Prover__factory, [
       await blockDataSource.getAddress(),
-      L1_OUTPUT_ORACLE_ADDRESS,
+      L1_OUTPUT_ORACLE_ADDRESS_BASE,
+      L1_DISPURE_GAME_FACTORY_OPTIMISM,
     ])
   })
 
@@ -190,7 +193,7 @@ describe('Prover Test', () => {
     const val = await prover.rlpEncodeDataLibList(l1ContractData)
 
     prover.proveAccount(
-      L1_OUTPUT_ORACLE_ADDRESS,
+      L1_OUTPUT_ORACLE_ADDRESS_BASE,
       val,
       l1AccountProof,
       L1_WORLD_STATE_ROOT,
