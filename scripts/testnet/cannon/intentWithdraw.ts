@@ -242,6 +242,7 @@ async function withdrawReward(intentHash) {
 
 async function main() {
   // define the variables used for each state of the intent lifecycle
+  // Point in time proving for latest batch
   let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
@@ -250,7 +251,10 @@ async function main() {
       config.intents.optimismSepolia.intentFulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
+    // get the latest world state
     const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
+    // get the latest dispute game that has been solved
+    //
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,
