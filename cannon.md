@@ -16,6 +16,7 @@
     - [Root Claim notes](#root-claim-notes)
     - [Root Claim Generation Logic](#root-claim-generation-logic)
   - [References](#references)
+  - [FaultDispute Game Storage](#faultdispute-game-storage)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -71,7 +72,7 @@ Notes
         - Storage Value Before: `0x0000000000000000000000000000010000000000668e4784000000006689aa08`
         - Storage Value : `0x0000000000000000000000000000010200000000668e4784000000006689aa08`
       - need also to check storage slot for `gameCreator`
-        - Storage Slot: TBD
+        - Storage Slot: N/A is the Proposer address which called the `DisputeGameFactory` see [here](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/FaultDisputeGame.sol#L666)
         - Storage Value: `0x49277EE36A024120Ee218127354c4a3591dc90A9`
       - need also to check storage slot for `rootClaim`
         - Storage Slote: TBD
@@ -201,3 +202,27 @@ expect(mainnetOutputRootOptimism).to.equal(
 ```
 
 ```
+
+## FaultDispute Game Storage
+
+Retrieved using
+
+```
+cast storage 0xd5bc8c45692aada756f2d68f0a2002d6bf130c42 --rpc-url https://eth-sepolia.g.alchemy.com/v2/<alchemy key> -e <etherscan key>
+```
+
+| Name                    | Type                                                              | Slot | Offset | Bytes | Value | Hex Value                                                          | Contract                                          |
+| ----------------------- | ----------------------------------------------------------------- | ---- | ------ | ----- | ----- | ------------------------------------------------------------------ | ------------------------------------------------- |
+| createdAt               | Timestamp                                                         | 0    | 0      | 8     | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| resolvedAt              | Timestamp                                                         | 0    | 8      | 8     | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| status                  | enum GameStatus                                                   | 0    | 16     | 1     | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| initialized             | bool                                                              | 0    | 17     | 1     | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| l2BlockNumberChallenged | bool                                                              | 0    | 18     | 1     | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| l2BlockNumberChallenger | address                                                           | 1    | 0      | 20    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| claimData               | struct IFaultDisputeGame.ClaimData[]                              | 2    | 0      | 32    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| credit                  | mapping(address => uint256)                                       | 3    | 0      | 32    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| claims                  | mapping(Hash => bool)                                             | 4    | 0      | 32    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| subgames                | mapping(uint256 => uint256[])                                     | 5    | 0      | 32    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| resolvedSubgames        | mapping(uint256 => bool)                                          | 6    | 0      | 32    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| resolutionCheckpoints   | mapping(uint256 => struct IFaultDisputeGame.ResolutionCheckpoint) | 7    | 0      | 32    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+| startingOutputRoot      | struct OutputRoot                                                 | 8    | 0      | 64    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
