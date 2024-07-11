@@ -213,3 +213,7 @@ cast storage 0xd5bc8c45692aada756f2d68f0a2002d6bf130c42 --rpc-url https://eth-se
 - [[5]Optimism Contract Addresses](https://docs.optimism.io/chain/addresses): Optimism Smart Contract Addresses
 - [[6]Viem](https://viem.sh/op-stack): Viem provides first-class support for chains implemented on the OP Stack. Source code is [here](https://github.com/wevm/viem)
 - [[7]Using the Optimism SDK](https://docs.optimism.io/builders/chain-operators/tutorials/sdk): Source code is [here](https://github.com/ethereum-optimism/ecosystem/tree/main/packages/sdk) and it has the following warning. _@eth-optimism/sdk has been superseded by op-viem. For most developers we suggest you migrate to viem which has native built in op-stack support built in. It also has additional benefits._
+- [[8] How to use Ethereum Proofs](https://www.infura.io/blog/post/how-to-use-ethereum-proofs-2): Deep dive on storage proofs using `cast` and `@ethereumjs/trie`
+- [[9]Cast commands](https://book.getfoundry.sh/reference/cast/cast): Overview of commands for interacting with ethreum including generating proofs.
+- [[10]@ethereumjs/trie](https://github.com/ethereumjs/ethereumjs-monorepo/tree/master/packages/trie): Implements modified Merkle Patricia Trie.
+- [[11]Merkle Patricia Trie](https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie/): explainer on Ethereum's 'modified Merkle-Patricia Trie',and how the state of Ethereum (all accounts, balances and smart contracts) are stored.

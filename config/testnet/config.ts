@@ -87,6 +87,16 @@ export default {
         '0xede356179c8f295d21327bb56d9fd91f29cdd7bfe42714de0fef3bae7bf2ce3c',
       intentFulfillTransaction:
         '0x19b05b2f33d9427a0cc3adad5a7d7cb5caedae42847e893b0e7a3c7d1c65c1ac',
+      layer1BlockTag: '0x5ffc93',
+      layer1WorldStateRoot:
+        '0x324eded9180231cd736465ee02421ac3e1dc9c96f81cce9650387718d281e01c',
+      faultDisputeGame: '',
+      proposer: '0x49277EE36A024120Ee218127354c4a3591dc90A9',
+      rootClaim:
+        '0xe056d712a70ffcd59ed6a9b46613bee28a97068c8d987625fa97a5898b009170',
+      gameState:
+        '0x0000000000000000000000000000010200000000668e4784000000006689aa08',
+      l2EndBatchBlock: '0xd966dc',
     },
   },
 }

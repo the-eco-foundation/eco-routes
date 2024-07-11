@@ -252,16 +252,22 @@ async function main() {
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     // get the latest world state
-    const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
-    // get the latest dispute game that has been solved
-    //
+    // const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
+    // console.log('layer1BlockTag: ', layer1BlockTag)
+    // console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
+    const layer1BlockTag = config.intents.optimismSepolia.layer1BlockTag
+    const layer1WorldStateRoot =
+      config.intents.optimismSepolia.layer1WorldStateRoot
+    // // get the latest dispute game that has been solved
+    // //
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,
       layer1WorldStateRoot,
     )
-    await proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData)
-    await withdrawReward(intentHash)
+    console.log
+    // await proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData)
+    // await withdrawReward(intentHash)
   } catch (e) {
     console.log(e)
   }
