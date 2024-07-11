@@ -9,14 +9,15 @@
   - [Overview](#overview)
     - [Testnet Sample Data for L2 Proving](#testnet-sample-data-for-l2-proving)
   - [Contracts](#contracts)
-  - [Transaction walkthrough - Base Testnet](#transaction-walkthrough---base-testnet)
   - [Additional Information](#additional-information)
     - [Overview of Changes for Cannon](#overview-of-changes-for-cannon)
     - [Input Parameters for Game Factory](#input-parameters-for-game-factory)
     - [Root Claim notes](#root-claim-notes)
     - [Root Claim Generation Logic](#root-claim-generation-logic)
-  - [References](#references)
   - [FaultDispute Game Storage](#faultdispute-game-storage)
+  - [Sample Storage Proofs](#sample-storage-proofs)
+    - [Fault Dispute Game Factory](#fault-dispute-game-factory)
+  - [References](#references)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -74,9 +75,13 @@ Notes
       - need also to check storage slot for `gameCreator`
         - Storage Slot: N/A is the Proposer address which called the `DisputeGameFactory` see [here](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/FaultDisputeGame.sol#L666)
         - Storage Value: `0x49277EE36A024120Ee218127354c4a3591dc90A9`
-      - need also to check storage slot for `rootClaim`
-        - Storage Slote: TBD
-        - Storage Value: '0xe056d712a70ffcd59ed6a9b46613bee28a97068c8d987625fa97a5898b009170`
+      - need also to check storage slot for `claimData[0]`
+        - `claimant` is the Proposer address which called the `DisputeGameFactory`
+          - Storage Slot: TBD
+          - Storage Value: `0x49277EE36A024120Ee218127354c4a3591dc90A9`
+        - need also to check storage slot for `rootClaim`
+          - Storage Slote: TBD
+          - Storage Value: '0xe056d712a70ffcd59ed6a9b46613bee28a97068c8d987625fa97a5898b009170`
 
 ## Contracts
 
@@ -87,24 +92,6 @@ Following is an overview of relevant contracts addresses are for mainnet(5).
 | OptimismPortalProxy | [0xbEb5Fc579115071764c7423A4f12eDde41f106Ed](https://etherscan.io/address/0xbEb5Fc579115071764c7423A4f12eDde41f106Ed) | [OptimismPortal2.sol](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol)            | Developers must look at the OptimismPortal contract to determine the respectedGameType and then use this information to query the DisputeGameFactory for a list of recent DisputeGame contracts with the correct game type.                                                                                                                               |
 | DisputeGameFactory  | [0xe5965Ab5962eDc7477C8520243A95517CD252fA9](https://etherscan.io/address/0xe5965Ab5962eDc7477C8520243A95517CD252fA9) | [DisputeGameFactory.sol](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol) | It is recommended that developers search for a reasonable number of recent games, say 100 games, and pick the first proposal with a sufficient block number. Developers should then verify this proposal locally as the default game type will allow for permissionless proposals and there is no longer a strong guarantee that proposals will be valid. |
 | FaultDisputeGame    | [0xFA069a2bBfce19Adc9AbD50080fBe19764503039](https://etherscan.io/address/0xFA069a2bBfce19Adc9AbD50080fBe19764503039) |
-
-## Transaction walkthrough - Base Testnet
-
-- Optimism Transaction: [0xd9e6de24b88e7f6dbefce011f8c4fd1cec34eb5e40647c10a29821d016f98a85](https://optimistic.etherscan.io/tx/0xd9e6de24b88e7f6dbefce011f8c4fd1cec34eb5e40647c10a29821d016f98a85)
-- Block: [121906104](https://optimistic.etherscan.io/block/121906104)
-- [DisputeGameFactory](https://etherscan.io/address/0xe5965Ab5962eDc7477C8520243A95517CD252fA9) (Ethereum)
-  - Transaction to create Game Before Transaction: [0xaa0b247c978f411fd740fd688dc71e6add80417079355604c29c04f9b8b4d459](https://etherscan.io/tx/0xaa0b247c978f411fd740fd688dc71e6add80417079355604c29c04f9b8b4d459)
-    - Created FaultDisputeGame Contract [0xd7e6c8d394c807501928ace9aa3ca6ca379fb290](https://etherscan.io/address/0xd7e6c8d394c807501928ace9aa3ca6ca379fb290)
-    - L1 Block hash when dispute game was created [0x18fadc79b0bf31106edf0d27b540fb3d334a9974761ac5cf46273ee33f0adb00](https://etherscan.io/block/20176256)
-    - L2BlockNumber of the disputed root oracle [121904612](https://optimistic.etherscan.io/block/121904612)
-  - Game After Transaction: [0xf3659b8b4720eb315560ceb32d2fd339fc5ca2c435005c0185795ecb98fdd876](https://etherscan.io/tx/0xf3659b8b4720eb315560ceb32d2fd339fc5ca2c435005c0185795ecb98fdd876)
-    - Created FaultDisputeGame Contract [0x9757ab7a6066e234cc706b567812ce96ec7daa0f](https://etherscan.io/address/0x9757ab7a6066e234cc706b567812ce96ec7daa0f)
-    - L1 Block hash when dispute game was created [0x80ba1f25272d538195b034769953eb2391a2a8fc9eb4b54883b7995f141d14a1](https://etherscan.io/block/20176556)
-    - L2BlockNumber of the disputed root oracle [121906550](https://optimistic.etherscan.io/block/121906550)
-
-**Note**
-
-- FaultDispute games are getting resolved in approx 3 days see [0x4b999ea50339faed88f89caa4efcc761f1989a16](https://etherscan.io/address/0x4b999ea50339faed88f89caa4efcc761f1989a16)
 
 ## Additional Information
 
@@ -189,20 +176,6 @@ expect(mainnetOutputRootOptimism).to.equal(
 )
 ```
 
-## References
-
-- [[1]Fault Proof Specification](https://specs.optimism.io/fault-proof/index.html): Optimism Fault Proof Specification
-- [[2]Fault Proofs Explainer](https://docs.optimism.io/stack/protocol/fault-proofs/explainer): Optimism Fault Proof Explainer
-- [[3]Preparing for Fault Proofs Breaking Changes](https://docs.optimism.io/builders/notices/fp-changes): Changes for Fault Proofs
-- [[4]Optimism Smart Contract Overview](https://docs.optimism.io/stack/protocol/rollup/smart-contracts): Overview of Optimism Smart Contracts
-- [[5]Optimism Contract Addresses](https://docs.optimism.io/chain/addresses): Optimism Smart Contract Addresses
-- [[6]Viem](https://viem.sh/op-stack): Viem provides first-class support for chains implemented on the OP Stack. Source code is [here](https://github.com/wevm/viem)
-- [[7]Using the Optimism SDK](https://docs.optimism.io/builders/chain-operators/tutorials/sdk): Source code is [here](https://github.com/ethereum-optimism/ecosystem/tree/main/packages/sdk) and it has the following warning. _@eth-optimism/sdk has been superseded by op-viem. For most developers we suggest you migrate to viem which has native built in op-stack support built in. It also has additional benefits._
-
-```
-
-```
-
 ## FaultDispute Game Storage
 
 Retrieved using
@@ -226,3 +199,17 @@ cast storage 0xd5bc8c45692aada756f2d68f0a2002d6bf130c42 --rpc-url https://eth-se
 | resolvedSubgames        | mapping(uint256 => bool)                                          | 6    | 0      | 32    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
 | resolutionCheckpoints   | mapping(uint256 => struct IFaultDisputeGame.ResolutionCheckpoint) | 7    | 0      | 32    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
 | startingOutputRoot      | struct OutputRoot                                                 | 8    | 0      | 64    | 0     | 0x0000000000000000000000000000000000000000000000000000000000000000 | src/dispute/FaultDisputeGame.sol:FaultDisputeGame |
+
+## Sample Storage Proofs
+
+### Fault Dispute Game Factory
+
+## References
+
+- [[1]Fault Proof Specification](https://specs.optimism.io/fault-proof/index.html): Optimism Fault Proof Specification
+- [[2]Fault Proofs Explainer](https://docs.optimism.io/stack/protocol/fault-proofs/explainer): Optimism Fault Proof Explainer
+- [[3]Preparing for Fault Proofs Breaking Changes](https://docs.optimism.io/builders/notices/fp-changes): Changes for Fault Proofs
+- [[4]Optimism Smart Contract Overview](https://docs.optimism.io/stack/protocol/rollup/smart-contracts): Overview of Optimism Smart Contracts
+- [[5]Optimism Contract Addresses](https://docs.optimism.io/chain/addresses): Optimism Smart Contract Addresses
+- [[6]Viem](https://viem.sh/op-stack): Viem provides first-class support for chains implemented on the OP Stack. Source code is [here](https://github.com/wevm/viem)
+- [[7]Using the Optimism SDK](https://docs.optimism.io/builders/chain-operators/tutorials/sdk): Source code is [here](https://github.com/ethereum-optimism/ecosystem/tree/main/packages/sdk) and it has the following warning. _@eth-optimism/sdk has been superseded by op-viem. For most developers we suggest you migrate to viem which has native built in op-stack support built in. It also has additional benefits._
