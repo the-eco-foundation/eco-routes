@@ -168,6 +168,7 @@ contract Prover {
         // failing the need for all that, change the mapping to map to bool
         require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
 
+        // Old logic to be repoaced
         bytes32 outputRoot = generateOutputRoot(
             L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash
         );
@@ -178,6 +179,40 @@ contract Prover {
         bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
         require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
+
+        // end of old logic
+
+        // Prove FaultDisputeGame was created by DisputeGameFactory
+        proveStorage(
+            abi.encodePacked(outputRootStorageSlot),
+            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+            l1StorageProof,
+            bytes32(outputOracleStateRoot)
+        );
+
+        proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot);
+
+        // Prove FaultDisputeGame is for the correct rootClaim
+        proveStorage(
+            abi.encodePacked(outputRootStorageSlot),
+            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+            l1StorageProof,
+            bytes32(outputOracleStateRoot)
+        );
+
+        // Prove FaultDisputeGame has been resolved
+        proveStorage(
+            abi.encodePacked(outputRootStorageSlot),
+            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+            l1StorageProof,
+            bytes32(outputOracleStateRoot)
+        );
+
+        proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot);
+
+        provenL2States[l2WorldStateRoot] = l2OutputIndex;
+
+        // rest to be removed once above is complete
 
         proveStorage(
             abi.encodePacked(outputRootStorageSlot),
