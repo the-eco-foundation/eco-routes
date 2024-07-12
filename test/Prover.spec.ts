@@ -22,7 +22,7 @@ import {
 
 const L1_OUTPUT_ORACLE_ADDRESS_BASE =
   '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254'
-const L1_DISPURE_GAME_FACTORY_OPTIMISM =
+const L1_DISPUTE_GAME_FACTORY_OPTIMISM =
   '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1'
 // Albert Original
 // const txToProve =
@@ -252,6 +252,8 @@ const cannonL1BLockDataHashFull =
   '0x57d56beb8418ef9382bb72e48ed1701ba632176587a55ec029ce2290256b47b3'
 const cannonL1RLPEncodedBlockDataFull =
   '0xf9025da00510ecb4de7d4b00f5862670616329e18cb3426849b6e386e58f772f92e6318ea01dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d4934794c6e2459991bfe27cca6d86722f35da23a1e4cb97a0b61f35acccbbead7e691d137539fe35c8f3c9538ce280138ca6b5dee907ef29fa08c7582d8db054dbe0aa339643dbff5463b307981ab8e3a19cccd4c2156bc85b4a0898fdc9c396ebc141311f087d8667ff59a3fdb4e14a865e0b9076b038fc1b2f5b90100b02168024111c204ec114452c000206c0211c61c10ac83240204002d469a8002002c002960825020345205118626418ce23819218305820580c4b2153024004f1292e0c38d0500264104c84a0a21482044005610046001100100804200860241148081180a0414920014405020200900803801e0811600656018881080c8000686802000019962132946019809016814403188008000200c100131411f2068000728800ba0a0611048400113a27ec65c124a1088043089200eaa638362430428000181021039480090130c1328ca028110122650210080442c02db450007202c0d5082302014009e00103c01a0188456020bbe440811520502008546081cc38280836004848401c9c380840198c98184669066cc91726574682f76312e302e302f6c696e7578a0fed8a445733e53bdb6be75576d01e3b02d25993c20a7a5a01b74cdff0d91908e880000000000000000850247c9c056a06189d4316e56c54f2652049ed02d4201a1609d8080fadaf771b715b3abad71e083040000836e0000a02165a005e5e0faaf9337fa73df5617ac79e693ec819a3e8a9ec0fa31c7e65d9b'
+const cannonL1_WORLD_STATE_ROOT =
+  '0xb61f35acccbbead7e691d137539fe35c8f3c9538ce280138ca6b5dee907ef29f'
 
 const cannonL2DisputeGameFactoryAddress =
   '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1'
@@ -308,8 +310,6 @@ const cannonl1AccountProof = [
   '0xf8669d201e48a731f9cd8ba1fc260d2392ab479b53c4bfb745bd483895154854b846f8440180a0863c60c73e37aeb65dd467f615f0edcc9feba9f21bdc0ffb5280743cae233659a07d1cd19d713c8d64bf663f4168250abfbf690dbb6214c25bf757fee383816914',
 ]
 
-const cannonL1_WORLD_STATE_ROOT =
-  '0x0d9122c8db2a40f38b9ccc1349f96c3960dcc6cec8f0774e11a4036b61ae1d46'
 // ****************** End of Cannon Testnet Data ***************************
 
 describe('Prover Test', () => {
@@ -338,7 +338,7 @@ describe('Prover Test', () => {
     prover = await deploy(alice, Prover__factory, [
       await blockDataSource.getAddress(),
       L1_OUTPUT_ORACLE_ADDRESS_BASE,
-      L1_DISPURE_GAME_FACTORY_OPTIMISM,
+      L1_DISPUTE_GAME_FACTORY_OPTIMISM,
     ])
   })
 
@@ -560,7 +560,7 @@ describe('Prover Test', () => {
     const cannonProver = await deploy(alice, Prover__factory, [
       await cannonBlockDataSource.getAddress(),
       L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
-      L1_DISPURE_GAME_FACTORY_OPTIMISM,
+      L1_DISPUTE_GAME_FACTORY_OPTIMISM,
     ])
 
     // const rlpEncodedBlockData = getBytes(
@@ -602,16 +602,16 @@ describe('Prover Test', () => {
     // await mainnetProver.proveStorage(key, val, proof, root)
 
     // Update this after code complete in Prover.sol
-    // await cannonProver.proveL2WorldStateBedrock(
-    //   cannonL2_WORLD_STATE_ROOT,
-    //   cannonL2_MESSAGE_PASSER_STORAGE_ROOT,
-    //   cannonL2_BATCH_LATEST_BLOCK_HASH,
-    //   cannonBATCH_INDEX,
-    //   cannonl1StorageProof,
-    //   await cannonProver.rlpEncodeDataLibList(mainnetl1ContractData),
-    //   mainnetl1AccountProof,
-    //   mainnetL1_WORLD_STATE_ROOT,
-    // )
+    await cannonProver.proveL2WorldStateCannon(
+      cannonL2_WORLD_STATE_ROOT,
+      cannonL2_MESSAGE_PASSER_STORAGE_ROOT,
+      cannonL2_BATCH_LATEST_BLOCK_HASH,
+      cannonBATCH_INDEX,
+      cannonl1StorageProof,
+      await cannonProver.rlpEncodeDataLibList(mainnetl1ContractData),
+      mainnetl1AccountProof,
+      cannonL1_WORLD_STATE_ROOT,
+    )
 
     // expect((await prover.provenIntents(INTENT_HASH)) === FILLER).to.be.true
   })

@@ -149,7 +149,7 @@ contract Prover {
      * @param l2LatestBlockHash the hash of the last block in the batch
      * @param l2OutputIndex the batch number
      * @param l1StorageProof todo
-     * @param rlpEncodedOutputOracleData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
+     * @param rlpEncodedDisputeGameData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
      * @param l1AccountProof accountProof from eth_getProof(L2OutputOracle, [], )
      * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
      */
@@ -159,7 +159,7 @@ contract Prover {
         bytes32 l2LatestBlockHash,
         uint256 l2OutputIndex,
         bytes[] calldata l1StorageProof,
-        bytes calldata rlpEncodedOutputOracleData,
+        bytes calldata rlpEncodedDisputeGameData,
         bytes[] calldata l1AccountProof,
         bytes32 l1WorldStateRoot
     ) public {
@@ -168,62 +168,66 @@ contract Prover {
         // failing the need for all that, change the mapping to map to bool
         require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
 
-        // Old logic to be repoaced
-        bytes32 outputRoot = generateOutputRoot(
-            L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash
-        );
+        // Old logic to be replaced
+        // bytes32 outputRoot = generateOutputRoot(
+        //     L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash
+        // );
 
-        bytes32 outputRootStorageSlot =
-            bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
+        // bytes32 outputRootStorageSlot =
+        //     bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
 
-        bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
+        // bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
-        require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
+        // require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
 
         // end of old logic
 
         // Prove FaultDisputeGame was created by DisputeGameFactory
+        // Fault
         proveStorage(
-            abi.encodePacked(outputRootStorageSlot),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
-            l1StorageProof,
-            bytes32(outputOracleStateRoot)
+            abi.encodePacked("0xdc1a0dba53f837978d5bafb52ebb7cd67f5cfb418c5ec060ebdc4bca53327769"), //gameIDStorageSlot
+            bytes.concat(
+                bytes1(uint8(0xa0)),
+                abi.encodePacked("0x00000000000000006689aa0827f77e1f136204d18a100c30f634704067251d09")
+            ), //gameID
+            l1StorageProof, //l1StorageProof
+            bytes32("") //DisputeGameFactoryStateRoot
         );
 
-        proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot);
+        proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedDisputeGameData, l1AccountProof, l1WorldStateRoot);
 
         // Prove FaultDisputeGame is for the correct rootClaim
-        proveStorage(
-            abi.encodePacked(outputRootStorageSlot),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
-            l1StorageProof,
-            bytes32(outputOracleStateRoot)
-        );
+        // proveStorage(
+        //     abi.encodePacked(outputRootStorageSlot),
+        //     bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+        //     l1StorageProof,
+        //     bytes32(outputOracleStateRoot)
+        // );
 
         // Prove FaultDisputeGame has been resolved
-        proveStorage(
-            abi.encodePacked(outputRootStorageSlot),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
-            l1StorageProof,
-            bytes32(outputOracleStateRoot)
-        );
+        // proveStorage(
+        //     abi.encodePacked(outputRootStorageSlot),
+        //     bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+        //     l1StorageProof,
+        //     bytes32(outputOracleStateRoot)
+        // );
 
-        proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot);
+        // proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedDisputeGameData, l1AccountProof, l1WorldStateRoot);
 
         provenL2States[l2WorldStateRoot] = l2OutputIndex;
 
         // rest to be removed once above is complete
 
-        proveStorage(
-            abi.encodePacked(outputRootStorageSlot),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
-            l1StorageProof,
-            bytes32(outputOracleStateRoot)
-        );
+        // proveStorage(
+        //     abi.encodePacked(outputRootStorageSlot),
+        //     bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+        //     l1StorageProof,
+        //     bytes32(outputOracleStateRoot)
+        // );
 
-        proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot);
+        // proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot);
 
-        provenL2States[l2WorldStateRoot] = l2OutputIndex;
+        // provenL2States[l2WorldStateRoot] = l2OutputIndex;
     }
 
     /**
