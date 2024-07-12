@@ -87,7 +87,7 @@ contract Prover {
      * in that block corresponds to the block on the oracle contract, and that it represents a valid
      * state.
      */
-    function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public {
+    function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public virtual {
         require(keccak256(rlpEncodedL1BlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
         bytes32 l1WorldStateRoot = bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedL1BlockData)[3]));
@@ -118,7 +118,7 @@ contract Prover {
         bytes calldata rlpEncodedOutputOracleData,
         bytes[] calldata l1AccountProof,
         bytes32 l1WorldStateRoot
-    ) public {
+    ) public virtual {
         // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
@@ -169,7 +169,7 @@ contract Prover {
         bytes calldata rlpEncodedInboxData,
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
-    ) public onlyRouter {
+    ) public virtual onlyRouter {
         require(provenL2States[l2WorldStateRoot] > intentOutputIndex, "l2 state root not yet proven"); // intentOutputIndex can never be less than zero, so this always ensures the root was proven
 
         bytes32 messageMappingSlot = keccak256(

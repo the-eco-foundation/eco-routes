@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 interface IProver {
+
     function NONCE_PACKING() external view returns (uint16);
 
     function L2_OUTPUT_SLOT_NUMBER() external view returns (uint256);

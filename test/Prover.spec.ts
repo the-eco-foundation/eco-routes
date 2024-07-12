@@ -2,7 +2,11 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deploy } from './utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { MockL1Block__factory, Prover__factory } from '../typechain-types'
+import {
+  MockL1Block__factory,
+  ProverRouter__factory,
+  Prover__factory,
+} from '../typechain-types'
 
 // Albert Original
 // const txToProve =
@@ -142,6 +146,7 @@ describe('Prover Test', () => {
     ;[alice] = await ethers.getSigners()
   })
 
+  let proverRouter
   let prover
   let blockDataSource
 
@@ -158,6 +163,7 @@ describe('Prover Test', () => {
       0,
       0,
     )
+    proverRouter = await deploy(alice, ProverRouter__factory, [alice.address])
     prover = await deploy(alice, Prover__factory, [
       await blockDataSource.getAddress(),
       L1_OUTPUT_ORACLE_ADDRESS,

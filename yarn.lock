@@ -163,7 +163,7 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@defi-wonderland/smock@^2.3.5":
+"@defi-wonderland/smock@^2.4.0":
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@defi-wonderland/smock/-/smock-2.4.0.tgz#a207ff0e6f2c9e7c723c12981d1b5d5bf05b5b54"
   integrity sha512-eS5fuAa9MOVDvXsT7Qa4v9Tg0Pk5ypfY3JWyW93a5sqyY2E2nCuRRBC53IikM9z0tVB2YYA8C9bWK8Lc47mATw==

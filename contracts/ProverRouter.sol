@@ -27,7 +27,8 @@ contract ProverRouter is Ownable {
     }
 
     function proveL1WorldState(uint256 _chainID, bytes calldata rlpEncodedL1BlockData) public {
-        Prover(provers[_chainID]).proveL1WorldState(rlpEncodedL1BlockData);
+        (bool success, bytes memory _whatever) = provers[_chainID].call(abi.encodeWithSignature("proveL1WorldState(bytes)", rlpEncodedL1BlockData));
+        require(success);
     }
 
     function proveOutputRoot(

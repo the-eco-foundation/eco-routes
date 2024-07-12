@@ -1,11 +1,10 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { expect } from 'chai'
-import hre from 'hardhat'
+import { ethers } from 'hardhat'
 import { TestERC20, IntentSource, TestProver } from '../typechain-types'
 import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { keccak256, BytesLike } from 'ethers'
 import { encodeIdentifier, encodeTransfer } from '../utils/encode'
-const { ethers } = hre
 
 describe('Intent Source Test', (): void => {
   let intentSource: IntentSource
@@ -37,7 +36,7 @@ describe('Intent Source Test', (): void => {
 
     // deploy prover
     const proverFactory = await ethers.getContractFactory('TestProver')
-    prover = await proverFactory.deploy()
+    prover = await proverFactory.deploy(creator.address)
 
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
     const intentSource = await intentSourceFactory.deploy(
