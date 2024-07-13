@@ -19,6 +19,7 @@ import {
   stripZerosLeft,
   zeroPadValue,
 } from 'ethers'
+import t from './testData'
 
 const L1_OUTPUT_ORACLE_ADDRESS_BASE =
   '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254'
@@ -240,99 +241,6 @@ const mainnetL1_WORLD_STATE_ROOT =
 
 // ********************* End of Mainnet Data *******************************
 
-// ********************* Cannon Testnet Data *******************************
-// Full Proving data
-// Latest used for end to end tests
-// Layer1 Block Used for Proving: 20244201 (0x134e6e9)
-// Layer1 Block Hash used for proving: 0xc01073383b3dbe12ee66074ba091c7e684d89c682891edc106227ea3d8742366
-// Layer1 Block Used for Proving State Root 0x0d9122c8db2a40f38b9ccc1349f96c3960dcc6cec8f0774e11a4036b61ae1d46
-
-const cannonL1BlockNumberFull = '0x600484'
-const cannonL1BLockDataHashFull =
-  '0x57d56beb8418ef9382bb72e48ed1701ba632176587a55ec029ce2290256b47b3'
-const cannonL1RLPEncodedBlockDataFull =
-  '0xf9025da00510ecb4de7d4b00f5862670616329e18cb3426849b6e386e58f772f92e6318ea01dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d4934794c6e2459991bfe27cca6d86722f35da23a1e4cb97a0b61f35acccbbead7e691d137539fe35c8f3c9538ce280138ca6b5dee907ef29fa08c7582d8db054dbe0aa339643dbff5463b307981ab8e3a19cccd4c2156bc85b4a0898fdc9c396ebc141311f087d8667ff59a3fdb4e14a865e0b9076b038fc1b2f5b90100b02168024111c204ec114452c000206c0211c61c10ac83240204002d469a8002002c002960825020345205118626418ce23819218305820580c4b2153024004f1292e0c38d0500264104c84a0a21482044005610046001100100804200860241148081180a0414920014405020200900803801e0811600656018881080c8000686802000019962132946019809016814403188008000200c100131411f2068000728800ba0a0611048400113a27ec65c124a1088043089200eaa638362430428000181021039480090130c1328ca028110122650210080442c02db450007202c0d5082302014009e00103c01a0188456020bbe440811520502008546081cc38280836004848401c9c380840198c98184669066cc91726574682f76312e302e302f6c696e7578a0fed8a445733e53bdb6be75576d01e3b02d25993c20a7a5a01b74cdff0d91908e880000000000000000850247c9c056a06189d4316e56c54f2652049ed02d4201a1609d8080fadaf771b715b3abad71e083040000836e0000a02165a005e5e0faaf9337fa73df5617ac79e693ec819a3e8a9ec0fa31c7e65d9b'
-const cannonL1_WORLD_STATE_ROOT =
-  '0xb61f35acccbbead7e691d137539fe35c8f3c9538ce280138ca6b5dee907ef29f'
-
-const cannonDGFStorageSlot =
-  '0xdc1a0dba53f837978d5bafb52ebb7cd67f5cfb418c5ec060ebdc4bca53327769'
-const cannonDGFStorageData =
-  '0x00000000000000006689aa0827f77e1f136204d18a100c30f634704067251d09'
-const cannonDGFStorageProof = [
-  '0xf90211a0eaadfac675c84818c5d82c78b0066b22744c2e3ab4b1f1a89d97e41da310bcc6a00a42869c5f5df6263bf61a44490918f753b7c9b81ae3c4b8f2f6e4b93b5ea146a0c5123eed147bc847c65f8add63beff91d8203e641008ce65b875fb3d1fa48de5a04af1e92942c0c0aeb8726380ea16c14c4ee85b3062260465733f6e63c5547336a0f47162f28d76a89586ac0d3582d4b98dc844d54dcb92d12f4bfec56e24f63572a07c2d6128af8f0c42e0b3d2acb419a2a0b0905c1533d2aac79e304f37fc49c500a024aaaf06fc9dbb5804e42b1c2355684b6df39892fb9a8a714bf8f640c496518da00fc763e61b9b88a28ae2818be5773ce2c00932dc6f824f8c7d539b3bf077cbe7a017418458f312e31d9a0088b59717484200c30b5df2dea6aee6d9c87ab33f8476a0967beced057b9d8b4070dd386c4a3b592279c62223b2dbf1f51867199de2eaaea0c53f20f936b6a269683b54a40fb6cc12a4f17e84a8b7904f322eaea960efcfe3a07ec3ce02986f9fe7d009c6ea792af9fb4fab4e583881873d0da79ed12d424681a03441603d2bfcda3b6ae0a30394bd0cdad5b4b228bedcc5735ed39f00d6a0a86da0ef55f72967b760c8bb8b6a65375e9f0f6726c6fb0578fe3bfe5f5789d3412ebea06803d021712d4f327a42766992cc45f94ff7cc8a97401ec7332968806645f7c1a0af0265627b87d2fbcd5c97d0d6d9fa766526904a993ccde1cd08a57b327e53f780',
-  '0xf90211a0f10c3674f31558bfbd5176237a33e32682a42a4139e6a76927d381d7ea2c4fdba0992d57dbb1180645802c4aecc5f95bd1a74aed6b232c664b6bd7041f4251a50aa0046e244620437134a1112fab0fc85d3ebb27130c00fd7f2f16190778bd35f988a0758ba7e7b6a047151ed139b9bd302e8d8a4ef235f0ba1e114431ff0e395013d4a0ab1263bbd56422056cde99515da10796bd8c2a306fecf769a92cb1fec7e4e63ea06a1bc97132054d80e7d4eae1483ffa91dcab543e53bcc5ff89d915a8f9048b02a09d3ef2b4c0c2ecd712b1e08c5086c42182278728e7f9a7011dceea2c5c91c4d8a0e68793b3786f2e613b670d7a25cc65a7f617566e32ecabe8a3c0738ad83470baa00aad0fbb72eb040607dc1265b0497da9923401c58b69f6fc9d02c75ba1bf862da098ecb3129377a8475aa5f727311579f1b51e8c17600fadd03a56d3aff2c0a0a5a040825bc055f18922c53bce17a16d30437d21504880010e93f542c77066ef4381a0715f91b042fcd10a94ddd2ded4a91e0ae63add37e73f6ed0a17899bbe9c41219a09b7e921ac060d1ee6c7b7f67e7fdf1e949f17f45209686b57ea17a4c116d246fa0db7eaf598081faa4cab45069c004e6290d1535811e274e79108c921025c25d9fa052b8fe8f2b93380685204a8447f9164563ba0b960790c60894d98f3cb20c06f6a0dd557c2574989db834808c908b11305531e423c687ca9e53116d6a095b53209880',
-  '0xf90211a0fafd2e456178d6d428b0e859888a5ea41d785c6793eca40096ab560265f41829a0b6ef07243821a2ff5f4f8c83c71091749ec22d76fca3a4077054fc30b0990162a0b4f43ebce5e7a8a7713d4e2c0043c872980039e618e78551fbcee6471071ccd6a0e94f34fa741653a01defb502e90dc636b80bccbf33ecf54b2a77735d9ae7a187a0a5b43da71de47df3c3063c4272cbbb0f5fb0c08904a59b88f54565aaba182b8ea089702b7003e18d9b8b8675d7d0711d86100290d2992624d985c567ece13db16ca0d42140ed22922bee96648a67427933722c17ea78656bf07f639c0fdf91a53a0ca07857644ccc11d275c1dad05d6aa9e05637209c28342f962ff7fb1ac9578a2656a029db726fc4571ad4006973e7894f079d05afd8bf8fef8c70bdb8aec55812b498a06dc39e062669762ea4439fcda0961493a873f26dddb2d9f9a8b5d381afea9f6ea03fc54e69edb0ac17be555a3d7613e5c0fb53ce64ab2a132c599fccaaea3d0370a041795cf325006014c828ffea8a019311ae0cce48eb6cc53edd39badc8761ea19a0af29c51514349d3f052d07935729b6680a89c973c10a3804d0c084aba002a34ca02b34a4c3abffebf980743217590d0d6fe939f0ed70e6bc60a29eb9f7f88a90dea00bd998c9646afac0f15efc63676e3d3d5fdd640bd40353aabd15f4645d8f3436a0acb719c5baa60d5a1782fe471c3556f852a6d4fcf730b1dea8726e3a09c678bf80',
-  '0xf8d180a0dd14cdd0bceaa93c848b77d1a5b7226c6cc6ec8580cd3de7bafa2e5968b3bb79808080a0145212c535948f2dd0745424a2038bdacdfd8130477df188c6112de93311851780808080a0bd1ec497f29d252e05078b58fd1c733261e8415ab936428c64e64572bf1d30b6a02a94bcad93b550d85f2a93b31f30ada8671ea9e6a120b3bab93829ed36261251a04a6a097139d97315346ee18bbff44b9d12d5f024f0e9fb2b9784e850ba561c5280a0deefc9def74111e330a189e4415bdd099b1dec2515dbaffc0912ba0e3e8f251e8080',
-  '0xf83a9f20715c76c7e0dd4a6aad5af5b6e8a3cf4758a6c750dfd03d44e8138a77779499986689aa0827f77e1f136204d18a100c30f634704067251d09',
-]
-const cannonDGFStorageHash =
-  '0xadd604efff2fd1fb4161782e317b946d5553a6e34dd9f7f4cc0174e7c023feb5'
-
-const cannonDFGContractData = [
-  '0x01', // nonce
-  '0x', // balance
-  '0xadd604efff2fd1fb4161782e317b946d5553a6e34dd9f7f4cc0174e7c023feb5', // storageRoot/storageHash
-  '0xfa8c9db6c6cab7108dea276f4cd09d575674eb0852c0fa3187e59e98ef977998', // codehash
-]
-
-const cannonL2DisputeGameFactoryAddress =
-  '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1'
-const cannonL2FaultDisputeGameAddress =
-  '0x27F77e1F136204d18A100C30F634704067251d09'
-const cannonL2GameType = 0
-const cannonL2RootClaim =
-  '0xe056d712a70ffcd59ed6a9b46613bee28a97068c8d987625fa97a5898b009170'
-const cannonL2ExtraData =
-  '0x0000000000000000000000000000000000000000000000000000000000d966dc'
-
-const cannonL2_WORLD_STATE_ROOT =
-  '0x314406d8d77907e757a659b74931beacf4c32bcc0376638d241a5d88fb95fb47' // batch end block
-
-// storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
-const cannonL2_MESSAGE_PASSER_STORAGE_ROOT =
-  '0x00faf1418e3fcc6111da1ec8d7f58ad068eaa228d6eb7d1e2e5279cfd1fd67b9' // batch end block
-
-// l2EndBatchBlockData.hash
-const cannonL2_BATCH_LATEST_BLOCK_HASH =
-  '0x121957c3affb2ffc0fa59facef858612cddb4faabff083288e4dc9e960f7e3c0'
-const cannonL2_BATCH_LATEST_BLOCK_HASH_ORIGINAL =
-  '0x6bfaba5eec32daf51506ee1eafc1c03c47310b853f4aa50ed5887c9b74a24323'
-
-const cannonBATCH_INDEX = 9233n
-
-const cannonl1StorageProof = [
-  '0xf90211a0af1f0d1f5e38c9c4539cf1886839590de024d57145080cd8e09180518f393d8da01ee4237f9cc097b3d7bfddbfb8cb994047aa7de2425eac0fd42599b496510157a0cc29b51345637b4cf0876e548cb150a324c7c22f3b08d4cde8aef2803f6cfb1da0d9c78dd4c2047ebea8c2f87df099c28d2c2ca4c6a258dabe746c440d5aee5fa6a06810a780f478f6c325cafb4dce48c15d4a5aa1bd3c043597976e17affc5134bfa0d6d2b04f5d4fbb7a9f28f5de5b82593f0d7f1ba2c493fea4c7c8da4623e4b20da05659e3ab7fc6a13706edf22b8fd19783e4849aaa5c98faac8efbefbed1b134bca012362a0e3ae388a8052cdcd791ec081b556a3289fadd184ea179fa9c0a271ddda0206d81b30c1018a3000fd359d5e679b06e45f2737089b368b8b9633f2285b29aa0cf09ca76c2d1a44dfed6679ccba0d0b3bbbbfbd5c3165b82911b412eada8d0c9a0e849e8feb201da1339385a6db224cf40a4f23be6a5b31cc0a15a6c66f23c5588a07e8101c7a71a29cfe23fb5ceb935c48ab307b49af495594c8a8ecde20fbd32bfa044ff64f806aae6b00b24359dd79ce4d03f0c2b0546526a4ea6fd81807d218bf4a02563802ed39567024b13d986262060667ab3fe99984c7a1d165ec863c3c435bba0feaa1a05db2a191b4e6f08524843bf7e41c1386eff1f513ccf03e606844c97e5a05cfb7ee4393155442be62ad8e4c17d3913d7e5537fa3b5471891ae0c8fecf79d80',
-  '0xf90211a0fb663673505daff7ce8067e0b7d5a54338cfea64d7509580a0d2555a578f61f8a0478a61f0613cd97589399e745e29a3bd30352c387afe2128eaf5fb52b7217c83a02422bdd79c117f871777a851d337d3e0dba1f74090afe98f05f8009a0e0d06f9a0aaddb80f8431044b53b2c096b64a834ca02168f65df573b8419d1b848d32cd7ba0d57d8083658850311baffa7fd192e7cff560019ab7acc89c64fe58f8e9d18146a0755385ea6189040df8f4d834e30b018cd846bfa1dd9ba68abd275be8c168919ca03309c40509feb0d6ddd64b071f1e61b894afbf28952dddd29f0b2dbd545fb067a0aeb664a681617b19f8d0487dfc05214fc7af40f95e67c85965114b571a38cb73a04083963cc3e66f53f30e29e52c8ffbc1291469bb5a1f83f7e5f4640442bd2f2ba0cdf019679125dd85f22fbb3837d0f2d86df040832b57140fdc61578ee9295a67a0614bcfe4302f6c2b6d05281400a110afbeb424be05dcf5bc0f17f35467ab1c50a0ec728f6d8118f93cec242e3af2f6d87687967aa29fd6666cf5b237c82afb6d66a0e0ca573c373b361deb96e58411b373d90179a439369043d5acf46d070ba0f583a057efab9544277f3ddbdfb4e6fa89b602b1ccf45c3228ab467277ba928dfd3803a033b2db9089f3e72fd0aa5558ff9f4fa3e00f8b006819556ac904c16215c11dd0a0f446de65d1111a9778d93fd062e3553130147bf94e96be1180d3b49a2c479b2880',
-  '0xf90211a0ab01dda3532f508c54a885e563c260f66490fa8cde8383a7db6348e230c6f8eaa04f5906d28453c0a9ed867e023ebb704ecca977dc12673eeb5ff7d67fdb250b57a09404829d9efc98b1ee5c56fab75919f4b534f4d267e2d45b7cc5758dab595e59a0c502c6ea61005119126fcefccf9f2134149668c7ec953aaee65f6395b0fb4507a0d06deaa23838be6fefb3eac8270c7bcc74e7b0880423ce121a8e5bccaad2e16fa0092e00f6e4c67dbb6b2126b5560917e58ab927b8002abdda9045db340d0d993fa04ab28b8957044293c62a64eea24b99af1a3193a4245db18b61a4294cf3e522c4a00d4399f3d5216692faac59fb7b1019e1adc5e4e20e062a854be7a195b255c0cca02d49b38e2632562d9fe6260c3416d39c58b03448e3d9434da3ef23c6b0e3a09aa0af21ece57671db1bd7f74d373549ae4ce97ef1c9181601126e99f17901bbfd77a054cf7655cd58b33e25264fbb5162d49e0d2132d14b8292e3b093007cad71d3baa01a6a65a5044e7c49e85f9d7223fc123653212b5511005941035101a4f3b0ad5ea0aa0b6f448ac74926d3629b92b9462e0f599642d1691cece3b8153428708e28f2a0b1c4b0b9ad8a9825a7f014f56cde1d7872e126ce620ae3dcfadbea82fbd25c82a0c8318c4d0dafc59b1b64655a4d9ef7e1ed0c6170ebb29cfd884bd665a07e6521a02070f11b5cc476049c717ec18823c2c2c5b3a7781c582e9c92d897f96abd0c9b80',
-  '0xf89180a04cbf178c59675533f6938da2f964d1b5c6c01a1b1900e1dea2be65544225235580808080808080a04fb07f6fcf9e8f6376fdc919897fd20ed66263798b00bbd6fc3949026aa8e72580a04f0ec7649d3d14d27724a0cd98755e25080c54ad7a8b9882171cd8f52cad1300a0ac741357e0cfdb7eba20f862bad8464a94469caf91c3a2ba19bd3eb84c36d33080808080',
-  '0xf8518080a0706c1c9d12ebf1628f8f79b6f5fc0b03cfc8b761f88f625b735d8ca4167ed5558080a09730b4151d1b0db216052270cbcee0775b13e0d78d5799fdf957b649868f950c8080808080808080808080',
-  '0xf851808080808080a0426a7ce918812b041d6499f44e1571db0f7b328e129aa6a29543035d31a5410480a0dd4595bc5a7fc86088e0f08f04f9f8b3926ea7cd264bc427e969a3b70118b5b78080808080808080',
-  '0xf8419e200582a57eca94bccd348f4b31abffb92439d2c1e0df5d3ffb1cbfe1097ba1a0dd6bb4535a7f07c5098c3c3b36969ec63632891673c80f2f76d994bb5bf63683',
-]
-
-const cannonl1ContractData = [
-  '0x01', // nonce
-  '0x', // balance
-  '0x863c60c73e37aeb65dd467f615f0edcc9feba9f21bdc0ffb5280743cae233659', // storageRoot/storageHash
-  '0x7d1cd19d713c8d64bf663f4168250abfbf690dbb6214c25bf757fee383816914', // codehash
-]
-
-// accountProof piece of eth_getProof()
-const cannonl1AccountProof = [
-  '0xf90211a0030fafeaadded932fa745581dff4160ea650b600806fc1e309dfdecc814b6440a03cfb6ec3eaedeb7a024b2c4996803df1fa28ed13c42b0712a00f4462c2dd2920a01bce2cfc7bf80fb31ea87fc7b98d290660e119b1068634be855d6558bc51b8b3a09b2d2e1ddf57bfc7fbf98d0b2a7bbd1a4c8b4995fbdbf93b01c64eaa5b92d9cca01d99696917e2c48fe41d43897203281fac420796e8087e305ff8064026667553a087e6cd735d90bfa69843e2456ed79f5b8b7b72235f5579172e8654d24cc7273ea0ba90b63adf8a8ccc1c7627837b23313febc741b42f76eebee005c3adecd41b56a0fe79f521fcde4f2c70cbf081f00039fd1bdfbbd4d8ff374301aa1697e9735399a0d3ff42be8d2fd32663d3586fc2ed88652cd2503f71e28a3e5f8296f23e8e8d9da0af978b1dab0c63d24182d42a5964fe8e0bcaaaeae2efb9a34c98bc0e3fe95053a0b8799dc6cb214b7840e2f8b1146bc7d9a9f960d6d0420d1e9947f650538c9246a0e92c0d831185e24985119a4c40c5df61a09f9e83356670b287ae3e8b20869425a0526bfdae531958239828847d75d1001cb0f3cecfe40afcf53717a63d6fab6d6da052aacc510e3809f6c60700664cd46070b098f8b250022e8988b139d06b4e5536a08e3cd5c278ca608e218cb326efc64eb71410f56b7a827d30c66a2d8fb342fedea082e7053179455c3a051f1d1daefe815a326cc711d13a919bc641720556cfb8e080',
-  '0xf90211a04aab56065f1e44323b1742eca073a65f0259f189d6ee2c249567102b435714caa0bf2a4f3ae8ac29089bc9e9709500fdbddce750342930774d1b8566d07c0f00cea0e7041f383a56cc048d3620bb91fbd2f5a847753024fa8ed45c59caca510198ada0736a10ac1a1d338b4b9a1a06c8e2e9fa7908c7f66ab224f922c69912d3038956a093459623d1ac41df312bdeb6cc805f64c147fbdb4e0dfc37dbe17cb5a4e8bc1ca00e77b4210d1e053355dc842f7b611ca2adba28e5d39cadd1e3a3ebb7179037c2a03fa12b0aa5b81d73ec683aad84dd628cfeae8b03810f69418f8adda2e57348d3a0f8ad624bfd56d852c96fdd0cb97b6d4dd847d38a888ecde6b750441e0b84a9fca04b9f31f7d7fab4b3a08875549752d90e3dbc395a3ebb0f68ba1d9d522e8f2deba062fb85b377e173dbfdd61c5ef39f0bd422cae5a655f5e331d2227874b347db46a04cdd903b76788cb9651243659ae713cecca08ae40da63aa155fc3a3d2a2e2ed5a03c5ecabe8a5c872f552165b9ddb0fb7b1876d86ea16798831b069d9a762e5285a09144d9c8ac17cc3255932baf5ad65774e60bf1503acdb3e9489ec453e252a16aa02106c59dee805d0f377faba352acd9ad8f1cd8559e4e0df8a8adf52bb5f0bad4a07bdb4db0d2b432acca318af3e75fa8dd13f06fbc329f55d390216f509f1a0e1ea0711af2c98e965aef1237f9bc67e0aa7853ddb0959df5159e7de91d7de54e0ee180',
-  '0xf90211a03462a12bcc074c965f3ca60f519306dbd25205f668fa9d87b1a4fc0eb5643b77a08854345f92946faa04609a0c80f9c82515470ef744d917a2bed5eeb2c3fc56c9a02d2b98318ae9211228bfc8ba712ba88efa5f11807ccbbf8f15f13a7daf9cf723a0023eecde7aa99f2949cbf3f9641a72861941725f9ac4cff9588c8a3c3bf55f08a01e17f33b991b7d9c7c6bca98b01ff9f2f60bd9315c49ce99a677eb02a9d5f407a076439cc8320e3e94b2429ac2bb3d0db7c20e12b259e5897c5b20b8b7380bfbbaa0a73046ee9a67d4af4fc53553b169bf0991ea7692ea70c93b322c0fbd0a622029a0cc3fbc15126a4ab75e8600dae67ab5edc0a9c3f2708a4e281e8492fa27c293f0a0a41e3df5e53773f701c90dc2ad2819a1aa2126d3507adb0482caed99bdb3cd4fa03298c9d1df0f47d50541dfa156217793095d41e013d9cdc933fd82859118b5bca03f7020b79629f7ce46f9d3ff77e26782997d225f5ed194d7abb2365d91e33549a08bbf57bd0cfff6aecec4d1f6a9ad52f55df5f748dc3fcefa13f0da4096ee3e61a0db10d3af4253db8cfeebc2d92f45074667fc1c38d46e1052b2580c40eaf45f2ba048b96d940ed98a0360991c6b3f4b27f48da57bbe0846d924ee2932c82724b97ea00caf432e3628a63f9e35e145c89cf6cc62f2e264180f7a6f2dfd62f487982760a0e1685ec076d61b49ec2cacbbb31f6098180546f00454ba81256d4ab7d133fc0480',
-  '0xf90211a09e5c4ad67b3463ae90d6eb750b10ca8f4fa6f96afa16dcca3843fe43e314ed7ca0a9f9c91aa4f490b9ebdfbbc16ad7f627f03168b4b80a30954b7aa3729ce3f8a6a0e86ec468e2839284914113e11b6a4b77ba0e63120785e853122ad2ccee0d74c3a002283dc3aad8a2cc0106e00a430d786997b9b0a60d890fb5662fe49e5d3606dfa05e73b11f1868f7f9ed0b06ea0af372747d325e9852fb8eccab1e36344910cdeea00cf231449dc9fee661d3cf554fe788f2968fe9211d930e95ed0bcaec22c8fb0da01c27c59d15ea2923ebb72a2b7b3bb4a24a93df63385ca9bd16c90c23be8ca7c8a04fe3f63939a129ec70677bee5af192cba6c78f2a12ab0d70a0a29ab538fa8287a006d63deff8b022a92933b3af7350d96c586fcd3507593aacf7b103813ed25bdca076eaf4d9255898e2180d71424f836eab2a760f407a12d328b2b6a7fde0a4a03da0af05cd0bb2d5a5f8dbf6fafec2cc7a309d19941662c6caa958deaf2918baaad6a0446c5d3ee07ab0ef2ca74a0fa9bfac33f73e7911d2665a5be5cb489f0dbb3825a038cec665b513611f29d2a1377bbb8cecd02502a1e067833a602eaab996129cb2a09429d434f94da0dfe186294fb3cdde3743490d757a732e348daab87d6a75509fa0488a0f59051be652a805063bb08e98a0e177b101a4c83b323783f038ee0cdc7aa0ae43cb049d94729caf34a77ebf686194ef27de68d266e31082908e5dc3fdcbcc80',
-  '0xf90211a09fdb4def9b3c7e939f2081e6ed3b3f3c6175b806bcc12b814b654f87e2368d72a075762247779bcca5950f3f87c0c2413228d3393703cc37223fc4d1e9967495c0a0fd309c22cea8ad5ef365382cbdf561469d84a7fef82fcdff9083af431ecce699a0f068d8d0011951172c202034f93573b84f08bcd55d595fe4aac82a994548f3d5a067364293934fedee2d9c7f2c3fd5f0618c5f148f31ed429926bb51e2bd540189a064a21cb15183100891a20a39e2339cfa2f35fe356bcaf1bf6005990aa9bdcb39a0378bade81b6e2c5c4d434b3cab63d45b8bfe28695c2e13564d4070546753420ca018ae4705d33bc112e9b1d4d013cedbca4339ec854164a47baa7cc5a99e318c8aa04bce706c62d67c2278175095f73e6289c8c17e3416539c44ecf8c510194b10a4a0c9b508326e149d8193a2f410f3e1cb50b1eb6ee9e2e1632b9fa2a1f0c21101f4a0b6bb73978fd706cea00809bdad56674ead3a7be2bca6a6c517c0f0db895cc404a0ae799df9a5b1f375a0a7d40343e48cd21934edf7339913f9342cc7f4162aff1aa016dceca7966b0f4ceae7ad80e1e2b8648fca07e7d926e7b65d673fea072331d5a0e7a06a7ab1919f717b8162544b679e3a072ea48437f7cf00ed59a722b026bf16a0ff40152acb04a290c9aadba4547fd392d4305e6cdbf33f1d8754b37d86cfc711a028213073ae967666febd6291ed16e63fe9f9f316f4d3869669d0d4e2788fbad380',
-  '0xf90211a05189e37dbb06ce2b6d81066f602cfb8da98612c5ba2d5a64edf35fd87ff9a7c4a036a07e6aeaf55363caebb171ded09f34d412ad6660c3a888742ac5591f2a4a45a06eb74cf53af22ea4d37dd60ffae8bb53982f9f39c9b39eec6a4861c6a9bb7948a0ad2126812480a7472909965c2bcea93af4edcb78e250f01b51816bc7b580afc1a0eb57eb0dbc18cf678d97366df6b399a5dfea7cd76919badc1de7a5d0bae80f5ca04b45cfd11260274afef0c49b278b0e91302df828a78dc2a2b82652ad72fdb84ba0048dea89ebeed4b8b978b1ff83050632b4052d3207745441be6c03c89c16e523a02733ad20ee878b38f5033b327006d7242e37f2ec1dce81b8cf7ef3ac440c6bbda0d30df4164d8f1a3928b0c76c1a5b428eb990125c05c7f6c7205ff289bbf48fc2a0eaccdc931faa78b63c1e3a12e8eba5b6348a3c72b49614f87005f6ee7b2e43d2a0b3c42c248ee6f637b6416bea6c59df9de4a74cc98a493a9acf52c33139465638a06a162f6e9d9ae766899500c3ad1e7994bd9dde85ea43e0123a101e8d5b4488f5a0683a2e42ecfe2fcd516f3241ab6ea518eaa372b5f4e92c81af7ad2dcdc23cb13a002218d9fbaee83ef6dd9ead299f82a47808186a5857d446b81828abb44d09324a0e7810ace1ac9dff7b297798c1c52317782dcdba85642e1f3dfaf403493293b9fa0bddcd4b455c968976addb11382c7710c3cbcdbfaae45d28af9063ae10914f2f180',
-  '0xf90191a0bf01fe4c963d0fad3032941ce39a44ed467875e47d61a9496d7f775f387560378080a0c40ef229b94141a87a26ae77ff43f86c99667cb23649568788447108e7b0de42a0111c84dbffebf6834dd017cebd5a28827241d22c4c2083ee046a064f2cf9c307a03bed5808e5a02900d7999ebb31ba02e4e4b16aa735e0e54e0830fddf76ac33db80a054a823a4fd4f124f7a7c7343e3792cd74f42872db6c2fe55282baa6cf000b584a04bd9c38d1c03fa6721cb477eda0148d9cb5e0390ecc3340c25cdebccccf7099da04456bdaa774b9961be4d5d30ba273cab51d013b8cb43e529463cb916230f6c88a0704d8f2611fb4003a0f2e4035680f005ca262d17d792c89cf434c82198c1cf67a0031ab3ad9b06da9a4eba55e554d19d011035a7c25124fcb352c3c4881f8089fd80a0f7bb810ec32fe033690832350f97471d7bdc7c52bcf0fcba8947465c9dd8e4f7a0aa4ab32be48e33e14c575d5d0b8a92324e0eb9469c7686a3d45b286261a6f8a3a0061238a6980f4db64fe07c7189e19c707263a86691651672b167baf0851491ad80',
-  '0xf871808080a00c37fadee4a7cad201ab8ca9cb320bf8e6e2ec8ba4409cbc5b5a983cb4ddca7480808080808080808080a0e90de4525a24159d03f7b962fb985cab02b78d4a741a6904af35dbc952c4761ea07bf0c4b338ec756bfb619015766edd3dffa78f313ef2406c8f2666e5aac5273180',
-  '0xf8669d201e48a731f9cd8ba1fc260d2392ab479b53c4bfb745bd483895154854b846f8440180a0863c60c73e37aeb65dd467f615f0edcc9feba9f21bdc0ffb5280743cae233659a07d1cd19d713c8d64bf663f4168250abfbf690dbb6214c25bf757fee383816914',
-]
-
-// ****************** End of Cannon Testnet Data ***************************
-
 describe('Prover Test', () => {
   let alice: SignerWithAddress
 
@@ -458,7 +366,8 @@ describe('Prover Test', () => {
   it('can prove L2 storage', async () => {
     prover.proveStorage(
       '0xfc3e15078e229f29b5446a5a01dc281ef6c7c3054d5a5622159257fe61e0aac7',
-      '0x94' + FILLER.slice(2), // 0x80 (base val) + 0x14 (or 20 in decimal) for the length of the address
+      encodeRlp(getBytes('0x445575a842c3f13b4625F1dE6b4ee96c721e580a')),
+      // '0x94' + FILLER.slice(2), // 0x80 (base val) + 0x14 (or 20 in decimal) for the length of the address
       l2StorageProof,
       L2_INBOX_STORAGE_ROOT,
     )
@@ -522,7 +431,7 @@ describe('Prover Test', () => {
     const mainnetProver = await deploy(alice, Prover__factory, [
       await mainnetBlockDataSource.getAddress(),
       L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
-      L1_DISPURE_GAME_FACTORY_OPTIMISM,
+      L1_DISPUTE_GAME_FACTORY_OPTIMISM,
     ])
 
     await mainnetProver.proveL1WorldState(mainnetL1RLPEncodedBlockDataFull)
@@ -562,17 +471,14 @@ describe('Prover Test', () => {
     )
   })
 
-  it('cannon L1 and L2 proof ', async () => {
+  it.only('cannon L1 and L2 proof ', async () => {
     const cannonBlockDataSource = await deploy(alice, MockL1Block__factory)
     // only the number and hash matters here
     await cannonBlockDataSource.setL1BlockValues(
-      // L1_BLOCK_NUMBER,
-      cannonL1BlockNumberFull,
+      t.cannon.layer1BlockTag,
       0,
       0,
-      // L1_BLOCK_HASH,
-      cannonL1BLockDataHashFull,
-      // '0x8d232525fd45b5fd4bd1ee9a6c84abd2fe70129de20596442b1a5667a719be64',
+      t.cannon.layer1BlockHash,
       0,
       '0x' + '00'.repeat(32),
       0,
@@ -581,57 +487,84 @@ describe('Prover Test', () => {
     const cannonProver = await deploy(alice, Prover__factory, [
       await cannonBlockDataSource.getAddress(),
       L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
-      L1_DISPUTE_GAME_FACTORY_OPTIMISM,
+      t.cannon.disputeGameFactoryAddress,
     ])
 
-    // const rlpEncodedBlockData = getBytes(
-    //   hexlify(encodeRlp(mainnetCleanedL1BlockData)),
-    // )
-    await cannonProver.proveL1WorldState(cannonL1RLPEncodedBlockDataFull)
+    await cannonProver.proveL1WorldState(t.cannon.layer1RLPEncodedBlockData)
 
-    // Validate proveStorage
-    // key = OracleProof StorageSlot
-    const key =
-      '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f72407d'
-    // val = bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
-    // Generate Output Root is wrong for mainnet
-    // Expected 0xdd6bb4535a7f07c5098c3c3b36969ec63632891673c80f2f76d994bb5bf63683
-    // Getting  0xa7f5660bdc1efe3f61dbe345a0b24cbfdcf293f4b0d33c6a852c6e5134306770
-    // outputRoot = generateOutputRoot(L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash);
-    // L2_OUTPUT_ROOT_VERSION_NUMBER = 0
-    // l2WorldStateRoot = l2EndBatchBlockData.stateRoot,
-    // l2MessagePasserStateRoot = l2MesagePasserProof.storageHash,
-    // l2LatestBlockHash = l2EndBatchBlockData.hash
-
-    const cannonOutputRoot = solidityPackedKeccak256(
+    const cannonRootClaimFromProver = await cannonProver.generateOutputRoot(
+      0,
+      t.cannon.l2EndBatchBlockStateRoot,
+      t.cannon.l2MessagePasserProofStorageHash,
+      t.cannon.l2EndBatchBlockHash,
+    )
+    const cannonRootClaim = solidityPackedKeccak256(
       ['uint256', 'bytes32', 'bytes32', 'bytes32'],
       [
-        5,
-        cannonL2_WORLD_STATE_ROOT,
-        cannonL2_MESSAGE_PASSER_STORAGE_ROOT,
-        cannonL2_BATCH_LATEST_BLOCK_HASH,
+        0,
+        t.cannon.l2EndBatchBlockStateRoot,
+        t.cannon.l2MessagePasserProofStorageHash,
+        t.cannon.l2EndBatchBlockHash,
       ],
     )
-    // console.log('mainnetOutputRoot: ', mainnetOutputRoot)
+    expect(cannonRootClaimFromProver).to.equal(cannonRootClaim)
+    expect(cannonRootClaimFromProver).to.equal(t.cannon.rootClaim)
 
-    // const val =
-    //   '0xa0a7f5660bdc1efe3f61dbe345a0b24cbfdcf293f4b0d33c6a852c6e5134306770'
-    // const proof = mainnetl1StorageProof // OracleProof Storage Proof
-    // const root =
-    //   '0x559107e834c19bd65e18c3c30942074e30778de8ca9dc4e57bf42c691978d003' // OracleProof StorageHash
+    // console.log('encodeRlp(t.cannon.gameId): ', encodeRlp(t.cannon.gameId))
 
-    // await mainnetProver.proveStorage(key, val, proof, root)
+    expect(toBeHex(stripZerosLeft(t.cannon.gameId))).to.equal(
+      '0x6689aa0827f77e1f136204d18a100c30f634704067251d09',
+    )
+
+    // Get the storage Slot information
+    // l1BatchSlot = calculated from the batch number *2 + output slot 3
+    // In Solidity
+    // bytes32 outputRootStorageSlot =
+    // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
+    const arrayLengthSlot = zeroPadValue(
+      toBeArray(t.cannon.disputeGameListSlot),
+      32,
+    )
+    const firstElementSlot = solidityPackedKeccak256(
+      ['bytes32'],
+      [arrayLengthSlot],
+    )
+    const disputeGameStorageSlot = toBeHex(
+      BigInt(firstElementSlot) + BigInt(Number(t.cannon.gameIndex)),
+      32,
+    )
+    // expect(disputeGameStorageSlot).to.equal(t.cannon.gameIDStorageSlot)
+
+    const gameUnpacked = await cannonProver.unpack(t.cannon.gameId)
+
+    console.log('gameUnpacked: ', gameUnpacked)
+    console.log(
+      'encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))): ',
+      encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
+    )
+
+    await cannonProver.proveStorage(
+      t.cannon.gameIDStorageSlot,
+      encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
+      // encodeRlp(t.cannon.gameId),
+      t.cannon.disputeGameFactoryStorageProof,
+      t.cannon.disputeGameFactoryStateRoot,
+    )
 
     // Update this after code complete in Prover.sol
     await cannonProver.proveL2WorldStateCannon(
-      cannonL2_WORLD_STATE_ROOT,
-      cannonL2_MESSAGE_PASSER_STORAGE_ROOT,
-      cannonL2_BATCH_LATEST_BLOCK_HASH,
-      cannonBATCH_INDEX,
-      cannonDGFStorageProof,
-      await cannonProver.rlpEncodeDataLibList(cannonDFGContractData),
-      mainnetl1AccountProof,
-      cannonL1_WORLD_STATE_ROOT,
+      t.cannon.l2EndBatchBlockStateRoot,
+      t.cannon.l2MessagePasserProofStorageHash,
+      t.cannon.l2EndBatchBlockHash,
+      t.cannon.gameIndex,
+      encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
+      // t.cannon.gameId,
+      t.cannon.disputeGameFactoryStorageProof,
+      await cannonProver.rlpEncodeDataLibList(
+        t.cannon.disputeGameFactoryContractData,
+      ),
+      t.cannon.disputeGameFactoryAccountProof,
+      t.cannon.layer1WorldStateRoot,
     )
 
     // expect((await prover.provenIntents(INTENT_HASH)) === FILLER).to.be.true

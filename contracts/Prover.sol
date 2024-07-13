@@ -5,11 +5,16 @@ import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/tr
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
+import "hardhat/console.sol";
 
 contract Prover {
     uint16 public constant NONCE_PACKING = 1;
 
+    // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
     uint256 public constant L2_OUTPUT_SLOT_NUMBER = 3;
+
+    // Output slot for Cannon DisputeGameFactory where FaultDisputeGames gameId's are stored
+    uint256 public constant L2_DISPUTE_GAME_LIST_SLOT_NUMBER = 104;
 
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
@@ -17,7 +22,7 @@ contract Prover {
     address public immutable l1OutputOracleAddress;
 
     // FaultGameFactory on Ethereum used for Cannon (Optimism) Proving
-    address public immutable faultGameFactory;
+    address public immutable faultGameFactoryAddress;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
@@ -33,13 +38,19 @@ contract Prover {
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
-    constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress, address _faultGameFactory) {
+    constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress, address _faultGameFactoryAddress) {
         l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
         l1OutputOracleAddress = _l1OutputOracleAddress;
-        faultGameFactory = _faultGameFactory;
+        faultGameFactoryAddress = _faultGameFactoryAddress;
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
+        console.log("In prove Storage");
+        console.logBytes(_key);
+        console.logBytes(_val);
+        // console.logBytes(_proof);
+        console.logBytes32(_root);
+        console.log("End of ProveStorageParameters");
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
     }
 
@@ -66,6 +77,19 @@ contract Prover {
         }
 
         return RLPWriter.writeList(dataList);
+    }
+
+    /// @notice Unpacks values from a 32 byte GameId type.
+    /// @param _gameId The packed GameId.
+    /// @return gameType_ The game type.
+    /// @return timestamp_ The timestamp of the game's creation.
+    /// @return gameProxy_ The game proxy address.
+    function unpack(bytes32 _gameId) public pure returns (uint32 gameType_, uint64 timestamp_, address gameProxy_) {
+        assembly {
+            gameType_ := shr(224, _gameId)
+            timestamp_ := and(shr(160, _gameId), 0xFFFFFFFFFFFFFFFF)
+            gameProxy_ := and(_gameId, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
+        }
     }
 
     /**
@@ -140,15 +164,17 @@ contract Prover {
 
     /**
      * @notice Validates L2 world state for Cannon by validating the following Storage proofs for the faultDisputeGame.
-     * @notice 1) the rootClaim is correct
+     * @notice 1) the rootClaim is correct by checking the gameId is in storage in the gamesList (will need to know the index number)
+     * @notice 2) calculate the FaultDisputeGameAddress from the gameId
      * @notice 2) the l2BlockNumber is correct
      * @notice 3) the status is complete (2)
      * @notice this gives a total of 3 StorageProofs and 1 AccountProof which must be validated.
      * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
      * @param l2MessagePasserStateRoot // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
      * @param l2LatestBlockHash the hash of the last block in the batch
-     * @param l2OutputIndex the batch number
-     * @param l1StorageProof todo
+     * @param gameIndex the index of the Fault Dispute Game in the Dispute game factory
+     * @param gameId Fault Dispute Game Identifier in the Dispute Game Factory
+     * @param l1DisputeFaultGameStorageProof Dispute Game Factory Storage Proof
      * @param rlpEncodedDisputeGameData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
      * @param l1AccountProof accountProof from eth_getProof(L2OutputOracle, [], )
      * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
@@ -157,30 +183,46 @@ contract Prover {
         bytes32 l2WorldStateRoot,
         bytes32 l2MessagePasserStateRoot,
         bytes32 l2LatestBlockHash,
-        uint256 l2OutputIndex,
-        bytes[] calldata l1StorageProof,
+        uint256 gameIndex,
+        bytes25 gameId,
+        bytes[] calldata l1DisputeFaultGameStorageProof,
         bytes calldata rlpEncodedDisputeGameData,
         bytes[] calldata l1AccountProof,
         bytes32 l1WorldStateRoot
     ) public {
-        // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
-        // can also use timestamp instead of block when this is proven for better crosschain knowledge
-        // failing the need for all that, change the mapping to map to bool
+        // prove that the FaultDisputeGame was created by the Dispute Game Factory
         require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
 
-        // Old logic to be replaced
-        // bytes32 outputRoot = generateOutputRoot(
-        //     L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash
-        // );
+        bytes32 rootClaim = generateOutputRoot(
+            L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, l2LatestBlockHash
+        );
 
-        // bytes32 outputRootStorageSlot =
-        //     bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
+        bytes32 disputeGameFactoryStorageSlot =
+            bytes32(abi.encode((uint256(keccak256(abi.encode(L2_DISPUTE_GAME_LIST_SLOT_NUMBER))) + gameIndex)));
 
-        bytes memory DFGStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedDisputeGameData)[2]);
+        bytes memory disputeGameFactoryStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedDisputeGameData)[2]);
 
-        // require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
+        require(disputeGameFactoryStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
 
-        // end of old logic
+        proveStorage(
+            abi.encodePacked(disputeGameFactoryStorageSlot),
+            abi.encodePacked(gameId),
+            // bytes.concat(bytes1(uint8(0x98)), bytes25(gameId[7:25])),
+            l1DisputeFaultGameStorageProof,
+            bytes32(disputeGameFactoryStateRoot)
+        );
+
+        proveAccount(
+            abi.encodePacked(faultGameFactoryAddress), rlpEncodedDisputeGameData, l1AccountProof, l1WorldStateRoot
+        );
+
+        // Prove that the FaultDispute game has been settled
+        (uint32 gameType, uint64 timestamp, address faultDisputeGameProxyAddress) = unpack(gameId);
+        console.log("gameType", gameType);
+        console.log("timestamp", timestamp);
+        console.log("faultDisputeGameProxyAddress", faultDisputeGameProxyAddress);
+
+        // provenL2States[l2WorldStateRoot] = l2LatestBlockHash;
 
         // Prove FaultDisputeGame was created by DisputeGameFactory
         // bytes[] memory disputeGameFactoryl1StorageProof = [
@@ -191,15 +233,15 @@ contract Prover {
         //     "0xf83a9f20715c76c7e0dd4a6aad5af5b6e8a3cf4758a6c750dfd03d44e8138a77779499986689aa0827f77e1f136204d18a100c30f634704067251d09"
         // ];
         // Fault
-        proveStorage(
-            abi.encodePacked("0xdc1a0dba53f837978d5bafb52ebb7cd67f5cfb418c5ec060ebdc4bca53327769"), //gameIDStorageSlot
-            bytes.concat(
-                bytes1(uint8(0xa0)),
-                abi.encodePacked("0x00000000000000006689aa0827f77e1f136204d18a100c30f634704067251d09")
-            ), //gameID
-            l1StorageProof, //disputeGameFactoryl1StorageProof
-            bytes32(DFGStateRoot) //DisputeGameFactoryStateRoot
-        );
+        // proveStorage(
+        //     abi.encodePacked("0xdc1a0dba53f837978d5bafb52ebb7cd67f5cfb418c5ec060ebdc4bca53327769"), //gameIDStorageSlot
+        //     bytes.concat(
+        //         bytes1(uint8(0xa0)),
+        //         abi.encodePacked("0x00000000000000006689aa0827f77e1f136204d18a100c30f634704067251d09")
+        //     ), //gameID
+        //     l1StorageProof, //disputeGameFactoryl1StorageProof
+        //     bytes32(DFGStateRoot) //DisputeGameFactoryStateRoot
+        // );
 
         // proveAccount(abi.encodePacked(faultGameFactory), rlpEncodedDisputeGameData, l1AccountProof, l1WorldStateRoot);
 
