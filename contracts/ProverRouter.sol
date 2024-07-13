@@ -57,4 +57,8 @@ contract ProverRouter is Ownable {
     ) public {
         Prover(provers[_chainID]).proveIntent(claimant, inboxes[_chainID], intentHash, intentOutputIndex, l2StorageProof, rlpEncodedInboxData, l2AccountProof, l2WorldStateRoot);
     }
+
+    function fetchProvenIntents(uint256 _chainID, bytes32 _hash) public view returns(address){
+        return Prover(provers[_chainID]).provenIntents(_hash);
+    }
 }

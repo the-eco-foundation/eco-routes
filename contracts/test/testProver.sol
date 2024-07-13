@@ -5,22 +5,45 @@ pragma solidity ^0.8.26;
 import "../Prover.sol";
 
 contract TestProver is Prover {
+
+    struct ProveOutputRootData {
+        bytes32 l2WorldStateRoot;
+        bytes32 l2MessagePasserStateRoot;
+        bytes32 l2LatestBlockHash;
+        uint256 l2OutputIndex;
+        bytes[] l1StorageProof;
+        bytes rlpEncodedOutputOracleData;
+        bytes[] l1AccountProof;
+        bytes32 l1WorldStateRoot;
+    }
+
+    struct ProveIntentData {
+        address claimant;
+        address inboxContract;
+        bytes32 intentHash;
+        uint256 intentOutputIndex;
+        bytes[] l2StorageProof;
+        bytes rlpEncodedInboxData;
+        bytes[] l2AccountProof;
+        bytes32 l2WorldStateRoot;
+    }
+
     address public constant baseL1OutputOracleAddress = 0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254;
 
     constructor(address _router) Prover(address(this), baseL1OutputOracleAddress, _router) {}
 
-    bool public L1WorldStateProven;
+    bytes public proveL1WorldStateData;
 
-    bool public outputRootProven;
+    ProveOutputRootData public proveOutputRootData;
 
-    bool public intentProven;
+    ProveIntentData public proveIntentData;
 
-    function addProvenIntent(bytes32 identifier, address withdrawableBy) public {
-        provenIntents[identifier] = withdrawableBy;
+    function addProvenIntent(bytes32 _hash, address _claimant) public {
+        provenIntents[_hash] = _claimant;
     }
 
     function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public override {
-        L1WorldStateProven = true;
+        proveL1WorldStateData = rlpEncodedL1BlockData;
     }
 
     function proveOutputRoot(
@@ -33,7 +56,14 @@ contract TestProver is Prover {
         bytes[] calldata l1AccountProof,
         bytes32 l1WorldStateRoot
     ) public override {
-        outputRootProven = true;
+        proveOutputRootData = ProveOutputRootData(l2WorldStateRoot,
+        l2MessagePasserStateRoot,
+        l2LatestBlockHash,
+        l2OutputIndex,
+        l1StorageProof,
+        rlpEncodedOutputOracleData,
+        l1AccountProof,
+        l1WorldStateRoot);
     }
 
     function proveIntent(
@@ -46,9 +76,21 @@ contract TestProver is Prover {
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
     ) public override {
-        intentProven = true;
+        proveIntentData = ProveIntentData(claimant,
+        inboxContract,
+        intentHash,
+        intentOutputIndex,
+        l2StorageProof,
+        rlpEncodedInboxData,
+        l2AccountProof,
+        l2WorldStateRoot);
     }
 
+    function getProveOutputRootData() public view returns (ProveOutputRootData memory) {
+        return proveOutputRootData;
+    }
 
-    
+    function getProveIntentData() public view returns (ProveIntentData memory) {
+        return proveIntentData;
+    }
 }
