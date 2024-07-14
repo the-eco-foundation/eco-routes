@@ -211,8 +211,6 @@ contract Prover {
 
         proveStorage(
             abi.encodePacked(disputeGameFactoryStorageSlot),
-            // abi.encodePacked(gameId),
-            // bytes.concat(bytes1(uint8(0x98)), bytes25(gameId[7:25])),
             bytes.concat(bytes1(uint8(0x98)), gameID24),
             l1DisputeFaultGameStorageProof,
             bytes32(disputeGameFactoryStateRoot)
@@ -227,9 +225,13 @@ contract Prover {
         console.log("gameType", gameType);
         console.log("timestamp", timestamp);
         console.log("faultDisputeGameProxyAddress", faultDisputeGameProxyAddress);
-        //  assembly {
-        //     gameID24 := shl(64, gameID32)
-        // }
+
+        // storage proof for FaultDisputeGame rootClaim
+
+        // storage proof for FaultDisputeGame status (showing defender won)
+
+        // update L2WorldStates
+
         // provenL2States[l2WorldStateRoot] = l2LatestBlockHash;
     }
 

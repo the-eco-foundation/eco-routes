@@ -543,12 +543,23 @@ describe('Prover Test', () => {
       encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
     )
 
+    // Prove storage showing the DisputeGameFactory created the FaultDisputGame
     await cannonProver.proveStorage(
       t.cannon.gameIDStorageSlot,
       encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
       // encodeRlp(t.cannon.gameId),
       t.cannon.disputeGameFactoryStorageProof,
       t.cannon.disputeGameFactoryStateRoot,
+    )
+
+    // Prove account showing that the above ProveStorage is for a valid WorldState
+    await cannonProver.proveAccount(
+      t.cannon.disputeGameFactoryAddress,
+      await cannonProver.rlpEncodeDataLibList(
+        t.cannon.disputeGameFactoryContractData,
+      ),
+      t.cannon.disputeGameFactoryAccountProof,
+      t.cannon.layer1WorldStateRoot,
     )
 
     // Update this after code complete in Prover.sol
@@ -564,6 +575,37 @@ describe('Prover Test', () => {
         t.cannon.disputeGameFactoryContractData,
       ),
       t.cannon.disputeGameFactoryAccountProof,
+      t.cannon.layer1WorldStateRoot,
+    )
+
+    // Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block
+    await cannonProver.proveStorage(
+      t.cannon.faultDisputeGameStatusStorageSlot,
+      encodeRlp(
+        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameStatusStorage)),
+      ),
+      t.cannon.faultDisputeGameStatusStorageProof,
+      t.cannon.faultDisputeGameStatusStateRoot,
+    )
+
+    // Prove storage showing the FaultDisputeGame has a status which shows the Defender Won
+    await cannonProver.proveStorage(
+      t.cannon.faultDisputeGameRootClaimStorageSlot,
+      encodeRlp(
+        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameRootClaimStorage)),
+      ),
+      // encodeRlp(t.cannon.faultDisputeGameRootClaimStorage),
+      t.cannon.faultDisputeGameRootClaimStorageProof,
+      t.cannon.faultDisputeGameRootClaimStateRoot,
+    )
+
+    // Prove account showing that the above ProveStorages are for a valid WorldState
+    await cannonProver.proveAccount(
+      t.cannon.faultDisputeGameAddress,
+      await cannonProver.rlpEncodeDataLibList(
+        t.cannon.faultDisputeGameRootClaimContractData,
+      ),
+      t.cannon.faultDisputeGameRootClaimAccountProof,
       t.cannon.layer1WorldStateRoot,
     )
 
