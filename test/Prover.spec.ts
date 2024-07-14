@@ -471,7 +471,7 @@ describe('Prover Test', () => {
     )
   })
 
-  it.only('cannon L1 and L2 proof ', async () => {
+  it('cannon L1 and L2 proof ', async () => {
     const cannonBlockDataSource = await deploy(alice, MockL1Block__factory)
     // only the number and hash matters here
     await cannonBlockDataSource.setL1BlockValues(
@@ -557,8 +557,8 @@ describe('Prover Test', () => {
       t.cannon.l2MessagePasserProofStorageHash,
       t.cannon.l2EndBatchBlockHash,
       t.cannon.gameIndex,
-      encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
-      // t.cannon.gameId,
+      // encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
+      t.cannon.gameId,
       t.cannon.disputeGameFactoryStorageProof,
       await cannonProver.rlpEncodeDataLibList(
         t.cannon.disputeGameFactoryContractData,
