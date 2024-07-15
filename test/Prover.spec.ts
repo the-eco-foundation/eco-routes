@@ -562,6 +562,37 @@ describe('Prover Test', () => {
       t.cannon.layer1WorldStateRoot,
     )
 
+    // Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block
+    await cannonProver.proveStorage(
+      t.cannon.faultDisputeGameStatusStorageSlot,
+      encodeRlp(
+        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameStatusStorage)),
+      ),
+      t.cannon.faultDisputeGameStatusStorageProof,
+      t.cannon.faultDisputeGameStateRoot,
+    )
+
+    // Prove storage showing the FaultDisputeGame has a status which shows the Defender Won
+    await cannonProver.proveStorage(
+      t.cannon.faultDisputeGameRootClaimStorageSlot,
+      encodeRlp(
+        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameRootClaimStorage)),
+      ),
+      // encodeRlp(t.cannon.faultDisputeGameRootClaimStorage),
+      t.cannon.faultDisputeGameRootClaimStorageProof,
+      t.cannon.faultDisputeGameStateRoot,
+    )
+
+    // Prove account showing that the above ProveStorages are for a valid WorldState
+    await cannonProver.proveAccount(
+      t.cannon.faultDisputeGameAddress,
+      await cannonProver.rlpEncodeDataLibList(
+        t.cannon.faultDisputeGameContractData,
+      ),
+      t.cannon.faultDisputeGameAccountProof,
+      t.cannon.layer1WorldStateRoot,
+    )
+
     // Update this after code complete in Prover.sol
     await cannonProver.proveL2WorldStateCannon(
       t.cannon.l2EndBatchBlockStateRoot,
@@ -575,37 +606,12 @@ describe('Prover Test', () => {
         t.cannon.disputeGameFactoryContractData,
       ),
       t.cannon.disputeGameFactoryAccountProof,
-      t.cannon.layer1WorldStateRoot,
-    )
-
-    // Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block
-    await cannonProver.proveStorage(
-      t.cannon.faultDisputeGameStatusStorageSlot,
+      t.cannon.faultDisputeGameStateRoot,
+      t.cannon.faultDisputeGameRootClaimStorageProof,
       encodeRlp(
         toBeHex(stripZerosLeft(t.cannon.faultDisputeGameStatusStorage)),
       ),
       t.cannon.faultDisputeGameStatusStorageProof,
-      t.cannon.faultDisputeGameStatusStateRoot,
-    )
-
-    // Prove storage showing the FaultDisputeGame has a status which shows the Defender Won
-    await cannonProver.proveStorage(
-      t.cannon.faultDisputeGameRootClaimStorageSlot,
-      encodeRlp(
-        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameRootClaimStorage)),
-      ),
-      // encodeRlp(t.cannon.faultDisputeGameRootClaimStorage),
-      t.cannon.faultDisputeGameRootClaimStorageProof,
-      t.cannon.faultDisputeGameRootClaimStateRoot,
-    )
-
-    // Prove account showing that the above ProveStorages are for a valid WorldState
-    await cannonProver.proveAccount(
-      t.cannon.faultDisputeGameAddress,
-      await cannonProver.rlpEncodeDataLibList(
-        t.cannon.faultDisputeGameRootClaimContractData,
-      ),
-      t.cannon.faultDisputeGameRootClaimAccountProof,
       t.cannon.layer1WorldStateRoot,
     )
 

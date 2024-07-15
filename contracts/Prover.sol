@@ -13,16 +13,24 @@ contract Prover {
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
     uint256 public constant L2_OUTPUT_SLOT_NUMBER = 3;
 
-    // Output slot for Cannon DisputeGameFactory where FaultDisputeGames gameId's are stored
-    uint256 public constant L2_DISPUTE_GAME_LIST_SLOT_NUMBER = 104;
-
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
     // L2OutputOracle on Ethereum used for Bedrock (Base) Proving
     address public immutable l1OutputOracleAddress;
 
+    // Cannon Data
     // FaultGameFactory on Ethereum used for Cannon (Optimism) Proving
     address public immutable faultGameFactoryAddress;
+
+    // Output slot for Cannon DisputeGameFactory where FaultDisputeGames gameId's are stored
+    uint256 public constant L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER = 104;
+
+    // Output slot for the root claim (used as the block number settled is part of the root claim)
+    uint256 public constant L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT =
+        0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1;
+
+    // Output slot for the game status (fixed)
+    uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
@@ -188,6 +196,10 @@ contract Prover {
         bytes[] calldata l1DisputeFaultGameStorageProof,
         bytes calldata rlpEncodedDisputeGameData,
         bytes[] calldata l1AccountProof,
+        bytes32 faultDisputeGameStateRoot,
+        bytes[] calldata faultDisputeGameRootClaimStorageProof,
+        bytes memory faultDisputeGameStatusStorage,
+        bytes[] calldata faultDisputeGameStatusStorageProof,
         bytes32 l1WorldStateRoot
     ) public {
         // prove that the FaultDisputeGame was created by the Dispute Game Factory
@@ -203,7 +215,7 @@ contract Prover {
         );
 
         bytes32 disputeGameFactoryStorageSlot =
-            bytes32(abi.encode((uint256(keccak256(abi.encode(L2_DISPUTE_GAME_LIST_SLOT_NUMBER))) + gameIndex)));
+            bytes32(abi.encode((uint256(keccak256(abi.encode(L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER))) + gameIndex)));
 
         bytes memory disputeGameFactoryStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedDisputeGameData)[2]);
 
@@ -226,11 +238,31 @@ contract Prover {
         console.log("timestamp", timestamp);
         console.log("faultDisputeGameProxyAddress", faultDisputeGameProxyAddress);
 
-        // storage proof for FaultDisputeGame rootClaim
-
+        // storage proof for FaultDisputeGame rootClaim (means block is valid)
+        // TODO fix too deep in the stack error https://github.com/Cyfrin/foundry-full-course-cu/discussions/851
+        // proveStorage(
+        //     abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT)),
+        //     bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(rootClaim)),
+        //     // faultDisputeGameStatusStorageProof,
+        //     faultDisputeGameRootClaimStorageProof,
+        //     bytes32(faultDisputeGameStateRoot)
+        // );
         // storage proof for FaultDisputeGame status (showing defender won)
 
-        // update L2WorldStates
+        proveStorage(
+            abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
+            // bytes.concat(bytes1(uint8(0xa0)), faultDisputeGameStatusStorage),
+            // bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(faultDisputeGameStatusStorage)),
+            faultDisputeGameStatusStorage,
+            faultDisputeGameStatusStorageProof,
+            bytes32(faultDisputeGameStateRoot)
+        );
+
+        // TODO Ned to check that status (extracted from faultDisputeGameRootClaimStorageProof) is defender wins
+
+        // TODO Add the Account Proof
+
+        // TODO Refactor fo use block instead of blockhash or outputIndex
 
         // provenL2States[l2WorldStateRoot] = l2LatestBlockHash;
     }
