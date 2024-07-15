@@ -37,12 +37,12 @@ contract Prover {
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
-    modifier onlyRouter() {
-        if(msg.sender != proverRouter) {
-            revert NotFromRouter();
-        }
-        _;
-    }
+    // modifier onlyRouter() {
+    //     if(msg.sender != proverRouter) {
+    //         revert NotFromRouter();
+    //     }
+    //     _;
+    // }
 
     constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress, address _proverRouter) {
         l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
@@ -87,7 +87,7 @@ contract Prover {
      * in that block corresponds to the block on the oracle contract, and that it represents a valid
      * state.
      */
-    function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public virtual {
+    function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public virtual{
         require(keccak256(rlpEncodedL1BlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
         bytes32 l1WorldStateRoot = bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedL1BlockData)[3]));
@@ -169,7 +169,7 @@ contract Prover {
         bytes calldata rlpEncodedInboxData,
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
-    ) public virtual onlyRouter {
+    ) public virtual {
         require(provenL2States[l2WorldStateRoot] > intentOutputIndex, "l2 state root not yet proven"); // intentOutputIndex can never be less than zero, so this always ensures the root was proven
 
         bytes32 messageMappingSlot = keccak256(

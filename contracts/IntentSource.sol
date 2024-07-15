@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 
 import "./interfaces/IIntentSource.sol";
 import "./ProverRouter.sol";
+import "./Prover.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -122,7 +123,7 @@ contract IntentSource is IIntentSource {
 
     function withdrawRewards(bytes32 _hash) external {
         Intent storage intent = intents[_hash];
-        address provenBy = ROUTER.fetchProvenIntents(block.chainid, _hash);
+        address provenBy = Prover(ROUTER.provers(block.chainid)).provenIntents(_hash);
         if (!intent.hasBeenWithdrawn) {
             if (
                 provenBy == msg.sender

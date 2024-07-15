@@ -42,55 +42,55 @@ contract TestProver is Prover {
         provenIntents[_hash] = _claimant;
     }
 
-    function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public override {
-        proveL1WorldStateData = rlpEncodedL1BlockData;
-    }
+    // function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) public override {
+    //     proveL1WorldStateData = rlpEncodedL1BlockData;
+    // }
 
-    function proveOutputRoot(
-        bytes32 l2WorldStateRoot,
-        bytes32 l2MessagePasserStateRoot,
-        bytes32 l2LatestBlockHash,
-        uint256 l2OutputIndex,
-        bytes[] calldata l1StorageProof,
-        bytes calldata rlpEncodedOutputOracleData,
-        bytes[] calldata l1AccountProof,
-        bytes32 l1WorldStateRoot
-    ) public override {
-        proveOutputRootData = ProveOutputRootData(l2WorldStateRoot,
-        l2MessagePasserStateRoot,
-        l2LatestBlockHash,
-        l2OutputIndex,
-        l1StorageProof,
-        rlpEncodedOutputOracleData,
-        l1AccountProof,
-        l1WorldStateRoot);
-    }
+    // function proveOutputRoot(
+    //     bytes32 l2WorldStateRoot,
+    //     bytes32 l2MessagePasserStateRoot,
+    //     bytes32 l2LatestBlockHash,
+    //     uint256 l2OutputIndex,
+    //     bytes[] calldata l1StorageProof,
+    //     bytes calldata rlpEncodedOutputOracleData,
+    //     bytes[] calldata l1AccountProof,
+    //     bytes32 l1WorldStateRoot
+    // ) public override {
+    //     proveOutputRootData = ProveOutputRootData(l2WorldStateRoot,
+    //     l2MessagePasserStateRoot,
+    //     l2LatestBlockHash,
+    //     l2OutputIndex,
+    //     l1StorageProof,
+    //     rlpEncodedOutputOracleData,
+    //     l1AccountProof,
+    //     l1WorldStateRoot);
+    // }
 
-    function proveIntent(
-        address claimant,
-        address inboxContract,
-        bytes32 intentHash,
-        uint256 intentOutputIndex,
-        bytes[] calldata l2StorageProof,
-        bytes calldata rlpEncodedInboxData,
-        bytes[] calldata l2AccountProof,
-        bytes32 l2WorldStateRoot
-    ) public override {
-        proveIntentData = ProveIntentData(claimant,
-        inboxContract,
-        intentHash,
-        intentOutputIndex,
-        l2StorageProof,
-        rlpEncodedInboxData,
-        l2AccountProof,
-        l2WorldStateRoot);
-    }
+    // function proveIntent(
+    //     address claimant,
+    //     address inboxContract,
+    //     bytes32 intentHash,
+    //     uint256 intentOutputIndex,
+    //     bytes[] calldata l2StorageProof,
+    //     bytes calldata rlpEncodedInboxData,
+    //     bytes[] calldata l2AccountProof,
+    //     bytes32 l2WorldStateRoot
+    // ) public override {
+    //     proveIntentData = ProveIntentData(claimant,
+    //     inboxContract,
+    //     intentHash,
+    //     intentOutputIndex,
+    //     l2StorageProof,
+    //     rlpEncodedInboxData,
+    //     l2AccountProof,
+    //     l2WorldStateRoot);
+    // }
 
-    function getProveOutputRootData() public view returns (ProveOutputRootData memory) {
-        return proveOutputRootData;
-    }
+    // function getProveOutputRootData() public view returns (ProveOutputRootData memory) {
+    //     return proveOutputRootData;
+    // }
 
-    function getProveIntentData() public view returns (ProveIntentData memory) {
-        return proveIntentData;
-    }
+    // function getProveIntentData() public view returns (ProveIntentData memory) {
+    //     return proveIntentData;
+    // }
 }
