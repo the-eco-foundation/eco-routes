@@ -183,8 +183,14 @@ contract Prover {
      * @param gameIndex the index of the Fault Dispute Game in the Dispute game factory
      * @param gameId Fault Dispute Game Identifier in the Dispute Game Factory
      * @param l1DisputeFaultGameStorageProof Dispute Game Factory Storage Proof
-     * @param rlpEncodedDisputeGameData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
-     * @param l1AccountProof accountProof from eth_getProof(L2OutputOracle, [], )
+     * @param rlpEncodedDisputeGameFactoryData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
+     * @param disputeGameFactoryAccountProof accountProof from DisputeGameFactory
+     * @param faultDisputeGameStateRoot Fault Dispute Game State Root
+     * @param faultDisputeGameRootClaimStorageProof Fault Dispute Game Storage Proof
+     * @param faultDisputeGameStatusStorage Fault Dispute Game Status Storage
+     * @param faultDisputeGameStatusStorageProof Fault Dispute GAme Status Storage Proof
+     * @param rlpEncodedFaultDisputeGameData Fault Dispute Game Game Data
+     * @param faultDisputeGameAccountProof Fault Dispuge Game Account Proof
      * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
      */
     function proveL2WorldStateCannon(
@@ -194,12 +200,14 @@ contract Prover {
         uint256 gameIndex,
         bytes32 gameId,
         bytes[] calldata l1DisputeFaultGameStorageProof,
-        bytes calldata rlpEncodedDisputeGameData,
-        bytes[] calldata l1AccountProof,
+        bytes calldata rlpEncodedDisputeGameFactoryData,
+        bytes[] calldata disputeGameFactoryAccountProof,
         bytes32 faultDisputeGameStateRoot,
         bytes[] calldata faultDisputeGameRootClaimStorageProof,
         bytes memory faultDisputeGameStatusStorage,
         bytes[] calldata faultDisputeGameStatusStorageProof,
+        bytes calldata rlpEncodedFaultDisputeGameData,
+        bytes[] calldata faultDisputeGameAccountProof,
         bytes32 l1WorldStateRoot
     ) public {
         // prove that the FaultDisputeGame was created by the Dispute Game Factory
@@ -217,10 +225,12 @@ contract Prover {
         bytes32 disputeGameFactoryStorageSlot =
             bytes32(abi.encode((uint256(keccak256(abi.encode(L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER))) + gameIndex)));
 
-        bytes memory disputeGameFactoryStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedDisputeGameData)[2]);
+        bytes memory disputeGameFactoryStateRoot =
+            RLPReader.readBytes(RLPReader.readList(rlpEncodedDisputeGameFactoryData)[2]);
 
         require(disputeGameFactoryStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
 
+        // TODO add back in after fixing deep in the stack error https://github.com/Cyfrin/foundry-full-course-cu/discussions/851
         proveStorage(
             abi.encodePacked(disputeGameFactoryStorageSlot),
             bytes.concat(bytes1(uint8(0x98)), gameID24),
@@ -229,14 +239,17 @@ contract Prover {
         );
 
         proveAccount(
-            abi.encodePacked(faultGameFactoryAddress), rlpEncodedDisputeGameData, l1AccountProof, l1WorldStateRoot
+            abi.encodePacked(faultGameFactoryAddress),
+            rlpEncodedDisputeGameFactoryData,
+            disputeGameFactoryAccountProof,
+            l1WorldStateRoot
         );
 
         // Prove that the FaultDispute game has been settled
         (uint32 gameType, uint64 timestamp, address faultDisputeGameProxyAddress) = unpack(gameId);
-        console.log("gameType", gameType);
-        console.log("timestamp", timestamp);
-        console.log("faultDisputeGameProxyAddress", faultDisputeGameProxyAddress);
+        // console.log("gameType", gameType);
+        // console.log("timestamp", timestamp);
+        // console.log("faultDisputeGameProxyAddress", faultDisputeGameProxyAddress);
 
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
         // TODO fix too deep in the stack error https://github.com/Cyfrin/foundry-full-course-cu/discussions/851
@@ -247,20 +260,26 @@ contract Prover {
         //     faultDisputeGameRootClaimStorageProof,
         //     bytes32(faultDisputeGameStateRoot)
         // );
-        // storage proof for FaultDisputeGame status (showing defender won)
 
-        proveStorage(
-            abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
-            // bytes.concat(bytes1(uint8(0xa0)), faultDisputeGameStatusStorage),
-            // bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(faultDisputeGameStatusStorage)),
-            faultDisputeGameStatusStorage,
-            faultDisputeGameStatusStorageProof,
-            bytes32(faultDisputeGameStateRoot)
-        );
+        // storage proof for FaultDisputeGame status (showing defender won)
+        // proveStorage(
+        //     abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
+        //     // bytes.concat(bytes1(uint8(0xa0)), faultDisputeGameStatusStorage),
+        //     // bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(faultDisputeGameStatusStorage)),
+        //     faultDisputeGameStatusStorage,
+        //     faultDisputeGameStatusStorageProof,
+        //     bytes32(faultDisputeGameStateRoot)
+        // );
 
         // TODO Ned to check that status (extracted from faultDisputeGameRootClaimStorageProof) is defender wins
 
-        // TODO Add the Account Proof
+        // TODO Add the Account Proof for FaultDisputeGameFactory
+        proveAccount(
+            abi.encodePacked(faultDisputeGameProxyAddress),
+            rlpEncodedFaultDisputeGameData,
+            faultDisputeGameAccountProof,
+            l1WorldStateRoot
+        );
 
         // TODO Refactor fo use block instead of blockhash or outputIndex
 

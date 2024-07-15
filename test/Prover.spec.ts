@@ -495,7 +495,7 @@ describe('Prover Test', () => {
     const cannonRootClaimFromProver = await cannonProver.generateOutputRoot(
       0,
       t.cannon.l2EndBatchBlockStateRoot,
-      t.cannon.l2MessagePasserProofStorageHash,
+      t.cannon.l2MessagePasserStateRoot,
       t.cannon.l2EndBatchBlockHash,
     )
     const cannonRootClaim = solidityPackedKeccak256(
@@ -503,7 +503,7 @@ describe('Prover Test', () => {
       [
         0,
         t.cannon.l2EndBatchBlockStateRoot,
-        t.cannon.l2MessagePasserProofStorageHash,
+        t.cannon.l2MessagePasserStateRoot,
         t.cannon.l2EndBatchBlockHash,
       ],
     )
@@ -596,7 +596,7 @@ describe('Prover Test', () => {
     // Update this after code complete in Prover.sol
     await cannonProver.proveL2WorldStateCannon(
       t.cannon.l2EndBatchBlockStateRoot,
-      t.cannon.l2MessagePasserProofStorageHash,
+      t.cannon.l2MessagePasserStateRoot,
       t.cannon.l2EndBatchBlockHash,
       t.cannon.gameIndex,
       // encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
@@ -608,10 +608,12 @@ describe('Prover Test', () => {
       t.cannon.disputeGameFactoryAccountProof,
       t.cannon.faultDisputeGameStateRoot,
       t.cannon.faultDisputeGameRootClaimStorageProof,
-      encodeRlp(
-        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameStatusStorage)),
-      ),
+      t.cannon.faultDisputeGameStatusStorage,
       t.cannon.faultDisputeGameStatusStorageProof,
+      await cannonProver.rlpEncodeDataLibList(
+        t.cannon.faultDisputeGameContractData,
+      ),
+      t.cannon.faultDisputeGameAccountProof,
       t.cannon.layer1WorldStateRoot,
     )
 

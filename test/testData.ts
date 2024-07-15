@@ -16,7 +16,7 @@ export default {
     l2EndBatchBlock: '0xd966dc',
     l2EndBatchBlockStateRoot:
       '0x58f04744969e06f4884845a2a251c7de505707566410cf0634297509cd318613',
-    l2MessagePasserProofStorageHash:
+    l2MessagePasserStateRoot:
       '0xf7d1ea76d5aec1b7c929bb3a44f839ff1f2778cc666e8ef2cfed30aed9d88fee',
     l2EndBatchBlockHash:
       '0xc99b326ed404dd9e0b1d7d6a2734c2a53dd7c9d762887983f13f0ad058db82d9',
