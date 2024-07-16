@@ -6,6 +6,7 @@ import {
   MockL1Block__factory,
   ProverRouter__factory,
   Prover__factory,
+  router,
 } from '../typechain-types'
 
 // Albert Original
@@ -167,6 +168,7 @@ describe('Prover Test', () => {
     prover = await deploy(alice, Prover__factory, [
       await blockDataSource.getAddress(),
       L1_OUTPUT_ORACLE_ADDRESS,
+      proverRouter,
     ])
   })
 
