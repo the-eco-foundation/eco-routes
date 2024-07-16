@@ -563,6 +563,7 @@ describe('Prover Test', () => {
     )
 
     // Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block
+    console.log('FaultDisputeGame rootClaim')
     await cannonProver.proveStorage(
       t.cannon.faultDisputeGameStatusStorageSlot,
       encodeRlp(
@@ -584,6 +585,7 @@ describe('Prover Test', () => {
     )
 
     // Prove account showing that the above ProveStorages are for a valid WorldState
+    console.log('In test about to prove faultDisputgame defender wins')
     await cannonProver.proveAccount(
       t.cannon.faultDisputeGameAddress,
       await cannonProver.rlpEncodeDataLibList(
@@ -603,6 +605,7 @@ describe('Prover Test', () => {
       l2MessagePasserStateRoot: t.cannon.l2MessagePasserStateRoot,
       l2LatestBlockHash: t.cannon.l2EndBatchBlockHash,
       gameIndex: t.cannon.gameIndex,
+      // gameId: toBeHex(stripZerosLeft(t.cannon.gameId)),
       gameId: t.cannon.gameId,
       l1DisputeFaultGameStorageProof: t.cannon.disputeGameFactoryStorageProof,
       rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
@@ -617,7 +620,10 @@ describe('Prover Test', () => {
       faultDisputeGameStateRoot: t.cannon.faultDisputeGameStateRoot,
       faultDisputeGameRootClaimStorageProof:
         t.cannon.faultDisputeGameRootClaimStorageProof,
-      faultDisputeGameStatusStorage: t.cannon.faultDisputeGameStatusStorage,
+      // faultDisputeGameStatusStorage: t.cannon.faultDisputeGameStatusStorage,
+      faultDisputeGameStatusStorage: encodeRlp(
+        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameStatusStorage)),
+      ),
       faultDisputeGameStatusStorageProof:
         t.cannon.faultDisputeGameStatusStorageProof,
       rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
