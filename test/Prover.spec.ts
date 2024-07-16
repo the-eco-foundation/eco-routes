@@ -593,27 +593,60 @@ describe('Prover Test', () => {
       t.cannon.layer1WorldStateRoot,
     )
 
+    const RLPEncodedDisputeGameFactoryData =
+      await cannonProver.rlpEncodeDataLibList(
+        t.cannon.disputeGameFactoryContractData,
+      )
+
+    const disputeGameFactoryProofData = {
+      l2WorldStateRoot: t.cannon.l2EndBatchBlockStateRoot,
+      l2MessagePasserStateRoot: t.cannon.l2MessagePasserStateRoot,
+      l2LatestBlockHash: t.cannon.l2EndBatchBlockHash,
+      gameIndex: t.cannon.gameIndex,
+      gameId: t.cannon.gameId,
+      l1DisputeFaultGameStorageProof: t.cannon.disputeGameFactoryStorageProof,
+      rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
+      disputeGameFactoryAccountProof: t.cannon.disputeGameFactoryAccountProof,
+    }
+
+    const RLPEncodedFaultDisputeGameData =
+      await cannonProver.rlpEncodeDataLibList(
+        t.cannon.faultDisputeGameContractData,
+      )
+    const faultDisputeGameProofData = {
+      faultDisputeGameStateRoot: t.cannon.faultDisputeGameStateRoot,
+      faultDisputeGameRootClaimStorageProof:
+        t.cannon.faultDisputeGameRootClaimStorageProof,
+      faultDisputeGameStatusStorage: t.cannon.faultDisputeGameStatusStorage,
+      faultDisputeGameStatusStorageProof:
+        t.cannon.faultDisputeGameStatusStorageProof,
+      rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
+      faultDisputeGameAccountProof: t.cannon.faultDisputeGameAccountProof,
+    }
     // Update this after code complete in Prover.sol
     await cannonProver.proveL2WorldStateCannon(
       t.cannon.l2EndBatchBlockStateRoot,
-      t.cannon.l2MessagePasserStateRoot,
-      t.cannon.l2EndBatchBlockHash,
-      t.cannon.gameIndex,
-      // encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
-      t.cannon.gameId,
-      t.cannon.disputeGameFactoryStorageProof,
-      await cannonProver.rlpEncodeDataLibList(
-        t.cannon.disputeGameFactoryContractData,
-      ),
-      t.cannon.disputeGameFactoryAccountProof,
-      t.cannon.faultDisputeGameStateRoot,
-      t.cannon.faultDisputeGameRootClaimStorageProof,
-      t.cannon.faultDisputeGameStatusStorage,
-      t.cannon.faultDisputeGameStatusStorageProof,
-      await cannonProver.rlpEncodeDataLibList(
-        t.cannon.faultDisputeGameContractData,
-      ),
-      t.cannon.faultDisputeGameAccountProof,
+      disputeGameFactoryProofData,
+      faultDisputeGameProofData,
+      // t.cannon.l2EndBatchBlockStateRoot,
+      // t.cannon.l2MessagePasserStateRoot,
+      // t.cannon.l2EndBatchBlockHash,
+      // t.cannon.gameIndex,
+      // // encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
+      // t.cannon.gameId,
+      // t.cannon.disputeGameFactoryStorageProof,
+      // await cannonProver.rlpEncodeDataLibList(
+      //   t.cannon.disputeGameFactoryContractData,
+      // ),
+      // t.cannon.disputeGameFactoryAccountProof,
+      // t.cannon.faultDisputeGameStateRoot,
+      // t.cannon.faultDisputeGameRootClaimStorageProof,
+      // t.cannon.faultDisputeGameStatusStorage,
+      // t.cannon.faultDisputeGameStatusStorageProof,
+      // await cannonProver.rlpEncodeDataLibList(
+      //   t.cannon.faultDisputeGameContractData,
+      // ),
+      // t.cannon.faultDisputeGameAccountProof,
       t.cannon.layer1WorldStateRoot,
     )
 
