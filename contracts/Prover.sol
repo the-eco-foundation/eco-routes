@@ -37,13 +37,6 @@ contract Prover {
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
-    // modifier onlyRouter() {
-    //     if(msg.sender != proverRouter) {
-    //         revert NotFromRouter();
-    //     }
-    //     _;
-    // }
-
     constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress, address _proverRouter) {
         l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
         l1OutputOracleAddress = _l1OutputOracleAddress;
