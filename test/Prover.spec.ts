@@ -656,6 +656,8 @@ describe('Prover Test', () => {
       t.cannon.layer1WorldStateRoot,
     )
 
+    await cannonProver.assembleGameStatusStorage()
+
     // expect((await prover.provenIntents(INTENT_HASH)) === FILLER).to.be.true
   })
 })

@@ -112,6 +112,22 @@ contract Prover {
         return gameStatus;
     }
 
+    function assembleGameStatusStorage() public pure returns (bytes memory gameStausStorageSlot) {
+        uint64 createdAt = 1720297992;
+        uint64 resolvedAt = 1720600452;
+        uint8 gameStatus = 2;
+        bool initialized = true;
+        bool l2BlockNumberChallenged = false;
+        // bytes13 filler = "0000000000000";
+        bytes13 filler = 0;
+        gameStausStorageSlot =
+            abi.encodePacked(filler, l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt);
+        // gameStausStorageSlot = abi.encode
+        console.log("Game Satus Storage Calculation");
+        console.log("0x0000000000000000000000000000010200000000668e4784000000006689aa08");
+        console.logBytes(gameStausStorageSlot);
+    }
+
     /**
      * @notice validates input L1 block state against the L1 oracle contract.
      * @param rlpEncodedL1BlockData properly encoded L1 block data
