@@ -98,6 +98,15 @@ export default {
     ],
     faultDisputeGameStatusStorage:
       '0x0000000000000000000000000000010200000000668e4784000000006689aa08',
+    faultDisputGameStatusStorageFields: {
+      // Note the fields are inserted into the slot data in reverse order
+      createdAt: 1720297992, // uin64 offset 0: value 000000006689aa08
+      resolvedAt: 1720600452, // uint64 offset 8 : value 00000000668e4784
+      gameStatus: 2, // enum GameStatus offset 16: value 02
+      initialized: 1, // bool offset 17: value 01 (true)
+      l2BlockNumberChallenged: 0, // bool offset 18 value 00 (false)
+      filler: 0x00000000000000000000000000, // 13 bytes
+    },
     faultDisputeGameStatusStorageSlot:
       '0x0000000000000000000000000000000000000000000000000000000000000000',
     faultDisputeGameStatusStorageProof: [

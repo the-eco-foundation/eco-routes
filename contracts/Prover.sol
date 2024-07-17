@@ -100,6 +100,18 @@ contract Prover {
         }
     }
 
+    function getGameStatus(bytes memory _gameStatusStorage) public pure returns (bytes16 gameStatus) {
+        // gameStatus = _gameStatusStorage[0:32];
+        console.log("In getGameStatus");
+        assembly {
+            gameStatus := shr(64, _gameStatusStorage)
+        }
+        console.logBytes(_gameStatusStorage);
+        console.logBytes16(gameStatus);
+
+        return gameStatus;
+    }
+
     /**
      * @notice validates input L1 block state against the L1 oracle contract.
      * @param rlpEncodedL1BlockData properly encoded L1 block data
@@ -253,6 +265,8 @@ contract Prover {
         (uint32 gameType, uint64 timestamp, address _faultDisputeGameProxyAddress) =
             unpack(disputeGameFactoryProofData.gameId);
 
+        console.log("_faultDisputeGameProxyAddress: ", _faultDisputeGameProxyAddress);
+
         return (_faultDisputeGameProxyAddress, _rootClaim);
     }
 
@@ -260,7 +274,7 @@ contract Prover {
     function _faultDisputeGameIsResolved(
         bytes32 rootClaim,
         address faultDisputeGameProxyAddress,
-        FaultDisputeGameProofData calldata faultDisputeGameProofData,
+        FaultDisputeGameProofData memory faultDisputeGameProofData,
         // bytes32 faultDisputeGameStateRoot,
         // bytes[] calldata faultDisputeGameRootClaimStorageProof,
         // bytes memory faultDisputeGameStatusStorage,
@@ -297,6 +311,19 @@ contract Prover {
 
         // TODO Ned to check that status (extracted from faultDisputeGameRootClaimStorageProof) is defender wins
 
+        bytes memory gameSatusStorage = faultDisputeGameProofData.faultDisputeGameStatusStorage;
+        bytes16 gameStatus = getGameStatus(abi.encodePacked(faultDisputeGameProofData.faultDisputeGameStatusStorage));
+
+        // gameStatus = gameSatusStorage[0:2];
+
+        // assembly {
+        //     gameStatus := shl(0, gameSatusStorage)
+        //     // gameStatus := gameSatusStorage
+        // }
+        console.log("gameStatus");
+        console.logBytes(gameSatusStorage);
+        console.logBytes16(gameStatus);
+
         // TODO Add the Account Proof for FaultDisputeGameFactory
         proveAccount(
             abi.encodePacked(faultDisputeGameProxyAddress),
@@ -317,7 +344,7 @@ contract Prover {
     function proveL2WorldStateCannon(
         bytes32 l2WorldStateRoot,
         DisputeGameFactoryProofData calldata disputeGameFactoryProofData,
-        FaultDisputeGameProofData calldata faultDisputeGameProofData,
+        FaultDisputeGameProofData memory faultDisputeGameProofData,
         // bytes32 l2MessagePasserStateRoot,
         // bytes32 l2LatestBlockHash,
         // uint256 gameIndex,
