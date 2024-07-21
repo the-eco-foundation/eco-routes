@@ -321,7 +321,6 @@ describe('Prover Test', () => {
     // l2WorldStateRoot = l2EndBatchBlockData.stateRoot, 0x0df68f220b56ca051718e18e243769fae3296859243b8cf391b9198314f7eef8
     // l2MessagePasserStateRoot = l2MesagePasserProof.storageHash, 0x0dad8f82574fb890e31def513e65431fae8b7d253769c7b8a8f89d6f2a06e79c
     // l2LatestBlockHash = l2EndBatchBlockData.hash 0x6e423d26e1beba75c5d8d0f02ad9c8ae7e7085f16419b6fa4a3b9d726e1fe1bc
-    console.log('Testing original generateOutputRoot')
     const mainnetOutputRootOptimism = solidityPackedKeccak256(
       ['uint256', 'bytes32', 'bytes32', 'bytes32'],
       [
@@ -512,8 +511,6 @@ describe('Prover Test', () => {
       t.cannon.layer2.disputeGameFactory.faultDisputeGame.rootClaim,
     )
 
-    // console.log('encodeRlp(t.cannon.gameId): ', encodeRlp(t.cannon.gameId))
-
     expect(
       toBeHex(
         stripZerosLeft(
@@ -548,17 +545,18 @@ describe('Prover Test', () => {
       t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
     )
 
-    console.log('gameUnpacked: ', gameUnpacked)
-    console.log(
-      'encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))): ',
-      encodeRlp(
-        toBeHex(
-          stripZerosLeft(
-            t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
-          ),
-        ),
-      ),
-    )
+    // TODO: Replace with expected test
+    // console.log('gameUnpacked: ', gameUnpacked)
+    // console.log(
+    //   'encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))): ',
+    //   encodeRlp(
+    //     toBeHex(
+    //       stripZerosLeft(
+    //         t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
+    //       ),
+    //     ),
+    //   ),
+    // )
 
     // Prove storage showing the DisputeGameFactory created the FaultDisputGame
     await cannonProver.proveStorage(
@@ -586,7 +584,6 @@ describe('Prover Test', () => {
     )
 
     // Prove storage showing the FaultDisputeGame has a status which shows the Defender Won
-    console.log('FaultDisputeGame Status')
     await cannonProver.proveStorage(
       t.cannon.layer2.faultDisputeGame.status.storageSlot,
       encodeRlp(
@@ -616,7 +613,6 @@ describe('Prover Test', () => {
     )
 
     // Prove account showing that the above ProveStorages are for a valid WorldState
-    console.log('In test about to prove faultDisputgame defender wins')
     await cannonProver.proveAccount(
       t.cannon.layer2.faultDisputeGame.address,
       await cannonProver.rlpEncodeDataLibList(

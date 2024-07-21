@@ -5,7 +5,6 @@ import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/tr
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
-import "hardhat/console.sol";
 
 contract Prover {
     uint16 public constant NONCE_PACKING = 1;
@@ -53,12 +52,6 @@ contract Prover {
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
-        console.log("In prove Storage");
-        console.logBytes(_key);
-        console.logBytes(_val);
-        // console.logBytes(_proof);
-        console.logBytes32(_root);
-        console.log("End of ProveStorageParameters");
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
     }
 
@@ -100,18 +93,6 @@ contract Prover {
         }
     }
 
-    // function getGameStatus(bytes memory _gameStatusStorage) public pure returns (bytes16 gameStatus) {
-    //     // gameStatus = _gameStatusStorage[0:32];
-    //     console.log("In getGameStatus");
-    //     assembly {
-    //         gameStatus := shr(64, _gameStatusStorage)
-    //     }
-    //     console.logBytes(_gameStatusStorage);
-    //     console.logBytes16(gameStatus);
-
-    //     return gameStatus;
-    // }
-
     /// @notice Encode integer in big endian binary form with no leading zeroes.
     /// @param _x The integer to encode.
     /// @return out_ RLP encoded bytes.
@@ -136,19 +117,17 @@ contract Prover {
         uint64 resolvedAt,
         uint8 gameStatus,
         bool initialized,
-        bool l2BlockNumberChallenged,
-        bytes13 filler
-    ) public pure returns (bytes memory gameStausStorageSlot) {
-        gameStausStorageSlot =
-            abi.encodePacked(filler, l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt);
-        // gameStausStorageSlot = abi.encode
-        console.log("Game Satus Storage Calculation");
-        console.log("0x0000000000000000000000000000010200000000668e4784000000006689aa08");
-        console.logBytes(gameStausStorageSlot);
-        bytes memory gameStausStorageSlotRLP;
+        bool l2BlockNumberChallenged
+    )
+        // bytes13 filler
+        public
+        pure
+        returns (bytes memory gameStausStorageSlotRLP)
+    {
+        // The if test is to remove leaing zeroes from the bytes
+        // Assumption is that initialized is always true
         if (l2BlockNumberChallenged) {
             gameStausStorageSlotRLP = bytes.concat(
-                // bytes1(uint8(0x92)),
                 RLPWriter.writeBytes(
                     abi.encodePacked(
                         abi.encodePacked(l2BlockNumberChallenged),
@@ -161,7 +140,6 @@ contract Prover {
             );
         } else {
             gameStausStorageSlotRLP = bytes.concat(
-                // bytes1(uint8(0x92)),
                 RLPWriter.writeBytes(
                     abi.encodePacked(
                         // abi.encodePacked(l2BlockNumberChallenged),
@@ -173,39 +151,6 @@ contract Prover {
                 )
             );
         }
-        // RLPWriter.writeBytes(_toBinary(resolvedAt)),
-        // RLPWriter.writeBytes(_toBinary(createdAt))
-
-        console.log("Game Satus Storage RLP");
-        console.log("0x92010200000000668e4784000000006689aa08");
-        console.logBytes(gameStausStorageSlotRLP);
-        gameStausStorageSlot = gameStausStorageSlotRLP;
-
-        // gameStausStorageSlot = RLPWriter.writeList(
-        //     [
-        //         // RLPWriter.writeBytes(filler),
-        //         RLPWriter.writeBool(l2BlockNumberChallenged),
-        //         RLPWriter.writeBool(initialized),
-        //         RLPWriter.writeUint(gameStatus),
-        //         RLPWriter.writeUint(resolvedAt),
-        //         RLPWriter.writeUint(createdAt)
-        //     ]
-        // );
-        // bytes1[] memory gameStausStorageSlot1 =
-        //     abi.encodePacked(filler, l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt);
-
-        // gameStausStorageSlot = rlpEncodeDataLibList(bytes(gameStausStorageSlot));
-
-        // bytes memory gameStausStorageSlotNoFiller =
-        //     abi.encodePacked(l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt);
-        // bytes32 gameStorageSloteBytes32 = bytes32(gameStausStorageSlotNoFiller);
-        // console.logBytes(gameStausStorageSlotNoFiller);
-        // bytes32 gameStorageSloteBytes32;
-        // assembly {
-        //     // gameStorageSloteBytes32 := add(gameStausStorageSlotNoFiller, "00000000000000000000000000000000")
-        //     gameStorageSloteBytes32 := gameStausStorageSlotNoFiller
-        // }
-        // console.logBytes32(gameStorageSloteBytes32);
     }
 
     /**
@@ -279,7 +224,6 @@ contract Prover {
     }
 
     struct DisputeGameFactoryProofData {
-        // bytes32 l2WorldStateRoot;
         bytes32 l2MessagePasserStateRoot;
         bytes32 l2LatestBlockHash;
         uint256 gameIndex;
@@ -295,13 +239,12 @@ contract Prover {
         uint8 gameStatus;
         bool initialized;
         bool l2BlockNumberChallenged;
-        bytes13 filler;
     }
+    // bytes13 filler;
 
     struct FaultDisputeGameProofData {
         bytes32 faultDisputeGameStateRoot;
         bytes[] faultDisputeGameRootClaimStorageProof;
-        // bytes faultDisputeGameStatusStorage;
         FaultDisputeGameStatusSlotData faultDisputeGameStatusSlotData;
         bytes[] faultDisputeGameStatusStorageProof;
         bytes rlpEncodedFaultDisputeGameData;
@@ -341,8 +284,6 @@ contract Prover {
 
         require(disputeGameFactoryStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
 
-        // TODO add back in after fixing deep in the stack error https://github.com/Cyfrin/foundry-full-course-cu/discussions/851
-        console.log("about to prove disputeGameFactoryStorageSlot");
         proveStorage(
             abi.encodePacked(disputeGameFactoryStorageSlot),
             bytes.concat(bytes1(uint8(0x98)), gameId24),
@@ -357,43 +298,25 @@ contract Prover {
             l1WorldStateRoot
         );
 
-        (uint32 gameType, uint64 timestamp, address _faultDisputeGameProxyAddress) =
-            unpack(disputeGameFactoryProofData.gameId);
-
-        console.log("_faultDisputeGameProxyAddress: ", _faultDisputeGameProxyAddress);
+        (,, address _faultDisputeGameProxyAddress) = unpack(disputeGameFactoryProofData.gameId);
 
         return (_faultDisputeGameProxyAddress, _rootClaim);
     }
 
-    // TODO fix stack to deep issue https://soliditydeveloper.com/stacktoodeep
     function _faultDisputeGameIsResolved(
         bytes32 rootClaim,
         address faultDisputeGameProxyAddress,
         FaultDisputeGameProofData memory faultDisputeGameProofData,
-        // bytes32 faultDisputeGameStateRoot,
-        // bytes[] calldata faultDisputeGameRootClaimStorageProof,
-        // bytes memory faultDisputeGameStatusStorage,
-        // bytes[] calldata faultDisputeGameStatusStorageProof,
-        // bytes calldata rlpEncodedFaultDisputeGameData,
-        // bytes[] calldata faultDisputeGameAccountProof,
         bytes32 l1WorldStateRoot
     ) public view {
-        // require(disputeGameFactoryStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
         require(
             faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
         ); // ensure lfaultDisputeGame is resolved
         // Prove that the FaultDispute game has been settled
-        // (uint32 gameType, uint64 timestamp, address faultDisputeGameProxyAddress) = unpack(gameId);
-        // console.log("gameType", gameType);
-        // console.log("timestamp", timestamp);
-        // console.log("faultDisputeGameProxyAddress", faultDisputeGameProxyAddress);
-
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
-        // TODO fix too deep in the stack error https://github.com/Cyfrin/foundry-full-course-cu/discussions/851
         proveStorage(
             abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT)),
             bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(rootClaim)),
-            // faultDisputeGameStatusStorageProof,
             faultDisputeGameProofData.faultDisputeGameRootClaimStorageProof,
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
         );
@@ -403,49 +326,18 @@ contract Prover {
             faultDisputeGameProofData.faultDisputeGameStatusSlotData.resolvedAt,
             faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus,
             faultDisputeGameProofData.faultDisputeGameStatusSlotData.initialized,
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.l2BlockNumberChallenged,
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.filler
+            faultDisputeGameProofData.faultDisputeGameStatusSlotData.l2BlockNumberChallenged
         );
+        // faultDisputeGameProofData.faultDisputeGameStatusSlotData.filler
         // storage proof for FaultDisputeGame status (showing defender won)
         proveStorage(
             abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
             faultDisputeGameStatusStorage,
-            // bytes.concat(bytes1(uint8(0xa0)), faultDisputeGameStatusStorage),
-            // bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(faultDisputeGameStatusStorage)),
-            // bytes.concat(bytes1(uint8(0xa0)), faultDisputeGameStatusStoragePacked),
-            // bytes.concat(
-            //     bytes1(uint8(0x92)),
-            //     bytes29(
-            //         abi.encodePacked(
-            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.l2BlockNumberChallenged,
-            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.initialized,
-            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus,
-            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.resolvedAt,
-            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.createdAt
-            //         )
-            //     )
-            // ),
-            // faultDisputeGameStatusStoragePacked,
             faultDisputeGameProofData.faultDisputeGameStatusStorageProof,
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
         );
 
-        // TODO Ned to check that status (extracted from faultDisputeGameRootClaimStorageProof) is defender wins
-
-        // bytes memory gameSatusStorage = faultDisputeGameProofData.faultDisputeGameStatusStorage;
-        // bytes16 gameStatus = getGameStatus(abi.encodePacked(faultDisputeGameProofData.faultDisputeGameStatusStorage));
-
-        // gameStatus = gameSatusStorage[0:2];
-
-        // assembly {
-        //     gameStatus := shl(0, gameSatusStorage)
-        //     // gameStatus := gameSatusStorage
-        // }
-        // console.log("gameStatus");
-        // console.logBytes(gameSatusStorage);
-        // console.logBytes16(gameStatus);
-
-        // TODO Add the Account Proof for FaultDisputeGameFactory
+        // The Account Proof for FaultDisputeGameFactory
         proveAccount(
             abi.encodePacked(faultDisputeGameProxyAddress),
             faultDisputeGameProofData.rlpEncodedFaultDisputeGameData,
@@ -466,19 +358,6 @@ contract Prover {
         bytes32 l2WorldStateRoot,
         DisputeGameFactoryProofData calldata disputeGameFactoryProofData,
         FaultDisputeGameProofData memory faultDisputeGameProofData,
-        // bytes32 l2MessagePasserStateRoot,
-        // bytes32 l2LatestBlockHash,
-        // uint256 gameIndex,
-        // bytes32 gameId,
-        // bytes[] calldata l1DisputeFaultGameStorageProof,
-        // bytes calldata rlpEncodedDisputeGameFactoryData,
-        // bytes[] calldata disputeGameFactoryAccountProof,
-        // bytes32 faultDisputeGameStateRoot,
-        // bytes[] calldata faultDisputeGameRootClaimStorageProof,
-        // bytes memory faultDisputeGameStatusStorage,
-        // bytes[] calldata faultDisputeGameStatusStorageProof,
-        // bytes calldata rlpEncodedFaultDisputeGameData,
-        // bytes[] calldata faultDisputeGameAccountProof,
         bytes32 l1WorldStateRoot
     ) public {
         // prove that the FaultDisputeGame was created by the Dispute Game Factory
@@ -487,40 +366,16 @@ contract Prover {
         bytes32 rootClaim;
         address faultDisputeGameProxyAddress;
 
-        {
-            (faultDisputeGameProxyAddress, rootClaim) = _faultDisputeGameFromFactory(
-                l2WorldStateRoot,
-                disputeGameFactoryProofData,
-                // l2WorldStateRoot,
-                // l2MessagePasserStateRoot,
-                // l2LatestBlockHash,
-                // gameIndex,
-                // gameId,
-                // l1DisputeFaultGameStorageProof,
-                // rlpEncodedDisputeGameFactoryData,
-                // disputeGameFactoryAccountProof,
-                l1WorldStateRoot
-            );
-        }
+        (faultDisputeGameProxyAddress, rootClaim) =
+            _faultDisputeGameFromFactory(l2WorldStateRoot, disputeGameFactoryProofData, l1WorldStateRoot);
 
-        {
-            _faultDisputeGameIsResolved(
-                rootClaim,
-                faultDisputeGameProxyAddress,
-                faultDisputeGameProofData,
-                // faultDisputeGameStateRoot,
-                // faultDisputeGameRootClaimStorageProof,
-                // faultDisputeGameStatusStorage,
-                // faultDisputeGameStatusStorageProof,
-                // rlpEncodedFaultDisputeGameData,
-                // faultDisputeGameAccountProof,
-                l1WorldStateRoot
-            );
-        }
+        _faultDisputeGameIsResolved(
+            rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot
+        );
 
         // TODO Refactor fo use block instead of blockhash or outputIndex
 
-        // provenL2States[l2WorldStateRoot] = l2LatestBlockHash;
+        // provenL2States[l2WorldStateRoot] = disputeGameFactoryProofData.l2LatestBlockHash;
     }
 
     /**
