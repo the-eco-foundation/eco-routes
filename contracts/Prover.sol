@@ -100,42 +100,112 @@ contract Prover {
         }
     }
 
-    function getGameStatus(bytes memory _gameStatusStorage) public pure returns (bytes16 gameStatus) {
-        // gameStatus = _gameStatusStorage[0:32];
-        console.log("In getGameStatus");
-        assembly {
-            gameStatus := shr(64, _gameStatusStorage)
-        }
-        console.logBytes(_gameStatusStorage);
-        console.logBytes16(gameStatus);
+    // function getGameStatus(bytes memory _gameStatusStorage) public pure returns (bytes16 gameStatus) {
+    //     // gameStatus = _gameStatusStorage[0:32];
+    //     console.log("In getGameStatus");
+    //     assembly {
+    //         gameStatus := shr(64, _gameStatusStorage)
+    //     }
+    //     console.logBytes(_gameStatusStorage);
+    //     console.logBytes16(gameStatus);
 
-        return gameStatus;
+    //     return gameStatus;
+    // }
+
+    /// @notice Encode integer in big endian binary form with no leading zeroes.
+    /// @param _x The integer to encode.
+    /// @return out_ RLP encoded bytes.
+    function _toBinary(uint256 _x) private pure returns (bytes memory out_) {
+        bytes memory b = abi.encodePacked(_x);
+
+        uint256 i = 0;
+        for (; i < 32; i++) {
+            if (b[i] != 0) {
+                break;
+            }
+        }
+
+        out_ = new bytes(32 - i);
+        for (uint256 j = 0; j < out_.length; j++) {
+            out_[j] = b[i++];
+        }
     }
 
-    function assembleGameStatusStorage() public pure returns (bytes memory gameStausStorageSlot) {
-        uint64 createdAt = 1720297992;
-        uint64 resolvedAt = 1720600452;
-        uint8 gameStatus = 2;
-        bool initialized = true;
-        bool l2BlockNumberChallenged = false;
-        // bytes13 filler = "0000000000000";
-        bytes13 filler = 0;
+    function assembleGameStatusStorage(
+        uint64 createdAt,
+        uint64 resolvedAt,
+        uint8 gameStatus,
+        bool initialized,
+        bool l2BlockNumberChallenged,
+        bytes13 filler
+    ) public pure returns (bytes memory gameStausStorageSlot) {
         gameStausStorageSlot =
             abi.encodePacked(filler, l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt);
         // gameStausStorageSlot = abi.encode
         console.log("Game Satus Storage Calculation");
         console.log("0x0000000000000000000000000000010200000000668e4784000000006689aa08");
         console.logBytes(gameStausStorageSlot);
-        bytes memory gameStausStorageSlotNoFiller =
-            abi.encodePacked(l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt);
-        // bytes32 gameStorageSloteBytes32 = bytes32(gameStausStorageSlotNoFiller);
-        console.logBytes(gameStausStorageSlotNoFiller);
-        bytes32 gameStorageSloteBytes32;
-        assembly {
-            // gameStorageSloteBytes32 := add(gameStausStorageSlotNoFiller, "00000000000000000000000000000000")
-            gameStorageSloteBytes32 := gameStausStorageSlotNoFiller
+        bytes memory gameStausStorageSlotRLP;
+        if (l2BlockNumberChallenged) {
+            gameStausStorageSlotRLP = bytes.concat(
+                // bytes1(uint8(0x92)),
+                RLPWriter.writeBytes(
+                    abi.encodePacked(
+                        abi.encodePacked(l2BlockNumberChallenged),
+                        abi.encodePacked(initialized),
+                        abi.encodePacked(gameStatus),
+                        abi.encodePacked(resolvedAt),
+                        abi.encodePacked(createdAt)
+                    )
+                )
+            );
+        } else {
+            gameStausStorageSlotRLP = bytes.concat(
+                // bytes1(uint8(0x92)),
+                RLPWriter.writeBytes(
+                    abi.encodePacked(
+                        // abi.encodePacked(l2BlockNumberChallenged),
+                        abi.encodePacked(initialized),
+                        abi.encodePacked(gameStatus),
+                        abi.encodePacked(resolvedAt),
+                        abi.encodePacked(createdAt)
+                    )
+                )
+            );
         }
-        console.logBytes32(gameStorageSloteBytes32);
+        // RLPWriter.writeBytes(_toBinary(resolvedAt)),
+        // RLPWriter.writeBytes(_toBinary(createdAt))
+
+        console.log("Game Satus Storage RLP");
+        console.log("0x92010200000000668e4784000000006689aa08");
+        console.logBytes(gameStausStorageSlotRLP);
+        gameStausStorageSlot = gameStausStorageSlotRLP;
+
+        // gameStausStorageSlot = RLPWriter.writeList(
+        //     [
+        //         // RLPWriter.writeBytes(filler),
+        //         RLPWriter.writeBool(l2BlockNumberChallenged),
+        //         RLPWriter.writeBool(initialized),
+        //         RLPWriter.writeUint(gameStatus),
+        //         RLPWriter.writeUint(resolvedAt),
+        //         RLPWriter.writeUint(createdAt)
+        //     ]
+        // );
+        // bytes1[] memory gameStausStorageSlot1 =
+        //     abi.encodePacked(filler, l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt);
+
+        // gameStausStorageSlot = rlpEncodeDataLibList(bytes(gameStausStorageSlot));
+
+        // bytes memory gameStausStorageSlotNoFiller =
+        //     abi.encodePacked(l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt);
+        // bytes32 gameStorageSloteBytes32 = bytes32(gameStausStorageSlotNoFiller);
+        // console.logBytes(gameStausStorageSlotNoFiller);
+        // bytes32 gameStorageSloteBytes32;
+        // assembly {
+        //     // gameStorageSloteBytes32 := add(gameStausStorageSlotNoFiller, "00000000000000000000000000000000")
+        //     gameStorageSloteBytes32 := gameStausStorageSlotNoFiller
+        // }
+        // console.logBytes32(gameStorageSloteBytes32);
     }
 
     /**
@@ -219,10 +289,20 @@ contract Prover {
         bytes[] disputeGameFactoryAccountProof;
     }
 
+    struct FaultDisputeGameStatusSlotData {
+        uint64 createdAt;
+        uint64 resolvedAt;
+        uint8 gameStatus;
+        bool initialized;
+        bool l2BlockNumberChallenged;
+        bytes13 filler;
+    }
+
     struct FaultDisputeGameProofData {
         bytes32 faultDisputeGameStateRoot;
         bytes[] faultDisputeGameRootClaimStorageProof;
-        bytes faultDisputeGameStatusStorage;
+        // bytes faultDisputeGameStatusStorage;
+        FaultDisputeGameStatusSlotData faultDisputeGameStatusSlotData;
         bytes[] faultDisputeGameStatusStorageProof;
         bytes rlpEncodedFaultDisputeGameData;
         bytes[] faultDisputeGameAccountProof;
@@ -232,19 +312,7 @@ contract Prover {
         bytes32 l2WorldStateRoot,
         DisputeGameFactoryProofData calldata disputeGameFactoryProofData,
         bytes32 l1WorldStateRoot
-    )
-        // bytes32 l2WorldStateRoot,
-        // bytes32 l2MessagePasserStateRoot,
-        // bytes32 l2LatestBlockHash,
-        // uint256 gameIndex,
-        // bytes32 gameId,
-        // bytes[] calldata l1DisputeFaultGameStorageProof,
-        // bytes calldata rlpEncodedDisputeGameFactoryData,
-        // bytes[] calldata disputeGameFactoryAccountProof,
-        internal
-        view
-        returns (address faultDisputeGameProxyAddress, bytes32 rootClaim)
-    {
+    ) internal view returns (address faultDisputeGameProxyAddress, bytes32 rootClaim) {
         bytes32 gameId = disputeGameFactoryProofData.gameId;
         bytes24 gameId24;
 
@@ -274,6 +342,7 @@ contract Prover {
         require(disputeGameFactoryStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
 
         // TODO add back in after fixing deep in the stack error https://github.com/Cyfrin/foundry-full-course-cu/discussions/851
+        console.log("about to prove disputeGameFactoryStorageSlot");
         proveStorage(
             abi.encodePacked(disputeGameFactoryStorageSlot),
             bytes.concat(bytes1(uint8(0x98)), gameId24),
@@ -308,12 +377,16 @@ contract Prover {
         // bytes calldata rlpEncodedFaultDisputeGameData,
         // bytes[] calldata faultDisputeGameAccountProof,
         bytes32 l1WorldStateRoot
-    ) public pure {
+    ) public view {
+        // require(disputeGameFactoryStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
+        require(
+            faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
+        ); // ensure lfaultDisputeGame is resolved
         // Prove that the FaultDispute game has been settled
         // (uint32 gameType, uint64 timestamp, address faultDisputeGameProxyAddress) = unpack(gameId);
         // console.log("gameType", gameType);
         // console.log("timestamp", timestamp);
-        console.log("faultDisputeGameProxyAddress", faultDisputeGameProxyAddress);
+        // console.log("faultDisputeGameProxyAddress", faultDisputeGameProxyAddress);
 
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
         // TODO fix too deep in the stack error https://github.com/Cyfrin/foundry-full-course-cu/discussions/851
@@ -325,20 +398,42 @@ contract Prover {
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
         );
 
+        bytes memory faultDisputeGameStatusStorage = assembleGameStatusStorage(
+            faultDisputeGameProofData.faultDisputeGameStatusSlotData.createdAt,
+            faultDisputeGameProofData.faultDisputeGameStatusSlotData.resolvedAt,
+            faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus,
+            faultDisputeGameProofData.faultDisputeGameStatusSlotData.initialized,
+            faultDisputeGameProofData.faultDisputeGameStatusSlotData.l2BlockNumberChallenged,
+            faultDisputeGameProofData.faultDisputeGameStatusSlotData.filler
+        );
         // storage proof for FaultDisputeGame status (showing defender won)
         proveStorage(
             abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
+            faultDisputeGameStatusStorage,
             // bytes.concat(bytes1(uint8(0xa0)), faultDisputeGameStatusStorage),
             // bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(faultDisputeGameStatusStorage)),
-            faultDisputeGameProofData.faultDisputeGameStatusStorage,
+            // bytes.concat(bytes1(uint8(0xa0)), faultDisputeGameStatusStoragePacked),
+            // bytes.concat(
+            //     bytes1(uint8(0x92)),
+            //     bytes29(
+            //         abi.encodePacked(
+            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.l2BlockNumberChallenged,
+            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.initialized,
+            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus,
+            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.resolvedAt,
+            //             faultDisputeGameProofData.faultDisputeGameStatusSlotData.createdAt
+            //         )
+            //     )
+            // ),
+            // faultDisputeGameStatusStoragePacked,
             faultDisputeGameProofData.faultDisputeGameStatusStorageProof,
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
         );
 
         // TODO Ned to check that status (extracted from faultDisputeGameRootClaimStorageProof) is defender wins
 
-        bytes memory gameSatusStorage = faultDisputeGameProofData.faultDisputeGameStatusStorage;
-        bytes16 gameStatus = getGameStatus(abi.encodePacked(faultDisputeGameProofData.faultDisputeGameStatusStorage));
+        // bytes memory gameSatusStorage = faultDisputeGameProofData.faultDisputeGameStatusStorage;
+        // bytes16 gameStatus = getGameStatus(abi.encodePacked(faultDisputeGameProofData.faultDisputeGameStatusStorage));
 
         // gameStatus = gameSatusStorage[0:2];
 
@@ -346,9 +441,9 @@ contract Prover {
         //     gameStatus := shl(0, gameSatusStorage)
         //     // gameStatus := gameSatusStorage
         // }
-        console.log("gameStatus");
-        console.logBytes(gameSatusStorage);
-        console.logBytes16(gameStatus);
+        // console.log("gameStatus");
+        // console.logBytes(gameSatusStorage);
+        // console.logBytes16(gameStatus);
 
         // TODO Add the Account Proof for FaultDisputeGameFactory
         proveAccount(

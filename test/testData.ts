@@ -136,7 +136,7 @@ export default {
             gameStatus: 2, // enum GameStatus offset 16: uint8 value 02
             initialized: 1, // bool offset 17: value 01 (true)
             l2BlockNumberChallenged: 0, // bool offset 18 value 00 (false)
-            filler: 0x00000000000000000000000000, // 13 bytes
+            filler: '0x00000000000000000000000000', // 13 bytes
           },
           storageSlot:
             '0x0000000000000000000000000000000000000000000000000000000000000000',

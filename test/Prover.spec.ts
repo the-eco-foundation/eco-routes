@@ -585,20 +585,22 @@ describe('Prover Test', () => {
       t.cannon.layer1.worldStateRoot,
     )
 
-    // Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block
-    console.log('FaultDisputeGame rootClaim')
+    // Prove storage showing the FaultDisputeGame has a status which shows the Defender Won
+    console.log('FaultDisputeGame Status')
     await cannonProver.proveStorage(
       t.cannon.layer2.faultDisputeGame.status.storageSlot,
       encodeRlp(
         toBeHex(
-          stripZerosLeft(t.cannon.layer2.faultDisputeGame.status.storageData),
+          // stripZerosLeft(
+          t.cannon.layer2.faultDisputeGame.status.storageData,
+          // ),
         ),
       ),
       t.cannon.layer2.faultDisputeGame.status.storageProof,
       t.cannon.layer2.faultDisputeGame.stateRoot,
     )
 
-    // Prove storage showing the FaultDisputeGame has a status which shows the Defender Won
+    // Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block
     await cannonProver.proveStorage(
       t.cannon.layer2.faultDisputeGame.rootClaim.storageSlot,
       encodeRlp(
@@ -639,6 +641,7 @@ describe('Prover Test', () => {
       l1DisputeFaultGameStorageProof:
         t.cannon.layer2.disputeGameFactory.storageProof,
       rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
+
       disputeGameFactoryAccountProof:
         t.cannon.layer2.disputeGameFactory.accountProof,
     }
@@ -652,17 +655,40 @@ describe('Prover Test', () => {
       faultDisputeGameRootClaimStorageProof:
         t.cannon.layer2.faultDisputeGame.rootClaim.storageProof,
       // faultDisputeGameStatusStorage: t.cannon.faultDisputeGameStatusStorage,
-      faultDisputeGameStatusStorage: encodeRlp(
-        toBeHex(
-          stripZerosLeft(t.cannon.layer2.faultDisputeGame.status.storageData),
+      // faultDisputeGameStatusStorage: encodeRlp(
+      //   toBeHex(
+      //     stripZerosLeft(t.cannon.layer2.faultDisputeGame.status.storageData),
+      //   ),
+      // ),
+      faultDisputeGameStatusSlotData: {
+        createdAt: t.cannon.layer2.faultDisputeGame.status.storage.createdAt,
+        resolvedAt: t.cannon.layer2.faultDisputeGame.status.storage.resolvedAt,
+        gameStatus: t.cannon.layer2.faultDisputeGame.status.storage.gameStatus,
+        initialized:
+          t.cannon.layer2.faultDisputeGame.status.storage.initialized,
+        l2BlockNumberChallenged:
+          t.cannon.layer2.faultDisputeGame.status.storage
+            .l2BlockNumberChallenged,
+        filler: getBytes(
+          t.cannon.layer2.faultDisputeGame.status.storage.filler,
         ),
-      ),
+      },
       faultDisputeGameStatusStorageProof:
         t.cannon.layer2.faultDisputeGame.status.storageProof,
       rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
       faultDisputeGameAccountProof:
         t.cannon.layer2.faultDisputeGame.accountProof,
     }
+
+    await cannonProver.assembleGameStatusStorage(
+      t.cannon.layer2.faultDisputeGame.status.storage.createdAt,
+      t.cannon.layer2.faultDisputeGame.status.storage.resolvedAt,
+      t.cannon.layer2.faultDisputeGame.status.storage.gameStatus,
+      t.cannon.layer2.faultDisputeGame.status.storage.initialized,
+      t.cannon.layer2.faultDisputeGame.status.storage.l2BlockNumberChallenged,
+      getBytes(t.cannon.layer2.faultDisputeGame.status.storage.filler),
+    )
+
     // Update this after code complete in Prover.sol
     await cannonProver.proveL2WorldStateCannon(
       t.cannon.layer2.endBatchBlockStateRoot,
@@ -690,7 +716,7 @@ describe('Prover Test', () => {
       t.cannon.layer1.worldStateRoot,
     )
 
-    await cannonProver.assembleGameStatusStorage()
+    // await cannonProver.assembleGameStatusStorage()
 
     // expect((await prover.provenIntents(INTENT_HASH)) === FILLER).to.be.true
   })
