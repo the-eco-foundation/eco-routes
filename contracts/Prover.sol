@@ -126,6 +126,16 @@ contract Prover {
         console.log("Game Satus Storage Calculation");
         console.log("0x0000000000000000000000000000010200000000668e4784000000006689aa08");
         console.logBytes(gameStausStorageSlot);
+        bytes memory gameStausStorageSlotNoFiller =
+            abi.encodePacked(l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt);
+        // bytes32 gameStorageSloteBytes32 = bytes32(gameStausStorageSlotNoFiller);
+        console.logBytes(gameStausStorageSlotNoFiller);
+        bytes32 gameStorageSloteBytes32;
+        assembly {
+            // gameStorageSloteBytes32 := add(gameStausStorageSlotNoFiller, "00000000000000000000000000000000")
+            gameStorageSloteBytes32 := gameStausStorageSlotNoFiller
+        }
+        console.logBytes32(gameStorageSloteBytes32);
     }
 
     /**

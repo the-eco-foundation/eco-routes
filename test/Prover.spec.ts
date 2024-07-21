@@ -475,10 +475,10 @@ describe('Prover Test', () => {
     const cannonBlockDataSource = await deploy(alice, MockL1Block__factory)
     // only the number and hash matters here
     await cannonBlockDataSource.setL1BlockValues(
-      t.cannon.layer1BlockTag,
+      t.cannon.layer1.blockTag,
       0,
       0,
-      t.cannon.layer1BlockHash,
+      t.cannon.layer1.blockHash,
       0,
       '0x' + '00'.repeat(32),
       0,
@@ -487,34 +487,40 @@ describe('Prover Test', () => {
     const cannonProver = await deploy(alice, Prover__factory, [
       await cannonBlockDataSource.getAddress(),
       L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
-      t.cannon.disputeGameFactoryAddress,
+      t.enshrined.cannon.chainData.optimism.disputeGameFactoryAddress,
     ])
 
-    await cannonProver.proveL1WorldState(t.cannon.layer1RLPEncodedBlockData)
+    await cannonProver.proveL1WorldState(t.cannon.layer1.rlpEncodedBlockData)
 
     const cannonRootClaimFromProver = await cannonProver.generateOutputRoot(
       0,
-      t.cannon.l2EndBatchBlockStateRoot,
-      t.cannon.l2MessagePasserStateRoot,
-      t.cannon.l2EndBatchBlockHash,
+      t.cannon.layer2.endBatchBlockStateRoot,
+      t.cannon.layer2.messagePasserStateRoot,
+      t.cannon.layer2.endBatchBlockHash,
     )
     const cannonRootClaim = solidityPackedKeccak256(
       ['uint256', 'bytes32', 'bytes32', 'bytes32'],
       [
         0,
-        t.cannon.l2EndBatchBlockStateRoot,
-        t.cannon.l2MessagePasserStateRoot,
-        t.cannon.l2EndBatchBlockHash,
+        t.cannon.layer2.endBatchBlockStateRoot,
+        t.cannon.layer2.messagePasserStateRoot,
+        t.cannon.layer2.endBatchBlockHash,
       ],
     )
     expect(cannonRootClaimFromProver).to.equal(cannonRootClaim)
-    expect(cannonRootClaimFromProver).to.equal(t.cannon.rootClaim)
+    expect(cannonRootClaimFromProver).to.equal(
+      t.cannon.layer2.disputeGameFactory.faultDisputeGame.rootClaim,
+    )
 
     // console.log('encodeRlp(t.cannon.gameId): ', encodeRlp(t.cannon.gameId))
 
-    expect(toBeHex(stripZerosLeft(t.cannon.gameId))).to.equal(
-      '0x6689aa0827f77e1f136204d18a100c30f634704067251d09',
-    )
+    expect(
+      toBeHex(
+        stripZerosLeft(
+          t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
+        ),
+      ),
+    ).to.equal('0x6689aa0827f77e1f136204d18a100c30f634704067251d09')
 
     // Get the storage Slot information
     // l1BatchSlot = calculated from the batch number *2 + output slot 3
@@ -522,7 +528,7 @@ describe('Prover Test', () => {
     // bytes32 outputRootStorageSlot =
     // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
     const arrayLengthSlot = zeroPadValue(
-      toBeArray(t.cannon.disputeGameListSlot),
+      toBeArray(t.enshrined.cannon.disputeGameFactoryListSlotNumber),
       32,
     )
     const firstElementSlot = solidityPackedKeccak256(
@@ -530,108 +536,136 @@ describe('Prover Test', () => {
       [arrayLengthSlot],
     )
     const disputeGameStorageSlot = toBeHex(
-      BigInt(firstElementSlot) + BigInt(Number(t.cannon.gameIndex)),
+      BigInt(firstElementSlot) +
+        BigInt(
+          Number(t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameIndex),
+        ),
       32,
     )
     // expect(disputeGameStorageSlot).to.equal(t.cannon.gameIDStorageSlot)
 
-    const gameUnpacked = await cannonProver.unpack(t.cannon.gameId)
+    const gameUnpacked = await cannonProver.unpack(
+      t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
+    )
 
     console.log('gameUnpacked: ', gameUnpacked)
     console.log(
       'encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))): ',
-      encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
+      encodeRlp(
+        toBeHex(
+          stripZerosLeft(
+            t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
+          ),
+        ),
+      ),
     )
 
     // Prove storage showing the DisputeGameFactory created the FaultDisputGame
     await cannonProver.proveStorage(
-      t.cannon.gameIDStorageSlot,
-      encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
+      t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameIDStorageSlot,
+      encodeRlp(
+        toBeHex(
+          stripZerosLeft(
+            t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
+          ),
+        ),
+      ),
       // encodeRlp(t.cannon.gameId),
-      t.cannon.disputeGameFactoryStorageProof,
-      t.cannon.disputeGameFactoryStateRoot,
+      t.cannon.layer2.disputeGameFactory.storageProof,
+      t.cannon.layer2.disputeGameFactory.stateRoot,
     )
 
     // Prove account showing that the above ProveStorage is for a valid WorldState
     await cannonProver.proveAccount(
-      t.cannon.disputeGameFactoryAddress,
+      t.enshrined.cannon.chainData.optimism.disputeGameFactoryAddress,
       await cannonProver.rlpEncodeDataLibList(
-        t.cannon.disputeGameFactoryContractData,
+        t.cannon.layer2.disputeGameFactory.contractData,
       ),
-      t.cannon.disputeGameFactoryAccountProof,
-      t.cannon.layer1WorldStateRoot,
+      t.cannon.layer2.disputeGameFactory.accountProof,
+      t.cannon.layer1.worldStateRoot,
     )
 
     // Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block
     console.log('FaultDisputeGame rootClaim')
     await cannonProver.proveStorage(
-      t.cannon.faultDisputeGameStatusStorageSlot,
+      t.cannon.layer2.faultDisputeGame.status.storageSlot,
       encodeRlp(
-        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameStatusStorage)),
+        toBeHex(
+          stripZerosLeft(t.cannon.layer2.faultDisputeGame.status.storageData),
+        ),
       ),
-      t.cannon.faultDisputeGameStatusStorageProof,
-      t.cannon.faultDisputeGameStateRoot,
+      t.cannon.layer2.faultDisputeGame.status.storageProof,
+      t.cannon.layer2.faultDisputeGame.stateRoot,
     )
 
     // Prove storage showing the FaultDisputeGame has a status which shows the Defender Won
     await cannonProver.proveStorage(
-      t.cannon.faultDisputeGameRootClaimStorageSlot,
+      t.cannon.layer2.faultDisputeGame.rootClaim.storageSlot,
       encodeRlp(
-        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameRootClaimStorage)),
+        toBeHex(
+          stripZerosLeft(
+            t.cannon.layer2.faultDisputeGame.rootClaim.storageData,
+          ),
+        ),
       ),
       // encodeRlp(t.cannon.faultDisputeGameRootClaimStorage),
-      t.cannon.faultDisputeGameRootClaimStorageProof,
-      t.cannon.faultDisputeGameStateRoot,
+      t.cannon.layer2.faultDisputeGame.rootClaim.storageProof,
+      t.cannon.layer2.faultDisputeGame.stateRoot,
     )
 
     // Prove account showing that the above ProveStorages are for a valid WorldState
     console.log('In test about to prove faultDisputgame defender wins')
     await cannonProver.proveAccount(
-      t.cannon.faultDisputeGameAddress,
+      t.cannon.layer2.faultDisputeGame.address,
       await cannonProver.rlpEncodeDataLibList(
-        t.cannon.faultDisputeGameContractData,
+        t.cannon.layer2.faultDisputeGame.contractData,
       ),
-      t.cannon.faultDisputeGameAccountProof,
-      t.cannon.layer1WorldStateRoot,
+      t.cannon.layer2.faultDisputeGame.accountProof,
+      t.cannon.layer1.worldStateRoot,
     )
 
     const RLPEncodedDisputeGameFactoryData =
       await cannonProver.rlpEncodeDataLibList(
-        t.cannon.disputeGameFactoryContractData,
+        t.cannon.layer2.disputeGameFactory.contractData,
       )
 
     const disputeGameFactoryProofData = {
-      l2WorldStateRoot: t.cannon.l2EndBatchBlockStateRoot,
-      l2MessagePasserStateRoot: t.cannon.l2MessagePasserStateRoot,
-      l2LatestBlockHash: t.cannon.l2EndBatchBlockHash,
-      gameIndex: t.cannon.gameIndex,
+      l2WorldStateRoot: t.cannon.layer2.endBatchBlockStateRoot,
+      l2MessagePasserStateRoot: t.cannon.layer2.messagePasserStateRoot,
+      l2LatestBlockHash: t.cannon.layer2.endBatchBlockHash,
+      gameIndex: t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameIndex,
       // gameId: toBeHex(stripZerosLeft(t.cannon.gameId)),
-      gameId: t.cannon.gameId,
-      l1DisputeFaultGameStorageProof: t.cannon.disputeGameFactoryStorageProof,
+      gameId: t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
+      l1DisputeFaultGameStorageProof:
+        t.cannon.layer2.disputeGameFactory.storageProof,
       rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
-      disputeGameFactoryAccountProof: t.cannon.disputeGameFactoryAccountProof,
+      disputeGameFactoryAccountProof:
+        t.cannon.layer2.disputeGameFactory.accountProof,
     }
 
     const RLPEncodedFaultDisputeGameData =
       await cannonProver.rlpEncodeDataLibList(
-        t.cannon.faultDisputeGameContractData,
+        t.cannon.layer2.faultDisputeGame.contractData,
       )
     const faultDisputeGameProofData = {
-      faultDisputeGameStateRoot: t.cannon.faultDisputeGameStateRoot,
+      faultDisputeGameStateRoot: t.cannon.layer2.faultDisputeGame.stateRoot,
       faultDisputeGameRootClaimStorageProof:
-        t.cannon.faultDisputeGameRootClaimStorageProof,
+        t.cannon.layer2.faultDisputeGame.rootClaim.storageProof,
       // faultDisputeGameStatusStorage: t.cannon.faultDisputeGameStatusStorage,
       faultDisputeGameStatusStorage: encodeRlp(
-        toBeHex(stripZerosLeft(t.cannon.faultDisputeGameStatusStorage)),
+        toBeHex(
+          stripZerosLeft(t.cannon.layer2.faultDisputeGame.status.storageData),
+        ),
       ),
       faultDisputeGameStatusStorageProof:
-        t.cannon.faultDisputeGameStatusStorageProof,
+        t.cannon.layer2.faultDisputeGame.status.storageProof,
       rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
-      faultDisputeGameAccountProof: t.cannon.faultDisputeGameAccountProof,
+      faultDisputeGameAccountProof:
+        t.cannon.layer2.faultDisputeGame.accountProof,
     }
     // Update this after code complete in Prover.sol
     await cannonProver.proveL2WorldStateCannon(
-      t.cannon.l2EndBatchBlockStateRoot,
+      t.cannon.layer2.endBatchBlockStateRoot,
       disputeGameFactoryProofData,
       faultDisputeGameProofData,
       // t.cannon.l2EndBatchBlockStateRoot,
@@ -653,7 +687,7 @@ describe('Prover Test', () => {
       //   t.cannon.faultDisputeGameContractData,
       // ),
       // t.cannon.faultDisputeGameAccountProof,
-      t.cannon.layer1WorldStateRoot,
+      t.cannon.layer1.worldStateRoot,
     )
 
     await cannonProver.assembleGameStatusStorage()
