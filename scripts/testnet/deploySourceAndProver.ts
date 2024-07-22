@@ -1,17 +1,11 @@
 import { ethers, run, network } from 'hardhat'
-import { IntentSource, Prover } from '../../../typechain-types'
-import config from '../../../config/testnet/config'
+import { IntentSource, Prover } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 import { getAddress } from 'ethers'
+import c from '../../config/testnet/config'
 
 const networkName = network.name
-const l1BlockAddressSepolia = getAddress(config.optimismSepolia.l1BlockAddress)
-const outputOracleAddressSepolia = getAddress(
-  config.sepolia.l2BaseOutputOracleAddress,
-)
-const l2OptimismDisputeGameFactory = getAddress(
-  config.sepolia.l2OptimismDisputeGameFactory,
-)
+const l1BlockAddressSepolia = getAddress(c.optimismSepolia.l1BlockAddress)
 
 console.log('Deploying to Network: ', networkName)
 
@@ -22,10 +16,30 @@ async function main() {
   const proverFactory = await ethers.getContractFactory('Prover')
   const prover: Prover = await proverFactory.deploy(
     l1BlockAddressSepolia,
-    outputOracleAddressSepolia,
-    l2OptimismDisputeGameFactory,
+    // outputOracleAddressSepolia,
+    // l2OptimismDisputeGameFactory,
+    deployer.address,
   )
   console.log('prover deployed to:', await prover.getAddress())
+
+  await prover.setChainConfiguration(
+    c.baseSepolia.chainId,
+    1,
+    c.sepolia.chainId,
+    c.sepolia.settlementContract.baseSepolia,
+    c.baseSepolia.l1BlockAddress,
+    c.baseSepolia.outputRootVersionNumber,
+  )
+
+  // optimismSepolia Config
+  await prover.setChainConfiguration(
+    c.optimismSepolia.chainId,
+    2,
+    c.sepolia.chainId,
+    c.sepolia.settlementContract.optimismSepolia,
+    c.optimismSepolia.l1BlockAddress,
+    c.optimismSepolia.outputRootVersionNumber,
+  )
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   try {
@@ -36,8 +50,9 @@ async function main() {
         address: await prover.getAddress(),
         constructorArguments: [
           l1BlockAddressSepolia,
-          outputOracleAddressSepolia,
-          l2OptimismDisputeGameFactory,
+          // outputOracleAddressSepolia,
+          // l2OptimismDisputeGameFactory,
+          deployer.address,
         ],
       })
       console.log('prover verified at:', await prover.getAddress())
@@ -50,7 +65,7 @@ async function main() {
   const intentSource: IntentSource = await intentSourceFactory.deploy(
     await prover.getAddress(),
     1000,
-    config.intentSourceCounter,
+    c.intentSourceCounter,
   )
   console.log('intentSource deployed to:', await intentSource.getAddress())
 
@@ -65,7 +80,7 @@ async function main() {
         constructorArguments: [
           await prover.getAddress(),
           1000,
-          config.intentSourceCounter,
+          c.intentSourceCounter,
         ],
       })
     }

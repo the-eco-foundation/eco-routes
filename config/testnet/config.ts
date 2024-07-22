@@ -5,7 +5,7 @@ export default {
     chainId: 11155111,
     layer: 1,
     role: ['Settlement'],
-    L2BlockOutput: {
+    settlementContract: {
       baseSepolia: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
       optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
     },
@@ -24,6 +24,7 @@ export default {
     inboxAddress: '0x32388BB27E07db4bdda11Cc1EC919634cc6afF65',
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
+    outputRootVersionNumber: 0,
   },
   baseSepolia: {
     network: 'base-sepolia',
@@ -32,11 +33,12 @@ export default {
     role: ['Source', 'Destination'],
     provingMechanism: 'bedrock',
     l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    proverContractAddress: '0xbe271EC06776e4B27AF854dA6511B3bb84313544',
-    intentSourceAddress: '0xcFbbD67c9f43a8E6D3D9aF7Ab93d61397c7a08CE',
+    proverContractAddress: '0xBbb9Df7B5FC588cd0D6952fAD8613Ab33d317c7d',
+    intentSourceAddress: '0x73f4eA10Ed8e6524aB3Ba60D604A6f33Cb95fc39',
     inboxAddress: '0xbE6562D1F5cB7687ec3617Ec993A645104d77b5c',
     l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    outputRootVersionNumber: 0,
     registry: {
       destinationChains: [
         {

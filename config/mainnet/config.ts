@@ -5,7 +5,7 @@ export default {
     chainId: 1,
     layer: 1,
     role: ['Settlement'],
-    L2BlockOutput: {
+    settlementContract: {
       base: '0x56315b90c40730925ec5485cf004d835058518A0',
       optimism: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
     },

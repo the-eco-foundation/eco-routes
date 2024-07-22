@@ -54,7 +54,7 @@
     "intentSolve": "hardhat run scripts/testnet/bedrock/intentSolve.ts",
     "intentWithdraw": "hardhat run scripts/testnet/bedrock/intentWithdraw.ts",
     "TestnetCannon": "-------- Cannon scripts below --------",
-    "deploySourceAndProverCannon": "hardhat run --network baseSepolia scripts/testnet/cannon/deploySourceAndProver.ts",
+    "deploySourceAndProverCannon": "hardhat run --network baseSepolia scripts/testnet/deploySourceAndProver.ts",
     "deployInboxCannon": "hardhat run --network optimismSepoliaBlockscout scripts/deployInbox.ts",
     "intentSolveCannon": "hardhat run scripts/testnet/cannon/intentSolve.ts",
     "intentWithdrawCannon": "hardhat run scripts/testnet/cannon/intentWithdraw.ts",

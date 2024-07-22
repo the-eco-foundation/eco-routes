@@ -266,8 +266,8 @@ describe('Prover Test', () => {
     )
     prover = await deploy(alice, Prover__factory, [
       await blockDataSource.getAddress(),
-      L1_OUTPUT_ORACLE_ADDRESS_BASE,
-      L1_DISPUTE_GAME_FACTORY_OPTIMISM,
+      // L1_OUTPUT_ORACLE_ADDRESS_BASE,
+      // L1_DISPUTE_GAME_FACTORY_OPTIMISM,
       alice.address,
     ])
 
@@ -456,8 +456,8 @@ describe('Prover Test', () => {
     )
     const mainnetProver = await deploy(alice, Prover__factory, [
       await mainnetBlockDataSource.getAddress(),
-      L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
-      L1_DISPUTE_GAME_FACTORY_OPTIMISM,
+      // L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
+      // L1_DISPUTE_GAME_FACTORY_OPTIMISM,
       alice.address,
     ])
 
@@ -538,8 +538,8 @@ describe('Prover Test', () => {
     )
     const cannonProver = await deploy(alice, Prover__factory, [
       await cannonBlockDataSource.getAddress(),
-      L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
-      t.enshrined.cannon.chainData.optimism.disputeGameFactoryAddress,
+      // L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
+      // t.enshrined.cannon.chainData.optimism.disputeGameFactoryAddress,
       alice.address,
     ])
 

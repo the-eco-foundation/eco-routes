@@ -10,7 +10,7 @@ import {console} from "hardhat/console.sol";
 
 contract Prover is Ownable {
     address public constant ZERO_ADDRESS = address(0);
-    uint16 public constant NONCE_PACKING = 1;
+    // uint16 public constant NONCE_PACKING = 1;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
     uint256 public constant L2_OUTPUT_SLOT_NUMBER = 3;
@@ -18,11 +18,11 @@ contract Prover is Ownable {
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
     // L2OutputOracle on Ethereum used for Bedrock (Base) Proving
-    address public immutable l1OutputOracleAddress;
+    // address public immutable l1OutputOracleAddress;
 
     // Cannon Data
     // FaultGameFactory on Ethereum used for Cannon (Optimism) Proving
-    address public immutable faultGameFactoryAddress;
+    // address public immutable faultGameFactoryAddress;
 
     // Output slot for Cannon DisputeGameFactory where FaultDisputeGames gameId's are stored
     uint256 public constant L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER = 104;
@@ -33,6 +33,11 @@ contract Prover is Ownable {
 
     // Output slot for the game status (fixed)
     uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
+
+    // This contract lives on an L2 and contains the data for the 'current' L1 block.
+    // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
+    // But optimism maintains a service that posts L1 block data on L2.
+    IL1Block public immutable l1BlockhashOracle;
 
     enum ProvingMechanism {
         Self, // Used for Ethereum and Sepolia (any chain that settles to itself)
@@ -45,13 +50,6 @@ contract Prover is Ownable {
         L3Arbitrum,
         L3MessagePasser
     }
-
-    // struct ProvingConfiguration {
-    //     uint8 provingMechanism;
-    //     address blockhashOracle;
-    // }
-
-    // mapping(uint8 => ProvingConfiguration) public provingConfigurations;
 
     struct ChainConfiguration {
         uint8 provingMechanism;
@@ -73,29 +71,18 @@ contract Prover is Ownable {
     // Store the last BlockProof for each ChainId
     mapping(uint256 => BlockProof) public provenStates;
 
-    // This contract lives on an L2 and contains the data for the 'current' L1 block.
-    // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
-    // But optimism maintains a service that posts L1 block data on L2.
-    IL1Block public immutable l1BlockhashOracle;
-
-    // // mapping from l1 world state root hashes to block numbers they correspond to
-    // mapping(bytes32 => uint256) public provenL1States;
-
-    // // mapping from l2 world state root hashes to batch numbers they correspond to
-    // mapping(bytes32 => uint256) public provenL2States;
-
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
     constructor(
         address _l1BlockhashOracle,
-        address _l1OutputOracleAddress,
-        address _faultGameFactoryAddress,
+        // address _l1OutputOracleAddress,
+        // address _faultGameFactoryAddress,
         address _owner
     ) Ownable(_owner) {
         l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
-        l1OutputOracleAddress = _l1OutputOracleAddress;
-        faultGameFactoryAddress = _faultGameFactoryAddress;
+        // l1OutputOracleAddress = _l1OutputOracleAddress;
+        // faultGameFactoryAddress = _faultGameFactoryAddress;
     }
 
     function setChainConfiguration(
@@ -310,7 +297,10 @@ contract Prover is Ownable {
         );
 
         proveAccount(
-            abi.encodePacked(l1OutputOracleAddress), rlpEncodedOutputOracleData, l1AccountProof, l1WorldStateRoot
+            abi.encodePacked(chainConfiguration.settlementContract),
+            rlpEncodedOutputOracleData,
+            l1AccountProof,
+            l1WorldStateRoot
         );
 
         // provenL2States[l2WorldStateRoot] = l2OutputIndex;
@@ -356,10 +346,11 @@ contract Prover is Ownable {
     }
 
     function _faultDisputeGameFromFactory(
+        address disputeGameFactoryAddress,
         bytes32 l2WorldStateRoot,
         DisputeGameFactoryProofData calldata disputeGameFactoryProofData,
         bytes32 l1WorldStateRoot
-    ) internal view returns (address faultDisputeGameProxyAddress, bytes32 rootClaim) {
+    ) internal pure returns (address faultDisputeGameProxyAddress, bytes32 rootClaim) {
         bytes32 gameId = disputeGameFactoryProofData.gameId;
         bytes24 gameId24;
 
@@ -396,7 +387,7 @@ contract Prover is Ownable {
         );
 
         proveAccount(
-            abi.encodePacked(faultGameFactoryAddress),
+            abi.encodePacked(disputeGameFactoryAddress),
             disputeGameFactoryProofData.rlpEncodedDisputeGameFactoryData,
             disputeGameFactoryProofData.disputeGameFactoryAccountProof,
             l1WorldStateRoot
@@ -479,8 +470,9 @@ contract Prover is Ownable {
         bytes32 rootClaim;
         address faultDisputeGameProxyAddress;
 
-        (faultDisputeGameProxyAddress, rootClaim) =
-            _faultDisputeGameFromFactory(l2WorldStateRoot, disputeGameFactoryProofData, l1WorldStateRoot);
+        (faultDisputeGameProxyAddress, rootClaim) = _faultDisputeGameFromFactory(
+            chainConfiguration.settlementContract, l2WorldStateRoot, disputeGameFactoryProofData, l1WorldStateRoot
+        );
 
         _faultDisputeGameIsResolved(
             rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot
