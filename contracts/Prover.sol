@@ -145,7 +145,7 @@ contract Prover {
      * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
      * @param claimant the address that can claim the reward
      * @param inboxContract the address of the inbox contract
-     * @param intentHash the intent hash
+     * @param intermediateHash the hash which, when hashed with the correct inbox contract, will result in the correct intentHash
      * @param intentOutputIndex todo
      * @param l2StorageProof todo
      * @param rlpEncodedInboxData todo
@@ -156,7 +156,7 @@ contract Prover {
     function proveIntent(
         address claimant,
         address inboxContract,
-        bytes32 intentHash,
+        bytes32 intermediateHash,
         uint256 intentOutputIndex,
         bytes[] calldata l2StorageProof,
         bytes calldata rlpEncodedInboxData,
@@ -164,6 +164,8 @@ contract Prover {
         bytes32 l2WorldStateRoot
     ) public virtual {
         require(provenL2States[l2WorldStateRoot] > intentOutputIndex, "l2 state root not yet proven"); // intentOutputIndex can never be less than zero, so this always ensures the root was proven
+
+        bytes32 intentHash = keccak256(abi.encode(inboxContract, intermediateHash));
 
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
