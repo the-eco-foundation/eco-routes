@@ -268,7 +268,28 @@ describe('Prover Test', () => {
       await blockDataSource.getAddress(),
       L1_OUTPUT_ORACLE_ADDRESS_BASE,
       L1_DISPUTE_GAME_FACTORY_OPTIMISM,
+      alice.address,
     ])
+
+    //baseSepolia Config
+    await prover.setChainConfiguration(
+      t.baseSepolia.chainId,
+      1,
+      t.sepolia.chainId,
+      t.sepolia.settlementContract.baseSepolia,
+      t.baseSepolia.l1BlockAddress,
+      t.baseSepolia.outputRootVersionNumber,
+    )
+
+    //optimismSepolia Config
+    await prover.setChainConfiguration(
+      t.optimismSepolia.chainId,
+      2,
+      t.sepolia.chainId,
+      t.sepolia.settlementContract.optimismSepolia,
+      t.optimismSepolia.l1BlockAddress,
+      t.optimismSepolia.outputRootVersionNumber,
+    )
   })
 
   it('test ethers functions', async () => {
@@ -384,12 +405,17 @@ describe('Prover Test', () => {
   })
 
   it('full proof Bedrock', async () => {
-    await prover.proveL1WorldState(await prover.rlpEncodeDataLibList(blockData))
+    await prover.proveL1WorldState(
+      await prover.rlpEncodeDataLibList(blockData),
+      t.sepolia.chainId,
+    )
 
     await prover.proveL2WorldStateBedrock(
+      t.intents.baseSepolia.destinationChainId,
+      t.intents.baseSepolia.rlpEncodedBlockData,
       L2_WORLD_STATE_ROOT,
       L2_MESSAGE_PASSER_STORAGE_ROOT,
-      L2_BATCH_LATEST_BLOCK_HASH,
+      // L2_BATCH_LATEST_BLOCK_HASH,
       BATCH_INDEX,
       l1StorageProof,
       await prover.rlpEncodeDataLibList(l1ContractData),
@@ -398,6 +424,8 @@ describe('Prover Test', () => {
     )
 
     await prover.proveIntent(
+      t.intents.baseSepolia.destinationChainId,
+      t.intents.baseSepolia.rlpEncodedBlockData,
       FILLER,
       INBOX_CONTRACT,
       INTENT_HASH,
@@ -431,9 +459,33 @@ describe('Prover Test', () => {
       await mainnetBlockDataSource.getAddress(),
       L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
       L1_DISPUTE_GAME_FACTORY_OPTIMISM,
+      alice.address,
     ])
 
-    await mainnetProver.proveL1WorldState(mainnetL1RLPEncodedBlockDataFull)
+    //baseSepolia Config
+    await mainnetProver.setChainConfiguration(
+      t.baseSepolia.chainId,
+      1,
+      t.sepolia.chainId,
+      t.sepolia.settlementContract.baseSepolia,
+      t.baseSepolia.l1BlockAddress,
+      t.baseSepolia.outputRootVersionNumber,
+    )
+
+    //optimismSepolia Config
+    await mainnetProver.setChainConfiguration(
+      t.optimismSepolia.chainId,
+      2,
+      t.sepolia.chainId,
+      t.sepolia.settlementContract.optimismSepolia,
+      t.optimismSepolia.l1BlockAddress,
+      t.optimismSepolia.outputRootVersionNumber,
+    )
+
+    await mainnetProver.proveL1WorldState(
+      mainnetL1RLPEncodedBlockDataFull,
+      t.sepolia.chainId,
+    )
 
     // Validate proveStorage
     // key = OracleProof StorageSlot
@@ -459,9 +511,11 @@ describe('Prover Test', () => {
     )
 
     await mainnetProver.proveL2WorldStateBedrock(
+      t.intents.baseSepolia.destinationChainId,
+      t.intents.baseSepolia.rlpEncodedBlockData,
       mainnetL2_WORLD_STATE_ROOT,
       mainnetL2_MESSAGE_PASSER_STORAGE_ROOT,
-      mainnetL2_BATCH_LATEST_BLOCK_HASH,
+      // mainnetL2_BATCH_LATEST_BLOCK_HASH,
       mainnetBATCH_INDEX,
       mainnetl1StorageProof,
       await mainnetProver.rlpEncodeDataLibList(mainnetl1ContractData),
@@ -487,9 +541,33 @@ describe('Prover Test', () => {
       await cannonBlockDataSource.getAddress(),
       L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
       t.enshrined.cannon.chainData.optimism.disputeGameFactoryAddress,
+      alice.address,
     ])
 
-    await cannonProver.proveL1WorldState(t.cannon.layer1.rlpEncodedBlockData)
+    //baseSepolia Config
+    await cannonProver.setChainConfiguration(
+      t.baseSepolia.chainId,
+      1,
+      t.sepolia.chainId,
+      t.sepolia.settlementContract.baseSepolia,
+      t.baseSepolia.l1BlockAddress,
+      t.baseSepolia.outputRootVersionNumber,
+    )
+
+    //optimismSepolia Config
+    await cannonProver.setChainConfiguration(
+      t.optimismSepolia.chainId,
+      2,
+      t.sepolia.chainId,
+      t.sepolia.settlementContract.optimismSepolia,
+      t.optimismSepolia.l1BlockAddress,
+      t.optimismSepolia.outputRootVersionNumber,
+    )
+
+    await cannonProver.proveL1WorldState(
+      t.cannon.layer1.rlpEncodedBlockData,
+      t.sepolia.chainId,
+    )
 
     const cannonRootClaimFromProver = await cannonProver.generateOutputRoot(
       0,
@@ -687,28 +765,11 @@ describe('Prover Test', () => {
 
     // Update this after code complete in Prover.sol
     await cannonProver.proveL2WorldStateCannon(
+      t.intents.optimismSepolia.destinationChainId,
+      t.intents.optimismSepolia.rlpEncodedBlockData,
       t.cannon.layer2.endBatchBlockStateRoot,
       disputeGameFactoryProofData,
       faultDisputeGameProofData,
-      // t.cannon.l2EndBatchBlockStateRoot,
-      // t.cannon.l2MessagePasserStateRoot,
-      // t.cannon.l2EndBatchBlockHash,
-      // t.cannon.gameIndex,
-      // // encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))),
-      // t.cannon.gameId,
-      // t.cannon.disputeGameFactoryStorageProof,
-      // await cannonProver.rlpEncodeDataLibList(
-      //   t.cannon.disputeGameFactoryContractData,
-      // ),
-      // t.cannon.disputeGameFactoryAccountProof,
-      // t.cannon.faultDisputeGameStateRoot,
-      // t.cannon.faultDisputeGameRootClaimStorageProof,
-      // t.cannon.faultDisputeGameStatusStorage,
-      // t.cannon.faultDisputeGameStatusStorageProof,
-      // await cannonProver.rlpEncodeDataLibList(
-      //   t.cannon.faultDisputeGameContractData,
-      // ),
-      // t.cannon.faultDisputeGameAccountProof,
       t.cannon.layer1.worldStateRoot,
     )
 
