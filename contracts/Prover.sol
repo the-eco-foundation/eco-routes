@@ -9,6 +9,7 @@ import {IL1Block} from "./interfaces/IL1Block.sol";
 import {console} from "hardhat/console.sol";
 
 contract Prover is Ownable {
+    address public constant ZERO_ADDRESS = address(0);
     uint16 public constant NONCE_PACKING = 1;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
@@ -235,10 +236,9 @@ contract Prover is Ownable {
     function proveL1WorldState(bytes calldata rlpEncodedBlockData, uint256 chainId) public {
         // Arbitrum chains do not have a block oracle (instead they have l1BlockNumber in each block)
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
-        if (chainConfiguration.provingMechanism != uint8(ProvingMechanism.Arbitrum)) {
+        if (chainConfiguration.blockhashOracle != ZERO_ADDRESS) {
             require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
         }
-        // bytes32 l1WorldStateRoot = bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]));
 
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
@@ -286,8 +286,10 @@ contract Prover is Ownable {
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
-        BlockProof memory existingBlockProof = provenStates[chainConfiguration.settlementChainId];
-        require(existingBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved");
+        BlockProof memory existingSettlementBlockProof = provenStates[chainConfiguration.settlementChainId];
+        require(
+            existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
+        );
 
         bytes32 outputRoot = generateOutputRoot(
             L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, keccak256(rlpEncodedBlockData)
@@ -313,6 +315,7 @@ contract Prover is Ownable {
 
         // provenL2States[l2WorldStateRoot] = l2OutputIndex;
 
+        BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
@@ -466,8 +469,10 @@ contract Prover is Ownable {
         bytes32 l1WorldStateRoot
     ) public {
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
-        BlockProof memory existingBlockProof = provenStates[chainConfiguration.settlementChainId];
-        require(existingBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved");
+        BlockProof memory existingSettlementBlockProof = provenStates[chainConfiguration.settlementChainId];
+        require(
+            existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
+        );
         // prove that the FaultDisputeGame was created by the Dispute Game Factory
         // require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
 
@@ -481,12 +486,13 @@ contract Prover is Ownable {
             rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot
         );
 
-        // TODO Refactor fo use block instead of blockhash or outputIndex
+        BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
-            blockNumber: uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[7]))),
+            blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
+        console.log("Have L2 blockProof Cannon", blockProof.blockNumber);
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
             console.log("Writing L2 blockProof Cannon", blockProof.blockNumber);

@@ -425,13 +425,12 @@ describe('Prover Test', () => {
 
     await prover.proveIntent(
       t.intents.baseSepolia.destinationChainId,
-      t.intents.baseSepolia.rlpEncodedBlockData,
       FILLER,
       INBOX_CONTRACT,
       INTENT_HASH,
       1, // no need to be specific about output indexes yet
       l2StorageProof,
-      await prover.rlpEncodeDataLibList(l2ContractData),
+      await prover.rlpEncodeDataLibList(t.cannon.intent.inboxContract),
       l2AccountProof,
       L2_WORLD_STATE_ROOT,
     )
@@ -773,8 +772,24 @@ describe('Prover Test', () => {
       t.cannon.layer1.worldStateRoot,
     )
 
+    await cannonProver.proveIntent(
+      t.intents.optimismSepolia.destinationChainId,
+      t.actors.claimant,
+      // t.intents.optimismSepolia.rlpEncodedBlockData,
+      t.baseSepolia.inboxAddress,
+      t.cannon.intent.intentHash,
+      // 1, // no need to be specific about output indexes yet
+      t.cannon.intent.storageProof,
+      await cannonProver.rlpEncodeDataLibList(
+        t.cannon.intent.inboxContractData,
+      ),
+      t.cannon.intent.accountProof,
+      t.cannon.layer2.endBatchBlockStateRoot,
+    )
+
     // await cannonProver.assembleGameStatusStorage()
 
-    // expect((await prover.provenIntents(INTENT_HASH)) === FILLER).to.be.true
+    expect((await cannonProver.provenIntents(INTENT_HASH)) === FILLER).to.be
+      .true
   })
 })
