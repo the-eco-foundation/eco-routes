@@ -262,7 +262,6 @@ contract Prover is Ownable {
         bytes calldata rlpEncodedBlockData,
         bytes32 l2WorldStateRoot,
         bytes32 l2MessagePasserStateRoot,
-        // bytes32 l2LatestBlockHash,
         uint256 l2OutputIndex,
         bytes[] calldata l1StorageProof,
         bytes calldata rlpEncodedOutputOracleData,
