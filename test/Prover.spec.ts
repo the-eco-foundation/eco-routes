@@ -594,7 +594,7 @@ describe('Prover Test', () => {
           t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
         ),
       ),
-    ).to.equal('0x6689aa0827f77e1f136204d18a100c30f634704067251d09')
+    ).to.equal('0x66997f68e611c3b8ec600691b9d16e54b433e03742e3b9d8')
 
     // Get the storage Slot information
     // l1BatchSlot = calculated from the batch number *2 + output slot 3
@@ -636,6 +636,7 @@ describe('Prover Test', () => {
     // )
 
     // Prove storage showing the DisputeGameFactory created the FaultDisputGame
+    console.log('Calling Cannon DisputeGameFactory Storage Proof')
     await cannonProver.proveStorage(
       t.cannon.layer2.disputeGameFactory.faultDisputeGame.gameIDStorageSlot,
       encodeRlp(

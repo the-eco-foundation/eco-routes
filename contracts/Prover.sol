@@ -103,6 +103,12 @@ contract Prover is Ownable {
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
+        console.log("In proveStorage");
+        console.logBytes(_key);
+        console.logBytes(_val);
+        console.logBytes(_proof[0]);
+        console.logBytes32(_root);
+
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
     }
 

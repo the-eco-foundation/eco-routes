@@ -19,7 +19,8 @@ async function proveL1WorldState() {
   const layer1BlockTag = toQuantity(layer1Block)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
-    layer1BlockTag,
+    '0x6107cf',
+    // layer1BlockTag,
     false,
   ])
   console.log('block: ', block)
