@@ -52,6 +52,7 @@ async function proveL1WorldState() {
     console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
     tx = await s.layer2SourceProverContract.proveL1WorldState(
       getBytes(hexlify(rlpEncodedBlockData)),
+      config.optimismSepolia.chainId,
     )
     await tx.wait()
     console.log('Prove L1 world state tx: ', tx.hash)
@@ -135,7 +136,7 @@ async function proveL2WorldState(
   ]
   try {
     const proveOutputTX =
-      await s.layer2SourceProverContract.proveL2WorldStateBedrock(
+      await s.layer2SourceProverContract.proveL2WorldStateCannon(
         l2EndBatchBlockData.stateRoot,
         l2MesagePasserProof.storageHash,
         l2EndBatchBlockData.hash,
@@ -254,18 +255,18 @@ async function main() {
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     // get the latest world state
     const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
-    // console.log('layer1BlockTag: ', layer1BlockTag)
-    // console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
+    console.log('layer1BlockTag: ', layer1BlockTag)
+    console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
     // const layer1BlockTag = config.intents.optimismSepolia.layer1BlockTag
     // const layer1WorldStateRoot =
     //   config.intents.optimismSepolia.layer1WorldStateRoot
     // // get the latest dispute game that has been solved
     // //
-    // const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
-    //   layer1BlockTag,
-    //   intentFulfillTransaction,
-    //   layer1WorldStateRoot,
-    // )
+    const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
+      layer1BlockTag,
+      intentFulfillTransaction,
+      layer1WorldStateRoot,
+    )
     // console.log
     // await proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData)
     // await withdrawReward(intentHash)

@@ -86,11 +86,11 @@ export default {
       rewardAmounts: [1242],
       duration: 3600,
       intentCreationTransaction:
-        '0x53170472314f39491367f84e652ecbfb7968a989d7248ff573b2d405065db0e8',
+        '0xb13618c2d8852e0c6ea91dd4a3f9eb8c86cb80ee856f7aaa006c3bd158dcb7e5',
       intentHash:
-        '0xede356179c8f295d21327bb56d9fd91f29cdd7bfe42714de0fef3bae7bf2ce3c',
+        '0xd5d026435192fe852106f76fbf4d7ca5d8660899f703a4fdcaf5cbb8ab0f8b9f',
       intentFulfillTransaction:
-        '0x19b05b2f33d9427a0cc3adad5a7d7cb5caedae42847e893b0e7a3c7d1c65c1ac',
+        '0x4fb53eef830faa233c7b5025ddc94aca7314270be9b2a0ecb506d9745d58f10b',
       intentFulfillBatchEndBlock: '0xd966dc', // 14247644
       layer1BlockTag: '0x600484', // 6292612
       layer1BlockHash:
