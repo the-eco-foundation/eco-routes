@@ -5,20 +5,14 @@ import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/tr
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
-import {ProverRouter} from "./ProverRouter.sol";
 
 contract Prover {
-
-    error NotFromRouter();
 
     uint16 public constant NONCE_PACKING = 1;
 
     uint256 public constant L2_OUTPUT_SLOT_NUMBER = 3;
 
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
-
-    // the address of the prover router
-    address public immutable proverRouter;
 
     // L2OutputOracle on Sepolia Eth
     address public immutable l1OutputOracleAddress;
@@ -37,10 +31,9 @@ contract Prover {
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
-    constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress, address _proverRouter) {
+    constructor(address _l1BlockhashOracle, address _l1OutputOracleAddress) {
         l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
         l1OutputOracleAddress = _l1OutputOracleAddress;
-        proverRouter = _proverRouter;
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {

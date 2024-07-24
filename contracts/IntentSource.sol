@@ -3,7 +3,6 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IIntentSource.sol";
-import "./ProverRouter.sol";
 import "./Prover.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -19,8 +18,8 @@ contract IntentSource is IIntentSource {
     // chain ID
     uint256 public immutable CHAIN_ID;
 
-    // prover router address
-    ProverRouter public immutable ROUTER;
+    // prover address
+    Prover public immutable PROVER;
 
     // intent creation counter
     uint256 public counter;
@@ -35,14 +34,14 @@ contract IntentSource is IIntentSource {
     mapping(bytes32 intenthash => Intent) public intents;
 
     /**
-     * @param _router the prover router address
+     * @param _prover the prover address
      * @param _minimumDuration the minimum duration of an intent originating on this chain
      * @param _counterStart the initial value of the counter
      * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs to be redeployed.
      */
-    constructor(address _router, uint256 _minimumDuration, uint256 _counterStart) {
+    constructor(address _prover, uint256 _minimumDuration, uint256 _counterStart) {
         CHAIN_ID = block.chainid;
-        ROUTER = ProverRouter(_router);
+        PROVER = Prover(_prover);
         MINIMUM_DURATION = _minimumDuration;
         counter = _counterStart;
     }
@@ -125,7 +124,7 @@ contract IntentSource is IIntentSource {
 
     function withdrawRewards(bytes32 _hash) external {
         Intent storage intent = intents[_hash];
-        address provenBy = Prover(ROUTER.provers(block.chainid)).provenIntents(_hash);
+        address provenBy = PROVER.provenIntents(_hash);
         if (!intent.hasBeenWithdrawn) {
             if (
                 provenBy == msg.sender

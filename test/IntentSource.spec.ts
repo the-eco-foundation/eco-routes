@@ -7,6 +7,7 @@ import {
   TestProver,
   ProverRouter,
   Inbox,
+  Prover,
 } from '../typechain-types'
 import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { keccak256, BytesLike } from 'ethers'
@@ -38,22 +39,20 @@ describe('Intent Source Test', (): void => {
 
   async function deploySourceFixture(): Promise<{
     intentSource: IntentSource
-    // inbox: Inbox
+    prover: TestProver
     tokenA: TestERC20
     tokenB: TestERC20
     creator: SignerWithAddress
     solver: SignerWithAddress
-    routerOwner: SignerWithAddress
   }> {
-    const [creator, routerOwner, solver] = await ethers.getSigners()
+    const [creator, solver] = await ethers.getSigners()
 
     // deploy prover
-    const routerFactory = await ethers.getContractFactory('ProverRouter')
-    router = await routerFactory.deploy(routerOwner.address)
+    prover = await (await ethers.getContractFactory('TestProver')).deploy()
 
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
     const intentSource = await intentSourceFactory.deploy(
-      router,
+      prover,
       minimumDuration,
       0,
     )
@@ -66,12 +65,11 @@ describe('Intent Source Test', (): void => {
 
     return {
       intentSource,
-      //   inbox,
+      prover,
       tokenA,
       tokenB,
       creator,
       solver,
-      routerOwner,
     }
   }
 
@@ -84,7 +82,7 @@ describe('Intent Source Test', (): void => {
   }
 
   beforeEach(async (): Promise<void> => {
-    ;({ intentSource, tokenA, tokenB, creator, solver, routerOwner } =
+    ;({ intentSource, prover, tokenA, tokenB, creator, solver } =
       await loadFixture(deploySourceFixture))
 
     // fund the creator and approve it to create an intent
@@ -96,7 +94,7 @@ describe('Intent Source Test', (): void => {
       expect(await intentSource.CHAIN_ID()).to.eq(
         (await ethers.provider.getNetwork()).chainId,
       )
-      expect(await intentSource.ROUTER()).to.eq(await router.getAddress())
+      expect(await intentSource.PROVER()).to.eq(await prover.getAddress())
       expect(await intentSource.MINIMUM_DURATION()).to.eq(minimumDuration)
       expect(await intentSource.counter()).to.eq(0)
     })
@@ -337,15 +335,6 @@ describe('Intent Source Test', (): void => {
           rewardTokens,
           rewardAmounts,
           expiry,
-        )
-      const proverFactory = await ethers.getContractFactory('TestProver')
-      prover = await proverFactory.deploy(await router.getAddress())
-
-      await router
-        .connect(routerOwner)
-        .setProver(
-          (await routerOwner.provider.getNetwork()).chainId,
-          await prover.getAddress(),
         )
     })
     context('before expiry, no proof', () => {
