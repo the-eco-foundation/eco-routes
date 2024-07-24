@@ -49,9 +49,11 @@
     "contractSummary": "slither --print contract-summary . 2>&1 | tee ./docs/slither/contract-summary.txt",
     "deploySourceAndProver": "hardhat run --network optimismSepoliaBlockscout scripts/deploySourceAndProver.ts",
     "deployInbox": "hardhat run --network baseSepolia scripts/deployInbox.ts",
-    "deployERC20": "hardhat run --network sepolia scripts/deployERC20.ts",
     "intentWalkThrough": "hardhat run scripts/intentWalkThrough.ts",
-    "wallet": "hardhat run scripts/walletGen.ts"
+    "deploySourceAndProverMainnet": "hardhat run --network optimism scripts/deploySourceAndProver.ts",
+    "deployInboxMainnet": "hardhat run --network base scripts/deployInbox.ts",
+    "intentSolveMainnet": "hardhat run scripts/intentSolveMainnet.ts",
+    "intentWithdrawMainnet": "hardhat run scripts/intentWithdrawMainnet.ts"
   },
   "files": [
     "contracts/**.sol",
