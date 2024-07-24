@@ -1,14 +1,7 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { expect } from 'chai'
 import hre from 'hardhat'
-import {
-  TestERC20,
-  IntentSource,
-  TestProver,
-  ProverRouter,
-  Inbox,
-  Prover,
-} from '../typechain-types'
+import { TestERC20, IntentSource, TestProver, Inbox } from '../typechain-types'
 import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { keccak256, BytesLike } from 'ethers'
 import { encodeIdentifier, encodeTransfer } from '../utils/encode'
@@ -17,18 +10,15 @@ const { ethers } = hre
 describe('Intent Source Test', (): void => {
   let intentSource: IntentSource
   let prover: TestProver
-  let router: ProverRouter
   let inbox: Inbox
   let tokenA: TestERC20
   let tokenB: TestERC20
   let creator: SignerWithAddress
   let solver: SignerWithAddress
-  let routerOwner: SignerWithAddress
   const mintAmount: number = 1000
   const minimumDuration = 1000
 
   let expiry: number
-  let intermediateHash: BytesLike
   let intentHash: BytesLike
   let chainId: number
   let targets: string[]
