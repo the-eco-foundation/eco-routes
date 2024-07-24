@@ -6,6 +6,7 @@ import {
   IntentSource,
   TestProver,
   ProverRouter,
+  Inbox,
 } from '../typechain-types'
 import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { keccak256, BytesLike } from 'ethers'
@@ -14,17 +15,19 @@ const { ethers } = hre
 
 describe('Intent Source Test', (): void => {
   let intentSource: IntentSource
+  let prover: TestProver
+  let router: ProverRouter
+  let inbox: Inbox
   let tokenA: TestERC20
   let tokenB: TestERC20
   let creator: SignerWithAddress
   let solver: SignerWithAddress
   let routerOwner: SignerWithAddress
-  let prover: TestProver
-  let router: ProverRouter
   const mintAmount: number = 1000
   const minimumDuration = 1000
 
   let expiry: number
+  let intermediateHash: BytesLike
   let intentHash: BytesLike
   let chainId: number
   let targets: string[]
@@ -35,6 +38,7 @@ describe('Intent Source Test', (): void => {
 
   async function deploySourceFixture(): Promise<{
     intentSource: IntentSource
+    // inbox: Inbox
     tokenA: TestERC20
     tokenB: TestERC20
     creator: SignerWithAddress
@@ -53,6 +57,7 @@ describe('Intent Source Test', (): void => {
       minimumDuration,
       0,
     )
+    inbox = await (await ethers.getContractFactory('Inbox')).deploy()
 
     // deploy ERC20 test
     const erc20Factory = await ethers.getContractFactory('TestERC20')
@@ -61,6 +66,7 @@ describe('Intent Source Test', (): void => {
 
     return {
       intentSource,
+      //   inbox,
       tokenA,
       tokenB,
       creator,
@@ -108,11 +114,18 @@ describe('Intent Source Test', (): void => {
         (await ethers.provider.getNetwork()).chainId,
       )
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
-      const encodedData = abiCoder.encode(
-        ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
-        [chainId, targets, data, expiry, nonce],
+      const intermediateHash = keccak256(
+        abiCoder.encode(
+          ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [chainId, targets, data, expiry, nonce],
+        ),
       )
-      intentHash = keccak256(encodedData)
+      intentHash = keccak256(
+        abiCoder.encode(
+          ['address', 'bytes32'],
+          [await inbox.getAddress(), intermediateHash],
+        ),
+      )
     })
     context('fails if', () => {
       it('targets or data length is 0, or if they are mismatched', async () => {
@@ -122,6 +135,7 @@ describe('Intent Source Test', (): void => {
             .connect(creator)
             .createIntent(
               1,
+              await inbox.getAddress(),
               [await tokenA.getAddress(), await tokenB.getAddress()],
               [encodeTransfer(creator.address, mintAmount)],
               [await tokenA.getAddress()],
@@ -135,6 +149,7 @@ describe('Intent Source Test', (): void => {
             .connect(creator)
             .createIntent(
               1,
+              await inbox.getAddress(),
               [],
               [],
               [await tokenA.getAddress()],
@@ -150,6 +165,7 @@ describe('Intent Source Test', (): void => {
             .connect(creator)
             .createIntent(
               1,
+              await inbox.getAddress(),
               [await tokenA.getAddress()],
               [encodeTransfer(creator.address, mintAmount)],
               [await tokenA.getAddress(), await tokenB.getAddress()],
@@ -163,6 +179,7 @@ describe('Intent Source Test', (): void => {
             .connect(creator)
             .createIntent(
               1,
+              await inbox.getAddress(),
               [await tokenA.getAddress()],
               [encodeTransfer(creator.address, mintAmount)],
               [],
@@ -177,6 +194,7 @@ describe('Intent Source Test', (): void => {
             .connect(creator)
             .createIntent(
               1,
+              await inbox.getAddress(),
               [await tokenA.getAddress()],
               [encodeTransfer(creator.address, mintAmount)],
               [await tokenA.getAddress()],
@@ -191,6 +209,7 @@ describe('Intent Source Test', (): void => {
         .connect(creator)
         .createIntent(
           chainId,
+          await inbox.getAddress(),
           targets,
           data,
           rewardTokens,
@@ -200,14 +219,14 @@ describe('Intent Source Test', (): void => {
       const intent = await intentSource.intents(intentHash)
       // value types
       expect(intent.creator).to.eq(creator.address)
-      expect(intent.destinationChain).to.eq(chainId)
+      expect(intent.destinationChainID).to.eq(chainId)
       expect(intent.expiryTime).to.eq(expiry)
       expect(intent.hasBeenWithdrawn).to.eq(false)
       expect(intent.nonce).to.eq(nonce)
       // getIntent complete call
       const intentDetail = await intentSource.getIntent(intentHash)
       expect(intentDetail.creator).to.eq(creator.address)
-      expect(intentDetail.destinationChain).to.eq(chainId)
+      expect(intentDetail.destinationChainID).to.eq(chainId)
       expect(intentDetail.targets).to.deep.eq(targets)
       expect(intentDetail.data).to.deep.eq(data)
       expect(intentDetail.rewardTokens).to.deep.eq(rewardTokens)
@@ -239,6 +258,7 @@ describe('Intent Source Test', (): void => {
         .connect(creator)
         .createIntent(
           chainId,
+          await inbox.getAddress(),
           targets,
           data,
           rewardTokens,
@@ -259,6 +279,7 @@ describe('Intent Source Test', (): void => {
           .connect(creator)
           .createIntent(
             chainId,
+            await inbox.getAddress(),
             targets,
             data,
             rewardTokens,
@@ -293,16 +314,24 @@ describe('Intent Source Test', (): void => {
       rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
       rewardAmounts = [mintAmount, mintAmount * 2]
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
-      const encodedData = abiCoder.encode(
-        ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
-        [chainId, targets, data, expiry, nonce],
+      const intermediateHash = keccak256(
+        abiCoder.encode(
+          ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [chainId, targets, data, expiry, nonce],
+        ),
       )
-      intentHash = keccak256(encodedData)
+      intentHash = keccak256(
+        abiCoder.encode(
+          ['address', 'bytes32'],
+          [await inbox.getAddress(), intermediateHash],
+        ),
+      )
 
       await intentSource
         .connect(creator)
         .createIntent(
           chainId,
+          await inbox.getAddress(),
           targets,
           data,
           rewardTokens,

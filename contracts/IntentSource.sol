@@ -61,6 +61,7 @@ contract IntentSource is IIntentSource {
      */
     function createIntent(
         uint256 _destinationChainID,
+        address _inbox,
         address[] calldata _targets,
         bytes[] calldata _data,
         address[] calldata _rewardTokens,
@@ -82,9 +83,8 @@ contract IntentSource is IIntentSource {
         }
 
         bytes32 _nonce = keccak256(abi.encode(counter, CHAIN_ID));
-        address inbox = ROUTER.inboxes(_destinationChainID);
         bytes32 intermediateHash = keccak256(abi.encode(_destinationChainID, _targets, _data, _expiryTime, _nonce));
-        bytes32 intentHash = keccak256(abi.encode(inbox, intermediateHash));
+        bytes32 intentHash = keccak256(abi.encode(_inbox, intermediateHash));
 
         intents[intentHash] = Intent({
             creator: msg.sender,
