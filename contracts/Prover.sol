@@ -165,7 +165,8 @@ contract Prover {
     ) public virtual {
         require(provenL2States[l2WorldStateRoot] > intentOutputIndex, "l2 state root not yet proven"); // intentOutputIndex can never be less than zero, so this always ensures the root was proven
 
-        bytes32 intentHash = keccak256(abi.encode(inboxContract, intermediateHash));
+        // bytes32 intentHash = keccak256(abi.encode(inboxContract, intermediateHash));
+        bytes32 intentHash = intermediateHash;
 
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
