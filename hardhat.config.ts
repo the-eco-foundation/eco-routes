@@ -3,10 +3,12 @@ import { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
 import '@nomicfoundation/hardhat-viem'
 import 'solidity-docgen'
+import '@nomicfoundation/hardhat-verify'
 dotenv.config()
 const DEPLOY_PRIVATE_KEY =
   process.env.DEPLOY_PRIVATE_KEY || '0x' + '11'.repeat(32) // this is to avoid hardhat error
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
+const L3_DEPLOYER_PK = process.env.L3_DEPLOYER_PK || '0x' + '11'.repeat(32)
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -72,6 +74,11 @@ const config: HardhatUserConfig = {
       url: `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOY_PRIVATE_KEY],
     },
+    L3Caldera: {
+      chainId: 471923,
+      url: `https://eco-testnet.rpc.caldera.xyz/http`,
+      accounts: [L3_DEPLOYER_PK],
+    },
   },
   etherscan: {
     apiKey: {
@@ -81,6 +88,7 @@ const config: HardhatUserConfig = {
       optimism: process.env.OPTIMISM_SCAN_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISM_SCAN_API_KEY || '',
       base: process.env.BASE_SCAN_API_KEY || '',
+      L3Caldera: 'nonEmptyString',
     },
     customChains: [
       {
@@ -97,6 +105,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://optimism-sepolia.blockscout.com/api',
           browserURL: 'https://optimism-sepolia.blockscout.com/',
+        },
+      },
+      {
+        network: 'L3Caldera',
+        chainId: 471923,
+        urls: {
+          apiURL: 'https://eco-testnet.explorer.caldera.xyz/api',
+          browserURL: 'https://eco-testnet.explorer.caldera.xyz/',
         },
       },
     ],

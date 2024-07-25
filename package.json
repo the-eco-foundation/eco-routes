@@ -53,7 +53,8 @@
     "deploySourceAndProverMainnet": "hardhat run --network optimism scripts/deploySourceAndProver.ts",
     "deployInboxMainnet": "hardhat run --network base scripts/deployInbox.ts",
     "intentSolveMainnet": "hardhat run scripts/intentSolveMainnet.ts",
-    "intentWithdrawMainnet": "hardhat run scripts/intentWithdrawMainnet.ts"
+    "intentWithdrawMainnet": "hardhat run scripts/intentWithdrawMainnet.ts",
+    "deployUSDCLike": "hardhat run --network L3Caldera scripts/deployUSDClike.ts"
   },
   "files": [
     "contracts/**.sol",
