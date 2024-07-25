@@ -63,7 +63,7 @@
     "deploySourceAndProverMainnet": "hardhat run --network optimism scripts/bedrock/deploySourceAndProver.ts",
     "deployInboxMainnet": "hardhat run --network base scripts/bedrock/deployInbox.ts",
     "intentSolveMainnet": "hardhat run scripts/bedrock/intentSolveMainnet.ts",
-    "intentWithdrawMainnet": "hardhat run scripts/bedrock/intentWithdrawMainnet.ts",
+    "intentWithdrawMainnet": "hardhat run scripts/mainnet/bedrock/intentWithdrawMainnet.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
     "EndMainnetCannon": "-------- End Cannon scripts  --------"
   },
@@ -108,7 +108,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-promise": "^6.1.1",
     "ethers": "^6.9.0",
-    "hardhat": "^2.22.5",
+    "hardhat": "^2.22.6",
     "hardhat-gas-reporter": "^1.0.9",
     "prettier": "^3.1.1",
     "solhint": "^4.0.0",

@@ -10,18 +10,18 @@ import {
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-import config from '../../config/config'
-import { s } from '../setupMainnet'
+import config from '../../../config/mainnet/config'
+import { s } from '../setup'
 
 async function proveL1WorldState() {
   console.log('In proveL1WorldState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
   const layer1BlockTag = toQuantity(layer1Block)
 
-  const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
-    layer1BlockTag,
-    false,
-  ])
+  const block: Block = await s.layer2DestinationProvider.send(
+    'eth_getBlockByNumber',
+    ['0xfd9e90', false],
+  )
   // console.log('block: ', block)
 
   let tx
@@ -49,6 +49,7 @@ async function proveL1WorldState() {
       stripZerosLeft(toBeHex(block.excessBlobGas)),
       block.parentBeaconBlockRoot,
     ])
+    console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
     tx = await s.layer2SourceProverContract.proveL1WorldState(
       getBytes(hexlify(rlpEncodedBlockData)),
     )
@@ -241,8 +242,8 @@ async function main() {
   let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
-    intentHash = config.mainnetIntent.intentHash
-    intentFulfillTransaction = config.mainnetIntent.intentFulfillTransaction
+    intentHash = config.intents.base.intentHash
+    intentFulfillTransaction = config.intents.base.intentFulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()

@@ -428,9 +428,11 @@ describe('Prover Test', () => {
       FILLER,
       INBOX_CONTRACT,
       INTENT_HASH,
-      1, // no need to be specific about output indexes yet
+      // 1, // no need to be specific about output indexes yet
       l2StorageProof,
-      await prover.rlpEncodeDataLibList(t.cannon.intent.inboxContract),
+      await prover.rlpEncodeDataLibList(
+        t.intents.baseSepolia.inboxContractData,
+      ),
       l2AccountProof,
       L2_WORLD_STATE_ROOT,
     )
@@ -483,7 +485,7 @@ describe('Prover Test', () => {
 
     await mainnetProver.proveL1WorldState(
       mainnetL1RLPEncodedBlockDataFull,
-      t.sepolia.chainId,
+      t.intents.baseEthereum.destinationChainId,
     )
 
     // Validate proveStorage
@@ -510,8 +512,8 @@ describe('Prover Test', () => {
     )
 
     await mainnetProver.proveL2WorldStateBedrock(
-      t.intents.baseSepolia.destinationChainId,
-      t.intents.baseSepolia.rlpEncodedBlockData,
+      t.intents.baseEthereum.destinationChainId,
+      t.intents.baseEthereum.rlpEncodedBlockData,
       mainnetL2_WORLD_STATE_ROOT,
       mainnetL2_MESSAGE_PASSER_STORAGE_ROOT,
       // mainnetL2_BATCH_LATEST_BLOCK_HASH,
