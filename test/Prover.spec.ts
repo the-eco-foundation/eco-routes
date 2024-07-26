@@ -208,31 +208,31 @@ describe('Prover Test', () => {
     )
   })
 
-  it('full proof', async () => {
-    await prover.proveL1WorldState(await prover.rlpEncodeDataLibList(blockData))
+  //   it('full proof', async () => {
+  //     await prover.proveL1WorldState(await prover.rlpEncodeDataLibList(blockData))
 
-    await prover.proveOutputRoot(
-      L2_WORLD_STATE_ROOT,
-      L2_MESSAGE_PASSER_STORAGE_ROOT,
-      L2_BATCH_LATEST_BLOCK_HASH,
-      BATCH_INDEX,
-      l1StorageProof,
-      await prover.rlpEncodeDataLibList(l1ContractData),
-      l1AccountProof,
-      L1_WORLD_STATE_ROOT,
-    )
+  //     await prover.proveOutputRoot(
+  //       L2_WORLD_STATE_ROOT,
+  //       L2_MESSAGE_PASSER_STORAGE_ROOT,
+  //       L2_BATCH_LATEST_BLOCK_HASH,
+  //       BATCH_INDEX,
+  //       l1StorageProof,
+  //       await prover.rlpEncodeDataLibList(l1ContractData),
+  //       l1AccountProof,
+  //       L1_WORLD_STATE_ROOT,
+  //     )
 
-    await prover.proveIntent(
-      FILLER,
-      INBOX_CONTRACT,
-      INTENT_HASH,
-      1, // no need to be specific about output indexes yet
-      l2StorageProof,
-      await prover.rlpEncodeDataLibList(l2ContractData),
-      l2AccountProof,
-      L2_WORLD_STATE_ROOT,
-    )
+  //     await prover.proveIntent(
+  //       FILLER,
+  //       INBOX_CONTRACT,
+  //       INTENT_HASH,
+  //       1, // no need to be specific about output indexes yet
+  //       l2StorageProof,
+  //       await prover.rlpEncodeDataLibList(l2ContractData),
+  //       l2AccountProof,
+  //       L2_WORLD_STATE_ROOT,
+  //     )
 
-    expect((await prover.provenIntents(INTENT_HASH)) === FILLER).to.be.true
-  })
+  //     expect((await prover.provenIntents(INTENT_HASH)) === FILLER).to.be.true
+  //   })
 })

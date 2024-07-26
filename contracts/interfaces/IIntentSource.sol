@@ -86,6 +86,7 @@ interface IIntentSource {
      */
     function createIntent(
         uint256 _destinationChain,
+        address _inbox,
         address[] calldata _targets,
         bytes[] calldata _data,
         address[] calldata _rewardTokens,
