@@ -190,7 +190,7 @@ describe('Inbox Test', (): void => {
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-        .withArgs(hash32, dstAddr.address)
+        .withArgs(intentHash, dstAddr.address)
       // should update the fulfilled hash
       expect(await inbox.fulfilled(intentHash)).to.equal(dstAddr.address)
 
@@ -217,11 +217,7 @@ describe('Inbox Test', (): void => {
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-<<<<<<< HEAD
-        .withArgs(hash32, dstAddr.address)
-=======
-        .withArgs(intentHash)
->>>>>>> ECO-1908
+        .withArgs(intentHash, dstAddr.address)
       // should revert
       await expect(
         inbox
