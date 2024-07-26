@@ -7,7 +7,6 @@ import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/tr
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
-import {console} from "hardhat/console.sol";
 
 contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     address public constant ZERO_ADDRESS = address(0);
@@ -76,15 +75,11 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     mapping(bytes32 => address) public provenIntents;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    // constructor(address _l1BlockhashOracle, address _owner) initializer {}
     constructor() initializer {}
 
-    function initialize(address _l1BlockhashOracle, address _owner) public initializer {
+    function initialize(address _owner) public initializer {
         __Ownable_init(_owner);
         __UUPSUpgradeable_init();
-        l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
-        // l1OutputOracleAddress = _l1OutputOracleAddress;
-        // faultGameFactoryAddress = _faultGameFactoryAddress;
     }
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
@@ -110,12 +105,6 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
-        console.log("In proveStorage");
-        console.logBytes(_key);
-        console.logBytes(_val);
-        console.logBytes(_proof[0]);
-        console.logBytes32(_root);
-
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
     }
 
@@ -238,9 +227,6 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
-        // provenL1States[l1WorldStateRoot] = l1BlockhashOracle.number();
-
-        // console.logBytes(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]));
         BlockProof memory blockProof = BlockProof({
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
@@ -249,7 +235,6 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         BlockProof memory existingBlockProof = provenStates[chainId];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
-            console.log("Writing L1 blockProof", blockProof.blockNumber);
         }
     }
     /**
@@ -320,7 +305,6 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
-            console.log("Writing L2 blockProof", blockProof.blockNumber);
         }
     }
 
@@ -491,10 +475,8 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
-        console.log("Have L2 blockProof Cannon", blockProof.blockNumber);
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
-            console.log("Writing L2 blockProof Cannon", blockProof.blockNumber);
         }
     }
 
@@ -521,7 +503,6 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     ) public {
         // ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         BlockProof memory existingBlockProof = provenStates[chainId];
-        console.log("Prove Intent blockProof", existingBlockProof.blockNumber);
         require(existingBlockProof.stateRoot == l2WorldStateRoot, "destination chain state root not yet proved");
 
         bytes32 messageMappingSlot = keccak256(

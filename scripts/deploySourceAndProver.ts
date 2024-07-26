@@ -5,7 +5,6 @@ import { getAddress } from 'ethers'
 import c from '../config/testnet/config'
 
 const networkName = network.name
-const l1BlockAddressSepolia = getAddress(c.optimismSepolia.l1BlockAddress)
 
 console.log('Deploying to Network: ', networkName)
 
@@ -14,15 +13,10 @@ async function main() {
   console.log('Deploying contracts with the account:', deployer.address)
 
   const proverFactory = await ethers.getContractFactory('Prover')
-  const prover = await upgrades.deployProxy(
-    proverFactory,
-    [await l1BlockAddressSepolia, deployer.address],
-    { initializer: 'initialize', kind: 'uups' },
-  )
-  // const prover: Prover = await proverFactory.deploy(
-  //   l1BlockAddressSepolia,
-  //   deployer.address,
-  // )
+  const prover = await upgrades.deployProxy(proverFactory, [deployer.address], {
+    initializer: 'initialize',
+    kind: 'uups',
+  })
   console.log('prover proxy deployed to:', await prover.getAddress())
   console.log(
     'prover implementation deployed to: ',

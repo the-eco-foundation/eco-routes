@@ -10,7 +10,6 @@ import "./interfaces/IInbox.sol";
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
 contract Inbox is IInbox {
-
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
 
@@ -43,14 +42,14 @@ contract Inbox is IInbox {
         bytes32 _expectedHash
     ) external validTimestamp(_expireTimestamp) returns (bytes[] memory) {
         bytes32 intentHash = encodeHash(block.chainid, _targets, _datas, _expireTimestamp, _nonce);
-        
+
         // revert if locally calculated hash does not match expected hash
-        if(intentHash != _expectedHash) {
+        if (intentHash != _expectedHash) {
             revert InvalidHash(_expectedHash);
         }
-        
+
         // revert if intent has already been fulfilled
-        if(fulfilled[intentHash] != address(0)) {
+        if (fulfilled[intentHash] != address(0)) {
             revert IntentAlreadyFulfilled(intentHash);
         }
         // Store the results of the calls
@@ -67,7 +66,7 @@ contract Inbox is IInbox {
         fulfilled[intentHash] = _claimant;
 
         // Emit an event
-        emit Fulfillment(intentHash);
+        emit Fulfillment(intentHash, _claimant);
 
         // Return the results
         return results;

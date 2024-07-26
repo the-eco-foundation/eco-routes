@@ -267,11 +267,10 @@ describe('Prover Test', () => {
     )
 
     const proverContract = await ethers.getContractFactory('Prover')
-    prover = await upgrades.deployProxy(
-      proverContract,
-      [await blockDataSource.getAddress(), alice.address],
-      { initializer: 'initialize', kind: 'uups' },
-    )
+    prover = await upgrades.deployProxy(proverContract, [alice.address], {
+      initializer: 'initialize',
+      kind: 'uups',
+    })
 
     //baseSepolia Config
     await prover.setChainConfiguration(
@@ -279,7 +278,7 @@ describe('Prover Test', () => {
       1,
       t.sepolia.chainId,
       t.sepolia.settlementContract.baseSepolia,
-      t.baseSepolia.l1BlockAddress,
+      await blockDataSource.getAddress(),
       t.baseSepolia.outputRootVersionNumber,
     )
 
@@ -289,7 +288,7 @@ describe('Prover Test', () => {
       2,
       t.sepolia.chainId,
       t.sepolia.settlementContract.optimismSepolia,
-      t.optimismSepolia.l1BlockAddress,
+      await blockDataSource.getAddress(),
       t.optimismSepolia.outputRootVersionNumber,
     )
   })
@@ -461,7 +460,7 @@ describe('Prover Test', () => {
     const mainnetProverContract = await ethers.getContractFactory('Prover')
     const mainnetProver = await upgrades.deployProxy(
       mainnetProverContract,
-      [await mainnetBlockDataSource.getAddress(), alice.address],
+      [alice.address],
       { initializer: 'initialize', kind: 'uups' },
     )
     // const mainnetProver = await deploy(alice, Prover__factory, [
@@ -477,7 +476,7 @@ describe('Prover Test', () => {
       1,
       t.sepolia.chainId,
       t.sepolia.settlementContract.baseSepolia,
-      t.baseSepolia.l1BlockAddress,
+      await mainnetBlockDataSource.getAddress(),
       t.baseSepolia.outputRootVersionNumber,
     )
 
@@ -487,7 +486,7 @@ describe('Prover Test', () => {
       2,
       t.sepolia.chainId,
       t.sepolia.settlementContract.optimismSepolia,
-      t.optimismSepolia.l1BlockAddress,
+      await mainnetBlockDataSource.getAddress(),
       t.optimismSepolia.outputRootVersionNumber,
     )
 
@@ -555,7 +554,7 @@ describe('Prover Test', () => {
     const cannonProverContract = await ethers.getContractFactory('Prover')
     const cannonProver = await upgrades.deployProxy(
       cannonProverContract,
-      [await cannonBlockDataSource.getAddress(), alice.address],
+      [alice.address],
       { initializer: 'initialize', kind: 'uups' },
     )
 
@@ -565,7 +564,7 @@ describe('Prover Test', () => {
       1,
       t.sepolia.chainId,
       t.sepolia.settlementContract.baseSepolia,
-      t.baseSepolia.l1BlockAddress,
+      await cannonBlockDataSource.getAddress(),
       t.baseSepolia.outputRootVersionNumber,
     )
 
@@ -575,7 +574,7 @@ describe('Prover Test', () => {
       2,
       t.sepolia.chainId,
       t.sepolia.settlementContract.optimismSepolia,
-      t.optimismSepolia.l1BlockAddress,
+      await cannonBlockDataSource.getAddress(),
       t.optimismSepolia.outputRootVersionNumber,
     )
 
