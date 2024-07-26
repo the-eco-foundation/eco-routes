@@ -3,7 +3,7 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IIntentSource.sol";
-import "./Prover.sol";
+import "./interfaces/IProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -19,7 +19,7 @@ contract IntentSource is IIntentSource {
     uint256 public immutable CHAIN_ID;
 
     // prover address
-    Prover public immutable PROVER;
+    IProver public immutable PROVER;
 
     // intent creation counter
     uint256 public counter;
@@ -41,7 +41,7 @@ contract IntentSource is IIntentSource {
      */
     constructor(address _prover, uint256 _minimumDuration, uint256 _counterStart) {
         CHAIN_ID = block.chainid;
-        PROVER = Prover(_prover);
+        PROVER = IProver(_prover);
         MINIMUM_DURATION = _minimumDuration;
         counter = _counterStart;
     }
