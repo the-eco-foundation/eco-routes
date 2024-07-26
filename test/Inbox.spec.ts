@@ -174,7 +174,7 @@ describe('Inbox Test', (): void => {
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-        .withArgs(hash32)
+        .withArgs(hash32, dstAddr.address)
       // should update the fulfilled hash
       expect(await inbox.fulfilled(hash32)).to.equal(dstAddr.address)
 
@@ -201,7 +201,7 @@ describe('Inbox Test', (): void => {
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-        .withArgs(hash32)
+        .withArgs(hash32, dstAddr.address)
       // should revert
       await expect(
         inbox
