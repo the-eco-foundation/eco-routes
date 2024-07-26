@@ -8,6 +8,7 @@ import {
 } from '@nomicfoundation/hardhat-toolbox/network-helpers'
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
 import { encodeTransfer } from '../utils/encode'
+import { keccak256 } from 'ethers'
 
 describe('Inbox Test', (): void => {
   let inbox: Inbox
@@ -22,6 +23,7 @@ describe('Inbox Test', (): void => {
   let erc20Address: string
   const timeDelta = 1000
   const mintAmount = 1000
+  const sourceChainID = 123
 
   async function deployInboxFixture(): Promise<{
     inbox: Inbox
@@ -64,8 +66,9 @@ describe('Inbox Test', (): void => {
     const abiCoder = ethers.AbiCoder.defaultAbiCoder()
     const intermediateHash = keccak256(
       abiCoder.encode(
-        ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+        ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
         [
+          sourceChainID,
           (await owner.provider.getNetwork()).chainId,
           [erc20Address],
           [calldata],
@@ -87,10 +90,11 @@ describe('Inbox Test', (): void => {
       timeStamp -= 2 * timeDelta
       await expect(
         inbox.fulfill(
-          nonce,
+          sourceChainID,
           [erc20Address],
           [calldata],
           timeStamp,
+          nonce,
           dstAddr.address,
           intentHash,
         ),
@@ -107,10 +111,11 @@ describe('Inbox Test', (): void => {
       //   const asvfa = keccak256("you wouldn't block a chain")
       await expect(
         inbox.fulfill(
-          nonce,
+          sourceChainID,
           [erc20Address],
           [calldata],
           timeStamp,
+          nonce,
           dstAddr.address,
           goofyHash,
         ),
@@ -123,8 +128,9 @@ describe('Inbox Test', (): void => {
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
       const intermediateHash = keccak256(
         abiCoder.encode(
-          ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
           [
+            sourceChainID,
             (await owner.provider.getNetwork()).chainId,
             [erc20Address],
             [calldata],
@@ -142,10 +148,11 @@ describe('Inbox Test', (): void => {
 
       await expect(
         inbox.fulfill(
-          nonce,
+          sourceChainID,
           [erc20Address],
           [calldata],
           timeStamp,
+          nonce,
           dstAddr.address,
           sameIntentDifferentInboxHash,
         ),
@@ -157,10 +164,11 @@ describe('Inbox Test', (): void => {
     it('should revert if the call fails', async () => {
       await expect(
         inbox.fulfill(
-          nonce,
+          sourceChainID,
           [erc20Address],
           [calldata],
           timeStamp,
+          nonce,
           dstAddr.address,
           intentHash,
         ),
@@ -180,16 +188,17 @@ describe('Inbox Test', (): void => {
         inbox
           .connect(solver)
           .fulfill(
-            nonce,
+            sourceChainID,
             [erc20Address],
             [calldata],
             timeStamp,
+            nonce,
             dstAddr.address,
             intentHash,
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-        .withArgs(intentHash)
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
       // should update the fulfilled hash
       expect(await inbox.fulfilled(intentHash)).to.equal(dstAddr.address)
 
@@ -207,25 +216,27 @@ describe('Inbox Test', (): void => {
         inbox
           .connect(solver)
           .fulfill(
-            nonce,
+            sourceChainID,
             [erc20Address],
             [calldata],
             timeStamp,
+            nonce,
             dstAddr.address,
             intentHash,
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-        .withArgs(intentHash)
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
       // should revert
       await expect(
         inbox
           .connect(solver)
           .fulfill(
-            nonce,
+            sourceChainID,
             [erc20Address],
             [calldata],
             timeStamp,
+            nonce,
             dstAddr.address,
             intentHash,
           ),
