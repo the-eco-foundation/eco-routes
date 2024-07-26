@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv'
 import { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
 import '@nomicfoundation/hardhat-viem'
+import '@openzeppelin/hardhat-upgrades'
 import 'solidity-docgen'
 dotenv.config()
 const DEPLOY_PRIVATE_KEY =

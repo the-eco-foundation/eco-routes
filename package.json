@@ -49,12 +49,12 @@
     "contractSummary": "slither --print contract-summary . 2>&1 | tee ./docs/slither/contract-summary.txt",
     "Testnet": "-------- Testnet scripts below",
     "TestnetBedrock": "-------- Bedrock scripts below --------",
-    "deploySourceAndProver": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/bedrock/deploySourceAndProver.ts",
+    "deploySourceAndProver": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/deploySourceAndProver.ts",
     "deployInbox": "hardhat run --network baseSepolia scripts/deployInbox.ts",
     "intentSolve": "hardhat run scripts/testnet/bedrock/intentSolve.ts",
     "intentWithdraw": "hardhat run scripts/testnet/bedrock/intentWithdraw.ts",
     "TestnetCannon": "-------- Cannon scripts below --------",
-    "deploySourceAndProverCannon": "hardhat run --network baseSepolia scripts/testnet/deploySourceAndProver.ts",
+    "deploySourceAndProverCannon": "hardhat run --network baseSepolia scripts/deploySourceAndProver.ts",
     "deployInboxCannon": "hardhat run --network optimismSepoliaBlockscout scripts/deployInbox.ts",
     "intentSolveCannon": "hardhat run scripts/testnet/cannon/intentSolve.ts",
     "intentWithdrawCannon": "hardhat run scripts/testnet/cannon/intentWithdraw.ts",
@@ -83,7 +83,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
-    "@openzeppelin/hardhat-upgrades": "^3.1.0",
+    "@openzeppelin/hardhat-upgrades": "^3.2.0",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.2.0",
@@ -121,6 +121,7 @@
     "viem": "^2.0.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.2"
+    "@openzeppelin/contracts": "^5.0.2",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2"
   }
 }

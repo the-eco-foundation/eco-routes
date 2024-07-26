@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
 import {console} from "hardhat/console.sol";
 
-contract Prover is Ownable {
+contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     address public constant ZERO_ADDRESS = address(0);
     // uint16 public constant NONCE_PACKING = 1;
 
@@ -37,7 +38,7 @@ contract Prover is Ownable {
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
     // But optimism maintains a service that posts L1 block data on L2.
-    IL1Block public immutable l1BlockhashOracle;
+    IL1Block public l1BlockhashOracle;
 
     enum ProvingMechanism {
         Self, // Used for Ethereum and Sepolia (any chain that settles to itself)
@@ -74,16 +75,19 @@ contract Prover is Ownable {
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
-    constructor(
-        address _l1BlockhashOracle,
-        // address _l1OutputOracleAddress,
-        // address _faultGameFactoryAddress,
-        address _owner
-    ) Ownable(_owner) {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    // constructor(address _l1BlockhashOracle, address _owner) initializer {}
+    constructor() initializer {}
+
+    function initialize(address _l1BlockhashOracle, address _owner) public initializer {
+        __Ownable_init(_owner);
+        __UUPSUpgradeable_init();
         l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
         // l1OutputOracleAddress = _l1OutputOracleAddress;
         // faultGameFactoryAddress = _faultGameFactoryAddress;
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function setChainConfiguration(
         uint256 chainId,
@@ -100,6 +104,9 @@ contract Prover is Ownable {
             blockhashOracle: blockhashOracle,
             outputRootVersionNumber: outputRootVersionNumber
         });
+        if (blockhashOracle != ZERO_ADDRESS) {
+            l1BlockhashOracle = IL1Block(blockhashOracle);
+        }
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
@@ -183,12 +190,7 @@ contract Prover is Ownable {
         uint8 gameStatus,
         bool initialized,
         bool l2BlockNumberChallenged
-    )
-        // bytes13 filler
-        public
-        pure
-        returns (bytes memory gameStausStorageSlotRLP)
-    {
+    ) public pure returns (bytes memory gameStausStorageSlotRLP) {
         // The if test is to remove leaing zeroes from the bytes
         // Assumption is that initialized is always true
         if (l2BlockNumberChallenged) {

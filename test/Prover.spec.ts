@@ -1,4 +1,4 @@
-import { ethers } from 'hardhat'
+import { ethers, upgrades } from 'hardhat'
 import { expect } from 'chai'
 import { deploy } from './utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -246,6 +246,7 @@ describe('Prover Test', () => {
 
   before(async () => {
     ;[alice] = await ethers.getSigners()
+    console.log('alice.address: ', alice.address)
   })
 
   let prover
@@ -264,12 +265,13 @@ describe('Prover Test', () => {
       0,
       0,
     )
-    prover = await deploy(alice, Prover__factory, [
-      await blockDataSource.getAddress(),
-      // L1_OUTPUT_ORACLE_ADDRESS_BASE,
-      // L1_DISPUTE_GAME_FACTORY_OPTIMISM,
-      alice.address,
-    ])
+
+    const proverContract = await ethers.getContractFactory('Prover')
+    prover = await upgrades.deployProxy(
+      proverContract,
+      [await blockDataSource.getAddress(), alice.address],
+      { initializer: 'initialize', kind: 'uups' },
+    )
 
     //baseSepolia Config
     await prover.setChainConfiguration(
@@ -456,12 +458,18 @@ describe('Prover Test', () => {
       0,
       0,
     )
-    const mainnetProver = await deploy(alice, Prover__factory, [
-      await mainnetBlockDataSource.getAddress(),
-      // L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
-      // L1_DISPUTE_GAME_FACTORY_OPTIMISM,
-      alice.address,
-    ])
+    const mainnetProverContract = await ethers.getContractFactory('Prover')
+    const mainnetProver = await upgrades.deployProxy(
+      mainnetProverContract,
+      [await mainnetBlockDataSource.getAddress(), alice.address],
+      { initializer: 'initialize', kind: 'uups' },
+    )
+    // const mainnetProver = await deploy(alice, Prover__factory, [
+    //   await mainnetBlockDataSource.getAddress(),
+    //   // L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
+    //   // L1_DISPUTE_GAME_FACTORY_OPTIMISM,
+    //   alice.address,
+    // ])
 
     //baseSepolia Config
     await mainnetProver.setChainConfiguration(
@@ -538,12 +546,18 @@ describe('Prover Test', () => {
       0,
       0,
     )
-    const cannonProver = await deploy(alice, Prover__factory, [
-      await cannonBlockDataSource.getAddress(),
-      // L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
-      // t.enshrined.cannon.chainData.optimism.disputeGameFactoryAddress,
-      alice.address,
-    ])
+    // const cannonProver = await deploy(alice, Prover__factory, [
+    //   await cannonBlockDataSource.getAddress(),
+    //   // L1_MAINNET_OUTPUT_ORACLE_ADDRESS,
+    //   // t.enshrined.cannon.chainData.optimism.disputeGameFactoryAddress,
+    //   alice.address,
+    // ])
+    const cannonProverContract = await ethers.getContractFactory('Prover')
+    const cannonProver = await upgrades.deployProxy(
+      cannonProverContract,
+      [await cannonBlockDataSource.getAddress(), alice.address],
+      { initializer: 'initialize', kind: 'uups' },
+    )
 
     //baseSepolia Config
     await cannonProver.setChainConfiguration(
