@@ -1,7 +1,7 @@
 import { encodeTransfer } from '../../../utils/encode'
 import { BigNumberish, BytesLike, toQuantity } from 'ethers'
 import config from '../../../config/mainnet/config'
-import { s } from '../setup'
+import { s } from './setup'
 
 export async function createIntent() {
   console.log('In createIntent')

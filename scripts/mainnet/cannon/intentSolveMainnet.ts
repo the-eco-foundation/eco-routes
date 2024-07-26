@@ -1,14 +1,14 @@
-import { encodeTransfer } from '../../utils/encode'
+import { encodeTransfer } from '../../../utils/encode'
 import { BigNumberish, BytesLike, toQuantity } from 'ethers'
-import config from '../../config/config'
-import { s } from '../setupMainnet'
+import config from '../../../config/mainnet/config'
+import { s } from './setup'
 
 export async function createIntent() {
   console.log('In createIntent')
   // approve lockup
   const rewardToken = s.layer2SourceUSDCContract
   const approvalTx = await rewardToken.approve(
-    config.optimism.intentSourceAddress,
+    config.base.intentSourceAddress,
     s.intentRewardAmounts[0],
   )
   await approvalTx.wait()
@@ -63,7 +63,7 @@ export async function fulfillIntent(intentHash) {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.layer2DestinationUSDCContract
     const fundTx = await targetToken.transfer(
-      config.base.inboxAddress,
+      config.optimism.inboxAddress,
       s.intentTargetAmounts[0],
     )
     await fundTx.wait()

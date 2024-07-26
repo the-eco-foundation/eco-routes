@@ -10,7 +10,7 @@ export default {
       optimism: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
     },
     l2BaseOutputOracleAddress: '0x56315b90c40730925ec5485cf004d835058518A0',
-    l2OptimsmDisputeGameFactory: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
+    l2OptimismDisputeGameFactory: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
   },
   optimism: {
     network: 'optimism',
@@ -54,9 +54,9 @@ export default {
       creator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
       destinationChainId: 8453,
       recipient: `0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9`,
-      targetTokens: [`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`],
+      targetTokens: [`0x0b2c639c533813f4aa9d7837caf62653d097ff85`],
       targetAmounts: [1241],
-      rewardTokens: ['0x0b2c639c533813f4aa9d7837caf62653d097ff85'],
+      rewardTokens: ['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'],
       rewardAmounts: [1242],
       duration: 7200,
       intentHash:

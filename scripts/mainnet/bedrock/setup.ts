@@ -1,4 +1,4 @@
-import config from '../../config/mainnet/config'
+import config from '../../../config/mainnet/config'
 import {
   AbiCoder,
   BigNumberish,
@@ -13,7 +13,7 @@ import {
   IL1Block__factory,
   Prover__factory,
   ERC20__factory,
-} from '../../typechain-types'
+} from '../../../typechain-types'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
 import * as L2ToL1MessagePasser from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
 export namespace s {
