@@ -108,7 +108,6 @@
     "viem": "^2.0.0"
   },
   "dependencies": {
-    "@defi-wonderland/smock": "^2.4.0",
     "@openzeppelin/contracts": "^5.0.2"
   }
 }
