@@ -104,8 +104,15 @@ describe('Intent Source Test', (): void => {
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
       const intermediateHash = keccak256(
         abiCoder.encode(
-          ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
-          [chainId, targets, data, expiry, nonce],
+          ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [
+            await intentSource.CHAIN_ID(),
+            chainId,
+            targets,
+            data,
+            expiry,
+            nonce,
+          ],
         ),
       )
       intentHash = keccak256(
@@ -304,8 +311,15 @@ describe('Intent Source Test', (): void => {
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
       const intermediateHash = keccak256(
         abiCoder.encode(
-          ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
-          [chainId, targets, data, expiry, nonce],
+          ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [
+            await intentSource.CHAIN_ID(),
+            chainId,
+            targets,
+            data,
+            expiry,
+            nonce,
+          ],
         ),
       )
       intentHash = keccak256(

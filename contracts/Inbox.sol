@@ -14,34 +14,25 @@ contract Inbox is IInbox {
     mapping(bytes32 => address) public fulfilled;
 
     // Check that the intent has not expired
-    modifier validTimestamp(uint256 _expireTimestamp) {
-        if (block.timestamp <= _expireTimestamp) {
+    modifier validTimestamp(uint256 _expiryTime) {
+        if (block.timestamp <= _expiryTime) {
             _;
         } else {
             revert IntentExpired();
         }
     }
 
-    /**
-     * This function is the main entry point for fulfilling an intent. It validates that the hash is the hash of the other parameters.
-     * It then calls the addresses with the calldata, and if successful marks the intent as fulfilled and emits an event.
-     *
-     * @param _nonce The nonce of the calldata. Composed of the hash on the src chain of a global nonce & chainID
-     * @param _targets The addresses to call
-     * @param _datas The calldata to call
-     * @param _expireTimestamp The timestamp at which the intent expires
-     * @param _claimant The address who can claim the reward on the src chain. Not part of the hash
-     * @return results The results of the calls as an array of bytes
-     */
     function fulfill(
-        bytes32 _nonce,
+        uint256 _sourceChainID,
         address[] calldata _targets,
-        bytes[] calldata _datas,
-        uint256 _expireTimestamp,
+        bytes[] calldata _data,
+        uint256 _expiryTime,
+        bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash
-    ) external validTimestamp(_expireTimestamp) returns (bytes[] memory) {
-        bytes32 intentHash = encodeHash(block.chainid, address(this), _targets, _datas, _expireTimestamp, _nonce);
+    ) external validTimestamp(_expiryTime) returns (bytes[] memory) {
+        bytes32 intentHash =
+            encodeHash(_sourceChainID, block.chainid, address(this), _targets, _data, _expiryTime, _nonce);
 
         // revert if locally calculated hash does not match expected hash
         if (intentHash != _expectedHash) {
@@ -53,12 +44,12 @@ contract Inbox is IInbox {
             revert IntentAlreadyFulfilled(intentHash);
         }
         // Store the results of the calls
-        bytes[] memory results = new bytes[](_datas.length);
+        bytes[] memory results = new bytes[](_data.length);
         // Call the addresses with the calldata
-        for (uint256 i = 0; i < _datas.length; i++) {
-            (bool success, bytes memory result) = _targets[i].call(_datas[i]);
+        for (uint256 i = 0; i < _data.length; i++) {
+            (bool success, bytes memory result) = _targets[i].call(_data[i]);
             if (!success) {
-                revert IntentCallFailed(_targets[i], _datas[i], result);
+                revert IntentCallFailed(_targets[i], _data[i], result);
             }
             results[i] = result;
         }
@@ -66,7 +57,7 @@ contract Inbox is IInbox {
         fulfilled[intentHash] = _claimant;
 
         // Emit an event
-        emit Fulfillment(intentHash, _claimant);
+        emit Fulfillment(intentHash, _sourceChainID, _claimant);
 
         // Return the results
         return results;
@@ -74,25 +65,27 @@ contract Inbox is IInbox {
 
     /**
      * This function generates the intent hash
+     * @param _sourceChainID the chainID of the source chain
      * @param _chainId the chainId of this chain
      * @param _inboxAddress the address of this contract
-     * @param _callAddresses The addresses to call
-     * @param _callData The calldata to call
-     * @param _expireTimestamp The timestamp at which the intent expires
+     * @param _targets The addresses to call
+     * @param _data The calldata to call
+     * @param _expiryTime The timestamp at which the intent expires
      * @param _nonce The nonce of the calldata. Composed of the hash on the src chain of a global nonce & chainID
      * @return hash The hash of the intent parameters
      */
     function encodeHash(
+        uint256 _sourceChainID,
         uint256 _chainId,
         address _inboxAddress,
-        address[] calldata _callAddresses,
-        bytes[] calldata _callData,
-        uint256 _expireTimestamp,
+        address[] calldata _targets,
+        bytes[] calldata _data,
+        uint256 _expiryTime,
         bytes32 _nonce
     ) internal pure returns (bytes32) {
         return keccak256(
             abi.encode(
-                _inboxAddress, keccak256(abi.encode(_chainId, _callAddresses, _callData, _expireTimestamp, _nonce))
+                _inboxAddress, keccak256(abi.encode(_sourceChainID, _chainId, _targets, _data, _expiryTime, _nonce))
             )
         );
     }
