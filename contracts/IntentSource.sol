@@ -82,7 +82,7 @@ contract IntentSource is IIntentSource {
         }
 
         bytes32 _nonce = keccak256(abi.encode(counter, CHAIN_ID));
-        bytes32 intermediateHash = keccak256(abi.encode(_destinationChainID, _targets, _data, _expiryTime, _nonce));
+        bytes32 intermediateHash = keccak256(abi.encode(CHAIN_ID, _destinationChainID, _targets, _data, _expiryTime, _nonce));
         bytes32 intentHash = keccak256(abi.encode(_inbox, intermediateHash));
 
         intents[intentHash] = Intent({
@@ -124,11 +124,11 @@ contract IntentSource is IIntentSource {
 
     function withdrawRewards(bytes32 _hash) external {
         Intent storage intent = intents[_hash];
-        address provenBy = PROVER.provenIntents(_hash);
+        address claimant = PROVER.provenIntents(_hash);
         if (!intent.hasBeenWithdrawn) {
             if (
-                provenBy == msg.sender
-                    || provenBy == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime
+                claimant == msg.sender
+                    || claimant == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime
             ) {
                 uint256 len = intent.rewardTokens.length;
                 for (uint256 i = 0; i < len; i++) {
