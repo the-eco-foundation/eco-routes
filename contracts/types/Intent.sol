@@ -5,8 +5,8 @@ pragma solidity ^0.8.26;
 struct Intent {
     // creator of the intent
     address creator;
-    // chain where we want instructions executed
-    uint256 destinationChain;
+    // ID of chain where we want instructions executed
+    uint256 destinationChainID;
     // address on destinationChain where we want instructions executed
     address[] targets;
     // instructions we want executed

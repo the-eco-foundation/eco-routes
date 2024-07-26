@@ -260,7 +260,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes calldata rlpEncodedOutputOracleData,
         bytes[] calldata l1AccountProof,
         bytes32 l1WorldStateRoot
-    ) public {
+    ) public virtual {
         // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
@@ -484,7 +484,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
      * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
      * @param claimant the address that can claim the reward
      * @param inboxContract the address of the inbox contract
-     * @param intentHash the intent hash
+     * @param intermediateHash the hash which, when hashed with the correct inbox contract, will result in the correct intentHash
      * @param l2StorageProof todo
      * @param rlpEncodedInboxData todo
      * @param l2AccountProof todo
@@ -494,16 +494,19 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         uint256 chainId, //the destination chain id of the intent we are proving
         address claimant,
         address inboxContract,
-        bytes32 intentHash,
-        // uint256 intentOutputIndex,
+        bytes32 intermediateHash,
         bytes[] calldata l2StorageProof,
         bytes calldata rlpEncodedInboxData,
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
-    ) public {
+    ) public virtual {
+        // require(provenL2States[l2WorldStateRoot] > intentOutputIndex, "l2 state root not yet proven"); // intentOutputIndex can never be less than zero, so this always ensures the root was proven
+
         // ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         BlockProof memory existingBlockProof = provenStates[chainId];
         require(existingBlockProof.stateRoot == l2WorldStateRoot, "destination chain state root not yet proved");
+
+        bytes32 intentHash = keccak256(abi.encode(inboxContract, intermediateHash));
 
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
