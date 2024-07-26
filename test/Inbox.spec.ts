@@ -1,19 +1,17 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
-import { ERC20Test, Inbox } from '../typechain-types'
+import { TestERC20, Inbox } from '../typechain-types'
 import {
   time,
   loadFixture,
 } from '@nomicfoundation/hardhat-toolbox/network-helpers'
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
 import { encodeTransfer } from '../utils/encode'
-import { AbiCoder, keccak256 } from 'ethers'
-import { encode } from 'punycode'
 
 describe('Inbox Test', (): void => {
   let inbox: Inbox
-  let erc20: ERC20Test
+  let erc20: TestERC20
   let owner: SignerWithAddress
   let solver: SignerWithAddress
   let dstAddr: SignerWithAddress
@@ -27,7 +25,7 @@ describe('Inbox Test', (): void => {
 
   async function deployInboxFixture(): Promise<{
     inbox: Inbox
-    erc20: ERC20Test
+    erc20: TestERC20
     owner: SignerWithAddress
     solver: SignerWithAddress
     dstAddr: SignerWithAddress
@@ -37,8 +35,9 @@ describe('Inbox Test', (): void => {
     const inbox = await inboxFactory.deploy()
 
     // deploy ERC20 test
-    const erc20Factory = await ethers.getContractFactory('ERC20Test')
-    const erc20 = await erc20Factory.deploy('eco', 'eco', mintAmount)
+    const erc20Factory = await ethers.getContractFactory('TestERC20')
+    const erc20 = await erc20Factory.deploy('eco', 'eco')
+    await erc20.mint(owner.address, mintAmount)
 
     return {
       inbox,
