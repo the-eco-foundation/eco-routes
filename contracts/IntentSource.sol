@@ -18,7 +18,7 @@ contract IntentSource is IIntentSource {
     // chain ID
     uint256 public immutable CHAIN_ID;
 
-    // prover gateway address
+    // prover address
     IProver public immutable PROVER;
 
     // intent creation counter
@@ -51,15 +51,16 @@ contract IntentSource is IIntentSource {
      * @dev If a proof ON THE SOURCE CHAIN is not completed by the expiry time, the reward funds will not be redeemable by the solver, REGARDLESS OF WHETHER THE INSTRUCTIONS WERE EXECUTED.
      * The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent solver.
      * @dev The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.
-     * @param _destinationChain the destination chain
-     * @param _targets the addresses on _destinationChain at which the instructions need to be executed
+     * @param _destinationChainID the destination chain
+     * @param _targets the addresses on _destinationChainID at which the instructions need to be executed
      * @param _data the instruction sets to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the timestamp at which the intent expires
      */
     function createIntent(
-        uint256 _destinationChain,
+        uint256 _destinationChainID,
+        address _inbox,
         address[] calldata _targets,
         bytes[] calldata _data,
         address[] calldata _rewardTokens,
@@ -81,11 +82,12 @@ contract IntentSource is IIntentSource {
         }
 
         bytes32 _nonce = keccak256(abi.encode(counter, CHAIN_ID));
-        bytes32 intentHash = keccak256(abi.encode(CHAIN_ID, _destinationChain, _targets, _data, _expiryTime, _nonce));
+        bytes32 intermediateHash = keccak256(abi.encode(CHAIN_ID, _destinationChainID, _targets, _data, _expiryTime, _nonce));
+        bytes32 intentHash = keccak256(abi.encode(_inbox, intermediateHash));
 
         intents[intentHash] = Intent({
             creator: msg.sender,
-            destinationChain: _destinationChain,
+            destinationChainID: _destinationChainID,
             targets: _targets,
             data: _data,
             rewardTokens: _rewardTokens,
@@ -110,7 +112,7 @@ contract IntentSource is IIntentSource {
         emit IntentCreated(
             _hash,
             msg.sender,
-            _intent.destinationChain,
+            _intent.destinationChainID,
             _intent.targets,
             _intent.data,
             _intent.rewardTokens,
