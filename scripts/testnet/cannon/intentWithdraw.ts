@@ -19,10 +19,13 @@ async function proveL1WorldState() {
   const layer1BlockTag = toQuantity(layer1Block)
 
   const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
-    '0x6107cf',
-    // layer1BlockTag,
+    layer1BlockTag,
     false,
   ])
+  // const block: Block = await s.layer2DestinationProvider.send(
+  //   'eth_getBlockByNumber',
+  //   [config.cannon.layer2.endBatchBlock, false],
+  // )
   console.log('block: ', block)
 
   let tx
@@ -249,28 +252,113 @@ async function main() {
   let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
-    intentHash = config.intents.optimismSepolia.intentHash
-    intentFulfillTransaction =
-      config.intents.optimismSepolia.intentFulfillTransaction
-    console.log('intentHash: ', intentHash)
-    console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    // get the latest world state
-    const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
-    console.log('layer1BlockTag: ', layer1BlockTag)
-    console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
+    // intentHash = config.intents.optimismSepolia.intentHash
+    // intentFulfillTransaction =
+    //   config.intents.optimismSepolia.intentFulfillTransaction
+    // console.log('intentHash: ', intentHash)
+    // console.log('intentFulfillTransaction: ', intentFulfillTransaction)
+    // // get the latest world state
+    // const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
+    // console.log('layer1BlockTag: ', layer1BlockTag)
+    // console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
     // const layer1BlockTag = config.intents.optimismSepolia.layer1BlockTag
     // const layer1WorldStateRoot =
     //   config.intents.optimismSepolia.layer1WorldStateRoot
     // // get the latest dispute game that has been solved
     // //
-    const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
-      layer1BlockTag,
-      intentFulfillTransaction,
-      layer1WorldStateRoot,
-    )
+    // const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
+    //   layer1BlockTag,
+    //   intentFulfillTransaction,
+    //   layer1WorldStateRoot,
+    // )
     // console.log
     // await proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData)
     // await withdrawReward(intentHash)
+    // await s.layer2SourceProverContract.proveL1WorldState(
+    //   config.cannon.layer1.rlpEncodedBlockData,
+    //   config.sepolia.chainId,
+    // )
+    const RLPEncodedDisputeGameFactoryData =
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        config.cannon.layer2.disputeGameFactory.contractData,
+      )
+
+    const disputeGameFactoryProofData = {
+      l2WorldStateRoot: config.cannon.layer2.endBatchBlockStateRoot,
+      l2MessagePasserStateRoot: config.cannon.layer2.messagePasserStateRoot,
+      l2LatestBlockHash: config.cannon.layer2.endBatchBlockHash,
+      gameIndex:
+        config.cannon.layer2.disputeGameFactory.faultDisputeGame.gameIndex,
+      // gameId: toBeHex(stripZerosLeft(config.cannon.gameId)),
+      gameId: config.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
+      l1DisputeFaultGameStorageProof:
+        config.cannon.layer2.disputeGameFactory.storageProof,
+      rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
+
+      disputeGameFactoryAccountProof:
+        config.cannon.layer2.disputeGameFactory.accountProof,
+    }
+
+    const RLPEncodedFaultDisputeGameData =
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        config.cannon.layer2.faultDisputeGame.contractData,
+      )
+    const faultDisputeGameProofData = {
+      faultDisputeGameStateRoot:
+        config.cannon.layer2.faultDisputeGame.stateRoot,
+      faultDisputeGameRootClaimStorageProof:
+        config.cannon.layer2.faultDisputeGame.rootClaim.storageProof,
+      // faultDisputeGameStatusStorage: config.cannon.faultDisputeGameStatusStorage,
+      // faultDisputeGameStatusStorage: encodeRlp(
+      //   toBeHex(
+      //     stripZerosLeft(config.cannon.layer2.faultDisputeGame.status.storageData),
+      //   ),
+      // ),
+      faultDisputeGameStatusSlotData: {
+        createdAt:
+          config.cannon.layer2.faultDisputeGame.status.storage.createdAt,
+        resolvedAt:
+          config.cannon.layer2.faultDisputeGame.status.storage.resolvedAt,
+        gameStatus:
+          config.cannon.layer2.faultDisputeGame.status.storage.gameStatus,
+        initialized:
+          config.cannon.layer2.faultDisputeGame.status.storage.initialized,
+        l2BlockNumberChallenged:
+          config.cannon.layer2.faultDisputeGame.status.storage
+            .l2BlockNumberChallenged,
+        filler: getBytes(
+          config.cannon.layer2.faultDisputeGame.status.storage.filler,
+        ),
+      },
+      faultDisputeGameStatusStorageProof:
+        config.cannon.layer2.faultDisputeGame.status.storageProof,
+      rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
+      faultDisputeGameAccountProof:
+        config.cannon.layer2.faultDisputeGame.accountProof,
+    }
+    await s.layer2SourceProverContract.proveL2WorldStateCannon(
+      config.cannon.intent.destinationChainId,
+      config.cannon.intent.rlpEncodedBlockData,
+      config.cannon.layer2.endBatchBlockStateRoot,
+      disputeGameFactoryProofData,
+      faultDisputeGameProofData,
+      config.cannon.layer1.worldStateRoot,
+    )
+
+    await s.layer2SourceProverContract.proveIntent(
+      config.cannon.intent.destinationChainId,
+      config.actors.claimant,
+      // t.intents.optimismSepolia.rlpEncodedBlockData,
+      config.optimismSepolia.inboxAddress,
+      config.cannon.intent.intentHash,
+      // 1, // no need to be specific about output indexes yet
+      config.cannon.intent.storageProof,
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        config.cannon.intent.inboxContractData,
+      ),
+      config.cannon.intent.accountProof,
+      config.cannon.layer2.endBatchBlockStateRoot,
+    )
   } catch (e) {
     console.log(e)
   }
