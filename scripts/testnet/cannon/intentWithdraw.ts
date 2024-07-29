@@ -12,7 +12,6 @@ import {
 } from 'ethers'
 import config from '../../../config/testnet/config'
 import { s } from './setup'
-import { expect } from 'chai'
 
 async function proveL1WorldState() {
   console.log('In proveL1WorldState')
@@ -279,277 +278,87 @@ async function main() {
     //   config.cannon.layer1.rlpEncodedBlockData,
     //   config.sepolia.chainId,
     // )
+    const RLPEncodedDisputeGameFactoryData =
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        config.cannon.layer2.disputeGameFactory.contractData,
+      )
 
-    // console.log('Testing rootClaim from Prover')
-    // const cannonRootClaimFromProver =
-    //   await s.layer2SourceProverContract.generateOutputRoot(
-    //     0,
-    //     config.cannon.layer2.endBatchBlockStateRoot,
-    //     config.cannon.layer2.messagePasserStateRoot,
-    //     config.cannon.layer2.endBatchBlockHash,
-    //   )
-    // const cannonRootClaim = solidityPackedKeccak256(
-    //   ['uint256', 'bytes32', 'bytes32', 'bytes32'],
-    //   [
-    //     0,
-    //     config.cannon.layer2.endBatchBlockStateRoot,
-    //     config.cannon.layer2.messagePasserStateRoot,
-    //     config.cannon.layer2.endBatchBlockHash,
-    //   ],
-    // )
-    // expect(cannonRootClaimFromProver).to.equal(cannonRootClaim)
-    // expect(cannonRootClaimFromProver).to.equal(
-    //   config.cannon.layer2.disputeGameFactory.faultDisputeGame.rootClaim,
-    // )
+    const disputeGameFactoryProofData = {
+      l2WorldStateRoot: config.cannon.layer2.endBatchBlockStateRoot,
+      l2MessagePasserStateRoot: config.cannon.layer2.messagePasserStateRoot,
+      l2LatestBlockHash: config.cannon.layer2.endBatchBlockHash,
+      gameIndex:
+        config.cannon.layer2.disputeGameFactory.faultDisputeGame.gameIndex,
+      // gameId: toBeHex(stripZerosLeft(config.cannon.gameId)),
+      gameId: config.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
+      l1DisputeFaultGameStorageProof:
+        config.cannon.layer2.disputeGameFactory.storageProof,
+      rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
 
-    // console.log('Testing DisputeGameStorageSlot from Prover')
-    // const arrayLengthSlot = zeroPadValue(
-    //   toBeArray(
-    //     config.cannon.layer2.disputeGameFactory.faultDisputeGame.listSlot,
-    //   ),
-    //   32,
-    // )
-    // const firstElementSlot = solidityPackedKeccak256(
-    //   ['bytes32'],
-    //   [arrayLengthSlot],
-    // )
-    // const disputeGameStorageSlot = toBeHex(
-    //   BigInt(firstElementSlot) +
-    //     BigInt(
-    //       Number(
-    //         config.cannon.layer2.disputeGameFactory.faultDisputeGame.gameIndex,
-    //       ),
-    //     ),
-    //   32,
-    // )
-    // expect(disputeGameStorageSlot).to.equal(
-    //   config.cannon.layer2.disputeGameFactory.faultDisputeGame
-    //     .gameIDStorageSlot,
-    // )
-    // console.log(
-    //   'Prove storage showing the DisputeGameFactory created the FaultDisputGame',
-    // )
-    // console.log(
-    //   'gameIdRLPEncoded: ',
-    //   encodeRlp(
-    //     toBeHex(
-    //       stripZerosLeft(
-    //         config.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
-    //       ),
-    //     ),
-    //   ),
-    // )
-    // await s.layer2SourceProverContract.proveStorage(
-    //   config.cannon.layer2.disputeGameFactory.faultDisputeGame
-    //     .gameIDStorageSlot,
-    //   encodeRlp(
-    //     toBeHex(
-    //       stripZerosLeft(
-    //         config.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
-    //       ),
-    //     ),
-    //   ),
-    //   // encodeRlp(t.cannon.gameId),
-    //   config.cannon.layer2.disputeGameFactory.storageProof,
-    //   config.cannon.layer2.disputeGameFactory.stateRoot,
-    // )
+      disputeGameFactoryAccountProof:
+        config.cannon.layer2.disputeGameFactory.accountProof,
+    }
 
-    // console.log(
-    //   'Prove account showing that the above ProveStorage is for a valid WorldState',
-    // )
-    // await s.layer2SourceProverContract.proveAccount(
-    //   config.cannon.layer2.disputeGameFactory.address,
-    //   await s.layer2SourceProverContract.rlpEncodeDataLibList(
-    //     config.cannon.layer2.disputeGameFactory.contractData,
-    //   ),
-    //   config.cannon.layer2.disputeGameFactory.accountProof,
-    //   config.cannon.layer1.worldStateRoot,
-    // )
+    const RLPEncodedFaultDisputeGameData =
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        config.cannon.layer2.faultDisputeGame.contractData,
+      )
+    const faultDisputeGameProofData = {
+      faultDisputeGameStateRoot:
+        config.cannon.layer2.faultDisputeGame.stateRoot,
+      faultDisputeGameRootClaimStorageProof:
+        config.cannon.layer2.faultDisputeGame.rootClaim.storageProof,
+      // faultDisputeGameStatusStorage: config.cannon.faultDisputeGameStatusStorage,
+      // faultDisputeGameStatusStorage: encodeRlp(
+      //   toBeHex(
+      //     stripZerosLeft(config.cannon.layer2.faultDisputeGame.status.storageData),
+      //   ),
+      // ),
+      faultDisputeGameStatusSlotData: {
+        createdAt:
+          config.cannon.layer2.faultDisputeGame.status.storage.createdAt,
+        resolvedAt:
+          config.cannon.layer2.faultDisputeGame.status.storage.resolvedAt,
+        gameStatus:
+          config.cannon.layer2.faultDisputeGame.status.storage.gameStatus,
+        initialized:
+          config.cannon.layer2.faultDisputeGame.status.storage.initialized,
+        l2BlockNumberChallenged:
+          config.cannon.layer2.faultDisputeGame.status.storage
+            .l2BlockNumberChallenged,
+        filler: getBytes(
+          config.cannon.layer2.faultDisputeGame.status.storage.filler,
+        ),
+      },
+      faultDisputeGameStatusStorageProof:
+        config.cannon.layer2.faultDisputeGame.status.storageProof,
+      rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
+      faultDisputeGameAccountProof:
+        config.cannon.layer2.faultDisputeGame.accountProof,
+    }
+    await s.layer2SourceProverContract.proveL2WorldStateCannon(
+      config.cannon.intent.destinationChainId,
+      config.cannon.intent.rlpEncodedBlockData,
+      config.cannon.layer2.endBatchBlockStateRoot,
+      disputeGameFactoryProofData,
+      faultDisputeGameProofData,
+      config.cannon.layer1.worldStateRoot,
+    )
 
-    // console.log(
-    //   'Prove storage showing the FaultDisputeGame has a status which shows the Defender Won',
-    // )
-    // await s.layer2SourceProverContract.proveStorage(
-    //   config.cannon.layer2.faultDisputeGame.status.storageSlot,
-    //   encodeRlp(
-    //     toBeHex(
-    //       // stripZerosLeft(
-    //       config.cannon.layer2.faultDisputeGame.status.storageData,
-    //       // ),
-    //     ),
-    //   ),
-    //   config.cannon.layer2.faultDisputeGame.status.storageProof,
-    //   config.cannon.layer2.faultDisputeGame.stateRoot,
-    // )
-
-    // console.log(
-    //   'Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block',
-    // )
-    // console.log(
-    //   'Encoded RLP rootClaim : ',
-    //   encodeRlp(
-    //     toBeHex(
-    //       stripZerosLeft(
-    //         config.cannon.layer2.faultDisputeGame.rootClaim.storageData,
-    //       ),
-    //     ),
-    //   ),
-    // )
-    // await s.layer2SourceProverContract.proveStorage(
-    //   config.cannon.layer2.faultDisputeGame.rootClaim.storageSlot,
-    //   encodeRlp(
-    //     toBeHex(
-    //       stripZerosLeft(
-    //         config.cannon.layer2.faultDisputeGame.rootClaim.storageData,
-    //       ),
-    //     ),
-    //   ),
-    //   // encodeRlp(t.cannon.faultDisputeGameRootClaimStorage),
-    //   config.cannon.layer2.faultDisputeGame.rootClaim.storageProof,
-    //   config.cannon.layer2.faultDisputeGame.stateRoot,
-    // )
-
-    // console.log(
-    //   'Prove account showing that the above ProveStorages are for a valid WorldState',
-    // )
-    // await s.layer2SourceProverContract.proveAccount(
-    //   config.cannon.layer2.faultDisputeGame.address,
-    //   await s.layer2SourceProverContract.rlpEncodeDataLibList(
-    //     config.cannon.layer2.faultDisputeGame.contractData,
-    //   ),
-    //   config.cannon.layer2.faultDisputeGame.accountProof,
-    //   config.cannon.layer1.worldStateRoot,
-    // )
-
-    // console.log('Beginning Proving L2 World State Cannon')
-    // const block: Block = await s.layer2DestinationProvider.send(
-    //   'eth_getBlockByNumber',
-    //   [config.cannon.layer2.endBatchBlock, false],
-    // )
-    // // console.log('block: ', block)
-
-    // const rlpEncodedBlockData = encodeRlp([
-    //   block.parentHash,
-    //   block.sha3Uncles,
-    //   block.miner,
-    //   block.stateRoot,
-    //   block.transactionsRoot,
-    //   block.receiptsRoot,
-    //   block.logsBloom,
-    //   stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
-    //   toBeHex(block.number),
-    //   toBeHex(block.gasLimit),
-    //   toBeHex(block.gasUsed),
-    //   block.timestamp,
-    //   block.extraData,
-    //   block.mixHash,
-    //   block.nonce,
-    //   toBeHex(block.baseFeePerGas),
-    //   block.withdrawalsRoot,
-    //   stripZerosLeft(toBeHex(block.blobGasUsed)),
-    //   stripZerosLeft(toBeHex(block.excessBlobGas)),
-    //   block.parentBeaconBlockRoot,
-    // ])
-    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    // const RLPEncodedDisputeGameFactoryData =
-    //   await s.layer2SourceProverContract.rlpEncodeDataLibList(
-    //     config.cannon.layer2.disputeGameFactory.contractData,
-    //   )
-
-    // const disputeGameFactoryProofData = {
-    //   l2WorldStateRoot: config.cannon.layer2.endBatchBlockStateRoot,
-    //   l2MessagePasserStateRoot: config.cannon.layer2.messagePasserStateRoot,
-    //   l2LatestBlockHash: config.cannon.layer2.endBatchBlockHash,
-    //   gameIndex:
-    //     config.cannon.layer2.disputeGameFactory.faultDisputeGame.gameIndex,
-    //   // gameId: toBeHex(stripZerosLeft(config.cannon.gameId)),
-    //   gameId: config.cannon.layer2.disputeGameFactory.faultDisputeGame.gameId,
-    //   l1DisputeFaultGameStorageProof:
-    //     config.cannon.layer2.disputeGameFactory.storageProof,
-    //   rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
-
-    //   disputeGameFactoryAccountProof:
-    //     config.cannon.layer2.disputeGameFactory.accountProof,
-    // }
-
-    // const RLPEncodedFaultDisputeGameData =
-    //   await s.layer2SourceProverContract.rlpEncodeDataLibList(
-    //     config.cannon.layer2.faultDisputeGame.contractData,
-    //   )
-    // const faultDisputeGameProofData = {
-    //   faultDisputeGameStateRoot:
-    //     config.cannon.layer2.faultDisputeGame.stateRoot,
-    //   faultDisputeGameRootClaimStorageProof:
-    //     config.cannon.layer2.faultDisputeGame.rootClaim.storageProof,
-    //   // faultDisputeGameStatusStorage: config.cannon.faultDisputeGameStatusStorage,
-    //   // faultDisputeGameStatusStorage: encodeRlp(
-    //   //   toBeHex(
-    //   //     stripZerosLeft(config.cannon.layer2.faultDisputeGame.status.storageData),
-    //   //   ),
-    //   // ),
-    //   faultDisputeGameStatusSlotData: {
-    //     createdAt:
-    //       config.cannon.layer2.faultDisputeGame.status.storage.createdAt,
-    //     resolvedAt:
-    //       config.cannon.layer2.faultDisputeGame.status.storage.resolvedAt,
-    //     gameStatus:
-    //       config.cannon.layer2.faultDisputeGame.status.storage.gameStatus,
-    //     initialized:
-    //       config.cannon.layer2.faultDisputeGame.status.storage.initialized,
-    //     l2BlockNumberChallenged:
-    //       config.cannon.layer2.faultDisputeGame.status.storage
-    //         .l2BlockNumberChallenged,
-    //     filler: getBytes(
-    //       config.cannon.layer2.faultDisputeGame.status.storage.filler,
-    //     ),
-    //   },
-    //   faultDisputeGameStatusStorageProof:
-    //     config.cannon.layer2.faultDisputeGame.status.storageProof,
-    //   rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
-    //   faultDisputeGameAccountProof:
-    //     config.cannon.layer2.faultDisputeGame.accountProof,
-    // }
-    // console.log('about to proveL2WorldStateCannon')
-    // await s.layer2SourceProverContract.proveL2WorldStateCannon(
-    //   config.cannon.intent.destinationChainId,
-    //   config.cannon.intent.rlpEncodedBlockData,
-    //   config.cannon.layer2.endBatchBlockStateRoot,
-    //   disputeGameFactoryProofData,
-    //   faultDisputeGameProofData,
-    //   config.cannon.layer1.worldStateRoot,
-    // )
-    // console.log('Proved L2 World State Cannon')
-    // console.log('about to proveIntent')
-    // console.log(config.cannon.intent.destinationChainId)
-    // console.log(config.actors.claimant)
-    // console.log(config.optimismSepolia.inboxAddress)
-    // console.log(config.cannon.intent.intentHash)
-    // console.log(config.cannon.intent.storageProof)
-    // console.log(
-    //   await s.layer2SourceProverContract.rlpEncodeDataLibList(
-    //     config.cannon.intent.inboxContractData,
-    //   ),
-    // )
-    // console.log(config.cannon.intent.accountProof)
-    // console.log(config.cannon.layer2.endBatchBlockStateRoot)
-    // await s.layer2SourceProverContract.proveIntent(
-    //   config.cannon.intent.destinationChainId,
-    //   config.actors.claimant,
-    //   // t.intents.optimismSepolia.rlpEncodedBlockData,
-    //   config.optimismSepolia.inboxAddress,
-    //   config.cannon.intent.intentHash,
-    //   // 1, // no need to be specific about output indexes yet
-    //   config.cannon.intent.storageProof,
-    //   await s.layer2SourceProverContract.rlpEncodeDataLibList(
-    //     config.cannon.intent.inboxContractData,
-    //   ),
-    //   config.cannon.intent.accountProof,
-    //   config.cannon.layer2.endBatchBlockStateRoot,
-    // )
-    // console.log('Proved Intent')
-    console.log('about to withdrawReward')
-    await withdrawReward(config.cannon.intent.intentHash)
-    console.log('Withdrew Reward')
+    await s.layer2SourceProverContract.proveIntent(
+      config.cannon.intent.destinationChainId,
+      config.actors.claimant,
+      // t.intents.optimismSepolia.rlpEncodedBlockData,
+      config.optimismSepolia.inboxAddress,
+      config.cannon.intent.intentHash,
+      // 1, // no need to be specific about output indexes yet
+      config.cannon.intent.storageProof,
+      await s.layer2SourceProverContract.rlpEncodeDataLibList(
+        config.cannon.intent.inboxContractData,
+      ),
+      config.cannon.intent.accountProof,
+      config.cannon.layer2.endBatchBlockStateRoot,
+    )
   } catch (e) {
     console.log(e)
   }

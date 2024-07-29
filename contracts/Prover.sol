@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
-import {console} from "hardhat/console.sol";
 
-contract Prover is Ownable {
+contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     address public constant ZERO_ADDRESS = address(0);
     // uint16 public constant NONCE_PACKING = 1;
 
@@ -37,7 +37,7 @@ contract Prover is Ownable {
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
     // But optimism maintains a service that posts L1 block data on L2.
-    IL1Block public immutable l1BlockhashOracle;
+    IL1Block public l1BlockhashOracle;
 
     enum ProvingMechanism {
         Self, // Used for Ethereum and Sepolia (any chain that settles to itself)
@@ -74,16 +74,15 @@ contract Prover is Ownable {
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
 
-    constructor(
-        address _l1BlockhashOracle,
-        // address _l1OutputOracleAddress,
-        // address _faultGameFactoryAddress,
-        address _owner
-    ) Ownable(_owner) {
-        l1BlockhashOracle = IL1Block(_l1BlockhashOracle);
-        // l1OutputOracleAddress = _l1OutputOracleAddress;
-        // faultGameFactoryAddress = _faultGameFactoryAddress;
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
+
+    function initialize(address _owner) public initializer {
+        __Ownable_init(_owner);
+        __UUPSUpgradeable_init();
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function setChainConfiguration(
         uint256 chainId,
@@ -100,6 +99,9 @@ contract Prover is Ownable {
             blockhashOracle: blockhashOracle,
             outputRootVersionNumber: outputRootVersionNumber
         });
+        if (blockhashOracle != ZERO_ADDRESS) {
+            l1BlockhashOracle = IL1Block(blockhashOracle);
+        }
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
@@ -177,12 +179,7 @@ contract Prover is Ownable {
         uint8 gameStatus,
         bool initialized,
         bool l2BlockNumberChallenged
-    )
-        // bytes13 filler
-        public
-        pure
-        returns (bytes memory gameStausStorageSlotRLP)
-    {
+    ) public pure returns (bytes memory gameStausStorageSlotRLP) {
         // The if test is to remove leaing zeroes from the bytes
         // Assumption is that initialized is always true
         if (l2BlockNumberChallenged) {
@@ -230,9 +227,6 @@ contract Prover is Ownable {
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
-        // provenL1States[l1WorldStateRoot] = l1BlockhashOracle.number();
-
-        // console.logBytes(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]));
         BlockProof memory blockProof = BlockProof({
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
@@ -241,7 +235,6 @@ contract Prover is Ownable {
         BlockProof memory existingBlockProof = provenStates[chainId];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
-            console.log("Writing L1 blockProof", blockProof.blockNumber);
         }
     }
     /**
@@ -267,7 +260,7 @@ contract Prover is Ownable {
         bytes calldata rlpEncodedOutputOracleData,
         bytes[] calldata l1AccountProof,
         bytes32 l1WorldStateRoot
-    ) public {
+    ) public virtual {
         // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
@@ -312,7 +305,6 @@ contract Prover is Ownable {
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
-            console.log("Writing L2 blockProof", blockProof.blockNumber);
         }
     }
 
@@ -483,10 +475,8 @@ contract Prover is Ownable {
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
-        console.log("Have L2 blockProof Cannon", blockProof.blockNumber);
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
-            console.log("Writing L2 blockProof Cannon", blockProof.blockNumber);
         }
     }
 
@@ -494,7 +484,7 @@ contract Prover is Ownable {
      * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
      * @param claimant the address that can claim the reward
      * @param inboxContract the address of the inbox contract
-     * @param intentHash the intent hash
+     * @param intermediateHash the hash which, when hashed with the correct inbox contract, will result in the correct intentHash
      * @param l2StorageProof todo
      * @param rlpEncodedInboxData todo
      * @param l2AccountProof todo
@@ -504,8 +494,7 @@ contract Prover is Ownable {
         uint256 chainId, //the destination chain id of the intent we are proving
         address claimant,
         address inboxContract,
-        bytes32 intentHash,
-        // uint256 intentOutputIndex,
+        bytes32 intermediateHash,
         bytes[] calldata l2StorageProof,
         bytes calldata rlpEncodedInboxData,
         bytes[] calldata l2AccountProof,
@@ -513,8 +502,9 @@ contract Prover is Ownable {
     ) public {
         // ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         BlockProof memory existingBlockProof = provenStates[chainId];
-        console.log("Prove Intent blockProof", existingBlockProof.blockNumber);
         require(existingBlockProof.stateRoot == l2WorldStateRoot, "destination chain state root not yet proved");
+
+        bytes32 intentHash = keccak256(abi.encode(inboxContract, intermediateHash));
 
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
