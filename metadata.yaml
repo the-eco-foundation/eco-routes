@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../schema.json
+blockExplorers:
+  - apiUrl: https://eco-testnet.explorer.caldera.xyz/api
+    family: blockscout
+    name: ECO Testnet explorer
+    url: https://eco-testnet.explorer.caldera.xyz/
+blocks:
+  confirmations: 
+  estimateBlockTime: 1
+  reorgPeriod: 
+chainId: 471923
+deployer:
+  name: Eco Protocol
+  url: https://eco.org/
+displayName: Eco Testnet
+domainId: 471923
+isTestnet: true
+name: Eco Testnet
+nativeToken:
+  decimals: 18
+  name: Ethereum
+  symbol: ETH
+protocol: ethereum
+rpcUrls:
+  - http: https://eco-testnet.rpc.caldera.xyz/http
