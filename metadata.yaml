@@ -18,7 +18,7 @@ isTestnet: true
 name: Eco Testnet
 nativeToken:
   decimals: 18
-  name: Ethereum
+  name: Ether
   symbol: ETH
 protocol: ethereum
 rpcUrls:
