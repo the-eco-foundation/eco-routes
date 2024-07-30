@@ -110,6 +110,7 @@
     "viem": "^2.0.0"
   },
   "dependencies": {
+    "@hyperlane-xyz/sdk": "^4.1.0",
     "@openzeppelin/contracts": "^5.0.2"
   }
 }
