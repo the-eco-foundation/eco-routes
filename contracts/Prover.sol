@@ -44,11 +44,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         Bedrock,
         Cannon,
         Arbitrum,
-        MessagePasser,
-        L3Bedrock,
-        L3Cannon,
-        L3Arbitrum,
-        L3MessagePasser
+        HyperProver
     }
 
     struct ChainConfiguration {
