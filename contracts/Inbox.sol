@@ -2,6 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IInbox.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title Inbox
@@ -9,19 +10,30 @@ import "./interfaces/IInbox.sol";
  * It validates that the hash is the hash of the other parameters, and then executes the calldata.
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
-contract Inbox is IInbox {
+contract Inbox is IInbox, Ownable {
 
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
 
-    // Check that the intent has not expired
-    modifier validTimestamp(uint256 _expiryTime) {
+    // Mapping of solvers to if they are whitelisted
+    mapping(address => bool) public solverWhitelist;
+
+    // Is solving public
+    bool public isSolvingPublic;
+
+    // Check that the intent has not expired and that the sender is permitted to solve intents
+    modifier validated(uint256 _expiryTime, address _solver) {
+        if (!isSolvingPublic && !solverWhitelist[_solver]) {
+            revert UnauthorizedSolveAttempt(_solver);
+        }
         if (block.timestamp <= _expiryTime) {
             _;
         } else {
             revert IntentExpired();
         }
     }
+
+    constructor(address _owner) Ownable(_owner){}
 
     function fulfill(
         uint256 _sourceChainID,
@@ -31,7 +43,7 @@ contract Inbox is IInbox {
         bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash
-    ) external validTimestamp(_expiryTime) returns (bytes[] memory) {
+    ) external validated(_expiryTime, msg.sender) returns (bytes[] memory) {
         bytes32 intentHash = encodeHash(_sourceChainID, block.chainid, address(this), _targets, _data, _expiryTime, _nonce);
         
         // revert if locally calculated hash does not match expected hash
@@ -61,6 +73,16 @@ contract Inbox is IInbox {
 
         // Return the results
         return results;
+    }
+
+    function openSolving() public onlyOwner {
+        isSolvingPublic = true;
+        emit SolvingIsPublic();
+    }
+
+    function changeSolverWhitelist(address _solver, bool _canSolve) public onlyOwner {
+        solverWhitelist[_solver] = _canSolve;
+        emit SolverWhitelistChanged(_solver, _canSolve);
     }
 
     /**
