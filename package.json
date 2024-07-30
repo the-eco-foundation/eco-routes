@@ -61,7 +61,6 @@
     "build/contracts/**.json"
   ],
   "devDependencies": {
-    "@defi-wonderland/smock": "^2.3.5",
     "@eth-optimism/contracts-bedrock": "^0.17.2",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
     "@nomicfoundation/hardhat-ethers": "^3.0.5",

@@ -8,6 +8,7 @@ import {
 } from '@nomicfoundation/hardhat-toolbox/network-helpers'
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
 import { encodeTransfer } from '../utils/encode'
+import { keccak256 } from 'ethers'
 
 describe('Inbox Test', (): void => {
   let inbox: Inbox
@@ -15,13 +16,14 @@ describe('Inbox Test', (): void => {
   let owner: SignerWithAddress
   let solver: SignerWithAddress
   let dstAddr: SignerWithAddress
-  let hash32: string
+  let intentHash: string
   let calldata: DataHexString
   let timeStamp: number
   const nonce = ethers.encodeBytes32String('0x987')
   let erc20Address: string
   const timeDelta = 1000
   const mintAmount = 1000
+  const sourceChainID = 123
 
   async function deployInboxFixture(): Promise<{
     inbox: Inbox
@@ -62,17 +64,25 @@ describe('Inbox Test', (): void => {
     calldata = await encodeTransfer(dstAddr.address, mintAmount)
     timeStamp = (await time.latest()) + timeDelta
     const abiCoder = ethers.AbiCoder.defaultAbiCoder()
-    const encodedData = abiCoder.encode(
-      ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
-      [
-        (await owner.provider.getNetwork()).chainId,
-        [erc20Address],
-        [calldata],
-        timeStamp,
-        nonce,
-      ],
+    const intermediateHash = keccak256(
+      abiCoder.encode(
+        ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+        [
+          sourceChainID,
+          (await owner.provider.getNetwork()).chainId,
+          [erc20Address],
+          [calldata],
+          timeStamp,
+          nonce,
+        ],
+      ),
     )
-    hash32 = ethers.keccak256(encodedData)
+    intentHash = keccak256(
+      abiCoder.encode(
+        ['address', 'bytes32'],
+        [await inbox.getAddress(), intermediateHash],
+      ),
+    )
   })
 
   describe('when the intent is invalid', () => {
@@ -80,40 +90,15 @@ describe('Inbox Test', (): void => {
       timeStamp -= 2 * timeDelta
       await expect(
         inbox.fulfill(
-          nonce,
+          sourceChainID,
           [erc20Address],
           [calldata],
           timeStamp,
+          nonce,
           dstAddr.address,
-          hash32,
+          intentHash,
         ),
       ).to.be.revertedWithCustomError(inbox, 'IntentExpired')
-    })
-
-    it('should revert if the data is invalid', async () => {
-      const newHash = keccak256(
-        ethers.AbiCoder.defaultAbiCoder().encode(
-          ['uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
-          [
-            (await owner.provider.getNetwork()).chainId,
-            [],
-            [calldata, calldata],
-            timeStamp,
-            nonce,
-          ],
-        ),
-      )
-
-      await expect(
-        inbox.fulfill(
-          nonce,
-          [],
-          [calldata, calldata],
-          timeStamp,
-          dstAddr.address,
-          newHash,
-        ),
-      ).to.be.revertedWithPanic('0x32') // Array accessed at an out-of-bounds or negative index
     })
 
     it('should revert if the generated hash does not match the expected hash', async () => {
@@ -126,12 +111,50 @@ describe('Inbox Test', (): void => {
       //   const asvfa = keccak256("you wouldn't block a chain")
       await expect(
         inbox.fulfill(
-          nonce,
+          sourceChainID,
           [erc20Address],
           [calldata],
           timeStamp,
+          nonce,
           dstAddr.address,
           goofyHash,
+        ),
+      ).to.be.revertedWithCustomError(inbox, 'InvalidHash')
+    })
+    it('should revert via InvalidHash if all intent data was input correctly, but the intent used a different inbox on creation', async () => {
+      const anotherInbox = await (
+        await ethers.getContractFactory('Inbox')
+      ).deploy()
+      const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+      const intermediateHash = keccak256(
+        abiCoder.encode(
+          ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [
+            sourceChainID,
+            (await owner.provider.getNetwork()).chainId,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+          ],
+        ),
+      )
+      const sameIntentDifferentInboxHash = keccak256(
+        abiCoder.encode(
+          ['address', 'bytes32'],
+          [await anotherInbox.getAddress(), intermediateHash],
+        ),
+      )
+
+      await expect(
+        inbox.fulfill(
+          sourceChainID,
+          [erc20Address],
+          [calldata],
+          timeStamp,
+          nonce,
+          dstAddr.address,
+          sameIntentDifferentInboxHash,
         ),
       ).to.be.revertedWithCustomError(inbox, 'InvalidHash')
     })
@@ -141,18 +164,19 @@ describe('Inbox Test', (): void => {
     it('should revert if the call fails', async () => {
       await expect(
         inbox.fulfill(
-          nonce,
+          sourceChainID,
           [erc20Address],
           [calldata],
           timeStamp,
+          nonce,
           dstAddr.address,
-          hash32,
+          intentHash,
         ),
       ).to.be.revertedWithCustomError(inbox, 'IntentCallFailed')
     })
 
     it('should succeed', async () => {
-      expect(await inbox.fulfilled(hash32)).to.equal(ethers.ZeroAddress)
+      expect(await inbox.fulfilled(intentHash)).to.equal(ethers.ZeroAddress)
       expect(await erc20.balanceOf(solver.address)).to.equal(mintAmount)
       expect(await erc20.balanceOf(dstAddr.address)).to.equal(0)
 
@@ -164,18 +188,19 @@ describe('Inbox Test', (): void => {
         inbox
           .connect(solver)
           .fulfill(
-            nonce,
+            sourceChainID,
             [erc20Address],
             [calldata],
             timeStamp,
+            nonce,
             dstAddr.address,
-            hash32,
+            intentHash,
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-        .withArgs(hash32)
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
       // should update the fulfilled hash
-      expect(await inbox.fulfilled(hash32)).to.equal(dstAddr.address)
+      expect(await inbox.fulfilled(intentHash)).to.equal(dstAddr.address)
 
       // check balances
       expect(await erc20.balanceOf(solver.address)).to.equal(0)
@@ -191,27 +216,29 @@ describe('Inbox Test', (): void => {
         inbox
           .connect(solver)
           .fulfill(
-            nonce,
+            sourceChainID,
             [erc20Address],
             [calldata],
             timeStamp,
+            nonce,
             dstAddr.address,
-            hash32,
+            intentHash,
           ),
       )
         .to.emit(inbox, 'Fulfillment')
-        .withArgs(hash32)
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
       // should revert
       await expect(
         inbox
           .connect(solver)
           .fulfill(
-            nonce,
+            sourceChainID,
             [erc20Address],
             [calldata],
             timeStamp,
+            nonce,
             dstAddr.address,
-            hash32,
+            intentHash,
           ),
       ).to.be.revertedWithCustomError(inbox, 'IntentAlreadyFulfilled')
     })
