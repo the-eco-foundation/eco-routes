@@ -34,8 +34,9 @@ describe('Intent Source Test', (): void => {
     tokenB: TestERC20
     creator: SignerWithAddress
     solver: SignerWithAddress
+    owner: SignerWithAddress
   }> {
-    const [creator, solver] = await ethers.getSigners()
+    const [creator, solver, owner] = await ethers.getSigners()
 
     // deploy prover
     prover = await (await ethers.getContractFactory('TestProver')).deploy()
@@ -46,7 +47,9 @@ describe('Intent Source Test', (): void => {
       minimumDuration,
       0,
     )
-    inbox = await (await ethers.getContractFactory('Inbox')).deploy()
+    inbox = await (
+      await ethers.getContractFactory('Inbox')
+    ).deploy(owner.address)
 
     // deploy ERC20 test
     const erc20Factory = await ethers.getContractFactory('TestERC20')
@@ -60,6 +63,7 @@ describe('Intent Source Test', (): void => {
       tokenB,
       creator,
       solver,
+      owner,
     }
   }
 
