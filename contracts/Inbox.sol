@@ -33,7 +33,7 @@ contract Inbox is IInbox, Ownable {
         }
     }
 
-    constructor(address _owner, bool _isSolvingPublic, address[] _solvers) Ownable(_owner){
+    constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers) Ownable(_owner){
         isSolvingPublic = _isSolvingPublic;
         for (uint256 i = 0; i < _solvers.length; i++) {
             solverWhitelist[_solvers[i]] = true;

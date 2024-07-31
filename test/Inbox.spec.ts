@@ -160,21 +160,23 @@ describe('Inbox Test', (): void => {
         ),
       )
       await expect(
-        inbox.fulfill(
-          sourceChainID,
-          [erc20Address],
-          [calldata],
-          timeStamp,
-          nonce,
-          dstAddr.address,
-          goofyHash,
-        ),
+        inbox
+          .connect(solver)
+          .fulfill(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            goofyHash,
+          ),
       ).to.be.revertedWithCustomError(inbox, 'InvalidHash')
     })
     it('should revert via InvalidHash if all intent data was input correctly, but the intent used a different inbox on creation', async () => {
       const anotherInbox = await (
         await ethers.getContractFactory('Inbox')
-      ).deploy()
+      ).deploy(owner.address, false, [owner.address])
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
       const intermediateHash = keccak256(
         abiCoder.encode(
@@ -197,15 +199,17 @@ describe('Inbox Test', (): void => {
       )
 
       await expect(
-        inbox.fulfill(
-          sourceChainID,
-          [erc20Address],
-          [calldata],
-          timeStamp,
-          nonce,
-          dstAddr.address,
-          sameIntentDifferentInboxHash,
-        ),
+        inbox
+          .connect(solver)
+          .fulfill(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            sameIntentDifferentInboxHash,
+          ),
       ).to.be.revertedWithCustomError(inbox, 'InvalidHash')
     })
   })
@@ -213,19 +217,24 @@ describe('Inbox Test', (): void => {
   describe('when the intent is valid', () => {
     it('should revert if the call fails', async () => {
       await expect(
-        inbox.fulfill(
-          sourceChainID,
-          [erc20Address],
-          [calldata],
-          timeStamp,
-          nonce,
-          dstAddr.address,
-          intentHash,
-        ),
+        inbox
+          .connect(solver)
+          .fulfill(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+          ),
       ).to.be.revertedWithCustomError(inbox, 'IntentCallFailed')
     })
     it('should not revert when called by a whitelisted solver', async () => {
       expect(await inbox.solverWhitelist(solver)).to.be.true
+
+      await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
+
       await expect(
         inbox
           .connect(solver)
@@ -244,6 +253,9 @@ describe('Inbox Test', (): void => {
       expect(await inbox.solverWhitelist(owner)).to.be.false
       await inbox.connect(owner).makeSolvingPublic()
       expect(await inbox.isSolvingPublic()).to.be.true
+
+      await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
+
       await expect(
         inbox
           .connect(owner)
