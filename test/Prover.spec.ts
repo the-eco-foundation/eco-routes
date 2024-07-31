@@ -98,7 +98,7 @@ describe('Bedrock Prover Test', () => {
     expect((await blockhashOracle.hash()) === t.bedrock.settlement.blockHash)
   })
 
-  it('can prove L1 storage', async () => {
+  it('can prove OuputOracle storage', async () => {
     await prover.proveStorage(
       '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f747F1D',
       '0xa082af251eb4e15ec624f3a0d8e891892e45272cc3b364dec56cd00a1b2f36f62d', // prefix wih a0 because it's a 32 byte blob
@@ -107,7 +107,7 @@ describe('Bedrock Prover Test', () => {
     )
   })
 
-  it('can prove L1 account', async () => {
+  it('can prove OutputOracle account', async () => {
     const val = await prover.rlpEncodeDataLibList(
       t.bedrock.settlement.contractData,
     )
@@ -120,7 +120,7 @@ describe('Bedrock Prover Test', () => {
     )
   })
 
-  it('can prove L2 storage', async () => {
+  it('can prove Intent storage', async () => {
     prover.proveStorage(
       '0xfc3e15078e229f29b5446a5a01dc281ef6c7c3054d5a5622159257fe61e0aac7',
       encodeRlp(getBytes('0x445575a842c3f13b4625F1dE6b4ee96c721e580a')),
@@ -130,7 +130,7 @@ describe('Bedrock Prover Test', () => {
     )
   })
 
-  it('can prove L2 account', async () => {
+  it('can prove Intent account', async () => {
     const val = await prover.rlpEncodeDataLibList(
       t.bedrock.destination.contractData,
     )
@@ -152,7 +152,7 @@ describe('Bedrock Prover Test', () => {
     await prover.proveL2WorldStateBedrock(
       t.bedrock.intent.destinationChainId,
       t.bedrock.intent.rlpEncodedBlockData,
-      t.bedrock.settlement.worldStateRoot,
+      t.bedrock.destination.worldStateRoot,
       t.bedrock.intent.messageParserStorageRoot,
       t.bedrock.intent.batchIndex,
       t.bedrock.settlement.storageProof,

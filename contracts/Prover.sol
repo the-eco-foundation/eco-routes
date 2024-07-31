@@ -7,6 +7,7 @@ import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/tr
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
+import "hardhat/console.sol";
 
 contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     address public constant ZERO_ADDRESS = address(0);
@@ -88,6 +89,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         address blockhashOracle,
         uint256 outputRootVersionNumber
     ) public onlyOwner {
+        console.log("Setting Chain Configuration");
         chainConfigurations[chainId] = ChainConfiguration({
             provingMechanism: provingMechanism,
             settlementChainId: settlementChainId,
@@ -101,6 +103,10 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
+        console.log("Proving Storage");
+        console.logBytes(_key);
+        console.logBytes(_val);
+        console.logBytes32(_root);
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
     }
 
@@ -214,6 +220,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
      * state.
      */
     function proveL1WorldState(bytes calldata rlpEncodedBlockData, uint256 chainId) public {
+        console.log("Proving L1 World State");
         // Arbitrum chains do not have a block oracle (instead they have l1BlockNumber in each block)
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         if (chainConfiguration.blockhashOracle != ZERO_ADDRESS) {
@@ -257,6 +264,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes[] calldata l1AccountProof,
         bytes32 l1WorldStateRoot
     ) public virtual {
+        console.log("Proving L2 World State Bedrock");
         // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
@@ -265,6 +273,14 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         require(
             existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
         );
+
+        console.log("Input for generating output root");
+        console.log(L2_OUTPUT_ROOT_VERSION_NUMBER);
+        console.logBytes32(l2WorldStateRoot);
+        console.logBytes32(l2MessagePasserStateRoot);
+
+        console.log("Calculated RLP Block Hash");
+        console.logBytes32(keccak256(rlpEncodedBlockData));
 
         bytes32 outputRoot = generateOutputRoot(
             L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, keccak256(rlpEncodedBlockData)
@@ -276,7 +292,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
         require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
-
+        console.log("Prover.sol Proving Storage");
         proveStorage(
             abi.encodePacked(outputRootStorageSlot),
             bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
@@ -284,6 +300,11 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
             bytes32(outputOracleStateRoot)
         );
 
+        console.log("Prover.sol Proving Account");
+        console.log(chainConfiguration.settlementContract);
+        console.logBytes(rlpEncodedOutputOracleData);
+        // console.logBytes(l1AccountProof);
+        console.logBytes32(l1WorldStateRoot);
         proveAccount(
             abi.encodePacked(chainConfiguration.settlementContract),
             rlpEncodedOutputOracleData,

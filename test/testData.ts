@@ -109,7 +109,9 @@ export default {
         settlement: {
           network: 'sepolia',
           chainId: 11155111,
-          contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
+          // TODO Update baseSepolia to use Cannon Dispute Game Factory address
+          // contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
+          contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
         },
       },
       // The following settlement contracts are useful for event listening
