@@ -49,7 +49,7 @@ describe('Intent Source Test', (): void => {
     )
     inbox = await (
       await ethers.getContractFactory('Inbox')
-    ).deploy(owner.address)
+    ).deploy(owner.address, false, [owner.address])
 
     // deploy ERC20 test
     const erc20Factory = await ethers.getContractFactory('TestERC20')

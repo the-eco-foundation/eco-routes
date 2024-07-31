@@ -80,11 +80,17 @@ contract Inbox is IInbox, Ownable {
         return results;
     }
 
+    // allows the owner to make solving public
     function makeSolvingPublic() public onlyOwner {
         isSolvingPublic = true;
         emit SolvingIsPublic();
     }
 
+    /**
+     * @notice allows the owner to make changes to the solver whitelist
+     * @param _solver the address of the solver whose permissions are being changed
+     * @param _canSolve whether or not the solver will be on the whitelist afterward
+     */
     function changeSolverWhitelist(address _solver, bool _canSolve) public onlyOwner {
         solverWhitelist[_solver] = _canSolve;
         emit SolverWhitelistChanged(_solver, _canSolve);
