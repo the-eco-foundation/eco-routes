@@ -14,8 +14,8 @@ import config from '../../../config/testnet/config'
 import { s } from './setup'
 import { expect } from 'chai'
 
-async function proveL1WorldState() {
-  console.log('In proveL1WorldState')
+async function proveSettlementLayerState() {
+  console.log('In proveSettlementLayerState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
   const layer1BlockTag = toQuantity(layer1Block)
 
@@ -55,7 +55,7 @@ async function proveL1WorldState() {
       block.parentBeaconBlockRoot,
     ])
     console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    tx = await s.layer2SourceProverContract.proveL1WorldState(
+    tx = await s.layer2SourceProverContract.proveSettlementLayerState(
       getBytes(hexlify(rlpEncodedBlockData)),
       config.optimismSepolia.chainId,
     )
@@ -71,9 +71,9 @@ async function proveL1WorldState() {
         e.data,
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
-      console.log(`Error in proveL1WorldState:`, e.shortMessage)
+      console.log(`Error in proveSettlementLayerState:`, e.shortMessage)
     } else {
-      console.log(`Error in proveL1WorldState:`, e)
+      console.log(`Error in proveSettlementLayerState:`, e)
     }
   }
   //   have successfully proven L1 state
@@ -141,7 +141,7 @@ async function proveL2WorldState(
   ]
   try {
     const proveOutputTX =
-      await s.layer2SourceProverContract.proveL2WorldStateCannon(
+      await s.layer2SourceProverContract.proveWorldStateCannon(
         l2EndBatchBlockData.stateRoot,
         l2MesagePasserProof.storageHash,
         l2EndBatchBlockData.hash,
@@ -259,7 +259,7 @@ async function main() {
     // console.log('intentHash: ', intentHash)
     // console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     // // get the latest world state
-    // const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
+    // const { layer1BlockTag, layer1WorldStateRoot } = await proveSettlementLayerState()
     // console.log('layer1BlockTag: ', layer1BlockTag)
     // console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
     // const layer1BlockTag = config.intents.optimismSepolia.layer1BlockTag
@@ -275,7 +275,7 @@ async function main() {
     // console.log
     // await proveIntent(intentHash, l1BatchIndex, l2EndBatchBlockData)
     // await withdrawReward(intentHash)
-    // await s.layer2SourceProverContract.proveL1WorldState(
+    // await s.layer2SourceProverContract.proveSettlementLayerState(
     //   config.cannon.layer1.rlpEncodedBlockData,
     //   config.sepolia.chainId,
     // )
@@ -509,8 +509,8 @@ async function main() {
     //   faultDisputeGameAccountProof:
     //     config.cannon.layer2.faultDisputeGame.accountProof,
     // }
-    // console.log('about to proveL2WorldStateCannon')
-    // await s.layer2SourceProverContract.proveL2WorldStateCannon(
+    // console.log('about to proveWorldStateCannon')
+    // await s.layer2SourceProverContract.proveWorldStateCannon(
     //   config.cannon.intent.destinationChainId,
     //   config.cannon.intent.rlpEncodedBlockData,
     //   config.cannon.layer2.endBatchBlockStateRoot,

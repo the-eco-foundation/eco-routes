@@ -219,7 +219,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
      * in that block corresponds to the block on the oracle contract, and that it represents a valid
      * state.
      */
-    function proveL1WorldState(bytes calldata rlpEncodedBlockData, uint256 chainId) public {
+    function proveSettlementLayerState(bytes calldata rlpEncodedBlockData, uint256 chainId) public {
         console.log("Proving L1 World State");
         // Arbitrum chains do not have a block oracle (instead they have l1BlockNumber in each block)
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
@@ -241,7 +241,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         }
     }
     /**
-     * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
+     * @notice Validates World state by ensuring that the passed in world state root corresponds to value in the L2 output oracle on the Settlement Layer
      * @param chainId the chain id of the chain we are proving
      * @param rlpEncodedBlockData properly encoded L1 block data
      * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
@@ -250,10 +250,10 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
      * @param l1StorageProof todo
      * @param rlpEncodedOutputOracleData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
      * @param l1AccountProof accountProof from eth_getProof(L2OutputOracle, [], )
-     * @param l1WorldStateRoot the l1 world state root that was proven in proveL1WorldState
+     * @param l1WorldStateRoot the l1 world state root that was proven in proveSettlementLayerState
      */
 
-    function proveL2WorldStateBedrock(
+    function proveWorldStateBedrock(
         uint256 chainId, //the destination chain id of the intent we are proving
         bytes calldata rlpEncodedBlockData,
         bytes32 l2WorldStateRoot,
@@ -450,7 +450,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     }
 
     /**
-     * @notice Validates L2 world state for Cannon by validating the following Storage proofs for the faultDisputeGame.
+     * @notice Validates world state for Cannon by validating the following Storage proofs for the faultDisputeGame.
      * @notice 1) the rootClaim is correct by checking the gameId is in storage in the gamesList (will need to know the index number)
      * @notice 2) calculate the FaultDisputeGameAddress from the gameId
      * @notice 2) the l2BlockNumber is correct
@@ -459,7 +459,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
      * @param chainId the chain id of the chain we are proving
      * @param rlpEncodedBlockData properly encoded L1 block data
      */
-    function proveL2WorldStateCannon(
+    function proveWorldStateCannon(
         uint256 chainId, //the destination chain id of the intent we are proving
         bytes calldata rlpEncodedBlockData,
         bytes32 l2WorldStateRoot,

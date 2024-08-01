@@ -144,12 +144,12 @@ describe('Bedrock Prover Test', () => {
   })
 
   it('full proof Bedrock', async () => {
-    await prover.proveL1WorldState(
+    await prover.proveSettlementLayerState(
       await prover.rlpEncodeDataLibList(t.bedrock.settlement.blockData),
       t.networks.sepolia.chainId,
     )
 
-    await prover.proveL2WorldStateBedrock(
+    await prover.proveWorldStateBedrock(
       t.bedrock.intent.destinationChainId,
       t.bedrock.intent.rlpEncodedBlockData,
       t.bedrock.destination.worldStateRoot,
@@ -219,7 +219,7 @@ describe('Bedrock Prover Test', () => {
   //     t.networks.optimismSepolia.outputRootVersionNumber,
   //   )
 
-  //   await cannonProver.proveL1WorldState(
+  //   await cannonProver.proveSettlementLayerState(
   //     t.cannon.settlement.rlpEncodedBlockData,
   //     t.networks.sepolia.chainId,
   //   )
@@ -420,7 +420,7 @@ describe('Bedrock Prover Test', () => {
   //   )
 
   //   // Update this after code complete in Prover.sol
-  //   await cannonProver.proveL2WorldStateCannon(
+  //   await cannonProver.proveWorldStateCannon(
   //     t.cannon.intent.destinationChainId,
   //     t.cannon.intent.rlpEncodedBlockData,
   //     t.cannon.destination.endBatchBlockStateRoot,
@@ -518,7 +518,7 @@ describe('Cannon Prover Test', () => {
     //   0,
     // )
 
-    await cannonProver.proveL1WorldState(
+    await cannonProver.proveSettlementLayerState(
       t.cannon.settlement.rlpEncodedBlockData,
       t.networks.sepolia.chainId,
     )
@@ -728,7 +728,7 @@ describe('Cannon Prover Test', () => {
     )
 
     // Update this after code complete in Prover.sol
-    await cannonProver.proveL2WorldStateCannon(
+    await cannonProver.proveWorldStateCannon(
       t.cannon.intent.destinationChainId,
       t.cannon.intent.rlpEncodedBlockData,
       t.cannon.destination.endBatchBlockStateRoot,

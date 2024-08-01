@@ -36,7 +36,7 @@ The logic used to generate the inputs is as follows
 - Update the latest L1WorldState
   - Query the L1Block contract on the Source Chain
   - Get the block information and rlp Encode it
-  - Call `proveL1WorldState`
+  - Call `proveSettlementLayerState`
 - Update the L2WorldState for the latest solved `FaultDisputeGame`
   - Get the last solved `FaultDisputeGame` by querying the `DisputeGameFactory` and checking it's `status`
   - Get the `l2BlockNumber` using by reading the `FaultDisputeGame`

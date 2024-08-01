@@ -53,9 +53,9 @@ interface IProver {
     function rlpEncodeDataLibList(bytes[] memory dataList) external pure returns (bytes memory);
     function unpack(bytes32 _gameId) external pure returns (uint32 gameType_, uint64 timestamp_, address gameProxy_);
 
-    function proveL1WorldState(bytes calldata rlpEncodedL1BlockData) external;
+    function proveSettlementLayerState(bytes calldata rlpEncodedL1BlockData) external;
 
-    function proveL2WorldStateBedrock(
+    function proveWorldStateBedrock(
         uint256 chainId, //the destination chain id of the intent we are proving
         bytes calldata rlpEncodedBlockData,
         bytes32 l2WorldStateRoot,
@@ -67,7 +67,7 @@ interface IProver {
         bytes32 l1WorldStateRoot
     ) external;
 
-    function proveL2WorldStateCannon(
+    function proveWorldStateCannon(
         uint256 chainId, //the destination chain id of the intent we are proving
         bytes calldata rlpEncodedBlockData,
         bytes32 l2WorldStateRoot,

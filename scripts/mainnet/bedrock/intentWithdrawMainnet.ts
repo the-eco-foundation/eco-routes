@@ -13,8 +13,8 @@ import {
 import config from '../../../config/mainnet/config'
 import { s } from '../setup'
 
-async function proveL1WorldState() {
-  console.log('In proveL1WorldState')
+async function proveSettlementLayerState() {
+  console.log('In proveSettlementLayerState')
   const layer1Block = await s.layer2Layer1BlockAddressContract.number()
   const layer1BlockTag = toQuantity(layer1Block)
 
@@ -50,7 +50,7 @@ async function proveL1WorldState() {
       block.parentBeaconBlockRoot,
     ])
     console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    tx = await s.layer2SourceProverContract.proveL1WorldState(
+    tx = await s.layer2SourceProverContract.proveSettlementLayerState(
       getBytes(hexlify(rlpEncodedBlockData)),
     )
     await tx.wait()
@@ -65,9 +65,9 @@ async function proveL1WorldState() {
         e.data,
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
-      console.log(`Error in proveL1WorldState:`, e.shortMessage)
+      console.log(`Error in proveSettlementLayerState:`, e.shortMessage)
     } else {
-      console.log(`Error in proveL1WorldState:`, e)
+      console.log(`Error in proveSettlementLayerState:`, e)
     }
   }
   //   have successfully proven L1 state
@@ -135,7 +135,7 @@ async function proveL2WorldState(
   ]
   try {
     const proveOutputTX =
-      await s.layer2SourceProverContract.proveL2WorldStateBedrock(
+      await s.layer2SourceProverContract.proveWorldStateBedrock(
         l2EndBatchBlockData.stateRoot,
         l2MesagePasserProof.storageHash,
         l2EndBatchBlockData.hash,
@@ -246,7 +246,8 @@ async function main() {
     intentFulfillTransaction = config.intents.base.intentFulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    const { layer1BlockTag, layer1WorldStateRoot } = await proveL1WorldState()
+    const { layer1BlockTag, layer1WorldStateRoot } =
+      await proveSettlementLayerState()
     const { l1BatchIndex, l2EndBatchBlockData } = await proveL2WorldState(
       layer1BlockTag,
       intentFulfillTransaction,

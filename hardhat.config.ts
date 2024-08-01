@@ -85,7 +85,7 @@ const config: HardhatUserConfig = {
     },
     arbitrum: {
       chainId: 42161,
-      url: `hhttps://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOY_PRIVATE_KEY],
     },
   },
