@@ -10,7 +10,6 @@ import {IL1Block} from "./interfaces/IL1Block.sol";
 import "hardhat/console.sol";
 
 contract Prover is UUPSUpgradeable, OwnableUpgradeable {
-    address public constant ZERO_ADDRESS = address(0);
     // uint16 public constant NONCE_PACKING = 1;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
@@ -56,7 +55,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         uint256 outputRootVersionNumber;
     }
 
-    // map the chain configuration to the chain id
+    // map the chain id to chain configuration
     mapping(uint256 => ChainConfiguration) public chainConfigurations;
 
     struct BlockProof {
@@ -70,6 +69,34 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
 
     // mapping from proven intents to the address that's authorized to claim them
     mapping(bytes32 => address) public provenIntents;
+
+    struct DisputeGameFactoryProofData {
+        bytes32 l2MessagePasserStateRoot;
+        bytes32 l2LatestBlockHash;
+        uint256 gameIndex;
+        bytes32 gameId;
+        bytes[] l1DisputeFaultGameStorageProof;
+        bytes rlpEncodedDisputeGameFactoryData;
+        bytes[] disputeGameFactoryAccountProof;
+    }
+
+    struct FaultDisputeGameStatusSlotData {
+        uint64 createdAt;
+        uint64 resolvedAt;
+        uint8 gameStatus;
+        bool initialized;
+        bool l2BlockNumberChallenged;
+    }
+    // bytes13 filler;
+
+    struct FaultDisputeGameProofData {
+        bytes32 faultDisputeGameStateRoot;
+        bytes[] faultDisputeGameRootClaimStorageProof;
+        FaultDisputeGameStatusSlotData faultDisputeGameStatusSlotData;
+        bytes[] faultDisputeGameStatusStorageProof;
+        bytes rlpEncodedFaultDisputeGameData;
+        bytes[] faultDisputeGameAccountProof;
+    }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
@@ -97,9 +124,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
             blockhashOracle: blockhashOracle,
             outputRootVersionNumber: outputRootVersionNumber
         });
-        if (blockhashOracle != ZERO_ADDRESS) {
-            l1BlockhashOracle = IL1Block(blockhashOracle);
-        }
+        l1BlockhashOracle = IL1Block(blockhashOracle);
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
@@ -221,11 +246,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
      */
     function proveSettlementLayerState(bytes calldata rlpEncodedBlockData, uint256 chainId) public {
         console.log("Proving L1 World State");
-        // Arbitrum chains do not have a block oracle (instead they have l1BlockNumber in each block)
-        ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
-        if (chainConfiguration.blockhashOracle != ZERO_ADDRESS) {
-            require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
-        }
+        require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
@@ -323,34 +344,6 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
         }
-    }
-
-    struct DisputeGameFactoryProofData {
-        bytes32 l2MessagePasserStateRoot;
-        bytes32 l2LatestBlockHash;
-        uint256 gameIndex;
-        bytes32 gameId;
-        bytes[] l1DisputeFaultGameStorageProof;
-        bytes rlpEncodedDisputeGameFactoryData;
-        bytes[] disputeGameFactoryAccountProof;
-    }
-
-    struct FaultDisputeGameStatusSlotData {
-        uint64 createdAt;
-        uint64 resolvedAt;
-        uint8 gameStatus;
-        bool initialized;
-        bool l2BlockNumberChallenged;
-    }
-    // bytes13 filler;
-
-    struct FaultDisputeGameProofData {
-        bytes32 faultDisputeGameStateRoot;
-        bytes[] faultDisputeGameRootClaimStorageProof;
-        FaultDisputeGameStatusSlotData faultDisputeGameStatusSlotData;
-        bytes[] faultDisputeGameStatusStorageProof;
-        bytes rlpEncodedFaultDisputeGameData;
-        bytes[] faultDisputeGameAccountProof;
     }
 
     function _faultDisputeGameFromFactory(

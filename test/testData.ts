@@ -24,32 +24,32 @@ const networkIds: any = {
   421614: 'arbitrumSepolia',
 }
 
-const enshrined: any = {
-  bedrock: {
-    noncePacking: 1,
-    outputSlotNumber: 3,
-    outputRootVersionNumber: 0,
-    chainData: {
-      base: {
-        l1OutputOracleAddress: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
-      },
-    },
-  },
-  cannon: {
-    noncePacking: 1,
-    rootClaimVersionNo: '0',
-    gameType: 0,
-    disputeGameFactoryListSlotNumber: 104,
-    faultDisputeGameClaimSlot:
-      '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1',
-    faultDisputeGameStatusSlot: 0,
-    chainData: {
-      optimism: {
-        disputeGameFactoryAddress: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
-      },
-    },
-  },
-}
+// const enshrined: any = {
+//   bedrock: {
+//     noncePacking: 1,
+//     outputSlotNumber: 3,
+//     outputRootVersionNumber: 0,
+//     chainData: {
+//       base: {
+//         l1OutputOracleAddress: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
+//       },
+//     },
+//   },
+//   cannon: {
+//     noncePacking: 1,
+//     rootClaimVersionNo: '0',
+//     gameType: 0,
+//     disputeGameFactoryListSlotNumber: 104,
+//     faultDisputeGameClaimSlot:
+//       '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1',
+//     faultDisputeGameStatusSlot: 0,
+//     chainData: {
+//       optimism: {
+//         disputeGameFactoryAddress: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
+//       },
+//     },
+//   },
+// }
 const actors: any = {
   deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
   intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
@@ -64,16 +64,15 @@ const networks: any = {
     network: 'sepolia',
     chainId: networkIds.sepolia,
     // The following settlement contracts are useful for event listening
-    // settlementContracts: {
-    //   84532: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254', // baseSepolia
-    //   11155420: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia
-    //   421614: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia
-    // },
+    settlementContracts: {
+      baseSepolia: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254', // baseSepolia
+      optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia
+      arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia
+    },
   },
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
-    settlementChainId: networkIds.sepolia,
     intentSourceAddress: '0x3f222827D8466E85d6c19594564b55Dc4a1c1DcF',
     proverContractAddress: '0x2470b9B23F3A2934574E04a3Bcb7C6B43438D582',
     inboxAddress: '0x32388BB27E07db4bdda11Cc1EC919634cc6afF65',
@@ -82,9 +81,9 @@ const networks: any = {
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
-      settlement: {
+      settlementChain: {
         network: 'sepolia',
-        chainId: networkIds.sepolia,
+        id: networkIds.sepolia,
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
     },
@@ -99,7 +98,6 @@ const networks: any = {
   baseSepolia: {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
-    settlementChainId: networkIds.sepolia,
     intentSourceAddress: '0xcFbbD67c9f43a8E6D3D9aF7Ab93d61397c7a08CE',
     proverContractAddress: '0xbe271EC06776e4B27AF854dA6511B3bb84313544',
     inboxAddress: '0xbE6562D1F5cB7687ec3617Ec993A645104d77b5c',
@@ -108,9 +106,9 @@ const networks: any = {
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
-      settlement: {
+      settlementChain: {
         network: 'sepolia',
-        chainId: networkIds.sepolia,
+        id: networkIds.sepolia,
         // Dispute Game Factory address
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
         // Old L2 Ourput Oracle Address
@@ -132,7 +130,6 @@ const networks: any = {
   ecoTestNet: {
     network: 'eco-testnet',
     chainId: networkIds.ecoTestNet,
-    settlementChainId: 84532,
     settlementNetwork: 'baseSepolia',
     intentSourceAddress: '',
     proverContractAddress: '',
@@ -142,9 +139,9 @@ const networks: any = {
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
-      settlement: {
+      settlementChain: {
         network: 'baseSepolia',
-        chainId: 84532,
+        id: 84532,
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
       // The following destination chains are useful for proving
@@ -158,7 +155,6 @@ const networks: any = {
     arbitrumSepolia: {
       network: 'arbitrum-sepolia',
       chainId: 421614,
-      settlementChainId: 11155111,
       settlementNetwork: 'sepolia',
       intentSourceAddress: '',
       proverContractAddress: '',
@@ -178,7 +174,7 @@ const networks: any = {
 }
 // TODO Update Bedrock with from OptimismSepolia to ECOTestNet
 const bedrock: any = {
-  settlement: {
+  settlementChain: {
     blockNumber: '0x5a12ed',
     blockHash:
       '0xddbab69aac369068d1591a69ce60fffee3a9c5049e44ff7e5099d462cabffd4f',
@@ -241,7 +237,7 @@ const bedrock: any = {
       '0xf8669d2025175e22c85b35ea2185b26c96801b0821bf198a3bb114ace81b3d51b846f8440180a04d14fc0663fc0c255a3fa651f29eab4745b50a9eb24c0da64c765a8d69de21d4a0fa8c9db6c6cab7108dea276f4cd09d575674eb0852c0fa3187e59e98ef977998',
     ],
   },
-  destination: {
+  destinationChain: {
     inboxContract: '0xCfC89c06B5499ee50dfAf451078D85Ad71D76079',
     inboxStorageRoot:
       '0x02db022d2959526a910b41f5686736103098af4ba16c5e014e0255e0289bcc04',
@@ -305,7 +301,7 @@ const bedrock: any = {
 }
 // TODO: Update Cannon with from Optimism to Base
 const cannon: any = {
-  settlement: {
+  settlementChain: {
     blockTag: '0x6107cf', // 66358991
     blockHash:
       '0x2a2fe18320765c51923e8f1edb7c5a0418f9a83e4e7bbe4032bb3737b9beba2f',
@@ -314,7 +310,7 @@ const cannon: any = {
     worldStateRoot:
       '0xb1d49eec6617d776d8f9f3be4cdf268d468efcec3d360d18a0ab22567b7d5b48',
   },
-  destination: {
+  destinationChain: {
     endBatchBlock: '0xe15161', // 14766433
     endBatchBlockHash:
       '0xf0f03f33d15875fea69a7630d8f227e07f6b0bd206b0249d9e662e5e756b92c0',
@@ -326,7 +322,7 @@ const cannon: any = {
       faultDisputeGame: {
         creationTx:
           '0x8409140599d4f60a6da6db41421f9c4ee0aa3eff3710e5a2b41714abbd8753f6',
-        listSlot: 104,
+        listSlotNumber: 104,
         gameType: 0,
         rootClaim:
           '0x778222daa4dba6c45df2b19889db287663bc92b6f721dfabfc0280366ab3d1a1',
@@ -479,7 +475,7 @@ const cannon: any = {
 export {
   provingMechanisms,
   networkIds,
-  enshrined,
+  // enshrined,
   actors,
   networks,
   bedrock,

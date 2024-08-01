@@ -19,7 +19,15 @@ import {
   stripZerosLeft,
   zeroPadValue,
 } from 'ethers'
-import t from './testData'
+import {
+  provingMechanisms,
+  networkIds,
+  // enshrined,
+  actors,
+  networks,
+  bedrock,
+  cannon,
+} from './testData'
 
 describe('Bedrock Prover Test', () => {
   let alice: SignerWithAddress
@@ -35,10 +43,10 @@ describe('Bedrock Prover Test', () => {
     blockhashOracle = await deploy(alice, MockL1Block__factory)
     // only the number and hash matters here
     await blockhashOracle.setL1BlockValues(
-      t.bedrock.settlement.blockNumber,
+      bedrock.settlementChain.blockNumber,
       0,
       0,
-      t.bedrock.settlement.blockHash,
+      bedrock.settlementChain.blockHash,
       0,
       '0x' + '00'.repeat(32),
       0,
@@ -53,22 +61,22 @@ describe('Bedrock Prover Test', () => {
 
     //baseSepolia Config
     await prover.setChainConfiguration(
-      t.networks.baseSepolia.chainId, //chainId
-      t.networks.baseSepolia.proving.mechanism, //provingMechanism
-      t.networks.baseSepolia.proving.settlement.chainId, //settlementChainId
-      t.networks.baseSepolia.proving.settlement.contract, //settlementContract
+      networks.baseSepolia.chainId, //chainId
+      networks.baseSepolia.proving.mechanism, //provingMechanism
+      networks.baseSepolia.proving.settlementChain.id, //settlementChainId
+      networks.baseSepolia.proving.settlementChain.contract, //settlementContract
       await blockhashOracle.getAddress(), //blockhashOracle
-      t.networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
+      networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
     )
 
     //optimismSepolia Config
     await prover.setChainConfiguration(
-      t.networks.optimismSepolia.chainId,
-      t.networks.optimismSepolia.proving.mechanism,
-      t.networks.optimismSepolia.proving.settlement.chainId,
-      t.networks.optimismSepolia.proving.settlement.contract,
+      networks.optimismSepolia.chainId,
+      networks.optimismSepolia.proving.mechanism,
+      networks.optimismSepolia.proving.settlementChain.id,
+      networks.optimismSepolia.proving.settlementChain.contract,
       await blockhashOracle.getAddress(),
-      t.networks.optimismSepolia.proving.outputRootVersionNumber,
+      networks.optimismSepolia.proving.outputRootVersionNumber,
     )
   })
 
@@ -95,28 +103,28 @@ describe('Bedrock Prover Test', () => {
   })
 
   it('has the correct block hash', async () => {
-    expect((await blockhashOracle.hash()) === t.bedrock.settlement.blockHash)
+    expect((await blockhashOracle.hash()) === bedrock.settlementChain.blockHash)
   })
 
   it('can prove OuputOracle storage', async () => {
     await prover.proveStorage(
       '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f747F1D',
       '0xa082af251eb4e15ec624f3a0d8e891892e45272cc3b364dec56cd00a1b2f36f62d', // prefix wih a0 because it's a 32 byte blob
-      t.bedrock.settlement.storageProof,
-      t.bedrock.settlement.outputOracleStorageRoot,
+      bedrock.settlementChain.storageProof,
+      bedrock.settlementChain.outputOracleStorageRoot,
     )
   })
 
   it('can prove OutputOracle account', async () => {
     const val = await prover.rlpEncodeDataLibList(
-      t.bedrock.settlement.contractData,
+      bedrock.settlementChain.contractData,
     )
 
     prover.proveAccount(
-      t.networks.baseSepolia.proving.settlement.contract,
+      networks.baseSepolia.proving.settlementChain.contract,
       val,
-      t.bedrock.settlement.accountProof,
-      t.bedrock.settlement.worldStateRoot,
+      bedrock.settlementChain.accountProof,
+      bedrock.settlementChain.worldStateRoot,
     )
   })
 
@@ -125,57 +133,57 @@ describe('Bedrock Prover Test', () => {
       '0xfc3e15078e229f29b5446a5a01dc281ef6c7c3054d5a5622159257fe61e0aac7',
       encodeRlp(getBytes('0x445575a842c3f13b4625F1dE6b4ee96c721e580a')),
       // '0x94' + FILLER.slice(2), // 0x80 (base val) + 0x14 (or 20 in decimal) for the length of the address
-      t.bedrock.destination.storageProof,
-      t.bedrock.destination.inboxStorageRoot,
+      bedrock.destinationChain.storageProof,
+      bedrock.destinationChain.inboxStorageRoot,
     )
   })
 
   it('can prove Intent account', async () => {
     const val = await prover.rlpEncodeDataLibList(
-      t.bedrock.destination.contractData,
+      bedrock.destinationChain.contractData,
     )
 
     prover.proveAccount(
-      t.bedrock.destination.inboxContract,
+      bedrock.destinationChain.inboxContract,
       val,
-      t.bedrock.destination.accountProof,
-      t.bedrock.destination.worldStateRoot,
+      bedrock.destinationChain.accountProof,
+      bedrock.destinationChain.worldStateRoot,
     )
   })
 
   it('full proof Bedrock', async () => {
     await prover.proveSettlementLayerState(
-      await prover.rlpEncodeDataLibList(t.bedrock.settlement.blockData),
-      t.networks.sepolia.chainId,
+      await prover.rlpEncodeDataLibList(bedrock.settlementChain.blockData),
+      networks.sepolia.chainId,
     )
 
     await prover.proveWorldStateBedrock(
-      t.bedrock.intent.destinationChainId,
-      t.bedrock.intent.rlpEncodedBlockData,
-      t.bedrock.destination.worldStateRoot,
-      t.bedrock.intent.messageParserStorageRoot,
-      t.bedrock.intent.batchIndex,
-      t.bedrock.settlement.storageProof,
-      await prover.rlpEncodeDataLibList(t.bedrock.settlement.contractData),
-      t.bedrock.settlement.accountProof,
-      t.bedrock.settlement.worldStateRoot,
+      bedrock.intent.destinationChainId,
+      bedrock.intent.rlpEncodedBlockData,
+      bedrock.destinationChain.worldStateRoot,
+      bedrock.intent.messageParserStorageRoot,
+      bedrock.intent.batchIndex,
+      bedrock.settlementChain.storageProof,
+      await prover.rlpEncodeDataLibList(bedrock.settlementChain.contractData),
+      bedrock.settlementChain.accountProof,
+      bedrock.settlementChain.worldStateRoot,
     )
 
     await prover.proveIntent(
-      t.bedrock.intent.destinationChainId,
-      t.actors.claimant,
-      t.bedrock.destination.inboxContract,
-      t.bedrock.intent.intentHash,
+      bedrock.intent.destinationChainId,
+      actors.claimant,
+      bedrock.destinationChain.inboxContract,
+      bedrock.intent.intentHash,
       // 1, // no need to be specific about output indexes yet
-      t.bedrock.destination.storageProof,
-      await prover.rlpEncodeDataLibList(t.bedrock.intent.inboxContractData),
-      t.bedrock.destination.accountProof,
-      t.bedrock.destination.worldStateRoot,
+      bedrock.destinationChain.storageProof,
+      await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData),
+      bedrock.destinationChain.accountProof,
+      bedrock.destinationChain.worldStateRoot,
     )
 
     expect(
-      (await prover.provenIntents(t.bedrock.intent.intentHash)) ===
-        t.actors.claimant,
+      (await prover.provenIntents(bedrock.intent.intentHash)) ===
+        actors.claimant,
     ).to.be.true
   })
 
@@ -183,10 +191,10 @@ describe('Bedrock Prover Test', () => {
   //   const cannonBlockDataSource = await deploy(alice, MockL1Block__factory)
   //   // only the number and hash matters here
   //   await cannonBlockDataSource.setL1BlockValues(
-  //     t.cannon.settlement.blockTag,
+  //     cannon.settlementChain.blockTag,
   //     0,
   //     0,
-  //     t.cannon.settlement.blockHash,
+  //     cannon.settlementChain.blockHash,
   //     0,
   //     '0x' + '00'.repeat(32),
   //     0,
@@ -201,54 +209,54 @@ describe('Bedrock Prover Test', () => {
 
   //   //baseSepolia Config
   //   await cannonProver.setChainConfiguration(
-  //     t.networks.baseSepolia.chainId,
+  //     networks.baseSepolia.chainId,
   //     1,
-  //     t.networks.sepolia.chainId,
-  //     t.networks.sepolia.settlementContract.baseSepolia,
+  //     networks.sepolia.chainId,
+  //     networks.sepolia.settlementContract.baseSepolia,
   //     await cannonBlockDataSource.getAddress(),
-  //     t.networks.baseSepolia.outputRootVersionNumber,
+  //     networks.baseSepolia.outputRootVersionNumber,
   //   )
 
   //   //optimismSepolia Config
   //   await cannonProver.setChainConfiguration(
-  //     t.networks.optimismSepolia.chainId,
+  //     networks.optimismSepolia.chainId,
   //     2,
-  //     t.networks.sepolia.chainId,
-  //     t.networks.sepolia.settlementContract.optimismSepolia,
+  //     networks.sepolia.chainId,
+  //     networks.sepolia.settlementContract.optimismSepolia,
   //     await cannonBlockDataSource.getAddress(),
-  //     t.networks.optimismSepolia.outputRootVersionNumber,
+  //     networks.optimismSepolia.outputRootVersionNumber,
   //   )
 
   //   await cannonProver.proveSettlementLayerState(
-  //     t.cannon.settlement.rlpEncodedBlockData,
-  //     t.networks.sepolia.chainId,
+  //     cannon.settlementChain.rlpEncodedBlockData,
+  //     networks.sepolia.chainId,
   //   )
 
   //   const cannonRootClaimFromProver = await cannonProver.generateOutputRoot(
   //     0,
-  //     t.cannon.destination.endBatchBlockStateRoot,
-  //     t.cannon.destination.messagePasserStateRoot,
-  //     t.cannon.destination.endBatchBlockHash,
+  //     cannon.destinationChain.endBatchBlockStateRoot,
+  //     cannon.destinationChain.messagePasserStateRoot,
+  //     cannon.destinationChain.endBatchBlockHash,
   //   )
   //   const cannonRootClaim = solidityPackedKeccak256(
   //     ['uint256', 'bytes32', 'bytes32', 'bytes32'],
   //     [
   //       0,
-  //       t.cannon.destination.endBatchBlockStateRoot,
-  //       t.cannon.destination.messagePasserStateRoot,
-  //       t.cannon.destination.endBatchBlockHash,
+  //       cannon.destinationChain.endBatchBlockStateRoot,
+  //       cannon.destinationChain.messagePasserStateRoot,
+  //       cannon.destinationChain.endBatchBlockHash,
   //     ],
   //   )
   //   expect(cannonRootClaimFromProver).to.equal(cannonRootClaim)
   //   expect(cannonRootClaimFromProver).to.equal(
-  //     t.cannon.destination.disputeGameFactory.faultDisputeGame.rootClaim,
+  //     cannon.destinationChain.disputeGameFactory.faultDisputeGame.rootClaim,
   //   )
 
   //   // TODO : Replace with expected test
   //   // expect(
   //   //   toBeHex(
   //   //     stripZerosLeft(
-  //   //       t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+  //   //       cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
   //   //     ),
   //   //   ),
   //   // ).to.equal('0x66997f68e611c3b8ec600691b9d16e54b433e03742e3b9d8')
@@ -269,24 +277,24 @@ describe('Bedrock Prover Test', () => {
   //   const disputeGameStorageSlot = toBeHex(
   //     BigInt(firstElementSlot) +
   //       BigInt(
-  //         Number(t.cannon.destination.disputeGameFactory.faultDisputeGame.gameIndex),
+  //         Number(cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameIndex),
   //       ),
   //     32,
   //   )
-  //   // expect(disputeGameStorageSlot).to.equal(t.cannon.gameIDStorageSlot)
+  //   // expect(disputeGameStorageSlot).to.equal(cannon.gameIDStorageSlot)
 
   //   const gameUnpacked = await cannonProver.unpack(
-  //     t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+  //     cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
   //   )
 
   //   // TODO: Replace with expected test
   //   // console.log('gameUnpacked: ', gameUnpacked)
   //   // console.log(
-  //   //   'encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))): ',
+  //   //   'encodeRlp(toBeHex(stripZerosLeft(cannon.gameId))): ',
   //   //   encodeRlp(
   //   //     toBeHex(
   //   //       stripZerosLeft(
-  //   //         t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+  //   //         cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
   //   //       ),
   //   //     ),
   //   //   ),
@@ -294,161 +302,161 @@ describe('Bedrock Prover Test', () => {
 
   //   // Prove storage showing the DisputeGameFactory created the FaultDisputGame
   //   await cannonProver.proveStorage(
-  //     t.cannon.destination.disputeGameFactory.faultDisputeGame.gameIDStorageSlot,
+  //     cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameIDStorageSlot,
   //     encodeRlp(
   //       toBeHex(
   //         stripZerosLeft(
-  //           t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+  //           cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
   //         ),
   //       ),
   //     ),
-  //     // encodeRlp(t.cannon.gameId),
-  //     t.cannon.destination.disputeGameFactory.storageProof,
-  //     t.cannon.destination.disputeGameFactory.stateRoot,
+  //     // encodeRlp(cannon.gameId),
+  //     cannon.destinationChain.disputeGameFactory.storageProof,
+  //     cannon.destinationChain.disputeGameFactory.stateRoot,
   //   )
 
   //   // Prove account showing that the above ProveStorage is for a valid WorldState
   //   await cannonProver.proveAccount(
   //     t.enshrined.cannon.chainData.optimism.disputeGameFactoryAddress,
   //     await cannonProver.rlpEncodeDataLibList(
-  //       t.cannon.destination.disputeGameFactory.contractData,
+  //       cannon.destinationChain.disputeGameFactory.contractData,
   //     ),
-  //     t.cannon.destination.disputeGameFactory.accountProof,
-  //     t.cannon.settlement.worldStateRoot,
+  //     cannon.destinationChain.disputeGameFactory.accountProof,
+  //     cannon.settlementChain.worldStateRoot,
   //   )
 
   //   // Prove storage showing the FaultDisputeGame has a status which shows the Defender Won
   //   await cannonProver.proveStorage(
-  //     t.cannon.destination.faultDisputeGame.status.storageSlot,
+  //     cannon.destinationChain.faultDisputeGame.status.storageSlot,
   //     encodeRlp(
   //       toBeHex(
   //         // stripZerosLeft(
-  //         t.cannon.destination.faultDisputeGame.status.storageData,
+  //         cannon.destinationChain.faultDisputeGame.status.storageData,
   //         // ),
   //       ),
   //     ),
-  //     t.cannon.destination.faultDisputeGame.status.storageProof,
-  //     t.cannon.destination.faultDisputeGame.stateRoot,
+  //     cannon.destinationChain.faultDisputeGame.status.storageProof,
+  //     cannon.destinationChain.faultDisputeGame.stateRoot,
   //   )
 
   //   // Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block
   //   await cannonProver.proveStorage(
-  //     t.cannon.destination.faultDisputeGame.rootClaim.storageSlot,
+  //     cannon.destinationChain.faultDisputeGame.rootClaim.storageSlot,
   //     encodeRlp(
   //       toBeHex(
   //         stripZerosLeft(
-  //           t.cannon.destination.faultDisputeGame.rootClaim.storageData,
+  //           cannon.destinationChain.faultDisputeGame.rootClaim.storageData,
   //         ),
   //       ),
   //     ),
-  //     // encodeRlp(t.cannon.faultDisputeGameRootClaimStorage),
-  //     t.cannon.destination.faultDisputeGame.rootClaim.storageProof,
-  //     t.cannon.destination.faultDisputeGame.stateRoot,
+  //     // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
+  //     cannon.destinationChain.faultDisputeGame.rootClaim.storageProof,
+  //     cannon.destinationChain.faultDisputeGame.stateRoot,
   //   )
 
   //   // Prove account showing that the above ProveStorages are for a valid WorldState
   //   await cannonProver.proveAccount(
-  //     t.cannon.destination.faultDisputeGame.address,
+  //     cannon.destinationChain.faultDisputeGame.address,
   //     await cannonProver.rlpEncodeDataLibList(
-  //       t.cannon.destination.faultDisputeGame.contractData,
+  //       cannon.destinationChain.faultDisputeGame.contractData,
   //     ),
-  //     t.cannon.destination.faultDisputeGame.accountProof,
-  //     t.cannon.settlement.worldStateRoot,
+  //     cannon.destinationChain.faultDisputeGame.accountProof,
+  //     cannon.settlementChain.worldStateRoot,
   //   )
 
   //   const RLPEncodedDisputeGameFactoryData =
   //     await cannonProver.rlpEncodeDataLibList(
-  //       t.cannon.destination.disputeGameFactory.contractData,
+  //       cannon.destinationChain.disputeGameFactory.contractData,
   //     )
 
   //   const disputeGameFactoryProofData = {
-  //     l2WorldStateRoot: t.cannon.destination.endBatchBlockStateRoot,
-  //     l2MessagePasserStateRoot: t.cannon.destination.messagePasserStateRoot,
-  //     l2LatestBlockHash: t.cannon.destination.endBatchBlockHash,
-  //     gameIndex: t.cannon.destination.disputeGameFactory.faultDisputeGame.gameIndex,
-  //     // gameId: toBeHex(stripZerosLeft(t.cannon.gameId)),
-  //     gameId: t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+  //     l2WorldStateRoot: cannon.destinationChain.endBatchBlockStateRoot,
+  //     l2MessagePasserStateRoot: cannon.destinationChain.messagePasserStateRoot,
+  //     l2LatestBlockHash: cannon.destinationChain.endBatchBlockHash,
+  //     gameIndex: cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameIndex,
+  //     // gameId: toBeHex(stripZerosLeft(cannon.gameId)),
+  //     gameId: cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
   //     l1DisputeFaultGameStorageProof:
-  //       t.cannon.destination.disputeGameFactory.storageProof,
+  //       cannon.destinationChain.disputeGameFactory.storageProof,
   //     rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
 
   //     disputeGameFactoryAccountProof:
-  //       t.cannon.destination.disputeGameFactory.accountProof,
+  //       cannon.destinationChain.disputeGameFactory.accountProof,
   //   }
 
   //   const RLPEncodedFaultDisputeGameData =
   //     await cannonProver.rlpEncodeDataLibList(
-  //       t.cannon.destination.faultDisputeGame.contractData,
+  //       cannon.destinationChain.faultDisputeGame.contractData,
   //     )
   //   const faultDisputeGameProofData = {
-  //     faultDisputeGameStateRoot: t.cannon.destination.faultDisputeGame.stateRoot,
+  //     faultDisputeGameStateRoot: cannon.destinationChain.faultDisputeGame.stateRoot,
   //     faultDisputeGameRootClaimStorageProof:
-  //       t.cannon.destination.faultDisputeGame.rootClaim.storageProof,
-  //     // faultDisputeGameStatusStorage: t.cannon.faultDisputeGameStatusStorage,
+  //       cannon.destinationChain.faultDisputeGame.rootClaim.storageProof,
+  //     // faultDisputeGameStatusStorage: cannon.faultDisputeGameStatusStorage,
   //     // faultDisputeGameStatusStorage: encodeRlp(
   //     //   toBeHex(
-  //     //     stripZerosLeft(t.cannon.destination.faultDisputeGame.status.storageData),
+  //     //     stripZerosLeft(cannon.destinationChain.faultDisputeGame.status.storageData),
   //     //   ),
   //     // ),
   //     faultDisputeGameStatusSlotData: {
-  //       createdAt: t.cannon.destination.faultDisputeGame.status.storage.createdAt,
-  //       resolvedAt: t.cannon.destination.faultDisputeGame.status.storage.resolvedAt,
-  //       gameStatus: t.cannon.destination.faultDisputeGame.status.storage.gameStatus,
+  //       createdAt: cannon.destinationChain.faultDisputeGame.status.storage.createdAt,
+  //       resolvedAt: cannon.destinationChain.faultDisputeGame.status.storage.resolvedAt,
+  //       gameStatus: cannon.destinationChain.faultDisputeGame.status.storage.gameStatus,
   //       initialized:
-  //         t.cannon.destination.faultDisputeGame.status.storage.initialized,
+  //         cannon.destinationChain.faultDisputeGame.status.storage.initialized,
   //       l2BlockNumberChallenged:
-  //         t.cannon.destination.faultDisputeGame.status.storage
+  //         cannon.destinationChain.faultDisputeGame.status.storage
   //           .l2BlockNumberChallenged,
   //       filler: getBytes(
-  //         t.cannon.destination.faultDisputeGame.status.storage.filler,
+  //         cannon.destinationChain.faultDisputeGame.status.storage.filler,
   //       ),
   //     },
   //     faultDisputeGameStatusStorageProof:
-  //       t.cannon.destination.faultDisputeGame.status.storageProof,
+  //       cannon.destinationChain.faultDisputeGame.status.storageProof,
   //     rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
   //     faultDisputeGameAccountProof:
-  //       t.cannon.destination.faultDisputeGame.accountProof,
+  //       cannon.destinationChain.faultDisputeGame.accountProof,
   //   }
 
   //   await cannonProver.assembleGameStatusStorage(
-  //     t.cannon.destination.faultDisputeGame.status.storage.createdAt,
-  //     t.cannon.destination.faultDisputeGame.status.storage.resolvedAt,
-  //     t.cannon.destination.faultDisputeGame.status.storage.gameStatus,
-  //     t.cannon.destination.faultDisputeGame.status.storage.initialized,
-  //     t.cannon.destination.faultDisputeGame.status.storage.l2BlockNumberChallenged,
-  //     getBytes(t.cannon.destination.faultDisputeGame.status.storage.filler),
+  //     cannon.destinationChain.faultDisputeGame.status.storage.createdAt,
+  //     cannon.destinationChain.faultDisputeGame.status.storage.resolvedAt,
+  //     cannon.destinationChain.faultDisputeGame.status.storage.gameStatus,
+  //     cannon.destinationChain.faultDisputeGame.status.storage.initialized,
+  //     cannon.destinationChain.faultDisputeGame.status.storage.l2BlockNumberChallenged,
+  //     getBytes(cannon.destinationChain.faultDisputeGame.status.storage.filler),
   //   )
 
   //   // Update this after code complete in Prover.sol
   //   await cannonProver.proveWorldStateCannon(
-  //     t.cannon.intent.destinationChainId,
-  //     t.cannon.intent.rlpEncodedBlockData,
-  //     t.cannon.destination.endBatchBlockStateRoot,
+  //     cannon.intent.destinationChainId,
+  //     cannon.intent.rlpEncodedBlockData,
+  //     cannon.destinationChain.endBatchBlockStateRoot,
   //     disputeGameFactoryProofData,
   //     faultDisputeGameProofData,
-  //     t.cannon.settlement.worldStateRoot,
+  //     cannon.settlementChain.worldStateRoot,
   //   )
 
   //   await cannonProver.proveIntent(
-  //     t.cannon.intent.destinationChainId,
-  //     t.actors.claimant,
-  //     // t.cannon.intent.rlpEncodedBlockData,
-  //     t.networks.optimismSepolia.inboxAddress,
-  //     t.cannon.intent.intentHash,
+  //     cannon.intent.destinationChainId,
+  //     actors.claimant,
+  //     // cannon.intent.rlpEncodedBlockData,
+  //     networks.optimismSepolia.inboxAddress,
+  //     cannon.intent.intentHash,
   //     // 1, // no need to be specific about output indexes yet
-  //     t.cannon.intent.storageProof,
+  //     cannon.intent.storageProof,
   //     await cannonProver.rlpEncodeDataLibList(
-  //       t.cannon.intent.inboxContractData,
+  //       cannon.intent.inboxContractData,
   //     ),
-  //     t.cannon.intent.accountProof,
-  //     t.cannon.destination.endBatchBlockStateRoot,
+  //     cannon.intent.accountProof,
+  //     cannon.destinationChain.endBatchBlockStateRoot,
   //   )
 
   //   // await cannonProver.assembleGameStatusStorage()
 
   //   expect(
-  //     (await cannonProver.provenIntents(t.cannon.intent.intentHash)) ===
-  //       t.actors.claimant,
+  //     (await cannonProver.provenIntents(cannon.intent.intentHash)) ===
+  //       actors.claimant,
   //   ).to.be.true
   // })
 })
@@ -467,10 +475,10 @@ describe('Cannon Prover Test', () => {
     cannonBlockhashOracle = await deploy(alice, MockL1Block__factory)
     // only the number and hash matters here
     await cannonBlockhashOracle.setL1BlockValues(
-      t.cannon.settlement.blockTag,
+      cannon.settlementChain.blockTag,
       0,
       0,
-      t.cannon.settlement.blockHash,
+      cannon.settlementChain.blockHash,
       0,
       '0x' + '00'.repeat(32),
       0,
@@ -485,22 +493,22 @@ describe('Cannon Prover Test', () => {
     )
     //baseSepolia Config
     await cannonProver.setChainConfiguration(
-      t.networks.baseSepolia.chainId,
-      t.networks.baseSepolia.proving.mechanism,
-      t.networks.baseSepolia.proving.settlement.chainId,
-      t.networks.baseSepolia.proving.settlement.contract,
+      networks.baseSepolia.chainId,
+      networks.baseSepolia.proving.mechanism,
+      networks.baseSepolia.proving.settlementChain.chainId,
+      networks.baseSepolia.proving.settlementChain.contract,
       await cannonBlockhashOracle.getAddress(),
-      t.networks.baseSepolia.proving.outputRootVersionNumber,
+      networks.baseSepolia.proving.outputRootVersionNumber,
     )
 
     //optimismSepolia Config
     await cannonProver.setChainConfiguration(
-      t.networks.optimismSepolia.chainId,
-      t.networks.optimismSepolia.proving.mechanism,
-      t.networks.optimismSepolia.proving.settlement.chainId,
-      t.networks.optimismSepolia.proving.settlement.contract,
+      networks.optimismSepolia.chainId,
+      networks.optimismSepolia.proving.mechanism,
+      networks.optimismSepolia.proving.settlementChain.chainId,
+      networks.optimismSepolia.proving.settlementChain.contract,
       await cannonBlockhashOracle.getAddress(),
-      t.networks.optimismSepolia.proving.outputRootVersionNumber,
+      networks.optimismSepolia.proving.outputRootVersionNumber,
     )
   })
 
@@ -508,10 +516,10 @@ describe('Cannon Prover Test', () => {
     // const cannonBlockDataSource = await deploy(alice, MockL1Block__factory)
     // // only the number and hash matters here
     // await cannonBlockDataSource.setL1BlockValues(
-    //   t.cannon.settlement.blockTag,
+    //   cannon.settlementChain.blockTag,
     //   0,
     //   0,
-    //   t.cannon.settlement.blockHash,
+    //   cannon.settlementChain.blockHash,
     //   0,
     //   '0x' + '00'.repeat(32),
     //   0,
@@ -519,35 +527,35 @@ describe('Cannon Prover Test', () => {
     // )
 
     await cannonProver.proveSettlementLayerState(
-      t.cannon.settlement.rlpEncodedBlockData,
-      t.networks.sepolia.chainId,
+      cannon.settlementChain.rlpEncodedBlockData,
+      networks.sepolia.chainId,
     )
 
     const cannonRootClaimFromProver = await cannonProver.generateOutputRoot(
       0,
-      t.cannon.destination.endBatchBlockStateRoot,
-      t.cannon.destination.messagePasserStateRoot,
-      t.cannon.destination.endBatchBlockHash,
+      cannon.destinationChain.endBatchBlockStateRoot,
+      cannon.destinationChain.messagePasserStateRoot,
+      cannon.destinationChain.endBatchBlockHash,
     )
     const cannonRootClaim = solidityPackedKeccak256(
       ['uint256', 'bytes32', 'bytes32', 'bytes32'],
       [
         0,
-        t.cannon.destination.endBatchBlockStateRoot,
-        t.cannon.destination.messagePasserStateRoot,
-        t.cannon.destination.endBatchBlockHash,
+        cannon.destinationChain.endBatchBlockStateRoot,
+        cannon.destinationChain.messagePasserStateRoot,
+        cannon.destinationChain.endBatchBlockHash,
       ],
     )
     expect(cannonRootClaimFromProver).to.equal(cannonRootClaim)
     expect(cannonRootClaimFromProver).to.equal(
-      t.cannon.destination.disputeGameFactory.faultDisputeGame.rootClaim,
+      cannon.destinationChain.disputeGameFactory.faultDisputeGame.rootClaim,
     )
 
     // TODO : Replace with expected test
     // expect(
     //   toBeHex(
     //     stripZerosLeft(
-    //       t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+    //       cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
     //     ),
     //   ),
     // ).to.equal('0x66997f68e611c3b8ec600691b9d16e54b433e03742e3b9d8')
@@ -558,7 +566,7 @@ describe('Cannon Prover Test', () => {
     // bytes32 outputRootStorageSlot =
     // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
     const arrayLengthSlot = zeroPadValue(
-      toBeArray(t.enshrined.cannon.disputeGameFactoryListSlotNumber),
+      toBeArray(cannon.destinationChain.disputeGameFactory.listSlotNumber),
       32,
     )
     const firstElementSlot = solidityPackedKeccak256(
@@ -569,25 +577,26 @@ describe('Cannon Prover Test', () => {
       BigInt(firstElementSlot) +
         BigInt(
           Number(
-            t.cannon.destination.disputeGameFactory.faultDisputeGame.gameIndex,
+            cannon.destinationChain.disputeGameFactory.faultDisputeGame
+              .gameIndex,
           ),
         ),
       32,
     )
-    // expect(disputeGameStorageSlot).to.equal(t.cannon.gameIDStorageSlot)
+    // expect(disputeGameStorageSlot).to.equal(cannon.gameIDStorageSlot)
 
     const gameUnpacked = await cannonProver.unpack(
-      t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+      cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
     )
 
     // TODO: Replace with expected test
     // console.log('gameUnpacked: ', gameUnpacked)
     // console.log(
-    //   'encodeRlp(toBeHex(stripZerosLeft(t.cannon.gameId))): ',
+    //   'encodeRlp(toBeHex(stripZerosLeft(cannon.gameId))): ',
     //   encodeRlp(
     //     toBeHex(
     //       stripZerosLeft(
-    //         t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+    //         cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
     //       ),
     //     ),
     //   ),
@@ -595,168 +604,167 @@ describe('Cannon Prover Test', () => {
 
     // Prove storage showing the DisputeGameFactory created the FaultDisputGame
     await cannonProver.proveStorage(
-      t.cannon.destination.disputeGameFactory.faultDisputeGame
+      cannon.destinationChain.disputeGameFactory.faultDisputeGame
         .gameIDStorageSlot,
       encodeRlp(
         toBeHex(
           stripZerosLeft(
-            t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+            cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
           ),
         ),
       ),
-      // encodeRlp(t.cannon.gameId),
-      t.cannon.destination.disputeGameFactory.storageProof,
-      t.cannon.destination.disputeGameFactory.stateRoot,
+      // encodeRlp(cannon.gameId),
+      cannon.destinationChain.disputeGameFactory.storageProof,
+      cannon.destinationChain.disputeGameFactory.stateRoot,
     )
 
     // Prove account showing that the above ProveStorage is for a valid WorldState
     await cannonProver.proveAccount(
-      t.enshrined.cannon.chainData.optimism.disputeGameFactoryAddress,
+      networks.optimismSepolia.settlementChain.contract,
       await cannonProver.rlpEncodeDataLibList(
-        t.cannon.destination.disputeGameFactory.contractData,
+        cannon.destinationChain.disputeGameFactory.contractData,
       ),
-      t.cannon.destination.disputeGameFactory.accountProof,
-      t.cannon.settlement.worldStateRoot,
+      cannon.destinationChain.disputeGameFactory.accountProof,
+      cannon.settlementChain.worldStateRoot,
     )
 
     // Prove storage showing the FaultDisputeGame has a status which shows the Defender Won
     await cannonProver.proveStorage(
-      t.cannon.destination.faultDisputeGame.status.storageSlot,
+      cannon.destinationChain.faultDisputeGame.status.storageSlot,
       encodeRlp(
         toBeHex(
           // stripZerosLeft(
-          t.cannon.destination.faultDisputeGame.status.storageData,
+          cannon.destinationChain.faultDisputeGame.status.storageData,
           // ),
         ),
       ),
-      t.cannon.destination.faultDisputeGame.status.storageProof,
-      t.cannon.destination.faultDisputeGame.stateRoot,
+      cannon.destinationChain.faultDisputeGame.status.storageProof,
+      cannon.destinationChain.faultDisputeGame.stateRoot,
     )
 
     // Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block
     await cannonProver.proveStorage(
-      t.cannon.destination.faultDisputeGame.rootClaim.storageSlot,
+      cannon.destinationChain.faultDisputeGame.rootClaim.storageSlot,
       encodeRlp(
         toBeHex(
           stripZerosLeft(
-            t.cannon.destination.faultDisputeGame.rootClaim.storageData,
+            cannon.destinationChain.faultDisputeGame.rootClaim.storageData,
           ),
         ),
       ),
-      // encodeRlp(t.cannon.faultDisputeGameRootClaimStorage),
-      t.cannon.destination.faultDisputeGame.rootClaim.storageProof,
-      t.cannon.destination.faultDisputeGame.stateRoot,
+      // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
+      cannon.destinationChain.faultDisputeGame.rootClaim.storageProof,
+      cannon.destinationChain.faultDisputeGame.stateRoot,
     )
 
     // Prove account showing that the above ProveStorages are for a valid WorldState
     await cannonProver.proveAccount(
-      t.cannon.destination.faultDisputeGame.address,
+      cannon.destinationChain.faultDisputeGame.address,
       await cannonProver.rlpEncodeDataLibList(
-        t.cannon.destination.faultDisputeGame.contractData,
+        cannon.destinationChain.faultDisputeGame.contractData,
       ),
-      t.cannon.destination.faultDisputeGame.accountProof,
-      t.cannon.settlement.worldStateRoot,
+      cannon.destinationChain.faultDisputeGame.accountProof,
+      cannon.settlementChain.worldStateRoot,
     )
 
     const RLPEncodedDisputeGameFactoryData =
       await cannonProver.rlpEncodeDataLibList(
-        t.cannon.destination.disputeGameFactory.contractData,
+        cannon.destinationChain.disputeGameFactory.contractData,
       )
 
     const disputeGameFactoryProofData = {
-      l2WorldStateRoot: t.cannon.destination.endBatchBlockStateRoot,
-      l2MessagePasserStateRoot: t.cannon.destination.messagePasserStateRoot,
-      l2LatestBlockHash: t.cannon.destination.endBatchBlockHash,
+      l2WorldStateRoot: cannon.destinationChain.endBatchBlockStateRoot,
+      l2MessagePasserStateRoot: cannon.destinationChain.messagePasserStateRoot,
+      l2LatestBlockHash: cannon.destinationChain.endBatchBlockHash,
       gameIndex:
-        t.cannon.destination.disputeGameFactory.faultDisputeGame.gameIndex,
-      // gameId: toBeHex(stripZerosLeft(t.cannon.gameId)),
-      gameId: t.cannon.destination.disputeGameFactory.faultDisputeGame.gameId,
+        cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameIndex,
+      // gameId: toBeHex(stripZerosLeft(cannon.gameId)),
+      gameId:
+        cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
       l1DisputeFaultGameStorageProof:
-        t.cannon.destination.disputeGameFactory.storageProof,
+        cannon.destinationChain.disputeGameFactory.storageProof,
       rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
 
       disputeGameFactoryAccountProof:
-        t.cannon.destination.disputeGameFactory.accountProof,
+        cannon.destinationChain.disputeGameFactory.accountProof,
     }
 
     const RLPEncodedFaultDisputeGameData =
       await cannonProver.rlpEncodeDataLibList(
-        t.cannon.destination.faultDisputeGame.contractData,
+        cannon.destinationChain.faultDisputeGame.contractData,
       )
     const faultDisputeGameProofData = {
       faultDisputeGameStateRoot:
-        t.cannon.destination.faultDisputeGame.stateRoot,
+        cannon.destinationChain.faultDisputeGame.stateRoot,
       faultDisputeGameRootClaimStorageProof:
-        t.cannon.destination.faultDisputeGame.rootClaim.storageProof,
-      // faultDisputeGameStatusStorage: t.cannon.faultDisputeGameStatusStorage,
+        cannon.destinationChain.faultDisputeGame.rootClaim.storageProof,
+      // faultDisputeGameStatusStorage: cannon.faultDisputeGameStatusStorage,
       // faultDisputeGameStatusStorage: encodeRlp(
       //   toBeHex(
-      //     stripZerosLeft(t.cannon.destination.faultDisputeGame.status.storageData),
+      //     stripZerosLeft(cannon.destinationChain.faultDisputeGame.status.storageData),
       //   ),
       // ),
       faultDisputeGameStatusSlotData: {
         createdAt:
-          t.cannon.destination.faultDisputeGame.status.storage.createdAt,
+          cannon.destinationChain.faultDisputeGame.status.storage.createdAt,
         resolvedAt:
-          t.cannon.destination.faultDisputeGame.status.storage.resolvedAt,
+          cannon.destinationChain.faultDisputeGame.status.storage.resolvedAt,
         gameStatus:
-          t.cannon.destination.faultDisputeGame.status.storage.gameStatus,
+          cannon.destinationChain.faultDisputeGame.status.storage.gameStatus,
         initialized:
-          t.cannon.destination.faultDisputeGame.status.storage.initialized,
+          cannon.destinationChain.faultDisputeGame.status.storage.initialized,
         l2BlockNumberChallenged:
-          t.cannon.destination.faultDisputeGame.status.storage
+          cannon.destinationChain.faultDisputeGame.status.storage
             .l2BlockNumberChallenged,
         filler: getBytes(
-          t.cannon.destination.faultDisputeGame.status.storage.filler,
+          cannon.destinationChain.faultDisputeGame.status.storage.filler,
         ),
       },
       faultDisputeGameStatusStorageProof:
-        t.cannon.destination.faultDisputeGame.status.storageProof,
+        cannon.destinationChain.faultDisputeGame.status.storageProof,
       rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
       faultDisputeGameAccountProof:
-        t.cannon.destination.faultDisputeGame.accountProof,
+        cannon.destinationChain.faultDisputeGame.accountProof,
     }
 
     await cannonProver.assembleGameStatusStorage(
-      t.cannon.destination.faultDisputeGame.status.storage.createdAt,
-      t.cannon.destination.faultDisputeGame.status.storage.resolvedAt,
-      t.cannon.destination.faultDisputeGame.status.storage.gameStatus,
-      t.cannon.destination.faultDisputeGame.status.storage.initialized,
-      t.cannon.destination.faultDisputeGame.status.storage
+      cannon.destinationChain.faultDisputeGame.status.storage.createdAt,
+      cannon.destinationChain.faultDisputeGame.status.storage.resolvedAt,
+      cannon.destinationChain.faultDisputeGame.status.storage.gameStatus,
+      cannon.destinationChain.faultDisputeGame.status.storage.initialized,
+      cannon.destinationChain.faultDisputeGame.status.storage
         .l2BlockNumberChallenged,
-      getBytes(t.cannon.destination.faultDisputeGame.status.storage.filler),
+      getBytes(cannon.destinationChain.faultDisputeGame.status.storage.filler),
     )
 
     // Update this after code complete in Prover.sol
     await cannonProver.proveWorldStateCannon(
-      t.cannon.intent.destinationChainId,
-      t.cannon.intent.rlpEncodedBlockData,
-      t.cannon.destination.endBatchBlockStateRoot,
+      cannon.intent.destinationChainId,
+      cannon.intent.rlpEncodedBlockData,
+      cannon.destinationChain.endBatchBlockStateRoot,
       disputeGameFactoryProofData,
       faultDisputeGameProofData,
-      t.cannon.settlement.worldStateRoot,
+      cannon.settlementChain.worldStateRoot,
     )
 
     await cannonProver.proveIntent(
-      t.cannon.intent.destinationChainId,
-      t.actors.claimant,
-      // t.cannon.intent.rlpEncodedBlockData,
-      t.networks.optimismSepolia.inboxAddress,
-      t.cannon.intent.intentHash,
+      cannon.intent.destinationChainId,
+      actors.claimant,
+      // cannon.intent.rlpEncodedBlockData,
+      networks.optimismSepolia.inboxAddress,
+      cannon.intent.intentHash,
       // 1, // no need to be specific about output indexes yet
-      t.cannon.intent.storageProof,
-      await cannonProver.rlpEncodeDataLibList(
-        t.cannon.intent.inboxContractData,
-      ),
-      t.cannon.intent.accountProof,
-      t.cannon.destination.endBatchBlockStateRoot,
+      cannon.intent.storageProof,
+      await cannonProver.rlpEncodeDataLibList(cannon.intent.inboxContractData),
+      cannon.intent.accountProof,
+      cannon.destinationChain.endBatchBlockStateRoot,
     )
 
     // await cannonProver.assembleGameStatusStorage()
 
     expect(
-      (await cannonProver.provenIntents(t.cannon.intent.intentHash)) ===
-        t.actors.claimant,
+      (await cannonProver.provenIntents(cannon.intent.intentHash)) ===
+        actors.claimant,
     ).to.be.true
   })
 })

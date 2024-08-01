@@ -2,7 +2,16 @@ import { ethers, run, network, upgrades } from 'hardhat'
 import { IntentSource, Inbox } from '../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
-import c from '../config/testnet/config'
+// import c from '../config/testnet/config'
+import {
+  provingMechanisms,
+  networkIds,
+  // enshrined,
+  actors,
+  networks,
+  bedrock,
+  cannon,
+} from './../config/testnet/config'
 
 const networkName = network.name
 
@@ -22,25 +31,38 @@ async function main() {
     'prover implementation deployed to: ',
     await upgrades.erc1967.getImplementationAddress(await prover.getAddress()),
   )
-
+  // current deploy involves setting chain configuration for all Destination chains
+  // We use different configuration files for each environment
+  // BaseSepolia Config
   await prover.setChainConfiguration(
-    c.baseSepolia.chainId,
-    1,
-    c.sepolia.chainId,
-    c.sepolia.settlementContract.baseSepolia,
-    c.baseSepolia.l1BlockAddress,
-    c.baseSepolia.outputRootVersionNumber,
+    networks.optimismSepolia.chainId,
+    networks.optimismSepolia.proving.mechanism,
+    networks.optimismSepolia.proving.settlementChain.id,
+    networks.optimismSepolia.proving.settlementChain.contract,
+    networks.optimismSepolia.proving.l1BlockAddress,
+    networks.optimismSepolia.proving.outputRootVersionNumber,
   )
 
-  // optimismSepolia Config
+  // BaseSepolia Config
   await prover.setChainConfiguration(
-    c.optimismSepolia.chainId,
-    2,
-    c.sepolia.chainId,
-    c.sepolia.settlementContract.optimismSepolia,
-    c.optimismSepolia.l1BlockAddress,
-    c.optimismSepolia.outputRootVersionNumber,
+    networks.baseSepolia.chainId,
+    networks.baseSepolia.proving.mechanism,
+    networks.baseSepolia.proving.settlementChain.id,
+    networks.baseSepolia.proving.settlementChain.contract,
+    networks.baseSepolia.proving.l1BlockAddress,
+    networks.baseSepolia.proving.outputRootVersionNumber,
   )
+
+  // Eco Testnet  Config
+  await prover.setChainConfiguration(
+    networks.ecoTestNet.chainId,
+    networks.ecoTestNet.proving.mechanism,
+    networks.ecoTestNet.proving.settlementChain.id,
+    networks.ecoTestNet.proving.settlementChain.contract,
+    networks.ecoTestNet.proving.l1BlockAddress,
+    networks.ecoTestNet.proving.outputRootVersionNumber,
+  )
+
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   try {
