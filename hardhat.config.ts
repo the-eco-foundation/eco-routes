@@ -98,6 +98,7 @@ const config: HardhatUserConfig = {
       optimism: process.env.OPTIMISM_SCAN_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISM_SCAN_API_KEY || '',
       base: process.env.BASE_SCAN_API_KEY || '',
+      ecoTestnet: process.env.CALDERA_SCAN_API_KEY || '',
     },
     customChains: [
       {
@@ -114,6 +115,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://optimism-sepolia.blockscout.com/api',
           browserURL: 'https://optimism-sepolia.blockscout.com/',
+        },
+      },
+      {
+        network: 'ecoTestnet',
+        chainId: 471923,
+        urls: {
+          apiURL: 'https://eco-testnet.explorer.caldera.xyz/api',
+          browserURL: 'https://eco-testnet.explorer.caldera.xyz/',
         },
       },
     ],

@@ -15,6 +15,11 @@
       "address": "0x03Fe851c0fC4Eb335505C105a595FD215B5A6735",
       "txHash": "0x0535b9f16edf004d1e73987ed711eb75d0ec442853e9a21cdce7ee9cf8630e85",
       "kind": "uups"
+    },
+    {
+      "address": "0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf",
+      "txHash": "0xd3506935f6197a9ba77b0126ffe1944ba3c7c491d5c14fe510b8722f4278f27d",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -348,6 +353,209 @@
             "numberOfBytes": "96"
           },
           "t_struct(ChainConfiguration)3229_storage": {
+            "label": "struct Prover.ChainConfiguration",
+            "members": [
+              {
+                "label": "provingMechanism",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "settlementChainId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "settlementContract",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "blockhashOracle",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "outputRootVersionNumber",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "436202129d40d0752779bc3acf1e85cc751bb55bcee78f705d24f81b2a4eacc1": {
+      "address": "0x039C4AbbB776eAEF61F7f5d860505d1f64D3f43a",
+      "txHash": "0x51bc6d4088f4ec417ba52aee1c8420a02b02f83768b3a24af9f4e3b2e3d0650d",
+      "layout": {
+        "solcVersion": "0.8.26",
+        "storage": [
+          {
+            "label": "l1BlockhashOracle",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IL1Block)4476",
+            "contract": "Prover",
+            "src": "contracts/Prover.sol:39"
+          },
+          {
+            "label": "chainConfigurations",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_uint256,t_struct(ChainConfiguration)3217_storage)",
+            "contract": "Prover",
+            "src": "contracts/Prover.sol:58"
+          },
+          {
+            "label": "provenStates",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_uint256,t_struct(BlockProof)3229_storage)",
+            "contract": "Prover",
+            "src": "contracts/Prover.sol:67"
+          },
+          {
+            "label": "provenIntents",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_mapping(t_bytes32,t_address)",
+            "contract": "Prover",
+            "src": "contracts/Prover.sol:70"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)509_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)430_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IL1Block)4476": {
+            "label": "contract IL1Block",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_bytes32,t_address)": {
+            "label": "mapping(bytes32 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(BlockProof)3229_storage)": {
+            "label": "mapping(uint256 => struct Prover.BlockProof)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(ChainConfiguration)3217_storage)": {
+            "label": "mapping(uint256 => struct Prover.ChainConfiguration)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(BlockProof)3229_storage": {
+            "label": "struct Prover.BlockProof",
+            "members": [
+              {
+                "label": "blockNumber",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blockHash",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "stateRoot",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(ChainConfiguration)3217_storage": {
             "label": "struct Prover.ChainConfiguration",
             "members": [
               {

@@ -73,9 +73,13 @@ const networks: any = {
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
-    intentSourceAddress: '0x3f222827D8466E85d6c19594564b55Dc4a1c1DcF',
-    proverContractAddress: '0x2470b9B23F3A2934574E04a3Bcb7C6B43438D582',
-    inboxAddress: '0x32388BB27E07db4bdda11Cc1EC919634cc6afF65',
+    intentSourceAddress: '0xA52662AAef7370bf029d78eb9D9CdD66dc474F75',
+    proverContractAddress: '0x82cd1fBE5fF76045F2dEaD6907E80A0176e733d2', // implementation 0xe63a43d3Ef5d493eAF1C5942b68320E38c02a007
+    inboxAddress: '0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
     proving: {
       mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -98,9 +102,13 @@ const networks: any = {
   baseSepolia: {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
-    intentSourceAddress: '0xcFbbD67c9f43a8E6D3D9aF7Ab93d61397c7a08CE',
-    proverContractAddress: '0xbe271EC06776e4B27AF854dA6511B3bb84313544',
-    inboxAddress: '0xbE6562D1F5cB7687ec3617Ec993A645104d77b5c',
+    intentSourceAddress: '0x5C9346960AFa8F810529DFcd95394B1a3CEb10b6',
+    proverContractAddress: '0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf', // immplementation 0x039C4AbbB776eAEF61F7f5d860505d1f64D3f43a
+    inboxAddress: '0x5ACc1a4b80a659F037498336C695D25f889ea33b',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
     proving: {
       mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -131,9 +139,13 @@ const networks: any = {
     network: 'eco-testnet',
     chainId: networkIds.ecoTestNet,
     settlementNetwork: 'baseSepolia',
-    intentSourceAddress: '',
-    proverContractAddress: '',
-    inboxAddress: '',
+    intentSourceAddress: '0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8',
+    proverContractAddress: '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394', // implementation 0xbc813923eF9859d54ee0Ed834B6DC871987Fb785
+    inboxAddress: '0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
     proving: {
       mechanism: 1,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -159,6 +171,10 @@ const networks: any = {
       intentSourceAddress: '',
       proverContractAddress: '',
       inboxAddress: '',
+      intentSource: {
+        minimumDuration: 1000,
+        counter: 0,
+      },
       proving: {
         mechanism: 3,
       },
@@ -472,7 +488,7 @@ const cannon: any = {
   },
 }
 
-export default {
+export {
   provingMechanisms,
   networkIds,
   // enshrined,

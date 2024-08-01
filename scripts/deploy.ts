@@ -3,19 +3,41 @@ import { IntentSource, Inbox } from '../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
+// import networks from '../config/testnet/config';
 import {
   provingMechanisms,
   networkIds,
-  // enshrined,
-  actors,
   networks,
+  actors,
   bedrock,
   cannon,
-} from './../config/testnet/config'
+} from '../config/testnet/config'
 
 const networkName = network.name
+console.log('Deploying to Network: ', network.name)
+let counter: number = 0
+let minimumDuration: number = 0
+switch (networkName) {
+  case 'baseSepolia':
+    counter = networks.baseSepolia.intentSource.counter
+    minimumDuration = networks.baseSepolia.intentSource.minimumDuration
+    break
+  case 'optimismSepolia':
+    counter = networks.optimismSepolia.intentSource.counter
+    minimumDuration = networks.optimismSepolia.intentSource.counter
+    break
+  case 'ecoTestNet':
+    counter = networks.ecoTestNet.intentSource.counter
+    minimumDuration = networks.ecoTestNet.intentSource.counter
+    break
+  default:
+    counter = 0
+    minimumDuration = 0
+    break
+}
+console.log('Counter: ', counter)
 
-console.log('Deploying to Network: ', networkName)
+console.log('Deploying to Network: ', network.name)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -33,7 +55,7 @@ async function main() {
   )
   // current deploy involves setting chain configuration for all Destination chains
   // We use different configuration files for each environment
-  // BaseSepolia Config
+  // optimismSepolia Config
   await prover.setChainConfiguration(
     networks.optimismSepolia.chainId,
     networks.optimismSepolia.proving.mechanism,
@@ -78,7 +100,6 @@ async function main() {
         address: await upgrades.erc1967.getImplementationAddress(
           await prover.getAddress(),
         ),
-        // constructorArguments: [l1BlockAddressSepolia, deployer.address],
       })
       console.log(
         'prover implementation verified at:',
@@ -92,8 +113,8 @@ async function main() {
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
   const intentSource: IntentSource = await intentSourceFactory.deploy(
     await prover.getAddress(),
-    1000,
-    c.intentSourceCounter,
+    minimumDuration,
+    counter,
   )
   console.log('intentSource deployed to:', await intentSource.getAddress())
 
@@ -107,19 +128,21 @@ async function main() {
         address: await intentSource.getAddress(),
         constructorArguments: [
           await prover.getAddress(),
-          1000,
-          c.intentSourceCounter,
+          minimumDuration,
+          counter,
         ],
       })
     }
     console.log('intentSource verified at:', await intentSource.getAddress())
   } catch (e) {
-    console.log(`Error verifying intentSoruc`, e)
+    console.log(`Error verifying intentSource`, e)
   }
 
   const inboxFactory = await ethers.getContractFactory('Inbox')
 
-  const inbox: Inbox = await inboxFactory.deploy()
+  const inbox: Inbox = await inboxFactory.deploy(deployer.address, false, [
+    actors.solver,
+  ])
   console.log('Inbox deployed to:', await inbox.getAddress())
 
   // adding a try catch as if the contract has previously been deployed will get a
@@ -130,7 +153,7 @@ async function main() {
       await setTimeout(30000)
       await run('verify:verify', {
         address: await inbox.getAddress(),
-        constructorArguments: [],
+        constructorArguments: [deployer.address, false, [actors.solver]],
       })
     }
     console.log('Inbox verified at:', await inbox.getAddress())
