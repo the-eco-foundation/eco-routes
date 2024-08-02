@@ -207,15 +207,20 @@ export namespace s {
     Prover__factory.abi,
     baseSepoliaIntentProver,
   )
-  export const baseSepoliaInboxContract = new Contract(
+  export const baseSepoliaInboxContractSolver = new Contract(
     networks.baseSepolia.inboxAddress,
     Inbox__factory.abi,
     baseSepoliaSolver,
   )
-  export const baseSepoliaUSDCContract = new Contract(
+  export const baseSepoliaUSDCContractIntentCreator = new Contract(
     networks.baseSepolia.usdcAddress,
     ERC20__factory.abi,
     baseSepoliaIntentCreator,
+  )
+  export const baseSepoliaUSDCContractSolver = new Contract(
+    networks.baseSepolia.usdcAddress,
+    ERC20__factory.abi,
+    baseSepoliaSolver,
   )
 
   // EcoTestNet
@@ -259,6 +264,12 @@ export namespace s {
     ecoTestNetProvider,
   )
   // ECO PROTOCOL Contracts
+  export const ecoTestNetIntentSourceContractIntentCreator = new Contract(
+    networks.ecoTestNet.intentSourceAddress,
+    IntentSource__factory.abi,
+    ecoTestNetIntentCreator,
+  )
+
   export const ecoTestNetIntentSourceContractClaimant = new Contract(
     networks.ecoTestNet.intentSourceAddress,
     IntentSource__factory.abi,
