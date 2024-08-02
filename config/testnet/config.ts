@@ -65,9 +65,9 @@ const networks: any = {
     chainId: networkIds.sepolia,
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      baseSepolia: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254', // baseSepolia
-      optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia
-      arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia
+      baseSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // baseSepolia Dispute Game Factory
+      optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
+      // arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia Rollup Admin Contract
     },
   },
   optimismSepolia: {
@@ -97,7 +97,7 @@ const networks: any = {
     //   471923, // ecoTestNet
     //   421614, // arbitrumSepolia
     // ],
-    // usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
+    usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
   baseSepolia: {
     network: 'base-sepolia',
@@ -124,20 +124,21 @@ const networks: any = {
       },
     },
     // The following settlement contracts are useful for event listening
-    // settlementContracts: {
-    //   471923: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet
-    // },
+    settlementContracts: {
+      ecoTestNet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet L2 Output Oracle
+    },
     // The following destination chains are useful for proving
     // destinationChains: [
     //   11155420, // optimismSepolia
     //   471923, // ecoTestNet
     //   421614, // arbitrumSepolia
     // ],
-    // usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
   ecoTestNet: {
     network: 'eco-testnet',
     chainId: networkIds.ecoTestNet,
+    rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     intentSourceAddress: '0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8',
     proverContractAddress: '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394', // implementation 0xbc813923eF9859d54ee0Ed834B6DC871987Fb785
@@ -156,14 +157,14 @@ const networks: any = {
         id: 84532,
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
-      // The following destination chains are useful for proving
-      // destinationChains: [
-      //   84532, // baseSepolia
-      //   11155420, // optimismSepolia
-      //   421614, // arbitrumSepolia
-      // ],
-      // usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     },
+    // The following destination chains are useful for proving
+    // destinationChains: [
+    //   84532, // baseSepolia
+    //   11155420, // optimismSepolia
+    //   421614, // arbitrumSepolia
+    // ],
+    usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     arbitrumSepolia: {
       network: 'arbitrum-sepolia',
       chainId: 421614,
@@ -184,7 +185,7 @@ const networks: any = {
       //   11155420, // optimismSepolia
       //   471923, // ecoTestNet
       // ],
-      // usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
+      usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
     },
   },
 }
@@ -488,6 +489,15 @@ const cannon: any = {
   },
 }
 
+// Note intents currently being used are for USDC with a common set of actors
+// the other data coming from the network
+// Here we store a minimal set of addtional fieds
+const intent: any = {
+  rewardAmounts: [1001],
+  targetAmounts: [1000],
+  duration: 3600,
+}
+
 export {
   provingMechanisms,
   networkIds,
@@ -496,4 +506,5 @@ export {
   networks,
   bedrock,
   cannon,
+  intent,
 }

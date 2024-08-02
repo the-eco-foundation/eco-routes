@@ -1,8 +1,8 @@
-import config from './config'
 import {
+  getDefaultProvider,
   AbiCoder,
-  BigNumberish,
   AlchemyProvider,
+  BigNumberish,
   Contract,
   Wallet,
   Signer,
@@ -14,9 +14,18 @@ import {
   Prover__factory,
   ERC20__factory,
 } from '../../typechain-types'
+import {
+  provingMechanisms,
+  networkIds,
+  networks,
+  actors,
+  bedrock,
+  cannon,
+  intent,
+} from '../../config/testnet/config'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
 import * as DisputeGameFactoryArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/DisputeGameFactory.sol/DisputeGameFactory.json'
-import * as L2ToL1MessagePasser from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
+import * as L2ToL1MessagePasserArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
 export namespace s {
   // default AbiCoder
   export const abiCoder = AbiCoder.defaultAbiCoder()
@@ -33,7 +42,7 @@ export namespace s {
   // Sepolia
   // Providers
   export const sepoliaProvider = new AlchemyProvider(
-    config.networks.sepolia.network,
+    networks.sepolia.network,
     ALCHEMY_API_KEY,
   )
   // Signers
@@ -58,173 +67,221 @@ export namespace s {
     sepoliaProvider,
   )
   // Contracts
+  // Note: we use providers for all System Contracts and Signers for Intent Protocol Contracts
+  // Settlement Contracts for other Chains
   export const sepoliaSettlementContractBase = new Contract(
-    config.networks.sepolia.settlementContracts.baseSepolia,
+    networks.sepolia.settlementContracts.baseSepolia,
     DisputeGameFactoryArtifact.abi,
     sepoliaProvider,
   )
   export const sepoliaSettlementContractOptimism = new Contract(
-    config.networks.sepolia.settlementContracts.optimismSepolia,
+    networks.sepolia.settlementContracts.optimismSepolia,
     DisputeGameFactoryArtifact.abi,
     sepoliaProvider,
   )
-  // export const sepoliaSettlementContractArbitrum = new Contract(
-  //   config.networks.sepolia.settlementContracts.arbitrumSepolia,
-  //   L2OutputArtifact.abi,
-  //   sepoliaProvider,
-  // )
+  // System Proving Contracts
+  // ECO PROTOCOL Contracts
 
   // OpstimismSepolia
   // Providers
   export const optimismSepoliaProvider = new AlchemyProvider(
-    config.networks.optimismSepolia.network,
+    networks.optimismSepolia.network,
     ALCHEMY_API_KEY,
   )
   // Signers
   export const optimismSepoliaDeployer: Signer = new Wallet(
     DEPLOYER_PRIVATE_KEY,
-    sepoliaProvider,
+    optimismSepoliaProvider,
   )
   export const optimismSepoliaIntentCreator: Signer = new Wallet(
     INTENT_CREATOR_PRIVATE_KEY,
-    sepoliaProvider,
+    optimismSepoliaProvider,
   )
   export const optimismSepoliaSolver: Signer = new Wallet(
     SOLVER_PRIVATE_KEY,
-    sepoliaProvider,
+    optimismSepoliaProvider,
   )
   export const optimismSepoliaIntentProver: Signer = new Wallet(
     PROVER_PRIVATE_KEY,
-    sepoliaProvider,
+    optimismSepoliaProvider,
   )
-  export const optimimsSepoliaClaimant: Signer = new Wallet(
+  export const optimismSepoliaClaimant: Signer = new Wallet(
     CLAIMANT_PRIVATE_KEY,
-    sepoliaProvider,
+    optimismSepoliaProvider,
   )
   // Contracts
+  // Settlement Contracts for other Chains
   // System Proving Contracts
+  export const optimismSepolial1Block = new Contract(
+    networks.optimismSepolia.proving.l1BlockAddress,
+    IL1Block__factory.abi,
+    optimismSepoliaProvider,
+  )
+  export const optimimsmSepoliaL2L1MessageParserContract = new Contract(
+    networks.optimismSepolia.proving.l2l1MessageParserAddress,
+    L2ToL1MessagePasserArtifact.abi,
+    optimismSepoliaProvider,
+  )
 
   // ECO PROTOCOL Contracts
-  export const optimimsmSepoliaSettlementContractBase = new Contract(
-    config.networks.sepolia.settlementContracts.baseSepolia,
-    DisputeGameFactoryArtifact.abi,
-    sepoliaProvider,
+  export const optimismSepoliaIntentSourceContractClaimant = new Contract(
+    networks.optimismSepolia.intentSourceAddress,
+    IntentSource__factory.abi,
+    optimismSepoliaClaimant,
   )
-  export const optimimsmSepoliaSettlementContractOptimism = new Contract(
-    config.networks.sepolia.settlementContracts.optimismSepolia,
-    DisputeGameFactoryArtifact.abi,
-    sepoliaProvider,
+  export const optimismSepoliaProverContract = new Contract(
+    networks.optimismSepolia.proverContractAddress,
+    Prover__factory.abi,
+    optimismSepoliaIntentProver,
   )
-  export const baseSepoliaProvider = new AlchemyProvider(
-    config.networks.baseSepolia.network,
-    ALCHEMY_API_KEY,
+  export const optimismSepoliaInboxContract = new Contract(
+    networks.optimismSepolia.inboxAddress,
+    Inbox__factory.abi,
+    optimismSepoliaSolver,
   )
-  export const ecoTestnetProvider = new AlchemyProvider(
-    config.networks.ecoTestnet.network,
-    ALCHEMY_API_KEY,
-  )
-  export const arbitrumSepoliaProvider = new AlchemyProvider(
-    config.networks.arbitrumSepolia.network,
-    ALCHEMY_API_KEY,
+  export const optimismSepliaUSDCContract = new Contract(
+    networks.optimismSepolia.usdcAddress,
+    ERC20__factory.abi,
+    optimismSepoliaIntentCreator,
   )
 
+  // BaseSepolia
+  // Providers
+  export const baseSepoliaProvider = new AlchemyProvider(
+    networks.baseSepolia.network,
+    ALCHEMY_API_KEY,
+  )
   // Signers
-  // Layer2 Source
-  export const layer2SourceIntentCreator: Signer = new Wallet(
+  export const baseSepoliaDeployer: Signer = new Wallet(
+    DEPLOYER_PRIVATE_KEY,
+    baseSepoliaProvider,
+  )
+  export const baseSepoliaIntentCreator: Signer = new Wallet(
     INTENT_CREATOR_PRIVATE_KEY,
-    layer2SourceProvider,
+    baseSepoliaProvider,
   )
-  export const layer2SourceIntentProver: Signer = new Wallet(
-    PROVER_PRIVATE_KEY,
-    layer2SourceProvider,
-  )
-  export const layer2SourceSolver: Signer = new Wallet(
+  export const baseSepoliaSolver: Signer = new Wallet(
     SOLVER_PRIVATE_KEY,
-    layer2SourceProvider,
+    baseSepoliaProvider,
   )
-  export const layer2SourceClaimant: Signer = new Wallet(
+  export const baseSepoliaIntentProver: Signer = new Wallet(
+    PROVER_PRIVATE_KEY,
+    baseSepoliaProvider,
+  )
+  export const baseSepoliaClaimant: Signer = new Wallet(
     CLAIMANT_PRIVATE_KEY,
-    layer2SourceProvider,
-  )
-  // Layer2 Destination
-  export const layer2DestinationSolver: Signer = new Wallet(
-    SOLVER_PRIVATE_KEY,
-    layer2DestinationProvider,
-  )
-  export const layer2DestinationProver: Signer = new Wallet(
-    PROVER_PRIVATE_KEY,
-    layer2DestinationProvider,
+    baseSepoliaProvider,
   )
   // Contracts
-  // Note: we use providers for all System Contracts and Signers for Intent Protocol Contracts
-  // Layer 1 Sepolia
-  export const layer1Layer2DestinationOutputOracleContract = new Contract(
-    config.sepolia.l2BaseOutputOracleAddress,
+  // Settlement Contracts for other Chains
+  export const baseSepoliaSettlementContractEcoTestNet = new Contract(
+    networks.baseSepolia.settlementContracts.ecoTestNet,
     L2OutputArtifact.abi,
-    layer1Provider,
+    baseSepoliaProvider,
   )
-  export const layer1Layer2DisputeGameFactory = new Contract(
-    config.sepolia.l2OptimismDisputeGameFactory,
-    DisputeGameFactoryArtifact.abi,
-    layer1Provider,
-  )
-  // Layer 2 Source Base Sepolia
-  export const layer2Layer1BlockAddressContract = new Contract(
-    config.baseSepolia.l1BlockAddress,
+  // System Proving Contracts
+  export const baseSepolial1Block = new Contract(
+    networks.baseSepolia.proving.l1BlockAddress,
     IL1Block__factory.abi,
-    layer2SourceProvider,
+    baseSepoliaProvider,
   )
-  export const layer2SourceIntentSourceContract = new Contract(
-    config.baseSepolia.intentSourceAddress,
+  export const baseSepoliaL2L1MessageParserContract = new Contract(
+    networks.baseSepolia.proving.l2l1MessageParserAddress,
+    L2ToL1MessagePasserArtifact.abi,
+    baseSepoliaProvider,
+  )
+  // ECO PROTOCOL Contracts
+  export const baseSepoliaIntentSourceContractIntentCreator = new Contract(
+    networks.baseSepolia.intentSourceAddress,
     IntentSource__factory.abi,
-    layer2SourceIntentCreator,
+    baseSepoliaIntentCreator,
   )
-  export const layer2SourceIntentSourceContractClaimant = new Contract(
-    config.baseSepolia.intentSourceAddress,
+  export const baseSepoliaIntentSourceContractClaimant = new Contract(
+    networks.baseSepolia.intentSourceAddress,
     IntentSource__factory.abi,
-    layer2SourceClaimant,
+    baseSepoliaClaimant,
   )
-  export const layer2SourceProverContract = new Contract(
-    config.baseSepolia.proverContractAddress,
+
+  export const baseSepoliaProverContract = new Contract(
+    networks.baseSepolia.proverContractAddress,
     Prover__factory.abi,
-    layer2SourceIntentProver,
+    baseSepoliaIntentProver,
   )
-  export const layer2SourceUSDCContract = new Contract(
-    config.baseSepolia.usdcAddress,
-    ERC20__factory.abi,
-    layer2SourceIntentCreator,
-  )
-
-  // Layer 2 Destination Optimism Sepolia
-  export const layer2DestinationInboxContract = new Contract(
-    config.optimismSepolia.inboxAddress,
+  export const baseSepoliaInboxContract = new Contract(
+    networks.baseSepolia.inboxAddress,
     Inbox__factory.abi,
-    layer2DestinationSolver,
+    baseSepoliaSolver,
   )
-  export const Layer2DestinationMessagePasserContract = new Contract(
-    config.optimismSepolia.l2l1MessageParserAddress,
-    L2ToL1MessagePasser.abi,
-    layer2DestinationProvider,
-  )
-  export const layer2DestinationUSDCContract = new Contract(
-    config.optimismSepolia.usdcAddress,
+  export const baseSepoliaUSDCContract = new Contract(
+    networks.baseSepolia.usdcAddress,
     ERC20__factory.abi,
-    layer2DestinationSolver,
+    baseSepoliaIntentCreator,
   )
 
-  // const rewardToken: ERC20 = ERC20__factory.connect(rewardTokens[0], creator)
+  // EcoTestNet
+  // Providers
+  export const ecoTestNetProvider = getDefaultProvider(
+    networks.ecoTestNet.rpcUrl,
+  )
+  // Signers
+  export const ecoTestNetDeployer: Signer = new Wallet(
+    DEPLOYER_PRIVATE_KEY,
+    ecoTestNetProvider,
+  )
+  export const ecoTestNetIntentCreator: Signer = new Wallet(
+    INTENT_CREATOR_PRIVATE_KEY,
+    ecoTestNetProvider,
+  )
+  export const ecoTestNetSolver: Signer = new Wallet(
+    SOLVER_PRIVATE_KEY,
+    ecoTestNetProvider,
+  )
+  export const ecoTestNetIntentProver: Signer = new Wallet(
+    PROVER_PRIVATE_KEY,
+    ecoTestNetProvider,
+  )
+  export const ecoTestNetClaimant: Signer = new Wallet(
+    CLAIMANT_PRIVATE_KEY,
+    ecoTestNetProvider,
+  )
+  // Contracts
+  // Settlement Contracts for other Chains
 
-  // Intent Parameters to baseSepolia
-  export const intentCreator = config.intents.optimismSepolia.creator
-  export const intentSourceAddress = config.baseSepolia.intentSourceAddress
-  export const intentRewardAmounts =
-    config.intents.optimismSepolia.rewardAmounts
-  export const intentRewardTokens = config.intents.optimismSepolia.rewardTokens
-  export const intentDestinationChainId: BigNumberish =
-    config.intents.optimismSepolia.destinationChainId
-  export const intentTargetTokens = config.intents.optimismSepolia.targetTokens
-  export const intentTargetAmounts =
-    config.intents.optimismSepolia.targetAmounts
-  export const intentRecipient = config.intents.optimismSepolia.recipient
-  export const intentDuration = config.intents.optimismSepolia.duration
+  // System Proving Contracts
+  export const ecoTestNetl1Block = new Contract(
+    networks.ecoTestNet.proving.l1BlockAddress,
+    IL1Block__factory.abi,
+    ecoTestNetProvider,
+  )
+  export const ecoTestNetL2L1MessageParserContract = new Contract(
+    networks.ecoTestNet.proving.l2l1MessageParserAddress,
+    L2ToL1MessagePasserArtifact.abi,
+    ecoTestNetProvider,
+  )
+  // ECO PROTOCOL Contracts
+  export const ecoTestNetIntentSourceContractClaimant = new Contract(
+    networks.ecoTestNet.intentSourceAddress,
+    IntentSource__factory.abi,
+    ecoTestNetClaimant,
+  )
+  export const ecoTestNetProverContract = new Contract(
+    networks.ecoTestNet.proverContractAddress,
+    Prover__factory.abi,
+    ecoTestNetIntentProver,
+  )
+  export const ecoTestNetInboxContractSolver = new Contract(
+    networks.ecoTestNet.inboxAddress,
+    Inbox__factory.abi,
+    ecoTestNetSolver,
+  )
+  export const ecoTestNetUSDCContractIntentCreator = new Contract(
+    networks.ecoTestNet.usdcAddress,
+    ERC20__factory.abi,
+    ecoTestNetIntentCreator,
+  )
+  export const ecoTestNetUSDCContractSolver = new Contract(
+    networks.ecoTestNet.usdcAddress,
+    ERC20__factory.abi,
+    ecoTestNetSolver,
+  )
 }

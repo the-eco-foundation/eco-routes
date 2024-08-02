@@ -1,5 +1,5 @@
 import { ethers, run, network, upgrades } from 'hardhat'
-import { IntentSource, Inbox } from '../typechain-types'
+import { IntentSource, Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
@@ -11,7 +11,7 @@ import {
   actors,
   bedrock,
   cannon,
-} from '../config/testnet/config'
+} from '../../config/testnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
