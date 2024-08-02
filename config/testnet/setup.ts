@@ -124,6 +124,11 @@ export namespace s {
   )
 
   // ECO PROTOCOL Contracts
+  export const optimismSepoliaIntentSourceContractIntentCreator = new Contract(
+    networks.optimismSepolia.intentSourceAddress,
+    IntentSource__factory.abi,
+    optimismSepoliaIntentCreator,
+  )
   export const optimismSepoliaIntentSourceContractClaimant = new Contract(
     networks.optimismSepolia.intentSourceAddress,
     IntentSource__factory.abi,
@@ -134,17 +139,21 @@ export namespace s {
     Prover__factory.abi,
     optimismSepoliaIntentProver,
   )
-  export const optimismSepoliaInboxContract = new Contract(
+  export const optimismSepoliaInboxContractSolver = new Contract(
     networks.optimismSepolia.inboxAddress,
     Inbox__factory.abi,
     optimismSepoliaSolver,
   )
-  export const optimismSepliaUSDCContract = new Contract(
+  export const optimismSepoliaUSDCContractIntentCreator = new Contract(
     networks.optimismSepolia.usdcAddress,
     ERC20__factory.abi,
     optimismSepoliaIntentCreator,
   )
-
+  export const optimismSepoliaUSDCContractSolver = new Contract(
+    networks.optimismSepolia.usdcAddress,
+    ERC20__factory.abi,
+    optimismSepoliaSolver,
+  )
   // BaseSepolia
   // Providers
   export const baseSepoliaProvider = new AlchemyProvider(
