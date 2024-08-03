@@ -65,7 +65,7 @@ const networks: any = {
     chainId: networkIds.sepolia,
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      baseSepolia: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254', // baseSepolia
+      baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia
       optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia
       arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia
     },
@@ -110,7 +110,7 @@ const networks: any = {
         network: 'sepolia',
         id: networkIds.sepolia,
         // Dispute Game Factory address
-        contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
+        contract: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
         // Old L2 Ourput Oracle Address
         // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
       },
@@ -142,7 +142,7 @@ const networks: any = {
       settlementChain: {
         network: 'baseSepolia',
         id: 84532,
-        contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
+        contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
       },
       // The following destination chains are useful for proving
       // destinationChains: [

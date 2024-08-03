@@ -1,3 +1,120 @@
+# Testing Notes
+
+## Master Data
+
+### Sepolia
+
+- Base Dispute Game Factory : 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1
+- Optimism Dispute Game Factory: 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1
+
+### BaseSepolia
+
+- ECO L2 Output Oracle Address: 0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951
+
+### ECO Testnet
+
+### OptimismSepolia
+
+## ECO Base Initial Tests (Cannon and Self and Bedrock)
+
+ETA Monday 7:00 - 8:00 am
+
+### Base Proving (Intent from Base to ECO)
+
+#### Sepolia (Settlement For Base)
+
+Method: `proveSettlementLayerState`
+
+- Block - TBD
+
+#### BaseSepolia (Settlement for Eco) - Cannon
+
+Method : `proveWorldStateCannon`
+
+- Fault Dispute Game : 0xE6585806C6864D6a3285CC72961eB1Ed7e078E2E
+- Fault Dispute Game Transaction : 0x25f0965510cd29f9d7cac6637bc694b71e7da369d7a5b264f4d648d584cc822b
+- Fault Dispute Game Transaction Block: 6419979
+- Base Batch Block Number: 13398533
+- Fault Dispute Game Resolved Transaction: TBD
+- Fault Dispute Game Resolved Block: TBD
+
+#### EcoTestnet (Destination chain for Intent)
+
+Method: `proveWorldStateCannon`
+
+- Base Settlement Block: 13398441
+- Base Settlement Transaction: 0x8d477a0358a9820dec6b397c0ecb109610f1251c76894ea94c7de52ddec9aead
+- L2 Output Index: 2915
+- ECO Testnet Batch End Block: 699840
+
+#### Intents
+
+- Intents
+  - Hash: 0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24
+  - Fulfillment: 0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5
+    - Block: 699790
+
+### Proving ECO Testnet (intent sent to Base)
+
+#### Sepolia (Settlement for Base) - Used to prove Base Has been Settled
+
+- Sepolia Block (Used for Proving Base Block Has been settled): TBD
+
+#### Base (Destination from Eco) - Proving of FaultDispute Game to Show Base Block Has Been Settled
+
+Method : `proveWorldStateCannon`
+
+- Fault Dispute Game : 0xE6585806C6864D6a3285CC72961eB1Ed7e078E2E
+- Fault Dispute Game Transaction : 0x25f0965510cd29f9d7cac6637bc694b71e7da369d7a5b264f4d648d584cc822b
+- Fault Dispute Game Transaction Block: 6419979
+- Base Batch Block Number: 13398533
+- Fault Dispute Game Resolved Transaction: TBD
+- Fault Dispute Game Resolved Block: TBD
+
+#### Intent Proof
+
+- Intents
+  - Hash: 0x9fcc6825d5739ef8c19f9ae1f891dc7e38e8433b9356aa940180a482c83774d0
+  - Fulfillment: 0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a
+    - Block: 13398241
+
+### Standalone State Tests
+
+Sepolia
+
+- Block
+
+BaseSepolia
+
+- Sepolia L1 Block
+- Fault Dispute Game : 0xc36c450bc3a00c592b5e6915da18f3458951cad7 (approx 84 hours to settle)
+- Block - 13272366
+- Intents - None
+
+ECO Testnet
+
+- Batch Index - 1850
+- Block - 444240
+- Block on Base: 13270761
+- Transaction on Base: 0x2fe4d6288468f2e607343165ee2419b48d3220c4e36d86c686777f51fb7401fd
+- Intents - None
+
+OptimismSepolia
+
+- Sepolia L1 Block
+- Fault Dispute Game : 0xFA0c778b9460D3E76223C52e0887ca12cD143F63 (approx 84 hours to settle)
+- Block - 15255829
+- Intents - None
+
+OptimismSepolia
+
+- Sepolia L1 Block
+- Fault Dispute Game : 0xFA0c778b9460D3E76223C52e0887ca12cD143F63 (approx 84 hours to settle)
+- Block - 15255829
+- Intents - None
+
+### ECO Base Optimism Tests (Cannon and Bedrock and Self)
+
 ## Cannon Base to Optimism
 
 ### Sepolia
