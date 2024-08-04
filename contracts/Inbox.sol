@@ -2,6 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IInbox.sol";
+import "@hyperlane-xyz/core/contracts/Mailbox.sol";
 
 /**
  * @title Inbox
@@ -10,6 +11,8 @@ import "./interfaces/IInbox.sol";
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
 contract Inbox is IInbox {
+
+    Mailbox public mailbox;
 
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
@@ -30,7 +33,8 @@ contract Inbox is IInbox {
         uint256 _expiryTime,
         bytes32 _nonce,
         address _claimant,
-        bytes32 _expectedHash
+        bytes32 _expectedHash,
+        bool hyperprove,
     ) external validTimestamp(_expiryTime) returns (bytes[] memory) {
         bytes32 intentHash = encodeHash(_sourceChainID, block.chainid, address(this), _targets, _data, _expiryTime, _nonce);
         
@@ -58,6 +62,10 @@ contract Inbox is IInbox {
 
         // Emit an event
         emit Fulfillment(intentHash, _sourceChainID, _claimant);
+
+        if (hyperprove) {
+            mailbox.dispatch(block.chainid, )
+        }
 
         // Return the results
         return results;
