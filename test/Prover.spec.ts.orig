@@ -29,29 +29,6 @@ import {
   cannon,
 } from './testData'
 
-// Unit Tests
-// setChainConfiguration
-// generateOutputRoot
-// rlpEncodeDataLibList
-// unpack
-// _toBinary remove this
-// bytesToUint
-// assembleGameStatusStorage
-// proveStorage
-// proveAccount
-// proveSettlementLayerState
-// proveWorldStateBedrock
-// _faultDisputeGameFromFactory
-// _faultDisputeGameIsResolved
-// proveWorldStateCannon
-// proveIntent
-
-// End to End Tests Base -> EcoTestnet
-// proveSettlementLayerState (Sepolia)
-// proveWorldStateCannon (Base)
-// proveWorldStateBedrock (EcoTestnet)
-// proveIntent (Base -> EcoTestnet)
-
 describe('Bedrock Prover Test', () => {
   let alice: SignerWithAddress
 
