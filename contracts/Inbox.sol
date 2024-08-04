@@ -67,6 +67,11 @@ contract Inbox is Ownable, IInbox {
         // Store the results of the calls
         bytes[] memory results = new bytes[](_data.length);
         // Call the addresses with the calldata
+        // TODO: is there a better way to do this than via low-level call? 
+        // wanted to gate access to the hyperlane bridge the inbox address, cannot as is. 
+
+        // need to make sure nobody calls Mailbox.dispatch inside this
+        uint256 initialNonce = mailbox.nonce();
         for (uint256 i = 0; i < _data.length; i++) {
             (bool success, bytes memory result) = _targets[i].call(_data[i]);
             if (!success) {
@@ -74,15 +79,25 @@ contract Inbox is Ownable, IInbox {
             }
             results[i] = result;
         }
+
         // Mark the intent as fulfilled
         fulfilled[intentHash] = _claimant;
 
-        // Emit an event
-        emit Fulfillment(intentHash, _sourceChainID, _claimant);
+        if (mailbox.nonce() > initialNonce) {
+            // unauthorized call made to dispatch();
+            revert;
+        }
 
         if (hyperprove) {
-            mailbox.dispatch(block.chainid, )
+            mailbox.dispatch(
+                _sourceChainID,
+                // MasterProver on source chain --> where am i storing this?
+                abi.encode(intentHash, _claimant),
+                )
+            
         }
+        // Emit an event
+        emit Fulfillment(intentHash, _sourceChainID, _claimant);
 
         // Return the results
         return results;

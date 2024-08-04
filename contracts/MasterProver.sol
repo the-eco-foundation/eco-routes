@@ -7,6 +7,8 @@ contract MasterProver is IMessageRecipient {
 
     mapping(bytes32 => address) provenIntents;
 
+    mapping(uint256 => address) inboxes;
+
     // have to gate this s.t. only the mailbox can call it + only coming from an inbox contract
     function handle(uint32 _origin, bytes32 _sender, bytes calldata _messageBody) {
         // message body is exactly what was sent into the mailbox on the inbox' chain
