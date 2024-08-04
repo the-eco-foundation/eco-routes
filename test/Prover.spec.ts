@@ -495,7 +495,7 @@ describe('Cannon Prover Test', () => {
     await cannonProver.setChainConfiguration(
       networks.baseSepolia.chainId,
       networks.baseSepolia.proving.mechanism,
-      networks.baseSepolia.proving.settlementChain.chainId,
+      networks.baseSepolia.proving.settlementChain.id,
       networks.baseSepolia.proving.settlementChain.contract,
       await cannonBlockhashOracle.getAddress(),
       networks.baseSepolia.proving.outputRootVersionNumber,
@@ -505,7 +505,7 @@ describe('Cannon Prover Test', () => {
     await cannonProver.setChainConfiguration(
       networks.optimismSepolia.chainId,
       networks.optimismSepolia.proving.mechanism,
-      networks.optimismSepolia.proving.settlementChain.chainId,
+      networks.optimismSepolia.proving.settlementChain.id,
       networks.optimismSepolia.proving.settlementChain.contract,
       await cannonBlockhashOracle.getAddress(),
       networks.optimismSepolia.proving.outputRootVersionNumber,
@@ -566,7 +566,10 @@ describe('Cannon Prover Test', () => {
     // bytes32 outputRootStorageSlot =
     // bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
     const arrayLengthSlot = zeroPadValue(
-      toBeArray(cannon.destinationChain.disputeGameFactory.listSlotNumber),
+      toBeArray(
+        cannon.destinationChain.disputeGameFactory.faultDisputeGame
+          .listSlotNumber,
+      ),
       32,
     )
     const firstElementSlot = solidityPackedKeccak256(
@@ -620,7 +623,7 @@ describe('Cannon Prover Test', () => {
 
     // Prove account showing that the above ProveStorage is for a valid WorldState
     await cannonProver.proveAccount(
-      networks.optimismSepolia.settlementChain.contract,
+      networks.optimismSepolia.proving.settlementChain.contract,
       await cannonProver.rlpEncodeDataLibList(
         cannon.destinationChain.disputeGameFactory.contractData,
       ),
