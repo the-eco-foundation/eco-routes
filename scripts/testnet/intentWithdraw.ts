@@ -10,51 +10,26 @@ import {
   zeroPadValue,
   toBeHex,
 } from 'ethers'
-import config from '../../config/testnet/config'
-import { s } from './cannon/setup'
+import {
+  provingMechanisms,
+  networkIds,
+  networks,
+  actors,
+  bedrock,
+  cannon,
+  intent,
+} from '../../config/testnet/config'
+import { s } from '../../config/testnet/setup'
 import { expect } from 'chai'
 
-// Testing Data
-
-// Standalone State Tests
-/*
-Ethereum
-- Block
-Base
-- Fault Dispute Game
-- Block
-- Intents - None
-ECO
-- Batch
-- Block
-- Intents - None
-Optimism
-- Fault Dispute Game
-- Block
-- Intents - None
-*/
-
-// ECO Base Initial Tests (Cannon and Bedrock)
-
-// ECO Base Optimism Tests (Cannon and Bedrock)
-
-// Chain Based Proving
-
-// Prove Settlement Layer State - Ethereum Only
-
-// Prove Destination Layer State - Base, Sepolia, Optimism
-
-// Prove Intents - Base, Sepolia, Optimism
-
-// Withdraw Rewards - Base, Sepolia, Optimism
-
+// Proving Sepolia State for BaseSepolia
 async function proveSettlementLayerState() {
   console.log('In proveSettlementLayerState')
-  const layer1Block = await s.layer2Layer1BlockAddressContract.number()
-  const layer1BlockTag = toQuantity(layer1Block)
+  const setlementBlock = await s.baseSepolial1Block.number()
+  const settlmentBlockTag = toQuantity(setlementBlock)
 
-  const block: Block = await s.layer1Provider.send('eth_getBlockByNumber', [
-    layer1BlockTag,
+  const block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
+    settlmentBlockTag,
     false,
   ])
   // const block: Block = await s.layer2DestinationProvider.send(
@@ -64,7 +39,7 @@ async function proveSettlementLayerState() {
   console.log('block: ', block)
 
   let tx
-  let layer1WorldStateRoot
+  let settlementWorldStateRoot
   try {
     const rlpEncodedBlockData = encodeRlp([
       block.parentHash,
@@ -89,19 +64,23 @@ async function proveSettlementLayerState() {
       block.parentBeaconBlockRoot,
     ])
     console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    tx = await s.layer2SourceProverContract.proveSettlementLayerState(
+    tx = await s.baseSepoliaProverContract.proveSettlementLayerState(
       getBytes(hexlify(rlpEncodedBlockData)),
-      config.optimismSepolia.chainId,
+      networks.sepolia.chainId,
     )
     await tx.wait()
-    console.log('Prove L1 world state tx: ', tx.hash)
-    layer1WorldStateRoot = block.stateRoot
-    console.log('Proven L1 world state block: ', layer1Block, layer1BlockTag)
-    console.log('Proven L1 world state root:', layer1WorldStateRoot)
-    return { layer1BlockTag, layer1WorldStateRoot }
+    console.log('Prove Settlement world state tx: ', tx.hash)
+    settlementWorldStateRoot = block.stateRoot
+    console.log(
+      'Proven L1 world state block: ',
+      setlementBlock,
+      settlmentBlockTag,
+    )
+    console.log('Proven Settlement world state root:', settlementWorldStateRoot)
+    return { settlmentBlockTag, settlementWorldStateRoot }
   } catch (e) {
-    if (e.data && s.layer2SourceProverContract) {
-      const decodedError = s.layer2SourceProverContract.interface.parseError(
+    if (e.data && s.baseSepoliaProverContract) {
+      const decodedError = s.baseSepoliaProverContract.interface.parseError(
         e.data,
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
@@ -284,7 +263,7 @@ async function withdrawReward(intentHash) {
 async function main() {
   // define the variables used for each state of the intent lifecycle
   // Point in time proving for latest batch
-  let intentHash, intentFulfillTransaction
+  // let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
     // intentHash = config.intents.optimismSepolia.intentHash
@@ -292,10 +271,13 @@ async function main() {
     //   config.intents.optimismSepolia.intentFulfillTransaction
     // console.log('intentHash: ', intentHash)
     // console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    // // get the latest world state
-    // const { layer1BlockTag, layer1WorldStateRoot } = await proveSettlementLayerState()
-    // console.log('layer1BlockTag: ', layer1BlockTag)
-    // console.log('layer1WorldStateRoot: ', layer1WorldStateRoot)
+
+    // get the latest world state
+    // const { settlmentBlockTag, settlementWorldStateRoot } =
+    //   await proveSettlementLayerState()
+    // console.log('settlmentBlockTag: ', settlmentBlockTag)
+    // console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
+
     // const layer1BlockTag = config.intents.optimismSepolia.layer1BlockTag
     // const layer1WorldStateRoot =
     //   config.intents.optimismSepolia.layer1WorldStateRoot

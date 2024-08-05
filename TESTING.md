@@ -25,7 +25,7 @@ ETA Monday 7:00 - 8:00 am
 
 Method: `proveSettlementLayerState`
 
-- Block - TBD
+- Block - 6442168 (or later)
 
 #### BaseSepolia (Settlement for Eco) - Cannon
 
@@ -35,8 +35,8 @@ Method : `proveWorldStateCannon`
 - Fault Dispute Game Transaction : 0x25f0965510cd29f9d7cac6637bc694b71e7da369d7a5b264f4d648d584cc822b
 - Fault Dispute Game Transaction Block: 6419979
 - Base Batch Block Number: 13398533
-- Fault Dispute Game Resolved Transaction: TBD
-- Fault Dispute Game Resolved Block: TBD
+- Fault Dispute Game Resolved Transaction: 0xed2920cc5e60aea2aed360cea446ffa2bf07fd79922cec77b6983ff885642a5b
+- Fault Dispute Game Resolved Block: 6442168
 
 #### EcoTestnet (Destination chain for Intent)
 
@@ -51,14 +51,24 @@ Method: `proveWorldStateBedrock`
 
 - Intents
   - Hash: 0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24
-  - Fulfillment: 0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5
+  - Creation (Base): 0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408
+  - Fulfillment (ECO Testnet): 0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5
     - Block: 699790
 
 ### Proving ECO Testnet (intent sent to Base)
 
+- Intent Hash: 0x9fcc6825d5739ef8c19f9ae1f891dc7e38e8433b9356aa940180a482c83774d0
+- Intent Creation: [0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f](https://eco-testnet.explorer.caldera.xyz/tx/0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f)
+- Intent Fulfillment: [0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a](https://sepolia.basescan.org/tx/0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a)
+- Prove Settlement: [0xfb824e5d1b1669ff7387afe757906a3c1e08e5e9b3c59201e3d6e499eb9f96eb](https://sepolia.basescan.org/tx/0xfb824e5d1b1669ff7387afe757906a3c1e08e5e9b3c59201e3d6e499eb9f96eb)
+- Prove Destination: []()
+- Prove Intent: []()
+- Withdraw: []()
+
 #### Sepolia (Settlement for Base) - Used to prove Base Has been Settled
 
-- Sepolia Block (Used for Proving Base Block Has been settled): TBD
+- Sepolia Block (Used for Proving Base Block Has been settled): 6442269 (0x624d1d)
+  had to be 6442168 (or later)
 
 #### Base (Destination from Eco) - Proving of FaultDispute Game to Show Base Block Has Been Settled
 
@@ -68,14 +78,15 @@ Method : `proveWorldStateCannon`
 - Fault Dispute Game Transaction : 0x25f0965510cd29f9d7cac6637bc694b71e7da369d7a5b264f4d648d584cc822b
 - Fault Dispute Game Transaction Block: 6419979
 - Base Batch Block Number: 13398533
-- Fault Dispute Game Resolved Transaction: TBD
-- Fault Dispute Game Resolved Block: TBD
+- Fault Dispute Game Resolved Transaction: 0xed2920cc5e60aea2aed360cea446ffa2bf07fd79922cec77b6983ff885642a5b
+- Fault Dispute Game Resolved Block: 6442168
 
 #### Intent Proof
 
 - Intents
   - Hash: 0x9fcc6825d5739ef8c19f9ae1f891dc7e38e8433b9356aa940180a482c83774d0
-  - Fulfillment: 0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a
+  - Creation(EcoTestNet): 0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f
+  - Fulfillment(BaseSepolia): 0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a
     - Block: 13398241
 
 ### Standalone State Tests
