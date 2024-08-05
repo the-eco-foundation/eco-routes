@@ -40,7 +40,7 @@ Method : `proveWorldStateCannon`
 
 #### EcoTestnet (Destination chain for Intent)
 
-Method: `proveWorldStateCannon`
+Method: `proveWorldStateBedrock`
 
 - Base Settlement Block: 13398441
 - Base Settlement Transaction: 0x8d477a0358a9820dec6b397c0ecb109610f1251c76894ea94c7de52ddec9aead
