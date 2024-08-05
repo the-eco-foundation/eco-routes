@@ -77,7 +77,7 @@ Method : `proveWorldStateCannon`
 - Fault Dispute Game : 0xE6585806C6864D6a3285CC72961eB1Ed7e078E2E
 - Fault Dispute Game Transaction : 0x25f0965510cd29f9d7cac6637bc694b71e7da369d7a5b264f4d648d584cc822b
 - Fault Dispute Game Transaction Block: 6419979
-- Base Batch Block Number: 13398533
+- Base End Batch Block Number: 13398533
 - Fault Dispute Game Resolved Transaction: 0xed2920cc5e60aea2aed360cea446ffa2bf07fd79922cec77b6983ff885642a5b
 - Fault Dispute Game Resolved Block: 6442168
 

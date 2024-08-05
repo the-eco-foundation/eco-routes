@@ -70,11 +70,11 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     mapping(bytes32 => address) public provenIntents;
 
     struct DisputeGameFactoryProofData {
-        bytes32 l2MessagePasserStateRoot;
-        bytes32 l2LatestBlockHash;
+        bytes32 messagePasserStateRoot;
+        bytes32 latestBlockHash;
         uint256 gameIndex;
         bytes32 gameId;
-        bytes[] l1DisputeFaultGameStorageProof;
+        bytes[] disputeFaultGameStorageProof;
         bytes rlpEncodedDisputeGameFactoryData;
         bytes[] disputeGameFactoryAccountProof;
     }
@@ -340,8 +340,8 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 _rootClaim = generateOutputRoot(
             L2_OUTPUT_ROOT_VERSION_NUMBER,
             l2WorldStateRoot,
-            disputeGameFactoryProofData.l2MessagePasserStateRoot,
-            disputeGameFactoryProofData.l2LatestBlockHash
+            disputeGameFactoryProofData.messagePasserStateRoot,
+            disputeGameFactoryProofData.latestBlockHash
         );
 
         bytes32 disputeGameFactoryStorageSlot = bytes32(
@@ -361,7 +361,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         proveStorage(
             abi.encodePacked(disputeGameFactoryStorageSlot),
             bytes.concat(bytes1(uint8(0x98)), gameId24),
-            disputeGameFactoryProofData.l1DisputeFaultGameStorageProof,
+            disputeGameFactoryProofData.disputeFaultGameStorageProof,
             bytes32(disputeGameFactoryStateRoot)
         );
 
