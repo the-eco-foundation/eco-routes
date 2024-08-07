@@ -48,4 +48,7 @@ interface IInbox {
 
     // Event emitted when the hash generated on the inbox contract does not match the expected hash
     error InvalidHash(bytes32 _expectedHash);
+
+    // Event emitted when a solver attempts to make a call to the hyperlane mailbox
+    error CallToMailbox();
 }

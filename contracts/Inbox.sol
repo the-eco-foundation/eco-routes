@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IInbox.sol";
-import "@hyperlane-xyz/core/contracts/Mailbox.sol";
+import "./EcoMailbox.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 contract Inbox is Ownable, IInbox {
 
-    Mailbox public mailbox;
+    address public immutable mailbox;
 
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
@@ -36,11 +36,12 @@ contract Inbox is Ownable, IInbox {
         }
     }
 
-    constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers) Ownable(_owner){
+    constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers, address _mailbox) Ownable(_owner){
         isSolvingPublic = _isSolvingPublic;
         for (uint256 i = 0; i < _solvers.length; i++) {
             solverWhitelist[_solvers[i]] = true;
         }
+        mailbox = _mailbox;
     }
 
     function fulfill(
@@ -67,12 +68,13 @@ contract Inbox is Ownable, IInbox {
         // Store the results of the calls
         bytes[] memory results = new bytes[](_data.length);
         // Call the addresses with the calldata
-        // TODO: is there a better way to do this than via low-level call? 
-        // wanted to gate access to the hyperlane bridge the inbox address, cannot as is. 
 
-        // need to make sure nobody calls Mailbox.dispatch inside this
-        uint256 initialNonce = mailbox.nonce();
         for (uint256 i = 0; i < _data.length; i++) {
+            address target = _targets[i];
+            if (target == mailbox) {
+                // no executing calls on the mailbox
+                revert CallToMailbox();
+            }
             (bool success, bytes memory result) = _targets[i].call(_data[i]);
             if (!success) {
                 revert IntentCallFailed(_targets[i], _data[i], result);
@@ -83,18 +85,11 @@ contract Inbox is Ownable, IInbox {
         // Mark the intent as fulfilled
         fulfilled[intentHash] = _claimant;
 
-        if (mailbox.nonce() > initialNonce) {
-            // unauthorized call made to dispatch();
-            revert;
-        }
-
         if (hyperprove) {
-            mailbox.dispatch(
+            EcoMailbox(mailbox).dispatch(
                 _sourceChainID,
-                // MasterProver on source chain --> where am i storing this?
                 abi.encode(intentHash, _claimant),
                 )
-            
         }
         // Emit an event
         emit Fulfillment(intentHash, _sourceChainID, _claimant);
