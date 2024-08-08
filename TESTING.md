@@ -202,3 +202,12 @@ Transactions
 | Destination Block Proof |                                                                                                                                                                             |                                                                                    |
 | Intent Proof            |                                                                                                                                                                             |
 | Withdrawal              |                                                                                                                                                                             |
+
+## Inbox Storage Slots
+
+| Name            | Type                        | Slot | Offset | Bytes | Value                                            | Hex Value                                                          | Contract                  |
+| --------------- | --------------------------- | ---- | ------ | ----- | ------------------------------------------------ | ------------------------------------------------------------------ | ------------------------- |
+| \_owner         | address                     | 0    | 0      | 20    | 620454579669818780374221507524376586082813009364 | 0x0000000000000000000000006cae25455bf5fcf19ce737ad50ee3bc481fcddd4 | contracts/Inbox.sol:Inbox |
+| fulfilled       | mapping(bytes32 => address) | 1    | 0      | 32    | 0                                                | 0x0000000000000000000000000000000000000000000000000000000000000000 | contracts/Inbox.sol:Inbox |
+| solverWhitelist | mapping(address => bool)    | 2    | 0      | 32    | 0                                                | 0x0000000000000000000000000000000000000000000000000000000000000000 | contracts/Inbox.sol:Inbox |
+| isSolvingPublic | bool                        | 3    | 0      | 1     | 0                                                | 0x0000000000000000000000000000000000000000000000000000000000000000 | contracts/Inbox.sol:Inbox |

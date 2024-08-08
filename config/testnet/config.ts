@@ -474,6 +474,10 @@ const cannon: any = {
     rewardTokens: [networks.ecoTestNet.usdcAddress],
     rewardAmounts: intent.rewardAmounts,
     duration: intent.duration,
+    expiryTime: 1722568357,
+    nonce: '0xde1584aa01b9f509801abbfe548f9f058cd130a3327c954ea86c28862f406e02',
+    callData:
+      '0xa9059cbb000000000000000000000000c0bc9ba69acd4806c4c48dd6fdfc1677212503e900000000000000000000000000000000000000000000000000000000000003e8',
     intentCreationTransaction:
       '0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f',
     intentHash:
@@ -481,9 +485,10 @@ const cannon: any = {
     intentFulfillTransaction:
       '0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a',
     storageSlot:
-      '0x46fb72acad8e241d9e71de84b9995b487a1348f6afa0a4aedb6e1c3b8f6a45be',
+      '0x6b0e2cc9e560d24849163fb156a2e3ce7401561e58af3e818f3310563f7a39d1',
     storageProof: [
       '0xf871a05f9c6bb6d8dac268bdc8670dd5b7fc2e8363796dfbc1e815d991b302e10f2a4f80a00bacadab995410b2b2b5d439313200f32d31c1bda0cb91245e26db2e9a6959d9808080a0ca7b42fddc49e95461129d80499b9ffaf475fed7ffe48f24514445ab8431800280808080808080808080',
+      '0xf7a03fa068701e060c4458aed37ccfbc2f11383f20af4970287052a59f0b7e1a8c1d9594b4e2a27ed497e2d1ad0c8fb3a47803c934457c58',
     ],
     inboxContractData: [
       '0x01', // nonce

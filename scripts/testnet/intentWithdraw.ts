@@ -1,8 +1,11 @@
 import {
+  AbiCoder,
   Block,
   encodeRlp,
   getBytes,
+  getAddress,
   hexlify,
+  keccak256,
   solidityPackedKeccak256,
   stripZerosLeft,
   toBeArray,
@@ -21,6 +24,7 @@ import {
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
 import { expect } from 'chai'
+import { int } from 'hardhat/internal/core/params/argumentTypes'
 
 async function getBlockRLPEncodedData() {
   console.log('In proveSettlementLayerState')
@@ -369,20 +373,87 @@ async function proveWorldStateBaseSepoliaOnEcoTestNet() {
   console.log('Proved L2 World State Cannon')
 }
 
-async function proveIntentOnEcoTestNet() {
+async function proveIntentOnEcoTestNet(intentHash) {
   console.log('In proveIntent')
   console.log('about to proveIntent')
+  const intentInfo =
+    await s.ecoTestNetIntentSourceContractClaimant.getIntent(intentHash)
 
+  console.log(networkIds.ecoTestNet)
+  console.log(cannon.intent.destinationChainId)
+  console.log(cannon.intent.targetTokens)
+  console.log(getBytes(hexlify(cannon.intent.callData)))
+  console.log('callDataRetreived: ', intentInfo[3])
+  console.log(cannon.intent.expiryTime)
+  console.log(cannon.intent.nonce)
+  console.log('End of intermediateHash inputs')
+  const abiCoder = AbiCoder.defaultAbiCoder()
+  const intermediateHash = keccak256(
+    abiCoder.encode(
+      ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+      [
+        networkIds.ecoTestNet, // sourceChainID
+        intentInfo[1], // destinationChainID
+        intentInfo[2], // targetTokens
+        // getBytes(hexlify(cannon.intent.callData)),
+        // getBytes(cannon.intent.callData),
+        // getBytes(hexlify(intentInfo[3])),
+        intentInfo[3],
+        intentInfo[6], // expiryTime
+        getBytes(intentInfo[8]), // nonce),
+      ],
+    ),
+  )
+  const calcintentHash = keccak256(
+    abiCoder.encode(
+      ['address', 'bytes32'],
+      [networks.baseSepolia.inboxAddress, intermediateHash],
+    ),
+  )
+  console.log('calcintentHash: ', calcintentHash)
+  // const intentStorageSlot = keccak256(
+  //   abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 0]),
+  // )
+  const intentStorageSlot = solidityPackedKeccak256(
+    ['bytes'],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 0])],
+  )
+  console.log('intentStorageSlot: ', intentStorageSlot)
+  // const intermediateHash = keccak256(
+  //   abiCoder.encode(
+  //     ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+  //     [
+  //       sourceChainID,
+  //       (await owner.provider.getNetwork()).chainId,
+  //       [erc20Address],
+  //       [calldata],
+  //       timeStamp,
+  //       nonce,
+  //     ],
+  //   ),
+
+  console.log(cannon.intent.destinationChainId)
+  console.log(getAddress(actors.claimant))
+  console.log(networks.baseSepolia.inboxAddress)
+  console.log(intermediateHash)
+  console.log(cannon.intent.storageProof)
+  console.log(
+    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+      cannon.intent.inboxContractData,
+    ),
+  )
+  console.log(cannon.intent.accountProof)
+  console.log(cannon.destinationChain.endBatchBlockStateRoot)
   // Prove the Intent
-  await s.baseSepoliaProverContract.proveIntent(
+  await s.ecoTestNetProverContract.proveIntent(
     cannon.intent.destinationChainId,
-    actors.claimant,
+    getAddress(actors.claimant),
     // t.intents.optimismSepolia.rlpEncodedBlockData,
     networks.baseSepolia.inboxAddress,
-    cannon.intent.intentHash,
+    intermediateHash,
     // 1, // no need to be specific about output indexes yet
     cannon.intent.storageProof,
-    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
       cannon.intent.inboxContractData,
     ),
     cannon.intent.accountProof,
@@ -391,7 +462,7 @@ async function proveIntentOnEcoTestNet() {
   console.log('Proved Intent')
 }
 
-async function withdrawReward(intentHash) {
+async function withdrawRewardOnEcoTestNet(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
@@ -438,13 +509,13 @@ async function main() {
 
     // await proveSepoliaSettlementLayerStateOnEcoTestNet()
     // await destinationStateProvingTestsEcoTestNet()
-    await proveWorldStateBaseSepoliaOnEcoTestNet()
+    // await proveWorldStateBaseSepoliaOnEcoTestNet()
 
-    // await proveIntent()
+    await proveIntentOnEcoTestNet(cannon.intent.intentHash)
 
     // console.log('about to withdrawReward')
     // // Withdraw the Reward
-    // await withdrawReward(cannon.intent.intentHash)
+    // await withdrawRewardOnEcoTestNet(cannon.intent.intentHash)
     // console.log('Withdrew Reward')
   } catch (e) {
     console.log(e)
