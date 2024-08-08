@@ -416,7 +416,7 @@ async function proveIntentOnEcoTestNet(intentHash) {
   // )
   const intentStorageSlot = solidityPackedKeccak256(
     ['bytes'],
-    [s.abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 0])],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
   )
   console.log('intentStorageSlot: ', intentStorageSlot)
   // const intermediateHash = keccak256(

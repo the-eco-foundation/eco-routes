@@ -150,7 +150,7 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     intentSourceAddress: '0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8',
-    proverContractAddress: '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394', // implementation 0xB9194fd20eEab0FBeaDb9CfCE3A32cc038081e71
+    proverContractAddress: '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394', // implementation 0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4
     inboxAddress: '0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1',
     intentSource: {
       minimumDuration: 1000,
