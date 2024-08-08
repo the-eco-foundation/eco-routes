@@ -57,6 +57,10 @@ async function getBlockRLPEncodedData() {
   ])
   console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
   console.log('Block: ', blockTag)
+  console.log(
+    'Calculated Block Hash: ',
+    solidityPackedKeccak256(['bytes'], [rlpEncodedBlockData]),
+  )
   console.log('block.stateRoot:', block.stateRoot)
   return rlpEncodedBlockData
   //   have successfully proven L1 state
@@ -136,15 +140,174 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
   //   have successfully proven L1 state
 }
 
-// Get Block RLP Encoded data
+async function destinationStateProvingTestsEcoTestNet() {
+  // Test RootClaim for Prover
+  console.log('Testing rootClaim from Prover')
+  const cannonRootClaimFromProver =
+    await s.ecoTestNetProverContract.generateOutputRoot(
+      0,
+      cannon.destinationChain.endBatchBlockStateRoot,
+      cannon.destinationChain.messagePasserStateRoot,
+      cannon.destinationChain.endBatchBlockHash,
+    )
+  const cannonRootClaim = solidityPackedKeccak256(
+    ['uint256', 'bytes32', 'bytes32', 'bytes32'],
+    [
+      0,
+      cannon.destinationChain.endBatchBlockStateRoot,
+      cannon.destinationChain.messagePasserStateRoot,
+      cannon.destinationChain.endBatchBlockHash,
+    ],
+  )
+  expect(cannonRootClaimFromProver).to.equal(cannonRootClaim)
+  expect(cannonRootClaimFromProver).to.equal(
+    cannon.destinationChain.disputeGameFactory.faultDisputeGame.rootClaim,
+  )
+  console.log('Cannon RootClaim:', cannonRootClaim)
+  console.log('RootClaim from Prover matches RootClaim from Cannon')
+  // Prove DisputGameFactory Storage Slot is correct
+  console.log('Testing DisputeGameStorageSlot from Prover')
+  const arrayLengthSlot = zeroPadValue(
+    toBeArray(
+      cannon.destinationChain.disputeGameFactory.faultDisputeGame
+        .listSlotNumber,
+    ),
+    32,
+  )
+  const firstElementSlot = solidityPackedKeccak256(
+    ['bytes32'],
+    [arrayLengthSlot],
+  )
+  const disputeGameStorageSlot = toBeHex(
+    BigInt(firstElementSlot) +
+      BigInt(
+        Number(
+          cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameIndex,
+        ),
+      ),
+    32,
+  )
+  expect(disputeGameStorageSlot).to.equal(
+    cannon.destinationChain.disputeGameFactory.faultDisputeGame
+      .gameIDStorageSlot,
+  )
+  console.log('DisputeGameStorageSlot:', disputeGameStorageSlot)
+  console.log(
+    'DisputeGameStorageSlot from Prover matches DisputeGameStorageSlot from Cannon',
+  )
+  // StorageProof for DisputeGameFactory
+  console.log(
+    'Prove storage showing the DisputeGameFactory created the FaultDisputGame',
+  )
+  console.log(
+    'gameIdRLPEncoded: ',
+    encodeRlp(
+      toBeHex(
+        stripZerosLeft(
+          cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
+        ),
+      ),
+    ),
+  )
+  await s.ecoTestNetProverContract.proveStorage(
+    cannon.destinationChain.disputeGameFactory.faultDisputeGame
+      .gameIDStorageSlot,
+    encodeRlp(
+      toBeHex(
+        stripZerosLeft(
+          cannon.destinationChain.disputeGameFactory.faultDisputeGame.gameId,
+        ),
+      ),
+    ),
+    // encodeRlp(t.cannon.gameId),
+    cannon.destinationChain.disputeGameFactory.storageProof,
+    cannon.destinationChain.disputeGameFactory.stateRoot,
+  )
+  console.log('Proved DisputeGameFactory StorageProof')
+  // Prove DisputeGameFactory AccountProof
+  console.log(
+    'Prove account showing that the above ProveStorage is for a valid WorldState',
+  )
+  await s.ecoTestNetProverContract.proveAccount(
+    cannon.destinationChain.disputeGameFactory.address,
+    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+      cannon.destinationChain.disputeGameFactory.contractData,
+    ),
+    cannon.destinationChain.disputeGameFactory.accountProof,
+    cannon.settlementChain.worldStateRoot,
+  )
+  console.log('Proved DisputeGameFactory AccountProof')
+  // Prove FaultDisputeGame Status Storage
+  console.log(
+    'Prove storage showing the FaultDisputeGame has a status which shows the Defender Won',
+  )
+  await s.ecoTestNetProverContract.proveStorage(
+    cannon.destinationChain.faultDisputeGame.status.storageSlot,
+    encodeRlp(
+      toBeHex(
+        // stripZerosLeft(
+        cannon.destinationChain.faultDisputeGame.status.storageData,
+        // ),
+      ),
+    ),
+    cannon.destinationChain.faultDisputeGame.status.storageProof,
+    cannon.destinationChain.faultDisputeGame.stateRoot,
+  )
+  console.log('Proved FaultDisputeGame Status Storage')
+  // Prove FaultDisputeGame Root Claim Storage
+  console.log(
+    'Prove storage showing the FaultDispute Game has a rootClaim which includes the L2Block',
+  )
+  console.log(
+    'Encoded RLP rootClaim : ',
+    encodeRlp(
+      toBeHex(
+        stripZerosLeft(
+          cannon.destinationChain.faultDisputeGame.rootClaim.storageData,
+        ),
+      ),
+    ),
+  )
+  await s.ecoTestNetProverContract.proveStorage(
+    cannon.destinationChain.faultDisputeGame.rootClaim.storageSlot,
+    encodeRlp(
+      toBeHex(
+        stripZerosLeft(
+          cannon.destinationChain.faultDisputeGame.rootClaim.storageData,
+        ),
+      ),
+    ),
+    // encodeRlp(t.cannon.faultDisputeGameRootClaimStorage),
+    cannon.destinationChain.faultDisputeGame.rootClaim.storageProof,
+    cannon.destinationChain.faultDisputeGame.stateRoot,
+  )
+  console.log('Proved FaultDisputeGame Root Claim Storage')
+  // Prove FaultDisputeGame AccountProof
+  console.log(
+    'Prove account showing that the above ProveStorages are for a valid WorldState',
+  )
+  await s.ecoTestNetProverContract.proveAccount(
+    cannon.destinationChain.faultDisputeGame.address,
+    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+      cannon.destinationChain.faultDisputeGame.contractData,
+    ),
+    cannon.destinationChain.faultDisputeGame.accountProof,
+    cannon.settlementChain.worldStateRoot,
+  )
+  console.log('Proved FaultDisputeGame AccountProof')
+}
 
 async function proveWorldStateBaseSepoliaOnEcoTestNet() {
   console.log('In proveL2WorldStateBaseSepolia')
-  const RLPEncodedDisputeGameFactoryData = await getBlockRLPEncodedData()
+  const RLPEncodedBaseSepoliaEndBatchBlock = await getBlockRLPEncodedData()
   console.log(
-    'RLPEncodedDisputeGameFactoryData: ',
-    RLPEncodedDisputeGameFactoryData,
+    'RLPEncodedBaseSepoliaEndBatchBlock: ',
+    RLPEncodedBaseSepoliaEndBatchBlock,
   )
+  const RLPEncodedDisputeGameFactoryData =
+    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+      cannon.destinationChain.disputeGameFactory.contractData,
+    )
   // Prove the L2 World State for Cannon
   const disputeGameFactoryProofData = {
     // destinationWorldStateRoot: cannon.destinationChain.endBatchBlockStateRoot,
@@ -196,7 +359,8 @@ async function proveWorldStateBaseSepoliaOnEcoTestNet() {
   console.log('about to proveWorldStateCannon')
   await s.ecoTestNetProverContract.proveWorldStateCannon(
     cannon.intent.destinationChainId,
-    cannon.intent.rlpEncodedBlockData,
+    RLPEncodedBaseSepoliaEndBatchBlock,
+    // cannon.intent.rlpEncodedBlockData,
     cannon.destinationChain.endBatchBlockStateRoot,
     disputeGameFactoryProofData,
     faultDisputeGameProofData,
@@ -264,16 +428,16 @@ async function main() {
     // console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
 
     // const blockRLPEncodedData = await getBlockRLPEncodedData()
-    const RLPEncodedDisputeGameFactoryData = await getBlockRLPEncodedData()
-    console.log(
-      'RLPEncodedDisputeGameFactoryData: ',
-      RLPEncodedDisputeGameFactoryData,
-    )
-    const intentStorageSlot = getIntentStorageSlot(cannon.intent.intentHash)
-    console.log('intentStorageSlot: ', intentStorageSlot)
+    // const RLPEncodedDisputeGameFactoryData = await getBlockRLPEncodedData()
+    // console.log(
+    //   'RLPEncodedDisputeGameFactoryData: ',
+    //   RLPEncodedDisputeGameFactoryData,
+    // )
+    // const intentStorageSlot = getIntentStorageSlot(cannon.intent.intentHash)
+    // console.log('intentStorageSlot: ', intentStorageSlot)
 
     // await proveSepoliaSettlementLayerStateOnEcoTestNet()
-
+    // await destinationStateProvingTestsEcoTestNet()
     await proveWorldStateBaseSepoliaOnEcoTestNet()
 
     // await proveIntent()

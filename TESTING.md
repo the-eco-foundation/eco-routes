@@ -25,7 +25,7 @@ ETA Monday 7:00 - 8:00 am
 
 Method: `proveSettlementLayerState`
 
-- Block - 6442168 (or later)
+- Block - 6442168 (or later) we used block 6457204
 
 #### BaseSepolia (Settlement for Eco) - Cannon
 
@@ -61,7 +61,7 @@ Method: `proveWorldStateBedrock`
 - Intent Creation: [0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f](https://eco-testnet.explorer.caldera.xyz/tx/0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f)
 - Intent Fulfillment: [0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a](https://sepolia.basescan.org/tx/0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a)
 - Prove Settlement: [0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639](https://eco-testnet.explorer.caldera.xyz/tx/0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639)
-- Prove Destination: []()
+- Prove Destination: [0xfebd9b21f7a5cec18593a501cc0daeb9f74196ba9373ba8a056fa3181641d03e](https://eco-testnet.explorer.caldera.xyz/tx/0xfebd9b21f7a5cec18593a501cc0daeb9f74196ba9373ba8a056fa3181641d03e)
 - Prove Intent: []()
 - Withdraw: []()
 
