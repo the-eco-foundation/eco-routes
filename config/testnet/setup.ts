@@ -12,6 +12,7 @@ import {
   IntentSource__factory,
   IL1Block__factory,
   Prover__factory,
+  ProverL3__factory,
   ERC20__factory,
 } from '../../typechain-types'
 import {
@@ -286,8 +287,8 @@ export namespace s {
   )
   export const ecoTestNetProverContract = new Contract(
     networks.ecoTestNet.proverContractAddress,
-    Prover__factory.abi,
-    ecoTestNetIntentProver,
+    ProverL3__factory.abi,
+    ecoTestNetDeployer, // Use deployer as prover as we need to do privileged operations
   )
   export const ecoTestNetInboxContractSolver = new Contract(
     networks.ecoTestNet.inboxAddress,

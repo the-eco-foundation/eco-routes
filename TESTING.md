@@ -60,7 +60,7 @@ Method: `proveWorldStateBedrock`
 - Intent Hash: 0x9fcc6825d5739ef8c19f9ae1f891dc7e38e8433b9356aa940180a482c83774d0
 - Intent Creation: [0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f](https://eco-testnet.explorer.caldera.xyz/tx/0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f)
 - Intent Fulfillment: [0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a](https://sepolia.basescan.org/tx/0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a)
-- Prove Settlement: [0xfb824e5d1b1669ff7387afe757906a3c1e08e5e9b3c59201e3d6e499eb9f96eb](https://sepolia.basescan.org/tx/0xfb824e5d1b1669ff7387afe757906a3c1e08e5e9b3c59201e3d6e499eb9f96eb)
+- Prove Settlement: [0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639](https://eco-testnet.explorer.caldera.xyz/tx/0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639)
 - Prove Destination: []()
 - Prove Intent: []()
 - Withdraw: []()

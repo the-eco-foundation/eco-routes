@@ -66,8 +66,8 @@ function getIntentStorageSlot(intentHash) {
   return solidityPackedKeccak256(['bytes32', 'uint256'], [intentHash, 0])
 }
 
-// Proving Sepolia State for BaseSepolia
-async function proveSepoliaSettlementLayerState() {
+// Proving Sepolia State for BaseSepolia on ECOTestNet
+async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
   console.log('In proveSettlementLayerState')
   const setlementBlock = await s.baseSepolial1Block.number()
   const settlmentBlockTag = toQuantity(setlementBlock)
@@ -108,7 +108,7 @@ async function proveSepoliaSettlementLayerState() {
       block.parentBeaconBlockRoot,
     ])
     console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    tx = await s.baseSepoliaProverContract.proveSettlementLayerState(
+    tx = await s.ecoTestNetProverContract.proveSettlementLayerStatePriveleged(
       getBytes(hexlify(rlpEncodedBlockData)),
       networks.sepolia.chainId,
     )
@@ -138,7 +138,7 @@ async function proveSepoliaSettlementLayerState() {
 
 // Get Block RLP Encoded data
 
-async function proveWorldStateBaseSepolia() {
+async function proveWorldStateBaseSepoliaOnEcoTestNet() {
   console.log('In proveL2WorldStateBaseSepolia')
   const RLPEncodedDisputeGameFactoryData = await getBlockRLPEncodedData()
   console.log(
@@ -163,7 +163,7 @@ async function proveWorldStateBaseSepolia() {
   }
 
   const RLPEncodedFaultDisputeGameData =
-    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
       cannon.destinationChain.faultDisputeGame.contractData,
     )
   const faultDisputeGameProofData = {
@@ -194,7 +194,7 @@ async function proveWorldStateBaseSepolia() {
       cannon.destinationChain.faultDisputeGame.accountProof,
   }
   console.log('about to proveWorldStateCannon')
-  await s.baseSepoliaProverContract.proveWorldStateCannon(
+  await s.ecoTestNetProverContract.proveWorldStateCannon(
     cannon.intent.destinationChainId,
     cannon.intent.rlpEncodedBlockData,
     cannon.destinationChain.endBatchBlockStateRoot,
@@ -205,7 +205,7 @@ async function proveWorldStateBaseSepolia() {
   console.log('Proved L2 World State Cannon')
 }
 
-async function proveIntent() {
+async function proveIntentOnEcoTestNet() {
   console.log('In proveIntent')
   console.log('about to proveIntent')
 
@@ -256,6 +256,7 @@ async function main() {
   // let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
+    console.log('Walkthrough of ECOTestNet to BaseSepolia')
     // get the latest world state
     // const { settlmentBlockTag, settlementWorldStateRoot } =
     //   await proveSettlementLayerState()
@@ -271,16 +272,16 @@ async function main() {
     const intentStorageSlot = getIntentStorageSlot(cannon.intent.intentHash)
     console.log('intentStorageSlot: ', intentStorageSlot)
 
-    // await proveSepoliaSettlementLayerState()
+    // await proveSepoliaSettlementLayerStateOnEcoTestNet()
 
-    await proveWorldStateBaseSepolia()
+    await proveWorldStateBaseSepoliaOnEcoTestNet()
 
-    await proveIntent()
+    // await proveIntent()
 
-    console.log('about to withdrawReward')
-    // Withdraw the Reward
-    await withdrawReward(cannon.intent.intentHash)
-    console.log('Withdrew Reward')
+    // console.log('about to withdrawReward')
+    // // Withdraw the Reward
+    // await withdrawReward(cannon.intent.intentHash)
+    // console.log('Withdrew Reward')
   } catch (e) {
     console.log(e)
   }
