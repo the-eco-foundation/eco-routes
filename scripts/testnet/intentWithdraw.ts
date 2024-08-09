@@ -466,16 +466,14 @@ async function withdrawRewardOnEcoTestNet(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
-      await s.layer2SourceIntentSourceContractClaimant.withdrawRewards(
-        intentHash,
-      )
+      await s.ecoTestNetIntentSourceContractClaimant.withdrawRewards(intentHash)
     await withdrawTx.wait()
     console.log('Withdrawal tx: ', withdrawTx.hash)
     return withdrawTx.hash
   } catch (e) {
-    if (e.data && s.layer2SourceIntentSourceContractClaimant) {
+    if (e.data && s.ecoTestNetIntentSourceContractClaimant) {
       const decodedError =
-        s.layer2SourceIntentSourceContractClaimant.interface.parseError(e.data)
+        s.ecoTestNetIntentSourceContractClaimant.interface.parseError(e.data)
       console.log(
         `Transaction failed in withdrawReward : ${decodedError?.name}`,
       )
@@ -511,11 +509,11 @@ async function main() {
     // await destinationStateProvingTestsEcoTestNet()
     // await proveWorldStateBaseSepoliaOnEcoTestNet()
 
-    await proveIntentOnEcoTestNet(cannon.intent.intentHash)
+    // await proveIntentOnEcoTestNet(cannon.intent.intentHash)
 
     // console.log('about to withdrawReward')
     // // Withdraw the Reward
-    // await withdrawRewardOnEcoTestNet(cannon.intent.intentHash)
+    await withdrawRewardOnEcoTestNet(cannon.intent.intentHash)
     // console.log('Withdrew Reward')
   } catch (e) {
     console.log(e)

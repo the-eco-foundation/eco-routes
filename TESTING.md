@@ -63,7 +63,7 @@ Method: `proveWorldStateBedrock`
 - Prove Settlement: [0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639](https://eco-testnet.explorer.caldera.xyz/tx/0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639)
 - Prove Destination: [0xfebd9b21f7a5cec18593a501cc0daeb9f74196ba9373ba8a056fa3181641d03e](https://eco-testnet.explorer.caldera.xyz/tx/0xfebd9b21f7a5cec18593a501cc0daeb9f74196ba9373ba8a056fa3181641d03e)
 - Prove Intent: [0xec28c74b4c26d6981241694729785a3d847c3ad8ba088b46414e6dfb79a6e448](https://eco-testnet.explorer.caldera.xyz/tx/0xec28c74b4c26d6981241694729785a3d847c3ad8ba088b46414e6dfb79a6e448)
-- Withdraw: []()
+- Withdraw: [0x6a7ea0b1e7492092d8fb1429b0817937a615d6b3d0afc0a7b51be32b67ba17e2](https://eco-testnet.explorer.caldera.xyz/tx/0x6a7ea0b1e7492092d8fb1429b0817937a615d6b3d0afc0a7b51be32b67ba17e2)
 
 #### Sepolia (Settlement for Base) - Used to prove Base Has been Settled
 
