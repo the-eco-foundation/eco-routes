@@ -67,7 +67,47 @@ async function getBlockRLPEncodedData() {
   )
   console.log('block.stateRoot:', block.stateRoot)
   return rlpEncodedBlockData
-  //   have successfully proven L1 state
+}
+
+async function getBlockRLPEncodedDataOnBaseSepoliaForEcoTestNet() {
+  const blockTag = bedrock.destinationChain.endBatchBlock
+
+  const block: Block = await s.ecoTestNetProvider.send('eth_getBlockByNumber', [
+    blockTag,
+    false,
+  ])
+  console.log('block: ', block)
+
+  const rlpEncodedBlockData = encodeRlp([
+    block.parentHash,
+    block.sha3Uncles,
+    block.miner,
+    block.stateRoot,
+    block.transactionsRoot,
+    block.receiptsRoot,
+    block.logsBloom,
+    stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+    toBeHex(block.number),
+    toBeHex(block.gasLimit),
+    toBeHex(block.gasUsed),
+    block.timestamp,
+    block.extraData,
+    block.mixHash,
+    block.nonce,
+    toBeHex(block.baseFeePerGas),
+    block.withdrawalsRoot,
+    stripZerosLeft(toBeHex(block.blobGasUsed)),
+    stripZerosLeft(toBeHex(block.excessBlobGas)),
+    block.parentBeaconBlockRoot,
+  ])
+  console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
+  console.log('Block: ', blockTag)
+  console.log(
+    'Calculated Block Hash: ',
+    solidityPackedKeccak256(['bytes'], [rlpEncodedBlockData]),
+  )
+  console.log('block.stateRoot:', block.stateRoot)
+  return rlpEncodedBlockData
 }
 
 function getIntentStorageSlot(intentHash) {
@@ -117,6 +157,76 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
     ])
     console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
     tx = await s.ecoTestNetProverContract.proveSettlementLayerStatePriveleged(
+      getBytes(hexlify(rlpEncodedBlockData)),
+      networks.sepolia.chainId,
+    )
+    await tx.wait()
+    console.log('Prove Settlement world state tx: ', tx.hash)
+    settlementWorldStateRoot = block.stateRoot
+    console.log(
+      'Proven L1 world state block: ',
+      setlementBlock,
+      settlmentBlockTag,
+    )
+    console.log('Proven Settlement world state root:', settlementWorldStateRoot)
+    return { settlmentBlockTag, settlementWorldStateRoot }
+  } catch (e) {
+    if (e.data && s.baseSepoliaProverContract) {
+      const decodedError = s.baseSepoliaProverContract.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed: ${decodedError?.name}`)
+      console.log(`Error in proveSettlementLayerState:`, e.shortMessage)
+    } else {
+      console.log(`Error in proveSettlementLayerState:`, e)
+    }
+  }
+  //   have successfully proven L1 state
+}
+
+// Proving Sepolia State for BaseSepolia on BaseSepolia
+async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
+  console.log('In proveSettlementLayerState')
+  const setlementBlock = await s.baseSepolial1Block.number()
+  const settlmentBlockTag = toQuantity(setlementBlock)
+
+  const block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
+    settlmentBlockTag,
+    false,
+  ])
+  // const block: Block = await s.layer2DestinationProvider.send(
+  //   'eth_getBlockByNumber',
+  //   [config.cannon.layer2.endBatchBlock, false],
+  // )
+  console.log('block: ', block)
+
+  let tx
+  let settlementWorldStateRoot
+  try {
+    const rlpEncodedBlockData = encodeRlp([
+      block.parentHash,
+      block.sha3Uncles,
+      block.miner,
+      block.stateRoot,
+      block.transactionsRoot,
+      block.receiptsRoot,
+      block.logsBloom,
+      stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+      toBeHex(block.number),
+      toBeHex(block.gasLimit),
+      toBeHex(block.gasUsed),
+      block.timestamp,
+      block.extraData,
+      block.mixHash,
+      block.nonce,
+      toBeHex(block.baseFeePerGas),
+      block.withdrawalsRoot,
+      stripZerosLeft(toBeHex(block.blobGasUsed)),
+      stripZerosLeft(toBeHex(block.excessBlobGas)),
+      block.parentBeaconBlockRoot,
+    ])
+    console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
+    tx = await s.baseSepoliaProverContract.proveSettlementLayerState(
       getBytes(hexlify(rlpEncodedBlockData)),
       networks.sepolia.chainId,
     )
@@ -373,6 +483,146 @@ async function proveWorldStateBaseSepoliaOnEcoTestNet() {
   console.log('Proved L2 World State Cannon')
 }
 
+async function proveWorldStateBaseSepoliaOnBaseSepolia() {
+  console.log('In proveL2WorldStateBaseSepolia on BaseSepolia')
+  const RLPEncodedBaseSepoliaEndBatchBlock = await getBlockRLPEncodedData()
+  console.log(
+    'RLPEncodedBaseSepoliaEndBatchBlock: ',
+    RLPEncodedBaseSepoliaEndBatchBlock,
+  )
+  const RLPEncodedDisputeGameFactoryData =
+    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+      bedrock.baseSepolia.disputeGameFactory.contractData,
+    )
+  // Prove the L2 World State for Cannon
+  const disputeGameFactoryProofData = {
+    // destinationWorldStateRoot: bedrock.baseSepolia.endBatchBlockStateRoot,
+    messagePasserStateRoot: bedrock.baseSepolia.messagePasserStateRoot,
+    latestBlockHash: bedrock.baseSepolia.endBatchBlockHash,
+    gameIndex:
+      bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameIndex,
+    // gameId: toBeHex(stripZerosLeft(config.cannon.gameId)),
+    gameId: bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameId,
+    disputeFaultGameStorageProof:
+      bedrock.baseSepolia.disputeGameFactory.storageProof,
+    rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
+
+    disputeGameFactoryAccountProof:
+      bedrock.baseSepolia.disputeGameFactory.accountProof,
+  }
+
+  const RLPEncodedFaultDisputeGameData =
+    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+      bedrock.baseSepolia.faultDisputeGame.contractData,
+    )
+  const faultDisputeGameProofData = {
+    faultDisputeGameStateRoot: bedrock.baseSepolia.faultDisputeGame.stateRoot,
+    faultDisputeGameRootClaimStorageProof:
+      bedrock.baseSepolia.faultDisputeGame.rootClaim.storageProof,
+    faultDisputeGameStatusSlotData: {
+      createdAt: bedrock.baseSepolia.faultDisputeGame.status.storage.createdAt,
+      resolvedAt:
+        bedrock.baseSepolia.faultDisputeGame.status.storage.resolvedAt,
+      gameStatus:
+        bedrock.baseSepolia.faultDisputeGame.status.storage.gameStatus,
+      initialized:
+        bedrock.baseSepolia.faultDisputeGame.status.storage.initialized,
+      l2BlockNumberChallenged:
+        bedrock.baseSepolia.faultDisputeGame.status.storage
+          .l2BlockNumberChallenged,
+      // filler: getBytes(
+      //   bedrock.baseSepolia.faultDisputeGame.status.storage.filler,
+      // ),
+    },
+    faultDisputeGameStatusStorageProof:
+      bedrock.baseSepolia.faultDisputeGame.status.storageProof,
+    rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
+    faultDisputeGameAccountProof:
+      bedrock.baseSepolia.faultDisputeGame.accountProof,
+  }
+  console.log('about to proveWorldStateCannon')
+  await s.baseSepoliaProverContract.proveWorldStateCannon(
+    cannon.intent.destinationChainId,
+    RLPEncodedBaseSepoliaEndBatchBlock,
+    // cannon.intent.rlpEncodedBlockData,
+    bedrock.baseSepolia.endBatchBlockStateRoot,
+    disputeGameFactoryProofData,
+    faultDisputeGameProofData,
+    bedrock.settlementChain.worldStateRoot,
+  )
+  console.log('Proved L2 World State Cannon on BaseSepolia')
+}
+
+// Prove Destination State of EcoTestNet on BaseSepolia (Intents from BaseSepolia to EcoTestNet)
+async function destinationStateProvingTestsBaseSepolia() {
+  const outputRoot = solidityPackedKeccak256(
+    ['uint256', 'bytes32', 'bytes32', 'bytes32'],
+    [
+      0,
+      bedrock.destinationChain.worldStateRoot,
+      bedrock.destinationChain.messageParserStateRoot,
+      bedrock.destinationChain.endBatchBlockHash,
+      // '0x0df68f220b56ca051718e18e243769fae3296859243b8cf391b9198314f7eef8',
+      // '0x0dad8f82574fb890e31def513e65431fae8b7d253769c7b8a8f89d6f2a06e79c',
+      // '0x6e423d26e1beba75c5d8d0f02ad9c8ae7e7085f16419b6fa4a3b9d726e1fe1bc',
+    ],
+  )
+  console.log('outputRoot: ', outputRoot)
+  expect(outputRoot).to.equal(
+    '0xe9d09cfd1f37fe512729fda2b1f432c752e48c102e0d2f480d6a15478b9e70c3',
+  )
+
+  // it('has the correct block hash', async () => {
+  //   expect((await blockhashOracle.hash()) === bedrock.settlementChain.blockHash)
+  // })
+
+  // it('can prove OuputOracle storage', async () => {
+  await s.baseSepoliaProverContract.proveStorage(
+    bedrock.baseSepolia.outputOracleStorageSlot,
+    // '0xc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f747F1D',
+    // '0xa082af251eb4e15ec624f3a0d8e891892e45272cc3b364dec56cd00a1b2f36f62d', // prefix wih a0 because it's a 32 byte blob
+    '0xa0e9d09cfd1f37fe512729fda2b1f432c752e48c102e0d2f480d6a15478b9e70c3', // prefix wih a0 because it's a 32 byte blob
+    // '0xa00c8739e718656a0a335f17e926705b6c50534d4b4304a4609880e11a27f9d02e', // prefix wih a0 because it's a 32 byte blob
+    bedrock.baseSepolia.storageProof,
+    bedrock.baseSepolia.outputOracleStorageRoot,
+  )
+  console.log('Proved OutputOracle Storage')
+  // })
+
+  // it('can prove OutputOracle account', async () => {
+  const val = await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+    bedrock.destinationChain.contractData,
+  )
+
+  s.baseSepoliaProverContract.proveAccount(
+    networks.baseSepolia.settlementContracts.ecoTestNet,
+    val,
+    bedrock.baseSepolia.accountProof,
+    bedrock.baseSepolia.worldStateRoot,
+  )
+  console.log('Proved OutputOracle Account')
+}
+
+async function proveWorldStateBedrockEcoTestNetonBaseSepolia() {
+  console.log('In proveWorldStateBedrockEcoTestNetonBaseSepolia')
+  const RLPEncodedEcoTestNetEndBatchBlock =
+    await getBlockRLPEncodedDataOnBaseSepoliaForEcoTestNet()
+  await s.baseSepoliaProverContract.proveWorldStateBedrock(
+    bedrock.intent.destinationChainId,
+    RLPEncodedEcoTestNetEndBatchBlock,
+    bedrock.destinationChain.worldStateRoot,
+    bedrock.destinationChain.messageParserStateRoot,
+    bedrock.destinationChain.batchIndex,
+    bedrock.baseSepolia.storageProof,
+    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+      bedrock.destinationChain.contractData,
+    ),
+    bedrock.baseSepolia.accountProof,
+    bedrock.baseSepolia.worldStateRoot,
+  )
+  console.log('Proved L2 World State Bedrock EcoTestNet on BaseSepolia')
+}
+
 async function proveIntentOnEcoTestNet(intentHash) {
   console.log('In proveIntent')
   console.log('about to proveIntent')
@@ -462,7 +712,46 @@ async function proveIntentOnEcoTestNet(intentHash) {
   console.log('Proved Intent')
 }
 
+async function proveIntentOnBaseSepoliaFromEcoTestNet(intentHash) {
+  await prover.proveIntent(
+    bedrock.intent.destinationChainId,
+    actors.claimant,
+    bedrock.destinationChain.inboxContract,
+    bedrock.intent.intentHash,
+    // 1, // no need to be specific about output indexes yet
+    bedrock.destinationChain.storageProof,
+    await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData),
+    bedrock.destinationChain.accountProof,
+    bedrock.destinationChain.worldStateRoot,
+  )
+
+  expect(
+    (await prover.provenIntents(bedrock.intent.intentHash)) === actors.claimant,
+  ).to.be.true
+}
+
 async function withdrawRewardOnEcoTestNet(intentHash) {
+  console.log('In withdrawReward')
+  try {
+    const withdrawTx =
+      await s.ecoTestNetIntentSourceContractClaimant.withdrawRewards(intentHash)
+    await withdrawTx.wait()
+    console.log('Withdrawal tx: ', withdrawTx.hash)
+    return withdrawTx.hash
+  } catch (e) {
+    if (e.data && s.ecoTestNetIntentSourceContractClaimant) {
+      const decodedError =
+        s.ecoTestNetIntentSourceContractClaimant.interface.parseError(e.data)
+      console.log(
+        `Transaction failed in withdrawReward : ${decodedError?.name}`,
+      )
+    } else {
+      console.log(`Error in withdrawReward:`, e)
+    }
+  }
+}
+
+async function withdrawRewardOnBaseSepoliaFromEcoTestNet(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
@@ -489,7 +778,7 @@ async function main() {
   // let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
-    console.log('Walkthrough of ECOTestNet to BaseSepolia')
+    // console.log('Walkthrough of BaseSepolia to ECOTestNet')
     // get the latest world state
     // const { settlmentBlockTag, settlementWorldStateRoot } =
     //   await proveSettlementLayerState()
@@ -513,8 +802,21 @@ async function main() {
 
     // console.log('about to withdrawReward')
     // // Withdraw the Reward
-    await withdrawRewardOnEcoTestNet(cannon.intent.intentHash)
+    // await withdrawRewardOnEcoTestNet(cannon.intent.intentHash)
     // console.log('Withdrew Reward')
+    console.log('Walkthrough of ECOTestNet to BaseSepolia')
+    // const { settlmentBlockTag, settlementWorldStateRoot } =
+    //   await proveSepoliaSettlementLayerStateOnBaseSepolia()
+    // console.log('settlmentBlockTag: ', settlmentBlockTag)
+    // console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
+    // await proveWorldStateBaseSepoliaOnBaseSepolia()
+    console.log('about to proveWorldStateBedrockEcoTestNetonBaseSepolia')
+    // await destinationStateProvingTestsBaseSepolia()
+    await proveWorldStateBedrockEcoTestNetonBaseSepolia()
+    // console.log('about to proveIntentOnBaseSepoliaFromEcoTestNet')
+    // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+    // console.log('about to withdrawRewardOnBaseSepoliaFromEcoTestNet')
+    // await withdrawRewardOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
   } catch (e) {
     console.log(e)
   }

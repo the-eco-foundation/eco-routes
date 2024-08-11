@@ -21,11 +21,20 @@ ETA Monday 7:00 - 8:00 am
 
 ### Base Proving (Intent from Base to ECO)
 
+- Intent Hash - `0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24`
+- Intent Creation Transaction (BaseSepolia) - [0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408](https://sepolia.basescan.org/tx/0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408)
+- Intent Fulfillment Transaction (ecoTestNet) - [0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5](https://eco-testnet.explorer.caldera.xyz/tx/0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5)
+- Sepolia World State Proof: [0xf9a8973253a82c2025416e4b49e877298b64d219465c4db000e8f02b486ee130](https://sepolia.basescan.org/tx/0xf9a8973253a82c2025416e4b49e877298b64d219465c4db000e8f02b486ee130)
+- Base World State Proof: [0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387](https://sepolia.basescan.org/tx/0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387)
+- ECO World State Proof: [0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c](https://sepolia.basescan.org/tx/0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c)
+- Intent Proof: []()
+- Intent Withdraw: []()
+
 #### Sepolia (Settlement For Base)
 
 Method: `proveSettlementLayerState`
 
-- Block - 6442168 (or later) we used block 6457204
+- Block - 6442168 (or later) we used block 6474690 (0x62cbc2)
 
 #### BaseSepolia (Settlement for Eco) - Cannon
 
@@ -45,7 +54,7 @@ Method: `proveWorldStateBedrock`
 - Base Settlement Block: 13398441
 - Base Settlement Transaction: 0x8d477a0358a9820dec6b397c0ecb109610f1251c76894ea94c7de52ddec9aead
 - L2 Output Index: 2915
-- ECO Testnet Batch End Block: 699840
+- ECO Testnet Batch End Block: 699840 (0xaadc0)
 
 #### Intents
 
@@ -57,7 +66,7 @@ Method: `proveWorldStateBedrock`
 
 ### Proving ECO Testnet (intent sent to Base)
 
-- Intent Hash: 0x9fcc6825d5739ef8c19f9ae1f891dc7e38e8433b9356aa940180a482c83774d0
+- Intent Hash: `0x9fcc6825d5739ef8c19f9ae1f891dc7e38e8433b9356aa940180a482c83774d0`
 - Intent Creation: [0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f](https://eco-testnet.explorer.caldera.xyz/tx/0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f)
 - Intent Fulfillment: [0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a](https://sepolia.basescan.org/tx/0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a)
 - Prove Settlement: [0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639](https://eco-testnet.explorer.caldera.xyz/tx/0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639)
@@ -67,7 +76,7 @@ Method: `proveWorldStateBedrock`
 
 #### Sepolia (Settlement for Base) - Used to prove Base Has been Settled
 
-- Sepolia Block (Used for Proving Base Block Has been settled): 6442269 (0x624d1d)
+- Sepolia Block (Used for Proving Base Block Has been settled): 6457204 (0x628774)
   had to be 6442168 (or later)
 
 #### Base (Destination from Eco) - Proving of FaultDispute Game to Show Base Block Has Been Settled
