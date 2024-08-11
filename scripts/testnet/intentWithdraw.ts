@@ -711,23 +711,74 @@ async function proveIntentOnEcoTestNet(intentHash) {
   )
   console.log('Proved Intent')
 }
-
 async function proveIntentOnBaseSepoliaFromEcoTestNet(intentHash) {
-  await prover.proveIntent(
-    bedrock.intent.destinationChainId,
-    actors.claimant,
-    bedrock.destinationChain.inboxContract,
-    bedrock.intent.intentHash,
-    // 1, // no need to be specific about output indexes yet
-    bedrock.destinationChain.storageProof,
-    await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData),
-    bedrock.destinationChain.accountProof,
-    bedrock.destinationChain.worldStateRoot,
-  )
+  console.log('In proveIntent on BaseSepolia from EcoTestNet')
+  console.log('about to proveIntent')
+  const intentInfo =
+    await s.baseSepoliaIntentSourceContractClaimant.getIntent(intentHash)
 
-  expect(
-    (await prover.provenIntents(bedrock.intent.intentHash)) === actors.claimant,
-  ).to.be.true
+  console.log('End of intermediateHash inputs')
+  const abiCoder = AbiCoder.defaultAbiCoder()
+  const intermediateHash = keccak256(
+    abiCoder.encode(
+      ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+      [
+        networkIds.baseSepolia, // sourceChainID
+        intentInfo[1], // destinationChainID
+        intentInfo[2], // targetTokens
+        // getBytes(hexlify(cannon.intent.callData)),
+        // getBytes(cannon.intent.callData),
+        // getBytes(hexlify(intentInfo[3])),
+        intentInfo[3],
+        intentInfo[6], // expiryTime
+        getBytes(intentInfo[8]), // nonce),
+      ],
+    ),
+  )
+  const calcintentHash = keccak256(
+    abiCoder.encode(
+      ['address', 'bytes32'],
+      [networks.ecoTestNet.inboxAddress, intermediateHash],
+    ),
+  )
+  console.log('calcintentHash: ', calcintentHash)
+  // const intentStorageSlot = keccak256(
+  //   abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 0]),
+  // )
+  const intentStorageSlot = solidityPackedKeccak256(
+    ['bytes'],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
+  )
+  console.log('intentStorageSlot: ', intentStorageSlot)
+
+  console.log(bedrock.intent.destinationChainId)
+  console.log(getAddress(actors.claimant))
+  console.log(networks.ecoTestNet.inboxAddress)
+  console.log(intermediateHash)
+  console.log(bedrock.intent.storageProof)
+  console.log(
+    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+      bedrock.intent.inboxContractData,
+    ),
+  )
+  console.log(bedrock.intent.accountProof)
+  console.log(bedrock.intent.endBatchBlockStateRoot)
+  // Prove the Intent
+  await s.baseSepoliaProverContract.proveIntent(
+    bedrock.intent.destinationChainId,
+    getAddress(actors.claimant),
+    // t.intents.optimismSepolia.rlpEncodedBlockData,
+    networks.ecoTestNet.inboxAddress,
+    intermediateHash,
+    // 1, // no need to be specific about output indexes yet
+    bedrock.intent.storageProof,
+    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+      bedrock.intent.inboxContractData,
+    ),
+    bedrock.intent.accountProof,
+    bedrock.intent.endBatchBlockStateRoot,
+  )
+  console.log('Proved Intent')
 }
 
 async function withdrawRewardOnEcoTestNet(intentHash) {
@@ -812,9 +863,11 @@ async function main() {
     // await proveWorldStateBaseSepoliaOnBaseSepolia()
     console.log('about to proveWorldStateBedrockEcoTestNetonBaseSepolia')
     // await destinationStateProvingTestsBaseSepolia()
-    await proveWorldStateBedrockEcoTestNetonBaseSepolia()
+    // await proveWorldStateBedrockEcoTestNetonBaseSepolia()
     // console.log('about to proveIntentOnBaseSepoliaFromEcoTestNet')
     // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+    await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+
     // console.log('about to withdrawRewardOnBaseSepoliaFromEcoTestNet')
     // await withdrawRewardOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
   } catch (e) {

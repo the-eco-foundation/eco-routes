@@ -50,6 +50,8 @@
     "Testnet": "-------- Testnet scripts below",
     "deployEcoTestnet": "hardhat run --network ecoTestnet scripts/testnet/deploy.ts",
     "deployUpgradeEcoTestnet": "hardhat run --network ecoTestnet scripts/testnet/deployUpgradeProver.ts",
+    "deployUpgradeProverBaseSepolia": "hardhat run --network baseSepolia scripts/testnet/deployUpgradeProver.ts",
+    "deployUpgradeProverOptimismSepolia": "hardhat run --network optimismSepolia scripts/testnet/deployUpgradeProver.ts",
     "deployBaseSepolia": "hardhat run --network baseSepolia scripts/testnet/deploy.ts",
     "deployOptimismSepolia": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/deploy.ts",
     "intentSolve": "hardhat run scripts/testnet/intentSolve.ts",

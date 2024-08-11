@@ -497,7 +497,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
                 intentHash,
-                0 // storage position of the intents mapping is the first slot
+                1 // storage position of the intents mapping is the first slot
             )
         );
 

@@ -18,10 +18,14 @@ console.log('Deploying to Network: ', network.name)
 async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
-
-  const proverProxyAddress = '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394'
-  const proverL3 = await ethers.getContractFactory('ProverL3')
-  const prover = await upgrades.upgradeProxy(proverProxyAddress, proverL3)
+  let proverProxyAddress
+  if (network.name === 'baseSepolia') {
+    proverProxyAddress = '0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf' // baseSepolia Prover
+  } else {
+    proverProxyAddress = '0x82cd1fBE5fF76045F2dEaD6907E80A0176e733d2' // OptimismSepolia Prover
+  }
+  const proverNew = await ethers.getContractFactory('Prover')
+  const prover = await upgrades.upgradeProxy(proverProxyAddress, proverNew)
   console.log('prover proxy deployed to:', await prover.getAddress())
   console.log(
     'prover implementation deployed to: ',
