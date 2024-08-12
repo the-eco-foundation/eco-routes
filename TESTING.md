@@ -28,7 +28,7 @@ ETA Monday 7:00 - 8:00 am
 - Base World State Proof: [0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387](https://sepolia.basescan.org/tx/0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387)
 - ECO World State Proof: [0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c](https://sepolia.basescan.org/tx/0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c)
 - Intent Proof: [0xc233092d052121c8f4a2aae48cf8c684fb2849b9f130c17bfd515d024953cf4a](https://sepolia.basescan.org/tx/0xc233092d052121c8f4a2aae48cf8c684fb2849b9f130c17bfd515d024953cf4a)
-- Intent Withdraw: []()
+- Intent Withdraw: [0x28d0298bb0a63f7c6e94a6462045065594830e1ffb76dc0d627cba3e68129bb5](https://sepolia.basescan.org/tx/0x28d0298bb0a63f7c6e94a6462045065594830e1ffb76dc0d627cba3e68129bb5)
 
 #### Sepolia (Settlement For Base)
 

@@ -806,12 +806,14 @@ async function withdrawRewardOnBaseSepoliaFromEcoTestNet(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
-      await s.ecoTestNetIntentSourceContractClaimant.withdrawRewards(intentHash)
+      await s.baseSepoliaIntentSourceContractClaimant.withdrawRewards(
+        intentHash,
+      )
     await withdrawTx.wait()
     console.log('Withdrawal tx: ', withdrawTx.hash)
     return withdrawTx.hash
   } catch (e) {
-    if (e.data && s.ecoTestNetIntentSourceContractClaimant) {
+    if (e.data && s.baseSepoliaIntentSourceContractClaimant) {
       const decodedError =
         s.ecoTestNetIntentSourceContractClaimant.interface.parseError(e.data)
       console.log(
@@ -866,10 +868,10 @@ async function main() {
     // await proveWorldStateBedrockEcoTestNetonBaseSepolia()
     // console.log('about to proveIntentOnBaseSepoliaFromEcoTestNet')
     // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
-    await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+    // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
 
-    // console.log('about to withdrawRewardOnBaseSepoliaFromEcoTestNet')
-    // await withdrawRewardOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+    console.log('about to withdrawRewardOnBaseSepoliaFromEcoTestNet')
+    await withdrawRewardOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
   } catch (e) {
     console.log(e)
   }
