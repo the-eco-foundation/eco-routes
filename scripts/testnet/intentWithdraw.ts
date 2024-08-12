@@ -834,28 +834,28 @@ async function main() {
     // console.log('Walkthrough of BaseSepolia to ECOTestNet')
     // get the latest world state
     // const { settlmentBlockTag, settlementWorldStateRoot } =
-    //   await proveSettlementLayerState()
+    await proveSettlementLayerState()
     // console.log('settlmentBlockTag: ', settlmentBlockTag)
     // console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
 
-    // const blockRLPEncodedData = await getBlockRLPEncodedData()
-    // const RLPEncodedDisputeGameFactoryData = await getBlockRLPEncodedData()
-    // console.log(
-    //   'RLPEncodedDisputeGameFactoryData: ',
-    //   RLPEncodedDisputeGameFactoryData,
-    // )
-    // const intentStorageSlot = getIntentStorageSlot(cannon.intent.intentHash)
-    // console.log('intentStorageSlot: ', intentStorageSlot)
+    const blockRLPEncodedData = await getBlockRLPEncodedData()
+    const RLPEncodedDisputeGameFactoryData = await getBlockRLPEncodedData()
+    console.log(
+      'RLPEncodedDisputeGameFactoryData: ',
+      RLPEncodedDisputeGameFactoryData,
+    )
+    const intentStorageSlot = getIntentStorageSlot(cannon.intent.intentHash)
+    console.log('intentStorageSlot: ', intentStorageSlot)
 
     // await proveSepoliaSettlementLayerStateOnEcoTestNet()
     // await destinationStateProvingTestsEcoTestNet()
-    // await proveWorldStateBaseSepoliaOnEcoTestNet()
+    await proveWorldStateBaseSepoliaOnEcoTestNet()
 
-    // await proveIntentOnEcoTestNet(cannon.intent.intentHash)
+    await proveIntentOnEcoTestNet(cannon.intent.intentHash)
 
     // console.log('about to withdrawReward')
     // // Withdraw the Reward
-    // await withdrawRewardOnEcoTestNet(cannon.intent.intentHash)
+    await withdrawRewardOnEcoTestNet(cannon.intent.intentHash)
     // console.log('Withdrew Reward')
     console.log('Walkthrough of ECOTestNet to BaseSepolia')
     // const { settlmentBlockTag, settlementWorldStateRoot } =
@@ -863,15 +863,14 @@ async function main() {
     // console.log('settlmentBlockTag: ', settlmentBlockTag)
     // console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
     // await proveWorldStateBaseSepoliaOnBaseSepolia()
-    console.log('about to proveWorldStateBedrockEcoTestNetonBaseSepolia')
+    // console.log('about to proveWorldStateBedrockEcoTestNetonBaseSepolia')
     // await destinationStateProvingTestsBaseSepolia()
     // await proveWorldStateBedrockEcoTestNetonBaseSepolia()
     // console.log('about to proveIntentOnBaseSepoliaFromEcoTestNet')
     // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
-    // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
 
-    console.log('about to withdrawRewardOnBaseSepoliaFromEcoTestNet')
-    await withdrawRewardOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+    // console.log('about to withdrawRewardOnBaseSepoliaFromEcoTestNet')
+    // await withdrawRewardOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
   } catch (e) {
     console.log(e)
   }
