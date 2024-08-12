@@ -4,16 +4,82 @@
 
 ### Sepolia
 
-- Base Dispute Game Factory : 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1
-- Optimism Dispute Game Factory: 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1
+- Base Dispute Game Factory : [0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1](https://sepolia.etherscan.io/address/0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1)
+- Optimism Dispute Game Factory: [0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1](https://sepolia.etherscan.io/address/0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1)
 
 ### BaseSepolia
 
-- ECO L2 Output Oracle Address: 0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951
+- ECO L2 Output Oracle Address: [0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951](https://sepolia.basescan.org/address/0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951)
+- intentSourceAddress: [0x5C9346960AFa8F810529DFcd95394B1a3CEb10b6](https://sepolia.basescan.org/address/0x5C9346960AFa8F810529DFcd95394B1a3CEb10b6)
+- proverContractAddress: [0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf](https://sepolia.basescan.org/address/0x653c1bb2960971abb626ebd12ff4591d8157efaf)
+  - immplementation [0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72](https://sepolia.basescan.org/address/0xea7b55dcf75238e675bb4bbbf8deac2fd2292c72#code)
+- inboxAddress: [0x5ACc1a4b80a659F037498336C695D25f889ea33b](https://sepolia.basescan.org/address/0x5acc1a4b80a659f037498336c695d25f889ea33b)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://sepolia.basescan.org/address/0x4200000000000000000000000000000000000015)
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://sepolia.basescan.org/address/0x4200000000000000000000000000000000000016),
+
+### OptimismSepolia
+
+- intentSourceAddress: [0xA52662AAef7370bf029d78eb9D9CdD66dc474F75](https://optimism-sepolia.blockscout.com/address/0xA52662AAef7370bf029d78eb9D9CdD66dc474F75)
+- proverContractAddress: [0x82cd1fBE5fF76045F2dEaD6907E80A0176e733d2](https://optimism-sepolia.blockscout.com/address/0x82cd1fBE5fF76045F2dEaD6907E80A0176e733d2)
+  - implementation [0x3d00187B8B66d54A642e1efce811242886141202](https://optimism-sepolia.blockscout.com/address/0x3d00187B8B66d54A642e1efce811242886141202)
+- inboxAddress: [0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7](https://optimism-sepolia.blockscout.com/address/0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://optimism-sepolia.blockscout.com/address/0x4200000000000000000000000000000000000015)
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://optimism-sepolia.blockscout.com/address/0x4200000000000000000000000000000000000016)
 
 ### ECO Testnet
 
-### OptimismSepolia
+- intentSourceAddress: [0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8](https://eco-testnet.explorer.caldera.xyz/address/0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8)
+- proverContractAddress: [0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394](https://eco-testnet.explorer.caldera.xyz/address/0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394)
+  - implementation [0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4](https://eco-testnet.explorer.caldera.xyz/address/0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4)
+- inboxAddress: [0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1](https://eco-testnet.explorer.caldera.xyz/address/0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://eco-testnet.explorer.caldera.xyz/address/0x4200000000000000000000000000000000000015),
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://eco-testnet.explorer.caldera.xyz/address/0x4200000000000000000000000000000000000016),
+
+## BEND MVP Initial Tests (OptimismSepolia <-> BaseSepolia)
+
+Created Friday August 2nd 7:30 a.m. PST
+
+### BaseSepolia to OptimismSepolia
+
+- Intent hash: `0x803dd6af9ba6cd7a663991af6aa3209ed673a7990a33bad30d0b8fb949f97431`
+- Intent creation transaction (BaseSepolia): [0xc3fb7d676fc0be1d97dfd3ef21f4ac70e88defbfd16043574b1514419cf469c0](https://sepolia.basescan.org/tx/0xc3fb7d676fc0be1d97dfd3ef21f4ac70e88defbfd16043574b1514419cf469c0)
+- Intent Fulfillment Transaction (OptimismSepolia): [0xba066a4b95a037cea856ee06cec6147a03a63e2d9fa90419e8eb91c08a8d4a46](https://optimism-sepolia.blockscout.com/tx/0xba066a4b95a037cea856ee06cec6147a03a63e2d9fa90419e8eb91c08a8d4a46)
+  - Block: `0xeb0703` (15402755)
+  - Batch End Block: `0xEB3E6D` (15416941)
+- Sepolia World State Proof: []()
+- Base World State Proof: []()
+- Intent Proof: []()
+- Intent Withdraw: []()
+
+Method : `proveWorldStateCannon`
+
+- Fault Dispute Game : [0x356Ccf8597333407EFA4d90BE4A5D123698ABddD](https://sepolia.etherscan.io/address/0x356ccf8597333407efa4d90be4a5d123698abddd)
+- Fault Dispute Game Transaction : [0x7e89685f145c1310e0f6b29d8cad1ccd92d9879745b05f62017179932198cd4a](https://sepolia.etherscan.io/tx/0x7e89685f145c1310e0f6b29d8cad1ccd92d9879745b05f62017179932198cd4a)
+- Fault Dispute Game Transaction Block: `0x620a6a` (6425194)
+- Optimism End Batch Block Number: `0xEB3E6D` (15416941)
+- Fault Dispute Game Resolved Transaction: [](https://sepolia.etherscan.io/tx/0x17dd5ed2466cf981b3d5a20adf4b3f312f0a40b1e601d27d8821cddca1827e28)
+- Fault Dispute Game Resolved Block: `0x6260f8` (6447352)
+
+### OptimismSepolia to BaseSepolia
+
+- Intent hash: `0x077f226c511238d9138332df343f2131013cd2a5903c7f94a077909469573a77`
+- Intent creation transaction (BaseSepolia): [0x55bf2c3b4de2df30d1d2128fa295cfdc358b4673ff21d2684f68435a29cf9566](https://optimism-sepolia.blockscout.com/tx/0x55bf2c3b4de2df30d1d2128fa295cfdc358b4673ff21d2684f68435a29cf9566)
+- Intent Fulfillment Transaction (OptimismSepolia): [0x17e0c8c48c036770124308249b5997ff17f7789f27c2d66c096523ea15de2e4d](https://sepolia.basescan.org/tx/0x17e0c8c48c036770124308249b5997ff17f7789f27c2d66c096523ea15de2e4d)
+  - Block: `0xccc574` (13419892)
+  - Batch End Block: `0xcd2fe4` (13447140)
+- Sepolia World State Proof: []()
+- Base World State Proof: []()
+- Intent Proof: []()
+- Intent Withdraw: []()
+
+Method : `proveWorldStateCannon`
+
+- Fault Dispute Game : [0x6B69D2F8f92d05383D7Ff504b5CD8ae96BfA737f](https://sepolia.etherscan.io/address/0x6b69d2f8f92d05383d7ff504b5cd8ae96bfa737f)
+- Fault Dispute Game Transaction : [0xdbe93feeec922750a93e07aa52cddec0fc0963e336abe519107d600c7e6ac964](https://sepolia.etherscan.io/tx/0xdbe93feeec922750a93e07aa52cddec0fc0963e336abe519107d600c7e6ac964)
+- Fault Dispute Game Transaction Block: `0x6211fc` (6427132)
+- Base End Batch Block Number: `0xcd2fe4` (13447140)
+- Fault Dispute Game Resolved Transaction: [0x1bdd3346f5ec153301c11b7a9b944b5581f6a737860c24e5d9099dedddd696dc](https://sepolia.etherscan.io/tx/0x1bdd3346f5ec153301c11b7a9b944b5581f6a737860c24e5d9099dedddd696dc)
+- Fault Dispute Game Resolved Block: `0x626891` (6449297)
 
 ## ECO Base Initial Tests (Cannon and Self and Bedrock)
 
@@ -21,9 +87,9 @@ ETA Monday 7:00 - 8:00 am
 
 ### Base Proving (Intent from Base to ECO)
 
-- Intent Hash - `0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24`
-- Intent Creation Transaction (BaseSepolia) - [0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408](https://sepolia.basescan.org/tx/0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408)
-- Intent Fulfillment Transaction (ecoTestNet) - [0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5](https://eco-testnet.explorer.caldera.xyz/tx/0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5)
+- Intent Hash: `0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24`
+- Intent Creation Transaction (BaseSepolia): [0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408](https://sepolia.basescan.org/tx/0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408)
+- Intent Fulfillment Transaction (ecoTestNet): [0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5](https://eco-testnet.explorer.caldera.xyz/tx/0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5)
 - Sepolia World State Proof: [0xf9a8973253a82c2025416e4b49e877298b64d219465c4db000e8f02b486ee130](https://sepolia.basescan.org/tx/0xf9a8973253a82c2025416e4b49e877298b64d219465c4db000e8f02b486ee130)
 - Base World State Proof: [0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387](https://sepolia.basescan.org/tx/0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387)
 - ECO World State Proof: [0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c](https://sepolia.basescan.org/tx/0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c)
