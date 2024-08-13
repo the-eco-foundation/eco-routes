@@ -2,7 +2,7 @@
 // SPDX-License-hash: MIT
 pragma solidity ^0.8.26;
 
-import "../types/Intent.sol";
+import {Intent} from "../types/Intent.sol";
 
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
