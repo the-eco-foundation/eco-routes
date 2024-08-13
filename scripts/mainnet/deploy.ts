@@ -4,14 +4,7 @@ import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
-import {
-  provingMechanisms,
-  networkIds,
-  networks,
-  actors,
-  bedrock,
-  cannon,
-} from '../../config/mainnet/config'
+import { networks, actors } from '../../config/mainnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)

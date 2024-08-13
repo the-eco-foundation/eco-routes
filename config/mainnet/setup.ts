@@ -1,29 +1,12 @@
-import {
-  getDefaultProvider,
-  AbiCoder,
-  AlchemyProvider,
-  BigNumberish,
-  Contract,
-  Wallet,
-  Signer,
-} from 'ethers'
+import { AbiCoder, AlchemyProvider, Contract, Wallet, Signer } from 'ethers'
 import {
   Inbox__factory,
   IntentSource__factory,
   IL1Block__factory,
   Prover__factory,
-  ProverL3__factory,
   ERC20__factory,
 } from '../../typechain-types'
-import {
-  provingMechanisms,
-  networkIds,
-  networks,
-  actors,
-  bedrock,
-  cannon,
-  intent,
-} from '../../config/testnet/config'
+import { networks } from '../../config/testnet/config'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
 import * as DisputeGameFactoryArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/DisputeGameFactory.sol/DisputeGameFactory.json'
 import * as L2ToL1MessagePasserArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'

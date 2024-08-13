@@ -14,20 +14,18 @@ import {
   toBeHex,
 } from 'ethers'
 import {
-  provingMechanisms,
   networkIds,
   networks,
   actors,
   bedrock,
   cannon,
-  intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
 import { expect } from 'chai'
-import { int } from 'hardhat/internal/core/params/argumentTypes'
+// import { int } from 'hardhat/internal/core/params/argumentTypes'
 
 async function getBlockRLPEncodedData() {
-  console.log('In proveSettlementLayerState')
+  console.log('In getBlockRLPEncodedData')
 
   const blockTag = '0xcc7205'
 
@@ -831,44 +829,38 @@ async function main() {
   // let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
-    // console.log('Walkthrough of BaseSepolia to ECOTestNet')
+    console.log('Walkthrough of BaseSepolia to ECOTestNet')
     // get the latest world state
-    // const { settlmentBlockTag, settlementWorldStateRoot } =
-    //   await proveSettlementLayerState()
-    // console.log('settlmentBlockTag: ', settlmentBlockTag)
-    // console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
+    await proveSepoliaSettlementLayerStateOnBaseSepolia()
 
     // const blockRLPEncodedData = await getBlockRLPEncodedData()
-    // const RLPEncodedDisputeGameFactoryData = await getBlockRLPEncodedData()
-    // console.log(
-    //   'RLPEncodedDisputeGameFactoryData: ',
-    //   RLPEncodedDisputeGameFactoryData,
-    // )
-    // const intentStorageSlot = getIntentStorageSlot(cannon.intent.intentHash)
-    // console.log('intentStorageSlot: ', intentStorageSlot)
+    const RLPEncodedDisputeGameFactoryData = await getBlockRLPEncodedData()
+    console.log(
+      'RLPEncodedDisputeGameFactoryData: ',
+      RLPEncodedDisputeGameFactoryData,
+    )
+    const intentStorageSlot = getIntentStorageSlot(cannon.intent.intentHash)
+    console.log('intentStorageSlot: ', intentStorageSlot)
 
-    // await proveSepoliaSettlementLayerStateOnEcoTestNet()
-    // await destinationStateProvingTestsEcoTestNet()
-    // await proveWorldStateBaseSepoliaOnEcoTestNet()
+    await proveSepoliaSettlementLayerStateOnEcoTestNet()
+    await destinationStateProvingTestsEcoTestNet()
+    await proveWorldStateBaseSepoliaOnEcoTestNet()
 
-    // await proveIntentOnEcoTestNet(cannon.intent.intentHash)
+    await proveIntentOnEcoTestNet(cannon.intent.intentHash)
 
-    // console.log('about to withdrawReward')
-    // // Withdraw the Reward
-    // await withdrawRewardOnEcoTestNet(cannon.intent.intentHash)
-    // console.log('Withdrew Reward')
+    console.log('about to withdrawReward')
+    // Withdraw the Reward
+    await withdrawRewardOnEcoTestNet(cannon.intent.intentHash)
+    console.log('Withdrew Reward')
     console.log('Walkthrough of ECOTestNet to BaseSepolia')
-    // const { settlmentBlockTag, settlementWorldStateRoot } =
-    //   await proveSepoliaSettlementLayerStateOnBaseSepolia()
-    // console.log('settlmentBlockTag: ', settlmentBlockTag)
-    // console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
-    // await proveWorldStateBaseSepoliaOnBaseSepolia()
+    await proveSepoliaSettlementLayerStateOnBaseSepolia()
+    await proveWorldStateBaseSepoliaOnBaseSepolia()
     console.log('about to proveWorldStateBedrockEcoTestNetonBaseSepolia')
-    // await destinationStateProvingTestsBaseSepolia()
-    // await proveWorldStateBedrockEcoTestNetonBaseSepolia()
-    // console.log('about to proveIntentOnBaseSepoliaFromEcoTestNet')
-    // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
-    // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+    await destinationStateProvingTestsBaseSepolia()
+    await proveWorldStateBedrockEcoTestNetonBaseSepolia()
+    console.log('about to proveIntentOnBaseSepoliaFromEcoTestNet')
+    await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+    await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
 
     console.log('about to withdrawRewardOnBaseSepoliaFromEcoTestNet')
     await withdrawRewardOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)

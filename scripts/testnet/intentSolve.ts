@@ -1,12 +1,9 @@
 import { encodeTransfer } from '../../utils/encode'
 import { BigNumberish, BytesLike, toQuantity } from 'ethers'
 import {
-  provingMechanisms,
   networkIds,
   networks,
   actors,
-  bedrock,
-  cannon,
   intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
