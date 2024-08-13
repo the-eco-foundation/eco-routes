@@ -83,6 +83,7 @@ interface IIntentSource {
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
+     * @param _prover the prover against which the intent's status will be checked
      */
     function createIntent(
         uint256 _destinationChain,
@@ -91,7 +92,8 @@ interface IIntentSource {
         bytes[] calldata _data,
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts,
-        uint256 _expiryTime
+        uint256 _expiryTime,
+        address _prover
     ) external;
 
     /**

@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 
 import "./interfaces/IIntentSource.sol";
 import "./interfaces/IProver.sol";
+import "./interfaces/BaseProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -57,6 +58,7 @@ contract IntentSource is IIntentSource {
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the timestamp at which the intent expires
+     * @param _prover the prover against which the intent's status will be checked
      */
     function createIntent(
         uint256 _destinationChainID,
@@ -65,7 +67,8 @@ contract IntentSource is IIntentSource {
         bytes[] calldata _data,
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts,
-        uint256 _expiryTime
+        uint256 _expiryTime,
+        address _prover,
     ) external {
         uint256 len = _targets.length;
         if (len == 0 || len != _data.length) {
@@ -94,7 +97,8 @@ contract IntentSource is IIntentSource {
             rewardAmounts: _rewardAmounts,
             expiryTime: _expiryTime,
             hasBeenWithdrawn: false,
-            nonce: _nonce
+            nonce: _nonce,
+            prover: _prover
         });
 
         counter += 1;
@@ -124,7 +128,7 @@ contract IntentSource is IIntentSource {
 
     function withdrawRewards(bytes32 _hash) external {
         Intent storage intent = intents[_hash];
-        address claimant = PROVER.provenIntents(_hash);
+        address claimant = BaseProver(intent.prover).provenIntents(_hash);
         if (!intent.hasBeenWithdrawn) {
             if (
                 claimant == msg.sender
