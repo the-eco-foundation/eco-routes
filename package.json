@@ -60,6 +60,8 @@
     "TestnetCannon": "-------- Cannon scripts below --------",
     "intentWithdrawCannon": "hardhat run scripts/testnet/cannon/intentWithdraw.ts",
     "Mainnet": "-------- Mainnet scripts below",
+    "deployBase": "hardhat run --network base scripts/mainnet/deploy.ts",
+    "deployOptimism": "hardhat run --network optimismBlockScout scripts/mainnet/deploy.ts",
     "MainnetBedrock": "-------- Bedrock scripts below --------",
     "MainnetCannon": "-------- Cannon scripts below --------",
     "EndMainnetCannon": "-------- End Cannon scripts  --------"

@@ -2,6 +2,31 @@
 
 ## Master Data
 
+### Mainnet
+
+- Base L2 Output Oracle: [0x56315b90c40730925ec5485cf004d835058518A0](https://etherscan.io/address/0x56315b90c40730925ec5485cf004d835058518A0#readProxyContract)
+- Optimism DisputeGameFactory: [0xe5965Ab5962eDc7477C8520243A95517CD252fA9](https://etherscan.io/address/0xe5965Ab5962eDc7477C8520243A95517CD252fA9)
+
+### Base
+
+- intentSourceAddress: [0xb42d852beE31e810018f311653d2cC4ce7993c6D](https://basescan.org/address/0xb42d852beE31e810018f311653d2cC4ce7993c6D)
+- proverContractAddress: [0x5cAC9aB2472BE60271622F81d7961c96078b685D](https://basescan.org/address/0x5cAC9aB2472BE60271622F81d7961c96078b685D)
+  - immplementation [0x415Ad42b1983C1bbC007b2047bF21f60FdeFA0Da](https://basescan.org/address/0x415Ad42b1983C1bbC007b2047bF21f60FdeFA0Da)
+- inboxAddress: [0x2e8C9a05804b0Ff497C71950E2Ddd506AcDd602b](https://basescan.org/address/0x2e8C9a05804b0Ff497C71950E2Ddd506AcDd602b)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://basescan.org/address/0x4200000000000000000000000000000000000015)
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://basescan.org/address/0x4200000000000000000000000000000000000016)
+- usdcAddress: [0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913](https://basescan.org/address/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)
+
+### Optimism
+
+- intentSourceAddress: [0x82d64aB9f63Db4D46da927500815928C5E54b966](https://optimism.blockscout.com/address/0x82d64aB9f63Db4D46da927500815928C5E54b966?tab=contract)
+- proverContractAddress: [0xC2E2147b859e1C3907D880779045dEFACC5d1392](https://optimism.blockscout.com/address/0xC2E2147b859e1C3907D880779045dEFACC5d1392)
+  - implementation [0x0B2c4477B1F3bEc34089De8Be5D7C35cA1CB3C5B](https://optimism.blockscout.com/address/0x0B2c4477B1F3bEc34089De8Be5D7C35cA1CB3C5B)
+- inboxAddress: [0xDf12CB20794FeeACA3e6a444e5413d36DA3E03c3](https://optimism.blockscout.com/address/0xDf12CB20794FeeACA3e6a444e5413d36DA3E03c3)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://optimism.blockscout.com/address/0x4200000000000000000000000000000000000015)
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://optimism.blockscout.com/address/0x4200000000000000000000000000000000000016)
+- usdcAddress: [0x0b2c639c533813f4aa9d7837caf62653d097ff85](https://optimism.blockscout.com/address/0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85)
+
 ### Sepolia
 
 - Base Dispute Game Factory : [0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1](https://sepolia.etherscan.io/address/0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1)

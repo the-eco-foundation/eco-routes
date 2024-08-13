@@ -78,6 +78,12 @@ const config: HardhatUserConfig = {
       gasPrice: 100000000,
       accounts: [DEPLOY_PRIVATE_KEY],
     },
+    optimismBlockScout: {
+      chainId: 10,
+      url: `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      gasPrice: 100000000,
+      accounts: [DEPLOY_PRIVATE_KEY],
+    },
     base: {
       chainId: 8453,
       url: `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
@@ -96,6 +102,7 @@ const config: HardhatUserConfig = {
       baseSepolia: process.env.BASE_SCAN_API_KEY || '',
       arbitrumSepolia: process.env.ARBITRUM_SCAN_API_KEY || '',
       optimism: process.env.OPTIMISM_SCAN_API_KEY || '',
+      optimismBlockscout: process.env.OPTIMISM_BLOCKSCOUT_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISM_SCAN_API_KEY || '',
       base: process.env.BASE_SCAN_API_KEY || '',
       ecoTestnet: process.env.CALDERA_SCAN_API_KEY || '',

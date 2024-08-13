@@ -1,82 +1,100 @@
 /* eslint-disable no-magic-numbers */
-export default {
+const provingMechanisms: any = {
+  self: 0,
+  bedrock: 1,
+  cannon: 2,
+  nitro: 3,
+  hyperProver: 4,
+  0: 'self',
+  1: 'bedrock',
+  2: 'cannon',
+  3: 'nitro',
+  4: 'hyperProver',
+}
+const networkIds: any = {
+  mainnet: 1,
+  optimism: 10,
+  base: 8453,
+  1: 'mainnet',
+  10: 'optimism',
+  8453: 'base',
+}
+
+const actors: any = {
+  deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
+  intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
+  solver: '0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E',
+  claimant: '0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58',
+  prover: '0x923d4fDfD0Fb231FDA7A71545953Acca41123652',
+  recipient: '0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9',
+}
+
+// Note intents currently being used are for USDC with a common set of actors
+// the other data coming from the network
+// Here we store a minimal set of addtional fieds
+const intent: any = {
+  rewardAmounts: [1001],
+  targetAmounts: [1000],
+  duration: 3600,
+}
+
+const networks: any = {
   mainnet: {
     network: 'mainnet',
-    chainId: 1,
-    layer: 1,
-    role: ['Settlement'],
-    settlementContract: {
-      base: '0x56315b90c40730925ec5485cf004d835058518A0',
-      optimism: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
+    chainId: networkIds.mainnet,
+    // The following settlement contracts are useful for event listening
+    settlementContracts: {
+      base: '0x56315b90c40730925ec5485cf004d835058518A0', // base L2 OUTPUT ORACLE
+      optimism: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9', // optimism Dispute Game Factory
     },
-    l2BaseOutputOracleAddress: '0x56315b90c40730925ec5485cf004d835058518A0',
-    l2OptimismDisputeGameFactory: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
   },
   optimism: {
     network: 'optimism',
-    chainId: 10,
-    layer: 2,
-    role: ['Source', 'Destination'],
-    provingMechanism: 'cannon',
-    l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    proverContractAddress: '0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46',
-    intentSourceAddress: '0xf8FA763630351BB1139c10985d01B01C93BC2673',
-    inboxAddress: '0x2609cE6d0c4DE600be06b1814Eb4ED6B6bBFd48c',
-    l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+    chainId: networkIds.optimism,
+    intentSourceAddress: '0x82d64aB9f63Db4D46da927500815928C5E54b966',
+    proverContractAddress: '0xC2E2147b859e1C3907D880779045dEFACC5d1392', // implementation 0x0B2c4477B1F3bEc34089De8Be5D7C35cA1CB3C5B
+    inboxAddress: '0xDf12CB20794FeeACA3e6a444e5413d36DA3E03c3',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
+    proving: {
+      mechanism: provingMechanisms.cannon,
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      outputRootVersionNumber: 0,
+      settlementChain: {
+        network: 'mainnet',
+        id: networkIds.mainnet,
+        contract: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
+      },
+    },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
   },
   base: {
     network: 'base',
-    chainId: 8453,
-    layer: 2,
-    role: ['Destination'],
-    l1BlockAddress: '0x4200000000000000000000000000000000000015',
-    proverContractAddress: '0x5d0cab22a8E2F01CE4482F2CbFE304627d8F1816',
-    intentSourceAddress: '0x2b16FD1Bd15d1cC73f50B8780cE8D82bcc835f17',
-    inboxAddress: '0xbE6562D1F5cB7687ec3617Ec993A645104d77b5c',
-    l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+    chainId: networkIds.base,
+    intentSourceAddress: '0xb42d852beE31e810018f311653d2cC4ce7993c6D',
+    proverContractAddress: '0x5cAC9aB2472BE60271622F81d7961c96078b685D', // immplementation 0x415Ad42b1983C1bbC007b2047bF21f60FdeFA0Da
+    inboxAddress: '0x2e8C9a05804b0Ff497C71950E2Ddd506AcDd602b',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
+    proving: {
+      mechanism: provingMechanisms.bedrock,
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      outputRootVersionNumber: 0,
+      settlementChain: {
+        network: 'mainnet',
+        id: networkIds.mainnet,
+        // L2 Output Oracle Address
+        contract: '0x56315b90c40730925ec5485cf004d835058518A0',
+      },
+    },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   },
-  noncePacking: 1,
-  intentSourceCounter: 100,
-  l2OutputOracleSlotNumber: 3,
-  l2OutputVersionNumber: 0,
-  actors: {
-    deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
-    intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
-    solver: '0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E',
-    claimant: '0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58',
-    prover: '0x923d4fDfD0Fb231FDA7A71545953Acca41123652',
-    recipient: '0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9',
-  },
-  intents: {
-    base: {
-      creator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
-      destinationChainId: 8453,
-      recipient: `0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9`,
-      targetTokens: [`0x0b2c639c533813f4aa9d7837caf62653d097ff85`],
-      targetAmounts: [1241],
-      rewardTokens: ['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'],
-      rewardAmounts: [1242],
-      duration: 7200,
-      intentHash:
-        '0x17dd658e22dcf93f30391abe0407a1f3cbd05b408183b1ef70dd8111fb2c8942',
-      intentFulfillTransaction:
-        '0x7a751a7fa00a6c702f04f64958958852de479bb4e05bf8fe09450e7dc8dc29d8',
-    },
-    optimism: {
-      creator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
-      destinationChainId: 10,
-      recipient: `0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9`,
-      targetTokens: [`0x0b2c639c533813f4aa9d7837caf62653d097ff85`],
-      targetAmounts: [1241],
-      rewardTokens: ['0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'],
-      rewardAmounts: [1242],
-      duration: 7200,
-      intentHash:
-        '0xfc6edeae02ed99f642ea2d4a1f42515540e36d9e0299e51c0eff2744a3b5fafb',
-      intentFulfillTransaction:
-        '0x4bfad96166cc3c689e8d65d476c37a171e5bb05cc32385b5abb65fd45e1223ab',
-    },
-  },
 }
+
+export { provingMechanisms, networkIds, intent, actors, networks }
