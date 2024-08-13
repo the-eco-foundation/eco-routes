@@ -735,6 +735,7 @@ async function proveIntentOnBaseSepoliaFromEcoTestNet(intentHash) {
       ],
     ),
   )
+  console.log('intermediateHash: ', intermediateHash)
   const calcintentHash = keccak256(
     abiCoder.encode(
       ['address', 'bytes32'],
@@ -868,10 +869,22 @@ async function main() {
     // await proveWorldStateBedrockEcoTestNetonBaseSepolia()
     // console.log('about to proveIntentOnBaseSepoliaFromEcoTestNet')
     // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
-    // await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+    await proveIntentOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
 
     console.log('about to withdrawRewardOnBaseSepoliaFromEcoTestNet')
-    await withdrawRewardOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+    // await withdrawRewardOnBaseSepoliaFromEcoTestNet(bedrock.intent.intentHash)
+
+    // const RLPEncodedEcoTestNetEndBatchBlock =
+    //   await getBlockRLPEncodedDataOnBaseSepoliaForEcoTestNet()
+    // console.log(
+    //   'RLPEncodedEcoTestNetEndBatchBlock: ',
+    //   RLPEncodedEcoTestNetEndBatchBlock,
+    // )
+    // const RLPEncodedBaseSepoliaEndBatchBlock = await getBlockRLPEncodedData()
+    // console.log(
+    //   'RLPEncodedBaseSepoliaEndBatchBlock: ',
+    //   RLPEncodedBaseSepoliaEndBatchBlock,
+    // )
   } catch (e) {
     console.log(e)
   }

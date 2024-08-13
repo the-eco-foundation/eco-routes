@@ -24,6 +24,32 @@ const networkIds: any = {
   421614: 'arbitrumSepolia',
 }
 
+// const enshrined: any = {
+//   bedrock: {
+//     noncePacking: 1,
+//     outputSlotNumber: 3,
+//     outputRootVersionNumber: 0,
+//     chainData: {
+//       base: {
+//         l1OutputOracleAddress: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
+//       },
+//     },
+//   },
+//   cannon: {
+//     noncePacking: 1,
+//     rootClaimVersionNo: '0',
+//     gameType: 0,
+//     disputeGameFactoryListSlotNumber: 104,
+//     faultDisputeGameClaimSlot:
+//       '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1',
+//     faultDisputeGameStatusSlot: 0,
+//     chainData: {
+//       optimism: {
+//         disputeGameFactoryAddress: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
+//       },
+//     },
+//   },
+// }
 const actors: any = {
   deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
   intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
@@ -74,6 +100,12 @@ const networks: any = {
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
     },
+    // The following destination chains are useful for proving
+    // destinationChains: [
+    //   84532, // baseSepolia
+    //   471923, // ecoTestNet
+    //   421614, // arbitrumSepolia
+    // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
   baseSepolia: {
@@ -96,12 +128,20 @@ const networks: any = {
         id: networkIds.sepolia,
         // Dispute Game Factory address
         contract: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
+        // Old L2 Ourput Oracle Address
+        // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
       },
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
       ecoTestNet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet L2 Output Oracle
     },
+    // The following destination chains are useful for proving
+    // destinationChains: [
+    //   11155420, // optimismSepolia
+    //   471923, // ecoTestNet
+    //   421614, // arbitrumSepolia
+    // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
   ecoTestNet: {
@@ -127,6 +167,12 @@ const networks: any = {
         contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
       },
     },
+    // The following destination chains are useful for proving
+    // destinationChains: [
+    //   84532, // baseSepolia
+    //   11155420, // optimismSepolia
+    //   421614, // arbitrumSepolia
+    // ],
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     arbitrumSepolia: {
       network: 'arbitrum-sepolia',
@@ -142,6 +188,12 @@ const networks: any = {
       proving: {
         mechanism: 3,
       },
+      // The following destination chains are useful for proving
+      // destinationChains: [
+      //   84532, // baseSepolia
+      //   11155420, // optimismSepolia
+      //   471923, // ecoTestNet
+      // ],
       usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
     },
   },
@@ -169,8 +221,6 @@ const bedrock: any = {
       '0xb5a62a25cf193ab1dba3ab2f1308d78ca6fe7c9647beca5baa4708343ecbe245',
     endBatchBlockStateRoot:
       '0x66cddd76f9f8f6f808fccd9d484461a5650b4bc24a9295107fda5937c40fb603',
-    rlpEncodedendBatchBlockData:
-      '0xf90244a095ddb8d285b9bd821c252bd76af6d8a64abf16886062ac038fa55be2ebd69226a01dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347944200000000000000000000000000000000000011a066cddd76f9f8f6f808fccd9d484461a5650b4bc24a9295107fda5937c40fb603a0e62e83f32d6f125ff67d7ba42b63793d22ab8f66a3449fe208f49346aac036fca0e66a0ed55b4164d21792a1e72cd69c5034c342dda3cd8291460257fcc34d398ab901000410550004500300000000100404822088140404100020001a202280004200008148801102404008a8160001040000000010960a020480040400222001262008480030100a040020004120080010008418252000000408200600000014001020884000009a0928011020282150000880084000000202808900002090008100010484421428080040002003240040045908000a002004004400001008116001008300121040000a2600d20301424422010122030010e0008004a3220800404204610428020020002040090000409900600600c2808a1800001000015401037000103000000004000082402010498000080c09208040d4200010115950202110008083cc72058402aea540840103340f8466ac42ea80a0dba0d32a82245357c7d1290dca20cc2c7174d92ac57db13100b7fcc6a8e8534d88000000000000000083e32374a056e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b4218080a01299a962bcf8d78b8be8d7a6e222cd281dc00f15e9cf849ef44693d7c1ed71ee',
     worldStateRoot:
       '0x66cddd76f9f8f6f808fccd9d484461a5650b4bc24a9295107fda5937c40fb603',
     outputOracleStorageSlot:
@@ -311,8 +361,6 @@ const bedrock: any = {
     endBatchBlock: '0xaadc0', // 699840
     endBatchBlockHash:
       '0x8b7f427e5ae98e32bd7b16d80e74d073b0655ebbf7f0f01d9f97cc0974efc58d',
-    rlpEncodedBlockData:
-      '0xf90240a04058200d79e832f3983293a43cdd2297d767f1b7cbdf5faf07a95bcdf8cb3e9ea01dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347944200000000000000000000000000000000000011a01d1c3367a68dfd1e730f2e728a2bc7d95bc1f6881d1051751e2536370736ee39a05e88b285ac79dcdf849d1ab4f9cf2dae6d667bbf0b975344f78f0de28427e307a0f234d4d339fd16e8047199bef50d661bfebf89007bdb2c1769a8c3d8ad1943c5b901000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080830aadc08401c9c38082c0fe8466ac3b8680a04dd209338ca38bdaea06080a46137051878f8c06354304e91a69e5926c16d5e388000000000000000081fca056e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b4218080a07ad6620844fe7bec2b3f374f1100088dcc24dee8e6d8b3d30c11ab539f88c1b5',
     // inboxContract: '0xCfC89c06B5499ee50dfAf451078D85Ad71D76079',
     // inboxStorageRoot:
     //   '0x02db022d2959526a910b41f5686736103098af4ba16c5e014e0255e0289bcc04',
@@ -355,8 +403,6 @@ const bedrock: any = {
     destinationChainId: networkIds.ecoTestNet,
     intentHash:
       '0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24',
-    intermediateHash:
-      '0xe869aee222c68b33143669109d32cc4679c0ceabbcb5f0e64b2dee58c26df250',
     batchIndex: 2915,
     storageProof: [
       '0xf8518080a00bacadab995410b2b2b5d439313200f32d31c1bda0cb91245e26db2e9a6959d9808080a0ef2893fb63cf9301fe685a9d2c9ee92f3ed07806d6a5286c643439a201ef287e80808080808080808080',
@@ -424,7 +470,7 @@ const bedrock: any = {
 // Eco Testnet to Base
 const cannon: any = {
   settlementChain: {
-    blockNumber: '0x628774', // 6457204
+    blockTag: '0x628774', // 6457204
     blockHash:
       '0xd08354f5a25da6930f0bd9da19751123b52babdf663401be4bb9975d86e66c52',
     rlpEncodedBlockData:
