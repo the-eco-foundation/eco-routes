@@ -9,7 +9,6 @@ import {
   toQuantity,
   zeroPadValue,
   toBeHex,
-  N,
 } from 'ethers'
 import {
   networkIds,
@@ -133,7 +132,11 @@ async function proveWorldStateBedrock(
 
   const layer1BaseOutputOracleProof = await s.mainnetProvider.send(
     'eth_getProof',
-    [networks.mainnet.settlementContracts.base, [l1BatchSlot], layer1BlockTag],
+    [
+      networks.mainnet.settlementContracts.base,
+      [l1BatchSlot],
+      settlementBlockTag,
+    ],
   )
   const layer1BaseOutputOracleContractData = [
     toBeHex(layer1BaseOutputOracleProof.nonce), // nonce
