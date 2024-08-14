@@ -22,7 +22,7 @@ const networkIds: any = {
 
 const actors: any = {
   deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
-  intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
+  intentCreator: '0xfe4f16a23E9Be5303111b0688AE1d6933955127c',
   solver: '0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E',
   claimant: '0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58',
   prover: '0x923d4fDfD0Fb231FDA7A71545953Acca41123652',
@@ -33,12 +33,12 @@ const actors: any = {
 // the other data coming from the network
 // Here we store a minimal set of addtional fieds
 const intent: any = {
-  rewardAmounts: [1001],
-  targetAmounts: [1000],
+  rewardAmounts: [11000],
+  targetAmounts: [10000],
   duration: 3600,
-  hash: '0x6e3a7a555c2da6e2530c4e562f657308cf1eae8e061f3e9dc3941a25576caf7c',
+  hash: '0x05863D21B5308AA07EDAB71358F326BD0561089BCDE14C98DE76E1C8FAF098C5',
   fulfillTransaction:
-    '0x90a9c960fe11dc6d8ad88461c4d8af40ef690e9bb2a363a78ff12de10e321e2d',
+    '0xa7fd71d3aba0be64209dc9698f3229e608b0b69e9a09f22274ea75033702c4f9',
 }
 
 const networks: any = {
@@ -55,7 +55,7 @@ const networks: any = {
     network: 'optimism',
     chainId: networkIds.optimism,
     intentSourceAddress: '0x82d64aB9f63Db4D46da927500815928C5E54b966',
-    proverContractAddress: '0xC2E2147b859e1C3907D880779045dEFACC5d1392', // implementation 0x0B2c4477B1F3bEc34089De8Be5D7C35cA1CB3C5B
+    proverContractAddress: '0xC2E2147b859e1C3907D880779045dEFACC5d1392', // implementation 0x0665636fa2d5fD4141bc657868D47B24BbC32124
     inboxAddress: '0xDf12CB20794FeeACA3e6a444e5413d36DA3E03c3',
     intentSource: {
       minimumDuration: 1000,
@@ -78,7 +78,7 @@ const networks: any = {
     network: 'base',
     chainId: networkIds.base,
     intentSourceAddress: '0xb42d852beE31e810018f311653d2cC4ce7993c6D',
-    proverContractAddress: '0x5cAC9aB2472BE60271622F81d7961c96078b685D', // immplementation 0x415Ad42b1983C1bbC007b2047bF21f60FdeFA0Da
+    proverContractAddress: '0x5cAC9aB2472BE60271622F81d7961c96078b685D', // immplementation 0x653f38527B6271F8624316B92b4BaA2B06D1aa57
     inboxAddress: '0x2e8C9a05804b0Ff497C71950E2Ddd506AcDd602b',
     intentSource: {
       minimumDuration: 1000,

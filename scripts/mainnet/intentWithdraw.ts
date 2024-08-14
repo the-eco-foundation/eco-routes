@@ -219,7 +219,7 @@ async function proveIntent(intentHash, l1BatchIndex, endBatchBlockData) {
   console.log('In proveIntent')
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
-    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 0])],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
   const intentInboxProof = await s.baseProvider.send('eth_getProof', [
     networks.base.inboxAddress,
@@ -230,7 +230,6 @@ async function proveIntent(intentHash, l1BatchIndex, endBatchBlockData) {
   const intentInfo =
     await s.optimismIntentSourceContractClaimant.getIntent(intentHash)
 
-  console.log(networkIds.ecoTestNet)
   const abiCoder = AbiCoder.defaultAbiCoder()
   const intermediateHash = keccak256(
     abiCoder.encode(
@@ -310,11 +309,16 @@ async function main() {
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     const { settlementBlockTag, settlementStateRoot } =
       await proveSettlementLayerState()
+    // const settlementBlockTag = '0x13939e8'
+    // const settlementStateRoot =
+    //   '0x414b19b24d2ae17ffa4c8093381dff61a6375f760b42d5ce99d74c54dfc21992'
     const { l1BatchIndex, endBatchBlockData } = await proveWorldStateBedrock(
       settlementBlockTag,
       intentFulfillTransaction,
       settlementStateRoot,
     )
+    // console.log('l1BatchIndex: ', l1BatchIndex)
+    // console.log('endBatchBlockData: ', endBatchBlockData)
     await proveIntent(intentHash, l1BatchIndex, endBatchBlockData)
     await withdrawReward(intentHash)
   } catch (e) {

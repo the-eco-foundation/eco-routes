@@ -250,9 +250,9 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
         BlockProof memory existingBlockProof = provenStates[chainId];
-        if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            provenStates[chainId] = blockProof;
-        }
+        // if (existingBlockProof.blockNumber < blockProof.blockNumber) {
+        provenStates[chainId] = blockProof;
+        // }
     }
     /**
      * @notice Validates World state by ensuring that the passed in world state root corresponds to value in the L2 output oracle on the Settlement Layer
@@ -319,9 +319,9 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
-        if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            provenStates[chainId] = blockProof;
-        }
+        // if (existingBlockProof.blockNumber < blockProof.blockNumber) {
+        provenStates[chainId] = blockProof;
+        // }
     }
 
     function _faultDisputeGameFromFactory(
