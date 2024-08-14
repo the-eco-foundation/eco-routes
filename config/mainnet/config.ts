@@ -36,6 +36,9 @@ const intent: any = {
   rewardAmounts: [1001],
   targetAmounts: [1000],
   duration: 3600,
+  hash: '0x6e3a7a555c2da6e2530c4e562f657308cf1eae8e061f3e9dc3941a25576caf7c',
+  fulfillTransaction:
+    '0x90a9c960fe11dc6d8ad88461c4d8af40ef690e9bb2a363a78ff12de10e321e2d',
 }
 
 const networks: any = {
@@ -85,6 +88,7 @@ const networks: any = {
       mechanism: provingMechanisms.bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
       settlementChain: {
         network: 'mainnet',

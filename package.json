@@ -63,6 +63,8 @@
     "deployBase": "hardhat run --network base scripts/mainnet/deploy.ts",
     "deployOptimism": "hardhat run --network optimismBlockScout scripts/mainnet/deploy.ts",
     "MainnetBedrock": "-------- Bedrock scripts below --------",
+    "intentSolveOpBase": "hardhat run scripts/mainnet/intentSolve.ts",
+    "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdraw.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
     "EndMainnetCannon": "-------- End Cannon scripts  --------"
   },

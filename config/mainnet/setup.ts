@@ -6,7 +6,7 @@ import {
   Prover__factory,
   ERC20__factory,
 } from '../../typechain-types'
-import { networks } from '../../config/testnet/config'
+import { networks } from '../../config/mainnet/config'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
 import * as DisputeGameFactoryArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/DisputeGameFactory.sol/DisputeGameFactory.json'
 import * as L2ToL1MessagePasserArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
@@ -14,7 +14,7 @@ export namespace s {
   // default AbiCoder
   export const abiCoder = AbiCoder.defaultAbiCoder()
   // Private Keys
-  export const DEPLOYER_PRIVATE_KEY = process.env.DEPLOY_PRIVATE_KEY || ''
+  export const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || ''
   export const INTENT_CREATOR_PRIVATE_KEY =
     process.env.INTENT_CREATOR_PRIVATE_KEY || ''
   export const SOLVER_PRIVATE_KEY = process.env.SOLVER_PRIVATE_KEY || ''
@@ -55,7 +55,7 @@ export namespace s {
   // Settlement Contracts for other Chains
   export const mainnetSettlementContractBase = new Contract(
     networks.mainnet.settlementContracts.base,
-    DisputeGameFactoryArtifact.abi,
+    L2OutputArtifact.abi,
     mainnetProvider,
   )
   export const mainnetSettlementContractOptimism = new Contract(
@@ -162,13 +162,6 @@ export namespace s {
     CLAIMANT_PRIVATE_KEY,
     baseProvider,
   )
-  // Contracts
-  // Settlement Contracts for other Chains
-  export const baseSettlementContractEcoTestNet = new Contract(
-    networks.base.settlementContracts.ecoTestNet,
-    L2OutputArtifact.abi,
-    baseProvider,
-  )
   // System Proving Contracts
   export const basel1Block = new Contract(
     networks.base.proving.l1BlockAddress,
@@ -179,5 +172,38 @@ export namespace s {
     networks.base.proving.l2l1MessageParserAddress,
     L2ToL1MessagePasserArtifact.abi,
     baseProvider,
+  )
+
+  // ECO PROTOCOL Contracts
+  export const baseIntentSourceContractIntentCreator = new Contract(
+    networks.base.intentSourceAddress,
+    IntentSource__factory.abi,
+    baseIntentCreator,
+  )
+  export const baseIntentSourceContractClaimant = new Contract(
+    networks.base.intentSourceAddress,
+    IntentSource__factory.abi,
+    baseClaimant,
+  )
+
+  export const baseProverContract = new Contract(
+    networks.base.proverContractAddress,
+    Prover__factory.abi,
+    baseIntentProver,
+  )
+  export const baseInboxContractSolver = new Contract(
+    networks.base.inboxAddress,
+    Inbox__factory.abi,
+    baseSolver,
+  )
+  export const baseUSDCContractIntentCreator = new Contract(
+    networks.base.usdcAddress,
+    ERC20__factory.abi,
+    baseIntentCreator,
+  )
+  export const baseUSDCContractSolver = new Contract(
+    networks.base.usdcAddress,
+    ERC20__factory.abi,
+    baseSolver,
   )
 }
