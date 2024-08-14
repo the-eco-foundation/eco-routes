@@ -42,11 +42,7 @@ describe('Intent Source Test', (): void => {
     prover = await (await ethers.getContractFactory('TestProver')).deploy()
 
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
-    const intentSource = await intentSourceFactory.deploy(
-      prover,
-      minimumDuration,
-      0,
-    )
+    const intentSource = await intentSourceFactory.deploy(minimumDuration, 0)
     inbox = await (
       await ethers.getContractFactory('Inbox')
     ).deploy(owner.address, false, [owner.address])
@@ -88,7 +84,6 @@ describe('Intent Source Test', (): void => {
       expect(await intentSource.CHAIN_ID()).to.eq(
         (await ethers.provider.getNetwork()).chainId,
       )
-      expect(await intentSource.PROVER()).to.eq(await prover.getAddress())
       expect(await intentSource.MINIMUM_DURATION()).to.eq(minimumDuration)
       expect(await intentSource.counter()).to.eq(0)
     })
@@ -140,6 +135,7 @@ describe('Intent Source Test', (): void => {
               [await tokenA.getAddress()],
               [mintAmount],
               (await time.latest()) + minimumDuration,
+              await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'CalldataMismatch')
         // length 0
@@ -154,6 +150,7 @@ describe('Intent Source Test', (): void => {
               [await tokenA.getAddress()],
               [mintAmount],
               (await time.latest()) + minimumDuration,
+              await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'CalldataMismatch')
       })
@@ -170,6 +167,7 @@ describe('Intent Source Test', (): void => {
               [await tokenA.getAddress(), await tokenB.getAddress()],
               [mintAmount],
               (await time.latest()) + minimumDuration,
+              await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'RewardsMismatch')
         // length 0
@@ -184,6 +182,7 @@ describe('Intent Source Test', (): void => {
               [],
               [],
               (await time.latest()) + minimumDuration,
+              await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'RewardsMismatch')
       })
@@ -199,6 +198,7 @@ describe('Intent Source Test', (): void => {
               [await tokenA.getAddress()],
               [mintAmount],
               (await time.latest()) + minimumDuration - 1,
+              await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'ExpiryTooSoon')
       })
@@ -214,6 +214,7 @@ describe('Intent Source Test', (): void => {
           rewardTokens,
           rewardAmounts,
           expiry,
+          await prover.getAddress(),
         )
       const intent = await intentSource.intents(intentHash)
       // value types
@@ -233,17 +234,7 @@ describe('Intent Source Test', (): void => {
       expect(intentDetail.expiryTime).to.eq(expiry)
       expect(intentDetail.hasBeenWithdrawn).to.eq(false)
       expect(intentDetail.nonce).to.eq(nonce)
-      // reference types called individually
-      expect((await intentSource.getIntent(intentHash)).targets).to.deep.eq(
-        targets,
-      )
-      expect((await intentSource.getIntent(intentHash)).data).to.deep.eq(data)
-      expect(
-        (await intentSource.getIntent(intentHash)).rewardTokens,
-      ).to.deep.eq(rewardTokens)
-      expect(
-        (await intentSource.getIntent(intentHash)).rewardAmounts,
-      ).to.deep.eq(rewardAmounts)
+      expect(intentDetail.prover).to.eq(await prover.getAddress())
     })
     it('increments counter and locks up tokens', async () => {
       const counter = await intentSource.counter()
@@ -263,6 +254,7 @@ describe('Intent Source Test', (): void => {
           rewardTokens,
           rewardAmounts,
           expiry,
+          await prover.getAddress(),
         )
       expect(await intentSource.counter()).to.eq(Number(counter) + 1)
       expect(await tokenA.balanceOf(await intentSource.getAddress())).to.eq(
@@ -284,6 +276,7 @@ describe('Intent Source Test', (): void => {
             rewardTokens,
             rewardAmounts,
             expiry,
+            await prover.getAddress(),
           ),
       )
         .to.emit(intentSource, 'IntentCreated')
@@ -343,6 +336,7 @@ describe('Intent Source Test', (): void => {
           rewardTokens,
           rewardAmounts,
           expiry,
+          await prover.getAddress(),
         )
     })
     context('before expiry, no proof', () => {

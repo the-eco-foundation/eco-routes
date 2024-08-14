@@ -3,7 +3,6 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IIntentSource.sol";
-import "./interfaces/IProver.sol";
 import "./interfaces/BaseProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -19,9 +18,6 @@ contract IntentSource is IIntentSource {
     // chain ID
     uint256 public immutable CHAIN_ID;
 
-    // prover address
-    IProver public immutable PROVER;
-
     // intent creation counter
     uint256 public counter;
 
@@ -35,14 +31,12 @@ contract IntentSource is IIntentSource {
     mapping(bytes32 intenthash => Intent) public intents;
 
     /**
-     * @param _prover the prover address
      * @param _minimumDuration the minimum duration of an intent originating on this chain
      * @param _counterStart the initial value of the counter
      * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs to be redeployed.
      */
-    constructor(address _prover, uint256 _minimumDuration, uint256 _counterStart) {
+    constructor(uint256 _minimumDuration, uint256 _counterStart) {
         CHAIN_ID = block.chainid;
-        PROVER = IProver(_prover);
         MINIMUM_DURATION = _minimumDuration;
         counter = _counterStart;
     }
