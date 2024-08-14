@@ -1,8 +1,10 @@
 import {
+  AbiCoder,
   Block,
   encodeRlp,
   getBytes,
   hexlify,
+  keccak256,
   solidityPackedKeccak256,
   stripZerosLeft,
   toBeArray,
@@ -17,6 +19,40 @@ import {
   intent,
 } from '../../config/mainnet/config'
 import { s } from '../../config/mainnet/setup'
+// import { network } from 'hardhat'
+
+async function getBaseRLPEncodedBlock(blockNumber) {
+  console.log('In getBaseRLPEncodedBlock')
+
+  const block: Block = await s.baseProvider.send('eth_getBlockByNumber', [
+    blockNumber,
+    false,
+  ])
+
+  const rlpEncodedBlockData = encodeRlp([
+    block.parentHash,
+    block.sha3Uncles,
+    block.miner,
+    block.stateRoot,
+    block.transactionsRoot,
+    block.receiptsRoot,
+    block.logsBloom,
+    stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+    toBeHex(block.number),
+    toBeHex(block.gasLimit),
+    toBeHex(block.gasUsed),
+    block.timestamp,
+    block.extraData,
+    block.mixHash,
+    block.nonce,
+    toBeHex(block.baseFeePerGas),
+    block.withdrawalsRoot,
+    stripZerosLeft(toBeHex(block.blobGasUsed)),
+    stripZerosLeft(toBeHex(block.excessBlobGas)),
+    block.parentBeaconBlockRoot,
+  ])
+  return rlpEncodedBlockData
+}
 
 async function proveSettlementLayerState() {
   console.log('In proveL1WorldState')
@@ -56,7 +92,7 @@ async function proveSettlementLayerState() {
     ])
     tx = await s.optimismProverContract.proveSettlementLayerState(
       getBytes(hexlify(rlpEncodedBlockData)),
-      networkIds.base,
+      networkIds.mainnet,
     )
     await tx.wait()
     console.log('Prove Settlement state tx: ', tx.hash)
@@ -77,7 +113,6 @@ async function proveSettlementLayerState() {
       console.log(`Error in proveL1WorldState:`, e)
     }
   }
-  //   have successfully proven L1 state
 }
 
 async function proveWorldStateBedrock(
@@ -101,6 +136,7 @@ async function proveWorldStateBedrock(
     intentFulfillmentBlock,
   )
   const endBatchBlockHex = toQuantity(l1BatchData.l2BlockNumber)
+  const rlpEncodedBlockData = await getBaseRLPEncodedBlock(endBatchBlockHex)
   const endBatchBlockData = await s.baseProvider.send('eth_getBlockByNumber', [
     endBatchBlockHex,
     false,
@@ -145,19 +181,20 @@ async function proveWorldStateBedrock(
     layer1BaseOutputOracleProof.codeHash, // CodeHash
   ]
   try {
-    const proveOutputTX =
-      await s.optimismProverContract.proveL2WorldStateBedrock(
-        endBatchBlockData.stateRoot,
-        l2MesagePasserProof.storageHash,
-        endBatchBlockData.hash,
-        l1BatchIndex,
-        layer1BaseOutputOracleProof.storageProof[0].proof,
-        await s.optimismProverContract.rlpEncodeDataLibList(
-          layer1BaseOutputOracleContractData,
-        ),
-        layer1BaseOutputOracleProof.accountProof,
-        settlementStateRoot,
-      )
+    const proveOutputTX = await s.optimismProverContract.proveWorldStateBedrock(
+      networkIds.base,
+      rlpEncodedBlockData,
+      endBatchBlockData.stateRoot,
+      l2MesagePasserProof.storageHash,
+      // endBatchBlockData.hash,
+      l1BatchIndex,
+      layer1BaseOutputOracleProof.storageProof[0].proof,
+      await s.optimismProverContract.rlpEncodeDataLibList(
+        layer1BaseOutputOracleContractData,
+      ),
+      layer1BaseOutputOracleProof.accountProof,
+      settlementStateRoot,
+    )
     await proveOutputTX.wait()
     console.log('Prove L2 World State tx: ', proveOutputTX.hash)
     return {
@@ -190,14 +227,33 @@ async function proveIntent(intentHash, l1BatchIndex, endBatchBlockData) {
     endBatchBlockData.number,
   ])
 
+  const intentInfo =
+    await s.optimismIntentSourceContractClaimant.getIntent(intentHash)
+
+  console.log(networkIds.ecoTestNet)
+  const abiCoder = AbiCoder.defaultAbiCoder()
+  const intermediateHash = keccak256(
+    abiCoder.encode(
+      ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+      [
+        networkIds.optimism, // sourceChainID
+        intentInfo[1], // destinationChainID
+        intentInfo[2], // targetTokens
+        intentInfo[3], // callData
+        intentInfo[6], // expiryTime
+        getBytes(intentInfo[8]), // nonce),
+      ],
+    ),
+  )
+
   const balance = stripZerosLeft(toBeHex(intentInboxProof.balance)) // balance
   const nonce = toBeHex(intentInboxProof.nonce) // nonce
   try {
     const proveIntentTx = await s.optimismProverContract.proveIntent(
+      networkIds.base,
       actors.claimant,
       networks.base.inboxAddress,
-      intentHash,
-      Number(l1BatchIndex) - 1, // see comment in contract
+      intermediateHash,
       intentInboxProof.storageProof[0].proof,
       await s.optimismProverContract.rlpEncodeDataLibList([
         nonce,
