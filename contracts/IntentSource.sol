@@ -68,7 +68,7 @@ contract IntentSource is IIntentSource {
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,
-        address _prover,
+        address _prover
     ) external {
         uint256 len = _targets.length;
         if (len == 0 || len != _data.length) {
