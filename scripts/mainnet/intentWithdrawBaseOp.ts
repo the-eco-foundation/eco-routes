@@ -55,7 +55,7 @@ async function getOptimismRLPEncodedBlock(blockNumber) {
 }
 
 async function proveSettlementLayerState() {
-  console.log('In proveL1WorldState')
+  console.log('In proveSettlementLayerState')
   const settlementBlock = await s.basel1Block.number()
   const settlementBlockTag = toQuantity(settlementBlock)
 

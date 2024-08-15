@@ -175,7 +175,7 @@ async function main() {
   try {
     console.log('In Main')
     await optimismBaseIntentSolve()
-    // await baseOptimismIntentSolve()
+    await baseOptimismIntentSolve()
   } catch (e) {
     console.log(e)
   }

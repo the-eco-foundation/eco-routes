@@ -65,7 +65,7 @@
     "deployUpgradeProverBase": "hardhat run --network base scripts/mainnet/deployUpgradeProver.ts",
     "deployUpgradeProverOptimism": "hardhat run --network optimism scripts/mainnet/deployUpgradeProver.ts",
     "MainnetBedrock": "-------- Bedrock scripts below --------",
-    "intentSolveOpBase": "hardhat run scripts/mainnet/intentSolve.ts",
+    "intentSolveMainnet": "hardhat run scripts/mainnet/intentSolve.ts",
     "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdrawOpBase.ts",
     "intentWithdrawBaseOp": "hardhat run scripts/mainnet/intentWithdrawBaseOp.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
