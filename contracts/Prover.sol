@@ -86,7 +86,6 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bool initialized;
         bool l2BlockNumberChallenged;
     }
-    // bytes13 filler;
 
     struct FaultDisputeGameProofData {
         bytes32 faultDisputeGameStateRoot;
@@ -167,26 +166,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         }
     }
 
-    /// @notice Encode integer in big endian binary form with no leading zeroes.
-    /// @param _x The integer to encode.
-    /// @return out_ RLP encoded bytes.
-    function _toBinary(uint256 _x) private pure returns (bytes memory out_) {
-        bytes memory b = abi.encodePacked(_x);
-
-        uint256 i = 0;
-        for (; i < 32; i++) {
-            if (b[i] != 0) {
-                break;
-            }
-        }
-
-        out_ = new bytes(32 - i);
-        for (uint256 j = 0; j < out_.length; j++) {
-            out_[j] = b[i++];
-        }
-    }
-
-    function bytesToUint(bytes memory b) internal pure returns (uint256) {
+    function _bytesToUint(bytes memory b) internal pure returns (uint256) {
         uint256 number;
         for (uint256 i = 0; i < b.length; i++) {
             number = number + uint256(uint8(b[i])) * (2 ** (8 * (b.length - (i + 1))));
@@ -200,11 +180,11 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         uint8 gameStatus,
         bool initialized,
         bool l2BlockNumberChallenged
-    ) public pure returns (bytes memory gameStausStorageSlotRLP) {
+    ) public pure returns (bytes memory gameStatusStorageSlotRLP) {
         // The if test is to remove leaing zeroes from the bytes
         // Assumption is that initialized is always true
         if (l2BlockNumberChallenged) {
-            gameStausStorageSlotRLP = bytes.concat(
+            gameStatusStorageSlotRLP = bytes.concat(
                 RLPWriter.writeBytes(
                     abi.encodePacked(
                         abi.encodePacked(l2BlockNumberChallenged),
@@ -216,7 +196,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
                 )
             );
         } else {
-            gameStausStorageSlotRLP = bytes.concat(
+            gameStatusStorageSlotRLP = bytes.concat(
                 RLPWriter.writeBytes(
                     abi.encodePacked(
                         // abi.encodePacked(l2BlockNumberChallenged),
@@ -245,7 +225,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
         BlockProof memory blockProof = BlockProof({
-            blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
@@ -315,7 +295,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
-            blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
@@ -377,7 +357,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         return (_faultDisputeGameProxyAddress, _rootClaim);
     }
 
-    function _faultDisputeGameIsResolved(
+    function faultDisputeGameIsResolved(
         bytes32 rootClaim,
         address faultDisputeGameProxyAddress,
         FaultDisputeGameProofData memory faultDisputeGameProofData,
@@ -453,13 +433,11 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
             chainConfiguration.settlementContract, l2WorldStateRoot, disputeGameFactoryProofData, l1WorldStateRoot
         );
 
-        _faultDisputeGameIsResolved(
-            rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot
-        );
+        faultDisputeGameIsResolved(rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot);
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
-            blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
