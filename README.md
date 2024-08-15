@@ -145,12 +145,7 @@ yarn deployInbox
 
 ### End to End Testing
 
-There is a script which does End Testing
-
-```bash
-yarn intentWalkthrough
-
-```
+Coming soon
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

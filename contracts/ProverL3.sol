@@ -8,13 +8,13 @@ import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPRe
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
 
-contract Prover is UUPSUpgradeable, OwnableUpgradeable {
+contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
     // uint16 public constant NONCE_PACKING = 1;
 
-    // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
-    uint256 public constant L2_OUTPUT_SLOT_NUMBER = 3;
+    // Output slot for Bedrock OUTPUT_ORACLE where Settled Batches are stored
+    uint256 public constant OUTPUT_SLOT_NUMBER = 3;
 
-    uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
+    uint256 public constant OUTPUT_ROOT_VERSION_NUMBER = 0;
 
     // L2OutputOracle on Ethereum used for Bedrock (Base) Proving
     // address public immutable l1OutputOracleAddress;
@@ -24,14 +24,14 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
     // address public immutable faultGameFactoryAddress;
 
     // Output slot for Cannon DisputeGameFactory where FaultDisputeGames gameId's are stored
-    uint256 public constant L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER = 104;
+    uint256 public constant DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER = 104;
 
     // Output slot for the root claim (used as the block number settled is part of the root claim)
-    uint256 public constant L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT =
+    uint256 public constant FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT =
         0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1;
 
     // Output slot for the game status (fixed)
-    uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
+    uint256 public constant FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
@@ -227,6 +227,27 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         }
     }
     /**
+     * @notice Priveleged operation to allow setting L1 block state for chains that do not have a L1 oracle contract
+     * and example of which is an L3 which has the L2 block oracle but needs to prove the L1 state.
+     * @param rlpEncodedBlockData properly encoded L1 block data
+     * @param chainId the chain id of the chain we are proving
+     */
+
+    function proveSettlementLayerStatePriveleged(bytes calldata rlpEncodedBlockData, uint256 chainId)
+        public
+        onlyOwner
+    {
+        BlockProof memory blockProof = BlockProof({
+            blockNumber: uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]))),
+            blockHash: keccak256(rlpEncodedBlockData),
+            stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
+        });
+        BlockProof memory existingBlockProof = provenStates[chainId];
+        if (existingBlockProof.blockNumber < blockProof.blockNumber) {
+            provenStates[chainId] = blockProof;
+        }
+    }
+    /**
      * @notice Validates World state by ensuring that the passed in world state root corresponds to value in the L2 output oracle on the Settlement Layer
      * @param chainId the chain id of the chain we are proving
      * @param rlpEncodedBlockData properly encoded L1 block data
@@ -260,11 +281,11 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         );
 
         bytes32 outputRoot = generateOutputRoot(
-            L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, keccak256(rlpEncodedBlockData)
+            OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, keccak256(rlpEncodedBlockData)
         );
 
         bytes32 outputRootStorageSlot =
-            bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
+            bytes32(abi.encode((uint256(keccak256(abi.encode(OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
 
         bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
@@ -310,7 +331,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         }
 
         bytes32 _rootClaim = generateOutputRoot(
-            L2_OUTPUT_ROOT_VERSION_NUMBER,
+            OUTPUT_ROOT_VERSION_NUMBER,
             l2WorldStateRoot,
             disputeGameFactoryProofData.messagePasserStateRoot,
             disputeGameFactoryProofData.latestBlockHash
@@ -319,7 +340,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 disputeGameFactoryStorageSlot = bytes32(
             abi.encode(
                 (
-                    uint256(keccak256(abi.encode(L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER)))
+                    uint256(keccak256(abi.encode(DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER)))
                         + disputeGameFactoryProofData.gameIndex
                 )
             )
@@ -361,7 +382,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         // Prove that the FaultDispute game has been settled
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
         proveStorage(
-            abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT)),
+            abi.encodePacked(uint256(FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT)),
             bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(rootClaim)),
             faultDisputeGameProofData.faultDisputeGameRootClaimStorageProof,
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
@@ -377,7 +398,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         // faultDisputeGameProofData.faultDisputeGameStatusSlotData.filler
         // storage proof for FaultDisputeGame status (showing defender won)
         proveStorage(
-            abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
+            abi.encodePacked(uint256(FAULT_DISPUTE_GAME_STATUS_SLOT)),
             faultDisputeGameStatusStorage,
             faultDisputeGameProofData.faultDisputeGameStatusStorageProof,
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
@@ -467,7 +488,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
                 intentHash,
-                1 // storage position of the intents mapping is the first slot
+                1 // storage position of the intents mapping
             )
         );
 

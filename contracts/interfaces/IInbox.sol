@@ -11,7 +11,7 @@ interface IInbox {
      * @param _expiryTime The timestamp at which the intent expires
      * @param _nonce The nonce of the calldata. Composed of the hash on the src chain of a global nonce & chainID
      * @param _claimant The address who can claim the reward on the src chain. Not part of the hash
-     * @param _expectedHash The hash a solver should expect to be generated from the params above. 
+     * @param _expectedHash The hash a solver should expect to be generated from the params above.
      * @dev this is a guardrail to make sure solves dont accidentally solve intents that cannot be proven.
      * @return results The results of the calls as an array of bytes
      */

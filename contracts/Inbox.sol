@@ -11,7 +11,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
 contract Inbox is IInbox, Ownable {
-
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
 
@@ -33,7 +32,7 @@ contract Inbox is IInbox, Ownable {
         }
     }
 
-    constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers) Ownable(_owner){
+    constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers) Ownable(_owner) {
         isSolvingPublic = _isSolvingPublic;
         for (uint256 i = 0; i < _solvers.length; i++) {
             solverWhitelist[_solvers[i]] = true;
@@ -49,15 +48,16 @@ contract Inbox is IInbox, Ownable {
         address _claimant,
         bytes32 _expectedHash
     ) external validated(_expiryTime, msg.sender) returns (bytes[] memory) {
-        bytes32 intentHash = encodeHash(_sourceChainID, block.chainid, address(this), _targets, _data, _expiryTime, _nonce);
-        
+        bytes32 intentHash =
+            encodeHash(_sourceChainID, block.chainid, address(this), _targets, _data, _expiryTime, _nonce);
+
         // revert if locally calculated hash does not match expected hash
-        if(intentHash != _expectedHash) {
+        if (intentHash != _expectedHash) {
             revert InvalidHash(_expectedHash);
         }
-        
+
         // revert if intent has already been fulfilled
-        if(fulfilled[intentHash] != address(0)) {
+        if (fulfilled[intentHash] != address(0)) {
             revert IntentAlreadyFulfilled(intentHash);
         }
         // Store the results of the calls
@@ -116,11 +116,10 @@ contract Inbox is IInbox, Ownable {
         uint256 _expiryTime,
         bytes32 _nonce
     ) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            _inboxAddress, 
-            keccak256(abi.encode(
-                _sourceChainID, _chainId, _targets, _data, _expiryTime, _nonce
-            ))
-        ));
+        return keccak256(
+            abi.encode(
+                _inboxAddress, keccak256(abi.encode(_sourceChainID, _chainId, _targets, _data, _expiryTime, _nonce))
+            )
+        );
     }
 }
