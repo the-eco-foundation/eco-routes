@@ -101,33 +101,13 @@ contract Prover {
 
     constructor(ChainConfigurationConstructor[] memory _chainConfigurations) {
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
-            setChainConfiguration(
-                _chainConfigurations[i].chainId,
-                _chainConfigurations[i].chainConfiguration.provingMechanism,
-                _chainConfigurations[i].chainConfiguration.settlementChainId,
-                _chainConfigurations[i].chainConfiguration.settlementContract,
-                _chainConfigurations[i].chainConfiguration.blockhashOracle,
-                _chainConfigurations[i].chainConfiguration.outputRootVersionNumber
-            );
+            _setChainConfiguration(_chainConfigurations[i].chainId, _chainConfigurations[i].chainConfiguration);
         }
     }
 
-    function setChainConfiguration(
-        uint256 chainId,
-        uint8 provingMechanism,
-        uint256 settlementChainId,
-        address settlementContract,
-        address blockhashOracle,
-        uint256 outputRootVersionNumber
-    ) internal {
-        chainConfigurations[chainId] = ChainConfiguration({
-            provingMechanism: provingMechanism,
-            settlementChainId: settlementChainId,
-            settlementContract: settlementContract,
-            blockhashOracle: blockhashOracle,
-            outputRootVersionNumber: outputRootVersionNumber
-        });
-        l1BlockhashOracle = IL1Block(blockhashOracle);
+    function _setChainConfiguration(uint256 chainId, ChainConfiguration memory chainConfiguration) internal {
+        chainConfigurations[chainId] = chainConfiguration;
+        l1BlockhashOracle = IL1Block(chainConfiguration.blockhashOracle);
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {

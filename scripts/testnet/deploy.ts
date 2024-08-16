@@ -13,7 +13,7 @@ const baseSepoliaChainConfiguration = {
   chainConfiguration: {
     provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
     settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+    settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
     blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
@@ -21,27 +21,27 @@ const baseSepoliaChainConfiguration = {
 }
 
 const optimismSepoliaChainConfiguration = {
-  chainId: networks.optimismSepolia.chainId,
+  chainId: networks.optimismSepolia.chainId, // chainId
   chainConfiguration: {
-    provingMechanism: networks.optimismSepolia.proving.mechanism,
-    settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
+    provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
+    settlementChainId: networks.optimismSepolia.proving.settlementChain.id, // settlementChainId
     settlementContract:
-      networks.optimismSepolia.proving.settlementChain.contract,
-    blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress,
+      networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
-      networks.optimismSepolia.proving.outputRootVersionNumber,
+      networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
 
 const ecoTestNetChainConfiguration = {
-  chainId: networks.ecoTestNet.chainId,
+  chainId: networks.ecoTestNet.chainId, // chainId
   chainConfiguration: {
-    provingMechanism: networks.ecoTestNet.proving.mechanism,
-    settlementChainId: networks.ecoTestNet.proving.settlementChain.id,
-    settlementContract: networks.ecoTestNet.proving.settlementChain.contract,
-    blockhashOracle: networks.ecoTestNet.proving.l1BlockAddress,
+    provingMechanism: networks.ecoTestNet.proving.mechanism, // provingMechanism
+    settlementChainId: networks.ecoTestNet.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.ecoTestNet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.ecoTestNet.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
-      networks.ecoTestNet.proving.outputRootVersionNumber,
+      networks.ecoTestNet.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
 let counter: number = 0

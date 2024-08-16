@@ -3,10 +3,11 @@ pragma solidity ^0.8.13;
 
 interface IProver {
     struct ChainConfiguration {
-        uint256 chainId;
-        address intentManager;
-        address outputOracle;
-        address disputeGameFactory;
+        uint8 provingMechanism;
+        uint256 settlementChainId;
+        address settlementContract;
+        address blockhashOracle;
+        uint256 outputRootVersionNumber;
     }
 
     struct BlockProof {

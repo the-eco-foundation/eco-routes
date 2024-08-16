@@ -36,21 +36,21 @@ async function main() {
     chainConfiguration: {
       provingMechanism: networks.base.proving.mechanism, // provingMechanism
       settlementChainId: networks.base.proving.settlementChain.id, // settlementChainId
-      settlementContract: networks.base.proving.settlementChain.contract, // settlementContract
+      settlementContract: networks.base.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
       blockhashOracle: networks.base.proving.l1BlockAddress, // blockhashOracle
       outputRootVersionNumber: networks.base.proving.outputRootVersionNumber, // outputRootVersionNumber
     },
   }
 
   const optimismChainConfiguration = {
-    chainId: networks.optimism.chainId,
+    chainId: networks.optimism.chainId, // chainId
     chainConfiguration: {
-      provingMechanism: networks.optimism.proving.mechanism,
-      settlementChainId: networks.optimism.proving.settlementChain.id,
-      settlementContract: networks.optimism.proving.settlementChain.contract,
-      blockhashOracle: networks.optimism.proving.l1BlockAddress,
+      provingMechanism: networks.optimism.proving.mechanism, // provingMechanism
+      settlementChainId: networks.optimism.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.optimism.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.     blockhashOracle: networks.optimism.proving.l1BlockAddress,
+      blockhashOracle: networks.optimism.proving.l1BlockAddress, // blockhashOracle
       outputRootVersionNumber:
-        networks.optimism.proving.outputRootVersionNumber,
+        networks.optimism.proving.outputRootVersionNumber, // outputRootVersionNumber
     },
   }
 
