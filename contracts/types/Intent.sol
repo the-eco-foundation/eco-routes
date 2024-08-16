@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-
-
 struct Intent {
     // creator of the intent
     address creator;
