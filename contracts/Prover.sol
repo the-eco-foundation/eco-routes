@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
 
-contract Prover is UUPSUpgradeable, OwnableUpgradeable {
+contract Prover {
     // uint16 public constant NONCE_PACKING = 1;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
@@ -54,6 +52,11 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         uint256 outputRootVersionNumber;
     }
 
+    struct ChainConfigurationConstructor {
+        uint256 chainId;
+        ChainConfiguration chainConfiguration;
+    }
+
     // map the chain id to chain configuration
     mapping(uint256 => ChainConfiguration) public chainConfigurations;
 
@@ -96,15 +99,18 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes[] faultDisputeGameAccountProof;
     }
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() initializer {}
-
-    function initialize(address _owner) public initializer {
-        __Ownable_init(_owner);
-        __UUPSUpgradeable_init();
+    constructor(ChainConfigurationConstructor[] memory _chainConfigurations) {
+        for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
+            setChainConfiguration(
+                _chainConfigurations[i].chainId,
+                _chainConfigurations[i].chainConfiguration.provingMechanism,
+                _chainConfigurations[i].chainConfiguration.settlementChainId,
+                _chainConfigurations[i].chainConfiguration.settlementContract,
+                _chainConfigurations[i].chainConfiguration.blockhashOracle,
+                _chainConfigurations[i].chainConfiguration.outputRootVersionNumber
+            );
+        }
     }
-
-    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     function setChainConfiguration(
         uint256 chainId,
@@ -113,7 +119,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         address settlementContract,
         address blockhashOracle,
         uint256 outputRootVersionNumber
-    ) public onlyOwner {
+    ) internal {
         chainConfigurations[chainId] = ChainConfiguration({
             provingMechanism: provingMechanism,
             settlementChainId: settlementChainId,
