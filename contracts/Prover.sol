@@ -3,12 +3,13 @@ pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "./interfaces/SimpleProver.sol";
 import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
 
-contract Prover is UUPSUpgradeable, OwnableUpgradeable {
+contract Prover is UUPSUpgradeable, OwnableUpgradeable, SimpleProver {
     // uint16 public constant NONCE_PACKING = 1;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
@@ -65,9 +66,6 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
 
     // Store the last BlockProof for each ChainId
     mapping(uint256 => BlockProof) public provenStates;
-
-    // mapping from proven intents to the address that's authorized to claim them
-    mapping(bytes32 => address) public provenIntents;
 
     struct DisputeGameFactoryProofData {
         bytes32 messagePasserStateRoot;
