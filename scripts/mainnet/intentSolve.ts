@@ -36,7 +36,7 @@ export async function optimismBaseIntentSolve() {
         data, // call datat for destination chain
         [networks.optimism.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
-        expiryTime, // intent expiry time
+        expiryTime, // intent expiry time,
       )
     await intentTx.wait()
 
@@ -117,6 +117,7 @@ export async function baseOptimismIntentSolve() {
       [networks.base.usdcAddress], // reward Tokens on source chain
       intent.rewardAmounts, // reward amounts on source chain
       expiryTime, // intent expiry time
+      networks.base.proverContractAddress, // prover contract address
     )
     await intentTx.wait()
 
