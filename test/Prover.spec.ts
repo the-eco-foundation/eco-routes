@@ -2,7 +2,11 @@ import { ethers, upgrades } from 'hardhat'
 import { expect } from 'chai'
 import { deploy } from './utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { MockL1Block__factory, Prover__factory } from '../typechain-types'
+import {
+  MockL1Block__factory,
+  Prover,
+  Prover__factory,
+} from '../typechain-types'
 import {
   AbiCoder,
   encodeRlp,
@@ -38,6 +42,8 @@ describe('Prover Unit Tests', () => {
   let claimantSigner: SignerWithAddress
   let proverSigner: SignerWithAddress
   let recipientSigner: SignerWithAddress
+  let prover: Prover
+  let blockhashOracle
 
   before(async () => {
     ;[
@@ -49,9 +55,6 @@ describe('Prover Unit Tests', () => {
       recipientSigner,
     ] = await ethers.getSigners()
   })
-
-  let prover
-  let blockhashOracle
 
   beforeEach(async () => {
     blockhashOracle = await deploy(deployerSigner, MockL1Block__factory)
@@ -66,36 +69,36 @@ describe('Prover Unit Tests', () => {
       0,
       0,
     )
-
-    const proverContract = await ethers.getContractFactory('Prover')
-    prover = await upgrades.deployProxy(
-      proverContract,
-      [deployerSigner.address],
-      {
-        initializer: 'initialize',
-        kind: 'uups',
+    const baseSepoliaChainConfiguration = {
+      chainId: networks.baseSepolia.chainId, //chainId
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, //provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, //settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, //settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), //blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
       },
-    )
+    }
 
-    //baseSepolia Config
-    await prover.setChainConfiguration(
-      networks.baseSepolia.chainId, //chainId
-      networks.baseSepolia.proving.mechanism, //provingMechanism
-      networks.baseSepolia.proving.settlementChain.id, //settlementChainId
-      networks.baseSepolia.proving.settlementChain.contract, //settlementContract
-      await blockhashOracle.getAddress(), //blockhashOracle
-      networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
-    )
-
-    //optimismSepolia Config
-    await prover.setChainConfiguration(
-      networks.optimismSepolia.chainId,
-      networks.optimismSepolia.proving.mechanism,
-      networks.optimismSepolia.proving.settlementChain.id,
-      networks.optimismSepolia.proving.settlementChain.contract,
-      await blockhashOracle.getAddress(),
-      networks.optimismSepolia.proving.outputRootVersionNumber,
-    )
+    const optimismSepoliaChainConfiguration = {
+      chainId: networks.optimismSepolia.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.optimismSepolia.proving.mechanism,
+        settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
+        settlementContract:
+          networks.optimismSepolia.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.optimismSepolia.proving.outputRootVersionNumber,
+      },
+    }
+    const proverContract = await ethers.getContractFactory('Prover')
+    prover = await proverContract.deploy([
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+    ])
   })
 
   it('test ethers functions', async () => {
@@ -105,28 +108,6 @@ describe('Prover Unit Tests', () => {
     expect('0x56315b90c40730925ec5485cf004d835058518A0').to.equal(
       getAddress('0x56315b90c40730925ec5485cf004d835058518A0'),
     )
-  })
-  it('test setChainConfiguration', async () => {
-    const baseSepoliaChainConfiguration = await prover.chainConfigurations(
-      networkIds.baseSepolia,
-    )
-    // expect(baseSepoliaChainConfiguration.provingMechanism).to.equal(
-    //   networks.baseSepolia.chainId) //chainId
-    expect(baseSepoliaChainConfiguration.provingMechanism).to.equal(
-      networks.baseSepolia.proving.mechanism,
-    ) //provingMechanism
-    expect(baseSepoliaChainConfiguration.settlementChainId).to.equal(
-      networks.baseSepolia.proving.settlementChain.id,
-    ) //settlementChainId
-    expect(baseSepoliaChainConfiguration.settlementContract).to.equal(
-      networks.baseSepolia.proving.settlementChain.contract,
-    ) //settlementContract
-    expect(baseSepoliaChainConfiguration.blockhashOracle).to.equal(
-      await blockhashOracle.getAddress(),
-    ) //blockhashOracle
-    expect(baseSepoliaChainConfiguration.outputRootVersionNumber).to.equal(
-      networks.baseSepolia.proving.outputRootVersionNumber,
-    ) //outputRootVersionNumber
   })
   it('test generateOutputRoot', async () => {
     const cannonRootClaimFromProver = await prover.generateOutputRoot(
@@ -212,6 +193,8 @@ describe('Prover End to End Tests', () => {
   let claimantSigner: SignerWithAddress
   let proverSigner: SignerWithAddress
   let recipientSigner: SignerWithAddress
+  let prover
+  let blockhashOracle
 
   before(async () => {
     ;[
@@ -223,9 +206,6 @@ describe('Prover End to End Tests', () => {
       recipientSigner,
     ] = await ethers.getSigners()
   })
-
-  let prover
-  let blockhashOracle
 
   beforeEach(async () => {
     blockhashOracle = await deploy(deployerSigner, MockL1Block__factory)
@@ -240,46 +220,50 @@ describe('Prover End to End Tests', () => {
       0,
       0,
     )
-
-    const proverContract = await ethers.getContractFactory('Prover')
-    prover = await upgrades.deployProxy(
-      proverContract,
-      [deployerSigner.address],
-      {
-        initializer: 'initialize',
-        kind: 'uups',
+    const baseSepoliaChainConfiguration = {
+      chainId: networks.baseSepolia.chainId, //chainId
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, //provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, //settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, //settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), //blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
       },
-    )
+    }
 
-    //baseSepolia Config
-    await prover.setChainConfiguration(
-      networks.baseSepolia.chainId, //chainId
-      networks.baseSepolia.proving.mechanism, //provingMechanism
-      networks.baseSepolia.proving.settlementChain.id, //settlementChainId
-      networks.baseSepolia.proving.settlementChain.contract, //settlementContract
-      await blockhashOracle.getAddress(), //blockhashOracle
-      networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
-    )
+    const optimismSepoliaChainConfiguration = {
+      chainId: networks.optimismSepolia.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.optimismSepolia.proving.mechanism,
+        settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
+        settlementContract:
+          networks.optimismSepolia.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.optimismSepolia.proving.outputRootVersionNumber,
+      },
+    }
 
-    //optimismSepolia Config
-    await prover.setChainConfiguration(
-      networks.optimismSepolia.chainId,
-      networks.optimismSepolia.proving.mechanism,
-      networks.optimismSepolia.proving.settlementChain.id,
-      networks.optimismSepolia.proving.settlementChain.contract,
-      await blockhashOracle.getAddress(),
-      networks.optimismSepolia.proving.outputRootVersionNumber,
-    )
-
-    //ecoTestNet Config
-    await prover.setChainConfiguration(
-      networks.ecoTestNet.chainId,
-      networks.ecoTestNet.proving.mechanism,
-      networks.ecoTestNet.proving.settlementChain.id,
-      networks.ecoTestNet.proving.settlementChain.contract,
-      await blockhashOracle.getAddress(),
-      networks.ecoTestNet.proving.outputRootVersionNumber,
-    )
+    const ecoTestNetChainConfiguration = {
+      chainId: networks.ecoTestNet.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.ecoTestNet.proving.mechanism,
+        settlementChainId: networks.ecoTestNet.proving.settlementChain.id,
+        settlementContract:
+          networks.ecoTestNet.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.ecoTestNet.proving.outputRootVersionNumber,
+      },
+    }
+    const proverContract = await ethers.getContractFactory('Prover')
+    prover = await proverContract.deploy([
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+      ecoTestNetChainConfiguration,
+    ])
   })
   it('test proveSettlementLayerState', async () => {
     await prover.proveSettlementLayerState(

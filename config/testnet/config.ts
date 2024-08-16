@@ -82,9 +82,9 @@ const networks: any = {
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
-    intentSourceAddress: '0xA52662AAef7370bf029d78eb9D9CdD66dc474F75',
-    proverContractAddress: '0x82cd1fBE5fF76045F2dEaD6907E80A0176e733d2', // implementation 0x3d00187B8B66d54A642e1efce811242886141202
-    inboxAddress: '0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7',
+    intentSourceAddress: '0x9F414AafE770f176b0228D5F7de20Ad9E883D3d7',
+    proverContractAddress: '0x14fecaD350023FC5928919645Ddd7e670B8aaD6C',
+    inboxAddress: '0xA2cCc892b920ecBb23976Cb44CdA646AB58019AF',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -111,9 +111,9 @@ const networks: any = {
   baseSepolia: {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
-    intentSourceAddress: '0x5C9346960AFa8F810529DFcd95394B1a3CEb10b6',
-    proverContractAddress: '0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf', // immplementation 0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72
-    inboxAddress: '0x5ACc1a4b80a659F037498336C695D25f889ea33b',
+    intentSourceAddress: '0x4df739d075095B54C33f5E79B10d1284577e2d20',
+    proverContractAddress: '0x0CA4437E8f89a5C9b3569Cd430E89E72B2e26bFf',
+    inboxAddress: '0x3B4232f5c2dC798Cc07424d26562c097D6100900',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -149,9 +149,9 @@ const networks: any = {
     chainId: networkIds.ecoTestNet,
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
-    intentSourceAddress: '0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8',
-    proverContractAddress: '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394', // implementation 0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4
-    inboxAddress: '0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1',
+    intentSourceAddress: '0x39546369CF6519e59a55017fe9f3E3a23B1E4Ee1',
+    proverContractAddress: '0xe547628e5F7AEf5FEd847491b36Bf8bbF30E93E1',
+    inboxAddress: '0x8072670e25dEE8CBAD3610052CCd5606993B9C1c',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
