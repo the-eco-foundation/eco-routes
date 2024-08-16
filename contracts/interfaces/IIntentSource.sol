@@ -97,6 +97,12 @@ interface IIntentSource {
     ) external;
 
     /**
+     * @notice allows withdrawal of reward funds locked up for a given intent
+     * @param _hash the key corresponding to this intent in the intents mapping
+     */
+    function withdrawRewards(bytes32 _hash) external;
+
+    /**
      * @notice allows withdrawal of reward funds locked up for a given intent to a given destination
      * @param _hash the key corresponding to this intent in the intents mapping
      * @param _destination the destination address for the reward funds

@@ -120,7 +120,11 @@ contract IntentSource is IIntentSource {
         );
     }
 
-    function withdrawTo(bytes32 _hash, address _destination) external {
+    function withdrawRewards(bytes32 _hash) public {
+        withdrawTo(_hash, msg.sender);
+    }
+
+    function withdrawTo(bytes32 _hash, address _destination) public {
         Intent memory intent = intents[_hash];
         address prover = intent.prover;
         address claimant = BaseProver(prover).provenIntents(_hash);
