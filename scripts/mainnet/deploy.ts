@@ -31,38 +31,35 @@ console.log('Deploying to Network: ', network.name)
 async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
+  const baseChainConfiguration = {
+    chainId: networks.base.chainId, // chainId
+    chainConfiguration: {
+      provingMechanism: networks.base.proving.mechanism, // provingMechanism
+      settlementChainId: networks.base.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.base.proving.settlementChain.contract, // settlementContract
+      blockhashOracle: networks.base.proving.l1BlockAddress, // blockhashOracle
+      outputRootVersionNumber: networks.base.proving.outputRootVersionNumber, // outputRootVersionNumber
+    },
+  }
+
+  const optimismChainConfiguration = {
+    chainId: networks.optimism.chainId,
+    chainConfiguration: {
+      provingMechanism: networks.optimism.proving.mechanism,
+      settlementChainId: networks.optimism.proving.settlementChain.id,
+      settlementContract: networks.optimism.proving.settlementChain.contract,
+      blockhashOracle: networks.optimism.proving.l1BlockAddress,
+      outputRootVersionNumber:
+        networks.optimism.proving.outputRootVersionNumber,
+    },
+  }
 
   const proverFactory = await ethers.getContractFactory('Prover')
-  const prover = await upgrades.deployProxy(proverFactory, [deployer.address], {
-    initializer: 'initialize',
-    kind: 'uups',
-  })
-  console.log('prover proxy deployed to:', await prover.getAddress())
-  console.log(
-    'prover implementation deployed to: ',
-    await upgrades.erc1967.getImplementationAddress(await prover.getAddress()),
-  )
-  // current deploy involves setting chain configuration for all Destination chains
-  // We use different configuration files for each environment
-  // optimismSepolia Config
-  await prover.setChainConfiguration(
-    networks.optimism.chainId,
-    networks.optimism.proving.mechanism,
-    networks.optimism.proving.settlementChain.id,
-    networks.optimism.proving.settlementChain.contract,
-    networks.optimism.proving.l1BlockAddress,
-    networks.optimism.proving.outputRootVersionNumber,
-  )
-
-  // BaseSepolia Config
-  await prover.setChainConfiguration(
-    networks.base.chainId,
-    networks.base.proving.mechanism,
-    networks.base.proving.settlementChain.id,
-    networks.base.proving.settlementChain.contract,
-    networks.base.proving.l1BlockAddress,
-    networks.base.proving.outputRootVersionNumber,
-  )
+  const prover = await proverFactory.deploy([
+    baseChainConfiguration,
+    optimismChainConfiguration,
+  ])
+  console.log('prover implementation deployed to: ', await prover.getAddress())
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
@@ -73,17 +70,11 @@ async function main() {
       await run('verify:verify', {
         address: await prover.getAddress(),
         // constructorArguments: [l1BlockAddressSepolia, deployer.address],
+        constructorArguments: [
+          [baseChainConfiguration, optimismChainConfiguration],
+        ],
       })
-      console.log('prover proxy verified at:', await prover.getAddress())
-      await run('verify:verify', {
-        address: await upgrades.erc1967.getImplementationAddress(
-          await prover.getAddress(),
-        ),
-      })
-      console.log(
-        'prover implementation verified at:',
-        await prover.getAddress(),
-      )
+      console.log('prover  verified at:', await prover.getAddress())
     }
   } catch (e) {
     console.log(`Error verifying prover`, e)
