@@ -3,7 +3,7 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IIntentSource.sol";
-import "./interfaces/BaseProver.sol";
+import "./interfaces/SimpleProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -127,7 +127,7 @@ contract IntentSource is IIntentSource {
     function withdrawTo(bytes32 _hash, address _destination) public {
         Intent memory intent = intents[_hash];
         address prover = intent.prover;
-        address claimant = BaseProver(prover).provenIntents(_hash);
+        address claimant = SimpleProver(prover).provenIntents(_hash);
         if (!intent.hasBeenWithdrawn) {
             if (
                 msg.sender == claimant
