@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import hre from 'hardhat'
 import { TestERC20, IntentSource, TestProver, Inbox } from '../typechain-types'
 import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { keccak256, BytesLike } from 'ethers'
+import { keccak256, BytesLike, Signer } from 'ethers'
 import { encodeIdentifier, encodeTransfer } from '../utils/encode'
 const { ethers } = hre
 
@@ -15,6 +15,8 @@ describe('Intent Source Test', (): void => {
   let tokenB: TestERC20
   let creator: SignerWithAddress
   let solver: SignerWithAddress
+  let claimant: SignerWithAddress
+  let otherAddress: SignerWithAddress
   const mintAmount: number = 1000
   const minimumDuration = 1000
 
@@ -34,9 +36,11 @@ describe('Intent Source Test', (): void => {
     tokenB: TestERC20
     creator: SignerWithAddress
     solver: SignerWithAddress
-    owner: SignerWithAddress
+    claimant: SignerWithAddress
+    otherAddress: SignerWithAddress
   }> {
-    const [creator, solver, owner] = await ethers.getSigners()
+    const [creator, solver, owner, claimant, otherAddress] =
+      await ethers.getSigners()
 
     // deploy prover
     prover = await (await ethers.getContractFactory('TestProver')).deploy()
@@ -59,7 +63,8 @@ describe('Intent Source Test', (): void => {
       tokenB,
       creator,
       solver,
-      owner,
+      claimant,
+      otherAddress,
     }
   }
 
@@ -72,8 +77,16 @@ describe('Intent Source Test', (): void => {
   }
 
   beforeEach(async (): Promise<void> => {
-    ;({ intentSource, prover, tokenA, tokenB, creator, solver } =
-      await loadFixture(deploySourceFixture))
+    ;({
+      intentSource,
+      prover,
+      tokenA,
+      tokenB,
+      creator,
+      solver,
+      claimant,
+      otherAddress,
+    } = await loadFixture(deploySourceFixture))
 
     // fund the creator and approve it to create an intent
     await mintAndApprove()
@@ -354,44 +367,79 @@ describe('Intent Source Test', (): void => {
       beforeEach(async (): Promise<void> => {
         await prover
           .connect(creator)
-          .addProvenIntent(intentHash, await solver.getAddress())
+          .addProvenIntent(intentHash, claimant.address)
       })
-      it('cannot be withdrawn by non-solver', async () => {
+      it('cannot be withdrawn by non-claimant', async () => {
         await expect(
           intentSource.connect(creator).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
       })
-      it('can be withdrawn by solver', async () => {
+      it('can be withdrawn by claimant', async () => {
         const initialBalanceA = await tokenA.balanceOf(
-          await solver.getAddress(),
+          await claimant.getAddress(),
         )
         const initialBalanceB = await tokenB.balanceOf(
-          await solver.getAddress(),
+          await claimant.getAddress(),
         )
         expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .false
 
-        await intentSource.connect(solver).withdrawRewards(intentHash)
+        await intentSource.connect(claimant).withdrawRewards(intentHash)
 
         expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .true
-        expect(await tokenA.balanceOf(await solver.getAddress())).to.eq(
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
-        expect(await tokenB.balanceOf(await solver.getAddress())).to.eq(
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceB) + rewardAmounts[1],
         )
       })
       it('emits event', async () => {
-        await expect(intentSource.connect(solver).withdrawRewards(intentHash))
+        await expect(intentSource.connect(claimant).withdrawRewards(intentHash))
           .to.emit(intentSource, 'Withdrawal')
-          .withArgs(intentHash, await solver.getAddress())
+          .withArgs(intentHash, await claimant.getAddress())
       })
       it('does not allow repeat withdrawal', async () => {
-        await intentSource.connect(solver).withdrawRewards(intentHash)
+        await intentSource.connect(claimant).withdrawRewards(intentHash)
         await expect(
-          intentSource.connect(solver).withdrawRewards(intentHash),
+          intentSource.connect(claimant).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, 'NothingToWithdraw')
+      })
+      it('allows claimant to withdraw to another address', async () => {
+        const initialBalanceA = await tokenA.balanceOf(otherAddress.address)
+        const initialBalanceB = await tokenB.balanceOf(otherAddress.address)
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .false
+
+        await intentSource
+          .connect(claimant)
+          .withdrawTo(intentHash, otherAddress.address)
+
+        expect(await tokenA.balanceOf(otherAddress.address)).to.eq(
+          Number(initialBalanceA) + rewardAmounts[0],
+        )
+        expect(await tokenB.balanceOf(otherAddress.address)).to.eq(
+          Number(initialBalanceB) + rewardAmounts[1],
+        )
+      })
+      it('allows prover to withdraw to another address', async () => {
+        // only happens in the event of proveAndClaim, this test only checks the func on the IntentSource contract
+        const initialBalanceA = await tokenA.balanceOf(otherAddress.address)
+        const initialBalanceB = await tokenB.balanceOf(otherAddress.address)
+        await prover
+          .connect(claimant)
+          .dummyProveAndClaim(
+            intentHash,
+            await intentSource.getAddress(),
+            otherAddress.address,
+          ) 
+        expect(await tokenA.balanceOf(otherAddress.address)).to.eq(
+          Number(initialBalanceA) + rewardAmounts[0],
+        )
+        expect(await tokenB.balanceOf(otherAddress.address)).to.eq(
+          Number(initialBalanceB) + rewardAmounts[1],
+        )
       })
     })
     context('after expiry, no proof', () => {

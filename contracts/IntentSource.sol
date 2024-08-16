@@ -47,6 +47,7 @@ contract IntentSource is IIntentSource {
      * The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent solver.
      * @dev The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.
      * @param _destinationChainID the destination chain
+     * @param _inbox the address of the inbox contract on the destination chain
      * @param _targets the addresses on _destinationChainID at which the instructions need to be executed
      * @param _data the instruction sets to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
