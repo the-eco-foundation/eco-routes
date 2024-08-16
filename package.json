@@ -28,7 +28,7 @@
     "format": "concurrently 'npm:format:*'",
     "format:eslint": "eslint --fix --ext .js,.ts,.tsx .",
     "format:prettier": "prettier --write .",
-    "formatSol": "solhint --fix contracts/**/*.sol",
+    "format:solhint": "solhint --fix --noPrompt contracts/**/*.sol",
     "depcheck": "depcheck --ignore-bin-package --ignores @openzeppelin/contracts,@openzeppelin/contracts-upgradeable,prettier-plugin-solidity,solhint-plugin-eco,concurrently,@types/mocha",
     "lint": "yarn format",
     "build": "hardhat compile",

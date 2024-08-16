@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import "IntentSource.sol";
+import "./IntentSource.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
@@ -458,7 +458,7 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes calldata rlpEncodedInboxData,
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
-    ) public {
+    ) public returns (bytes32) {
         // ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         BlockProof memory existingBlockProof = provenStates[chainId];
         require(existingBlockProof.stateRoot == l2WorldStateRoot, "destination chain state root not yet proved");
@@ -488,9 +488,11 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         proveAccount(abi.encodePacked(inboxContract), rlpEncodedInboxData, l2AccountProof, l2WorldStateRoot);
 
         provenIntents[intentHash] = claimant;
+        
+        return intentHash;
     }
 
-    proveAndClaim(
+    function proveAndClaim(
         uint256 chainId, //the destination chain id of the intent we are proving
         address claimant,
         address inboxContract,
@@ -498,11 +500,12 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         bytes[] calldata l2StorageProof,
         bytes calldata rlpEncodedInboxData,
         bytes[] calldata l2AccountProof,
-        bytes32 l2WorldStateRoot
+        bytes32 l2WorldStateRoot,
+        address destination
     ) public {
         if (msg.sender == claimant) {
-            proveIntent(chainId, claimant, inboxContract, intermediateHash, l2StorageProof, rlpEncodedInboxData, l2AccountProof, l2WorldStateRoot);
-            intentSource
+            bytes32 intentHash = proveIntent(chainId, claimant, inboxContract, intermediateHash, l2StorageProof, rlpEncodedInboxData, l2AccountProof, l2WorldStateRoot);
+            IntentSource(chainConfigurations[block.chainid].settlementContract).withdrawTo(intentHash, destination);
         }
     }
 }
