@@ -124,17 +124,9 @@ contract IntentSource is IIntentSource {
 
     function withdrawTo(bytes32 _hash, address _destination) external {
         Intent memory intent = intents[_hash];
-        if (msg.sender == intent.prover || msg.sender == intent.claimant) {
-            _withdrawTo(_hash, _destination);
-            return;
-        }
-        revert UnauthorizedWithdrawal(_hash);
-    }
-
-    function _withdrawTo(bytes32 _hash, address _destination) internal {
-        Intent storage intent = intents[_hash];
         address claimant = PROVER.provenIntents(_hash);
         if (!intent.hasBeenWithdrawn) {
+            if (msg.sender == claimant || msg.sender == PROVER)
             if (
                 claimant == _destination
                     || claimant == address(0) && _destination == intent.creator && block.timestamp > intent.expiryTime
