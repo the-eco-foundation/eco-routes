@@ -126,7 +126,7 @@ contract IntentSource is IIntentSource {
     }
 
     function withdrawTo(bytes32 _hash, address _destination) public {
-        Intent memory intent = intents[_hash];
+        Intent storage intent = intents[_hash];
         address prover = intent.prover;
         address claimant = SimpleProver(prover).provenIntents(_hash);
         if (!intent.hasBeenWithdrawn) {

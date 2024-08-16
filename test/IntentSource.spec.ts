@@ -386,14 +386,15 @@ describe('Intent Source Test', (): void => {
 
         await intentSource.connect(claimant).withdrawRewards(intentHash)
 
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .true
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
         expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceB) + rewardAmounts[1],
         )
+
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .true
       })
       it('emits event', async () => {
         await expect(intentSource.connect(claimant).withdrawRewards(intentHash))
@@ -433,7 +434,7 @@ describe('Intent Source Test', (): void => {
             intentHash,
             await intentSource.getAddress(),
             otherAddress.address,
-          ) 
+          )
         expect(await tokenA.balanceOf(otherAddress.address)).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
