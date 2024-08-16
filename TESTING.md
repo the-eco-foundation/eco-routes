@@ -1,313 +1,313 @@
-# Testing Overview - Sepolia Testnet
+# Testing Notes
 
-## Overview
-
-This document outlines how to test the intent protocol in the Sepolia testnet environment.
-
-For the purposes of the inital walkthrough we use the following chains
-
-1. Optimism Sepolia - Source chain where intents are created and funds are claimed by the solver.
-2. Base Sepolia - destination chain where intents are solved by solvers transferring funds to the recipients via the Inbox.sol
-3. Sepolia - Layer 1 used in proof generation to ensure that solver transactions on the destination chain (Base, an optimistic rollup) have been "settled" on the Layer 1 chain. _Note: Both Optimism Sepolia and Base Sepolia settle to the Sepolia Chain._
-
-It runs through two use cases
-
-1. Positive Walkthrough: An intent is created, solved and funds claimed.
-
-- An intent is created on the source chain interacting with `IntentSource.sol` on Optimism Sepolia
-- A solver solves the destination chain by fullfilling the intent via `IntentSource.sol`
-- A proof is generated for the solved intent and the intent is marked as proven on the source chain via `Prover.sol`
-- Funds are claimed by the solver on the source chain via `IntentSource.sol` which checks if the intent has been proven via `Prover.sol`
-
-2. Clawback - Intent creator claws back funds after intent goes unsolved.
-
-- An intent is created on the source chain interacting with `IntentSource.sol` on Optimism Sepolia
-- Funds are claimed by the intent creator on the source chain via `IntentSource.sol` which ensures that the intent execution period has expired and that the intent has not been proven via `Prover.sol`
-
-## Existing Contracts
+## Master Data
 
 ### Mainnet
 
-#### Ethereum - L1
+- Base L2 Output Oracle: [0x56315b90c40730925ec5485cf004d835058518A0](https://etherscan.io/address/0x56315b90c40730925ec5485cf004d835058518A0#readProxyContract)
+- Optimism DisputeGameFactory: [0xe5965Ab5962eDc7477C8520243A95517CD252fA9](https://etherscan.io/address/0xe5965Ab5962eDc7477C8520243A95517CD252fA9)
 
-| Contract                | Address                                                                                                               | Description                                                                                                                                                                           |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| L2_OUTPUT_ORACLE (BASE) | [0x56315b90c40730925ec5485cf004d835058518A0](https://etherscan.io/address/0x56315b90c40730925ec5485cf004d835058518A0) | Settles a batch of blocks (1800) from L2 Base to L1 Ethereum - Every 1 hour _Note: The batch being settled may have had it's last block created 20 or 30 minutes before it's settled_ |
+### Base
 
-#### Optimism - L2 Source Chain
+- intentSourceAddress: [0xb42d852beE31e810018f311653d2cC4ce7993c6D](https://basescan.org/address/0xb42d852beE31e810018f311653d2cC4ce7993c6D)
+- proverContractAddress: [0x5cAC9aB2472BE60271622F81d7961c96078b685D](https://basescan.org/address/0x5cAC9aB2472BE60271622F81d7961c96078b685D)
+  - immplementation [0x415Ad42b1983C1bbC007b2047bF21f60FdeFA0Da](https://basescan.org/address/0x415Ad42b1983C1bbC007b2047bF21f60FdeFA0Da)
+- inboxAddress: [0x2e8C9a05804b0Ff497C71950E2Ddd506AcDd602b](https://basescan.org/address/0x2e8C9a05804b0Ff497C71950E2Ddd506AcDd602b)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://basescan.org/address/0x4200000000000000000000000000000000000015)
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://basescan.org/address/0x4200000000000000000000000000000000000016)
+- usdcAddress: [0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913](https://basescan.org/address/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)
 
-| Contract      | Address                                                                                                                          | Description                                                                                                                                                                                                                            |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| L1BLOCK       | [0x4200000000000000000000000000000000000015](https://optimistic.etherscan.io/address/0x4200000000000000000000000000000000000015) | Updates L2 Optimism with the latest block information from L1 Ethreum every time a new block is generated on L2 Optimsm (every 2 seconds). Only stores the last blocks information                                                     |
-| PROVER        | [0x3812325c34CFb3144b15B6E69cB5Bb7357624c26](https://optimistic.etherscan.io/address/0x3812325c34CFb3144b15B6E69cB5Bb7357624c26) | Proving Contract includes functionality to prove L1 and L2 states and intents. Also has helper functions. This contract is checked by INTENT_SOURCE when withdrawing funds or doing a clawback.                                        |
-| INTENT_SOURCE | [0x5F8c665a76c65E34A7Ff88c4EbF68D64596f84B7](https://optimistic.etherscan.io/address/0x5F8c665a76c65E34A7Ff88c4EbF68D64596f84B7) | Intent Management Contract on the source chain. Includes creation, query, clawback and withdrawal function for intents keyed by inent_hash. Sample intent_hash is `0xf09d47657185c335e6875b60bd5791fe35589762667b32fb4b90d38d6e46a8b0` |
-| USDC          | [0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85](https://optimistic.etherscan.io/address/0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85) | StableCoin used in intents.                                                                                                                                                                                                            |
+### Optimism
 
-#### Base - L2 Destination Chain
+- intentSourceAddress: [0x82d64aB9f63Db4D46da927500815928C5E54b966](https://optimism.blockscout.com/address/0x82d64aB9f63Db4D46da927500815928C5E54b966?tab=contract)
+- proverContractAddress: [0xC2E2147b859e1C3907D880779045dEFACC5d1392](https://optimism.blockscout.com/address/0xC2E2147b859e1C3907D880779045dEFACC5d1392)
+  - implementation [0x0B2c4477B1F3bEc34089De8Be5D7C35cA1CB3C5B](https://optimism.blockscout.com/address/0x0B2c4477B1F3bEc34089De8Be5D7C35cA1CB3C5B)
+- inboxAddress: [0xDf12CB20794FeeACA3e6a444e5413d36DA3E03c3](https://optimism.blockscout.com/address/0xDf12CB20794FeeACA3e6a444e5413d36DA3E03c3)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://optimism.blockscout.com/address/0x4200000000000000000000000000000000000015)
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://optimism.blockscout.com/address/0x4200000000000000000000000000000000000016)
+- usdcAddress: [0x0b2c639c533813f4aa9d7837caf62653d097ff85](https://optimism.blockscout.com/address/0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85)
 
-| Contract             | Address                                                                                                               | Description                                                                                                                                                                                                |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| L2_L1_MESSAGE_PARSER | [0x4200000000000000000000000000000000000016](https://basescan.org/address/0x4200000000000000000000000000000000000016) | a dedicated contract where messages that are being sent from L2 to L1 are stored.                                                                                                                          |
-| INBOX                | [0xAca455CCfbE4F02b2091413ECe0EF2424eb8D6fb](https://basescan.org/address/0xAca455CCfbE4F02b2091413ECe0EF2424eb8D6fb) | Inbox contract manages the fulfillment of Intents by Solvers it allows querying of whether intents are fullfilled by intent_hash e.g. `0x1d528d2dddf799f19ab967bda28276cb6024bf9afbe5fe2aa76664bc42679496` |
-| USDC                 | [0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913](https://basescan.org/address/0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913) | StableCoin used in intents.                                                                                                                                                                                |
+### Sepolia
 
-#### Sample Transaction Walkthrough
+- Base Dispute Game Factory : [0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1](https://sepolia.etherscan.io/address/0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1)
+- Optimism Dispute Game Factory: [0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1](https://sepolia.etherscan.io/address/0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1)
 
-| Event                | Transaction                                                                                                                                                                 | Key                                                                                                                                                                                                                        |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Intent Created       | [0xa13aa246bcc451926eddef55d52dfd878e2daaff54b3a549db7c29f602f9e9da](https://optimistic.etherscan.io/tx/0xa13aa246bcc451926eddef55d52dfd878e2daaff54b3a549db7c29f602f9e9da) | Intent Hash: `0xf09d47657185c335e6875b60bd5791fe35589762667b32fb4b90d38d6e46a8b0`                                                                                                                                          |
-| Intent Fulfillment   | [0xe3af9e0562d411947ca5c20cb5c9491cd9186cc74a0cbf4a063583ccd1738a3f](https://basescan.org/tx/0xe3af9e0562d411947ca5c20cb5c9491cd9186cc74a0cbf4a063583ccd1738a3f)            | L1 Batch: `9329`, L1 Settlement Tx (Ethereum): `0x9abd36b0ed743dbb7c95ee2c153915197976572732bad41b757cbbb0812a95b5` L1 Settlement Block (Ethereum): `20256551` (`0x1351727`) L2 last block in batch 16794000 (`0x1004190`) |
-| Prove L1 World State | [0xc779b86f1d11bc11ac230e59546b5dccbcc23b6bfd28be24b6ae390c30fba54f](https://optimistic.etherscan.io/tx/0xc779b86f1d11bc11ac230e59546b5dccbcc23b6bfd28be24b6ae390c30fba54f) | Block: `20256604` (`0x135175c`) , L1 World State Root: `0x94b1eb2dd2a7fdc40aa29fb901320e45de020095947a7210741c15c471a19532`                                                                                                |
-| Prove L2 World State | [0x8504d3a986bb69a0eaed698ba15d3f571d24dc36595aa91bfb0b47a1df7baef8](https://optimistic.etherscan.io/tx/0x8504d3a986bb69a0eaed698ba15d3f571d24dc36595aa91bfb0b47a1df7baef8) | L1 Batch: `9329`                                                                                                                                                                                                           |
-| Prove Intent         | [0x4a5d7b9a900de6bc85d9940980e5f8251eeadc85d5fd99c008c7f39fa9847d6e](https://optimistic.etherscan.io/tx/0x4a5d7b9a900de6bc85d9940980e5f8251eeadc85d5fd99c008c7f39fa9847d6e) | Intent Hash: `0xf09d47657185c335e6875b60bd5791fe35589762667b32fb4b90d38d6e46a8b0`                                                                                                                                          |
-| Withdrawal           | [0xa87184a979460c41ffc02ed4da857e38c76f2722b9113331e053a7f6f3bf7bec](https://optimistic.etherscan.io/tx/0xa87184a979460c41ffc02ed4da857e38c76f2722b9113331e053a7f6f3bf7bec) | Intent Hash: `0xf09d47657185c335e6875b60bd5791fe35589762667b32fb4b90d38d6e46a8b0`                                                                                                                                          |
+### BaseSepolia
 
-### Testnet
+- ECO L2 Output Oracle Address: [0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951](https://sepolia.basescan.org/address/0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951)
+- intentSourceAddress: [0x5C9346960AFa8F810529DFcd95394B1a3CEb10b6](https://sepolia.basescan.org/address/0x5C9346960AFa8F810529DFcd95394B1a3CEb10b6)
+- proverContractAddress: [0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf](https://sepolia.basescan.org/address/0x653c1bb2960971abb626ebd12ff4591d8157efaf)
+  - immplementation [0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72](https://sepolia.basescan.org/address/0xea7b55dcf75238e675bb4bbbf8deac2fd2292c72#code)
+- inboxAddress: [0x5ACc1a4b80a659F037498336C695D25f889ea33b](https://sepolia.basescan.org/address/0x5acc1a4b80a659f037498336c695d25f889ea33b)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://sepolia.basescan.org/address/0x4200000000000000000000000000000000000015)
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://sepolia.basescan.org/address/0x4200000000000000000000000000000000000016),
 
-#### Sepolia - L1
+### OptimismSepolia
 
-| Contract                | Address                                                                                                                       | Description                                                                  |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| L2_OUTPUT_ORACLE (BASE) | [0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254](https://sepolia.etherscan.io/address/0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254) | Settles a batch of blocks (120) from L2 Base to L1 Sepolia - Every 3 minutes |
+- intentSourceAddress: [0xA52662AAef7370bf029d78eb9D9CdD66dc474F75](https://optimism-sepolia.blockscout.com/address/0xA52662AAef7370bf029d78eb9D9CdD66dc474F75)
+- proverContractAddress: [0x82cd1fBE5fF76045F2dEaD6907E80A0176e733d2](https://optimism-sepolia.blockscout.com/address/0x82cd1fBE5fF76045F2dEaD6907E80A0176e733d2)
+  - implementation [0x3d00187B8B66d54A642e1efce811242886141202](https://optimism-sepolia.blockscout.com/address/0x3d00187B8B66d54A642e1efce811242886141202)
+- inboxAddress: [0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7](https://optimism-sepolia.blockscout.com/address/0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://optimism-sepolia.blockscout.com/address/0x4200000000000000000000000000000000000015)
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://optimism-sepolia.blockscout.com/address/0x4200000000000000000000000000000000000016)
 
-#### Sepolia Optimism - L2 Source Chain
+### ECO Testnet
 
-| Contract      | Address                                                                                                                                  | Description                                                                                                                                                                                                                            |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| L1BLOCK       | [0x4200000000000000000000000000000000000015](https://sepolia-optimism.etherscan.io/address/0x4200000000000000000000000000000000000015)   | Updates L2 Sepolia Optimism with the latest block information from L1 Sepolia every time a new block is generated on L2 Sepolia Optimsm (every 3 seconds). Only stores the last blocks information                                     |
-| PROVER        | [0x6798EbAf16b2E23EfcaD15Fe3493f25D6ed1C892](https://optimism-sepolia.blockscout.com/address/0x6798EbAf16b2E23EfcaD15Fe3493f25D6ed1C892) | Proving Contract includes functionality to prove L1 and L2 states and intents. Also has helper functions. This contract is checked by INTENT_SOURCE when withdrawing funds or doing a clawback.                                        |
-| INTENT_SOURCE | [0xc61Ac926D7efE2251CdFeae384F75222FDAe7a3F](https://optimism-sepolia.blockscout.com/address/0xc61Ac926D7efE2251CdFeae384F75222FDAe7a3F) | Intent Management Contract on the source chain. Includes creation, query, clawback and withdrawal function for intents keyed by inent_hash. Sample intent_hash is `0xbf9af46bbf718cc390386e4e033b97c5def219860453ea75f72be357fc9e209e` |
-| USDC          | [0x5fd84259d66Cd46123540766Be93DFE6D43130D7](https://sepolia-optimism.etherscan.io/address/0x5fd84259d66Cd46123540766Be93DFE6D43130D7)   | StableCoin used in intents, The faucet is [here](https://faucet.circle.com/)                                                                                                                                                           |
+- intentSourceAddress: [0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8](https://eco-testnet.explorer.caldera.xyz/address/0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8)
+- proverContractAddress: [0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394](https://eco-testnet.explorer.caldera.xyz/address/0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394)
+  - implementation [0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4](https://eco-testnet.explorer.caldera.xyz/address/0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4)
+- inboxAddress: [0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1](https://eco-testnet.explorer.caldera.xyz/address/0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1)
+- l1BlockAddress: [0x4200000000000000000000000000000000000015](https://eco-testnet.explorer.caldera.xyz/address/0x4200000000000000000000000000000000000015),
+- l2l1MessageParserAddress: [0x4200000000000000000000000000000000000016](https://eco-testnet.explorer.caldera.xyz/address/0x4200000000000000000000000000000000000016),
 
-#### Sepolia Base - L2 Destination Chain
+## BEND MVP Initial Tests (OptimismSepolia <-> BaseSepolia)
 
-| Contract             | Address                                                                                                                              | Description                                                                                                                                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| L2_L1_MESSAGE_PARSER | [0x4200000000000000000000000000000000000016](https://sepolia.basescan.org/address/0x4200000000000000000000000000000000000016)        | a dedicated contract where messages that are being sent from L2 to L1 can be stored.                                                                                                                       |
-| INBOX                | [0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3](https://sepolia.basescan.org/address/0xf820639A8508cbA7E9F2C26FC43e61b2342A25B3)        | Inbox contract manages the fulfillment of Intents by Solvers it allows querying of whether intents are fullfilled by intent_hash e.g. `0xbf9af46bbf718cc390386e4e033b97c5def219860453ea75f72be357fc9e209e` |
-| USDC                 | [0x036CbD53842c5426634e7929541eC2318f3dCF7e](https://base-sepolia.blockscout.com/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e) | StableCoin used in intents, The faucet is [here](https://faucet.circle.com/)                                                                                                                               |
+Created Friday August 2nd 7:30 a.m. PST
 
-#### Sepolia Sample Transaction Walkthrough
+### BaseSepolia to OptimismSepolia
 
-| Event                | Transaction                                                                                                                                                                         | Key                                                                                                                                                                                                                     |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Intent Created       | [0x3f4260595272698fe5768788b6a8d9b3468719b3debb2dc83a05013c07a9c89b](https://optimism-sepolia.blockscout.com/tx/0x3f4260595272698fe5768788b6a8d9b3468719b3debb2dc83a05013c07a9c89b) | Intent Hash: `0xbf9af46bbf718cc390386e4e033b97c5def219860453ea75f72be357fc9e209e`                                                                                                                                       |
-| Intent Fulfillment   | [0xd18aa8558f21f91e15bfb1dc8c9ce11b79e87b47405c060d6b5db838e140117d](https://sepolia.basescan.org/tx/0xd18aa8558f21f91e15bfb1dc8c9ce11b79e87b47405c060d6b5db838e140117d)            | L1 Batch: `102535`, L1 Settlement Tx (Sepolia): `0x5e54688a77610541203b431d241b50ebd2a19661890b1f743b0faf61430c2586` L1 Settlement Block (Sepolia): `6265249` (`0x5f99a1`) L2 last block in batch 12304320 (`0xbbbfc0`) |
-| Prove L1 World State | [0x6cb668c2a7743e7a1f0ccefb86bc901cab729bdf3130231192ab5dd060f3da91](https://optimism-sepolia.blockscout.com/tx/0x6cb668c2a7743e7a1f0ccefb86bc901cab729bdf3130231192ab5dd060f3da91) | Block: `14287628` (`0xda030c`) , L1 World State Root: `0x4f536f797767a4c5855503f0db213f50c276cae72a98dec404cddf5bd5bce85d`                                                                                              |
-| Prove L2 World State | [0x01faabd444db69f54eaa9f7650627a46cbbae52612e5e0b56ab4c18bca597b1c](https://optimism-sepolia.blockscout.com/tx/0x01faabd444db69f54eaa9f7650627a46cbbae52612e5e0b56ab4c18bca597b1c) | L1 Batch: `102535`                                                                                                                                                                                                      |
-| Prove Intent         | [0x2bd8cfa9fa6742060d2b56610b4750673c43d9b43c77a91baf2463f4125aad89](https://optimism-sepolia.blockscout.com/tx/0x2bd8cfa9fa6742060d2b56610b4750673c43d9b43c77a91baf2463f4125aad89) | Intent Hash: `0xbf9af46bbf718cc390386e4e033b97c5def219860453ea75f72be357fc9e209e`                                                                                                                                       |
-| Withdrawal           | [0x7bd39db55a7045412968f0aabd5965af6826bb04cd4b4cd14f938f007e29639e](https://optimism-sepolia.blockscout.com/tx/0x7bd39db55a7045412968f0aabd5965af6826bb04cd4b4cd14f938f007e29639e) | Intent Hash: `0xbf9af46bbf718cc390386e4e033b97c5def219860453ea75f72be357fc9e209e`                                                                                                                                       |
+- Intent hash: `0x803dd6af9ba6cd7a663991af6aa3209ed673a7990a33bad30d0b8fb949f97431`
+- Intent creation transaction (BaseSepolia): [0xc3fb7d676fc0be1d97dfd3ef21f4ac70e88defbfd16043574b1514419cf469c0](https://sepolia.basescan.org/tx/0xc3fb7d676fc0be1d97dfd3ef21f4ac70e88defbfd16043574b1514419cf469c0)
+- Intent Fulfillment Transaction (OptimismSepolia): [0xba066a4b95a037cea856ee06cec6147a03a63e2d9fa90419e8eb91c08a8d4a46](https://optimism-sepolia.blockscout.com/tx/0xba066a4b95a037cea856ee06cec6147a03a63e2d9fa90419e8eb91c08a8d4a46)
+  - Block: `0xeb0703` (15402755)
+  - Batch End Block: `0xEB3E6D` (15416941)
+- Sepolia World State Proof: []()
+- Base World State Proof: []()
+- Intent Proof: []()
+- Intent Withdraw: []()
 
-Additional Links
+Method : `proveWorldStateCannon`
 
-- [Optimsim System Contracts](https://docs.optimism.io/chain/addresses)
-- [Base System Contracts](https://docs.base.org/docs/base-contracts)
+- Fault Dispute Game : [0x356Ccf8597333407EFA4d90BE4A5D123698ABddD](https://sepolia.etherscan.io/address/0x356ccf8597333407efa4d90be4a5d123698abddd)
+- Fault Dispute Game Transaction : [0x7e89685f145c1310e0f6b29d8cad1ccd92d9879745b05f62017179932198cd4a](https://sepolia.etherscan.io/tx/0x7e89685f145c1310e0f6b29d8cad1ccd92d9879745b05f62017179932198cd4a)
+- Fault Dispute Game Transaction Block: `0x620a6a` (6425194)
+- Optimism End Batch Block Number: `0xEB3E6D` (15416941)
+- Fault Dispute Game Resolved Transaction: [](https://sepolia.etherscan.io/tx/0x17dd5ed2466cf981b3d5a20adf4b3f312f0a40b1e601d27d8821cddca1827e28)
+- Fault Dispute Game Resolved Block: `0x6260f8` (6447352)
 
-## Existing Actors
+### OptimismSepolia to BaseSepolia
 
-We use the following accounts for testing in the Sepolia environment.
+- Intent hash: `0x077f226c511238d9138332df343f2131013cd2a5903c7f94a077909469573a77`
+- Intent creation transaction (BaseSepolia): [0x55bf2c3b4de2df30d1d2128fa295cfdc358b4673ff21d2684f68435a29cf9566](https://optimism-sepolia.blockscout.com/tx/0x55bf2c3b4de2df30d1d2128fa295cfdc358b4673ff21d2684f68435a29cf9566)
+- Intent Fulfillment Transaction (OptimismSepolia): [0x17e0c8c48c036770124308249b5997ff17f7789f27c2d66c096523ea15de2e4d](https://sepolia.basescan.org/tx/0x17e0c8c48c036770124308249b5997ff17f7789f27c2d66c096523ea15de2e4d)
+  - Block: `0xccc574` (13419892)
+  - Batch End Block: `0xcd2fe4` (13447140)
+- Sepolia World State Proof: []()
+- Base World State Proof: []()
+- Intent Proof: []()
+- Intent Withdraw: []()
 
-- Deployer : 0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4
-- Intent Creator: 0x448729e46C442B55C43218c6DB91c4633D36dFC0
-- Solver: 0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E
-- Prover: 0x923d4fDfD0Fb231FDA7A71545953Acca41123652
-- Claimaint: 0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58
+Method : `proveWorldStateCannon`
 
-## Pre-requisites
+- Fault Dispute Game : [0x6B69D2F8f92d05383D7Ff504b5CD8ae96BfA737f](https://sepolia.etherscan.io/address/0x6b69d2f8f92d05383d7ff504b5cd8ae96bfa737f)
+- Fault Dispute Game Transaction : [0xdbe93feeec922750a93e07aa52cddec0fc0963e336abe519107d600c7e6ac964](https://sepolia.etherscan.io/tx/0xdbe93feeec922750a93e07aa52cddec0fc0963e336abe519107d600c7e6ac964)
+- Fault Dispute Game Transaction Block: `0x6211fc` (6427132)
+- Base End Batch Block Number: `0xcd2fe4` (13447140)
+- Fault Dispute Game Resolved Transaction: [0x1bdd3346f5ec153301c11b7a9b944b5581f6a737860c24e5d9099dedddd696dc](https://sepolia.etherscan.io/tx/0x1bdd3346f5ec153301c11b7a9b944b5581f6a737860c24e5d9099dedddd696dc)
+- Fault Dispute Game Resolved Block: `0x626891` (6449297)
 
-### Funding
+## ECO Base Initial Tests (Cannon and Self and Bedrock)
 
-For Testing wallets will need ETH and USDC. USDC Testned Addresses can be found [here](https://developers.circle.com/stablecoins/docs/usdc-on-test-networks) and the faucet is [here](https://faucet.circle.com/). Note for Testnet ETH most faucets require a mainnet balance of ETH, so reach out internally and colleagues may be able to transfer ETH to you.
+ETA Monday 7:00 - 8:00 am
 
-The following wallets should be funded for end to end testing.
+### Base Proving (Intent from Base to ECO)
 
-- Deployment Wallet - 0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4
-  - Base Sepoli - ETH
-  - Optimism Sepolia - ETH
-- Intent Creator - 0x448729e46C442B55C43218c6DB91c4633D36dFC0
-  - Optimism Sepolia - ETH, USDC
-- Solver - 0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E
-  - Base Sepolia - ETH, USDC
-- Prover - 0x923d4fDfD0Fb231FDA7A71545953Acca41123652
-  - Optimism Sepolia - ETH
+- Intent Hash: `0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24`
+- Intent Creation Transaction (BaseSepolia): [0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408](https://sepolia.basescan.org/tx/0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408)
+- Intent Fulfillment Transaction (ecoTestNet): [0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5](https://eco-testnet.explorer.caldera.xyz/tx/0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5)
+- Sepolia World State Proof: [0xf9a8973253a82c2025416e4b49e877298b64d219465c4db000e8f02b486ee130](https://sepolia.basescan.org/tx/0xf9a8973253a82c2025416e4b49e877298b64d219465c4db000e8f02b486ee130)
+- Base World State Proof: [0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387](https://sepolia.basescan.org/tx/0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387)
+- ECO World State Proof: [0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c](https://sepolia.basescan.org/tx/0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c)
+- Intent Proof: [0xc233092d052121c8f4a2aae48cf8c684fb2849b9f130c17bfd515d024953cf4a](https://sepolia.basescan.org/tx/0xc233092d052121c8f4a2aae48cf8c684fb2849b9f130c17bfd515d024953cf4a)
+- Intent Withdraw: [0x28d0298bb0a63f7c6e94a6462045065594830e1ffb76dc0d627cba3e68129bb5](https://sepolia.basescan.org/tx/0x28d0298bb0a63f7c6e94a6462045065594830e1ffb76dc0d627cba3e68129bb5)
 
-## Deployment
+#### Sepolia (Settlement For Base)
 
-The following scripts are setup for Deployment
+Method: `proveSettlementLayerState`
 
-Source Chain (Optimism Sepolia)
+- Block - 6442168 (or later) we used block 6474690 (0x62cbc2)
 
-- [deploySourceAndProver.ts](https://github.com/eco/ecoism/blob/main/scripts/deploySourceAndProver.ts): Deploys [Prover.sol](https://github.com/eco/ecoism/blob/main/contracts/Prover.sol) and [IntentSource.sol](https://github.com/eco/ecoism/blob/main/contracts/IntentSource.sol)
+#### BaseSepolia (Settlement for Eco) - Cannon
 
-```bash
-ecoism (ECO-1885-JW-TEST)$ yarn deploySourceAndProver
-yarn run v1.22.22
-$ hardhat run --network sepoliaOptimismBlockscout scripts/deploySourceAndProver.ts
-Deploying contracts with the account: 0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4
-prover deployed to: 0x653f38527B6271F8624316B92b4BaA2B06D1aa57
-Successfully submitted source code for contract
-contracts/Prover.sol:Prover at 0x653f38527B6271F8624316B92b4BaA2B06D1aa57
-for verification on the block explorer. Waiting for verification result...
+Method : `proveWorldStateCannon`
 
-Successfully verified contract Prover on the block explorer.
-https://optimism-sepolia.blockscout.com/address/0x653f38527B6271F8624316B92b4BaA2B06D1aa57#code
+- Fault Dispute Game : 0xE6585806C6864D6a3285CC72961eB1Ed7e078E2E
+- Fault Dispute Game Transaction : 0x25f0965510cd29f9d7cac6637bc694b71e7da369d7a5b264f4d648d584cc822b
+- Fault Dispute Game Transaction Block: 6419979
+- Base Batch Block Number: 13398533
+- Fault Dispute Game Resolved Transaction: 0xed2920cc5e60aea2aed360cea446ffa2bf07fd79922cec77b6983ff885642a5b
+- Fault Dispute Game Resolved Block: 6442168
 
-intentSource deployed to: 0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46
-Successfully submitted source code for contract
-contracts/IntentSource.sol:IntentSource at 0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46
-for verification on the block explorer. Waiting for verification result...
+#### EcoTestnet (Destination chain for Intent)
 
-Successfully verified contract IntentSource on the block explorer.
-https://optimism-sepolia.blockscout.com/address/0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46#code
+Method: `proveWorldStateBedrock`
 
-✨  Done in 30.85s.
-```
+- Base Settlement Block: 13398441
+- Base Settlement Transaction: 0x8d477a0358a9820dec6b397c0ecb109610f1251c76894ea94c7de52ddec9aead
+- L2 Output Index: 2915
+- ECO Testnet Batch End Block: 699840 (0xaadc0)
 
-Destination Chain (Base Sepolia)
+#### Intents
 
-- [deploy-inbox.ts](https://github.com/eco/ecoism/blob/main/scripts/deploy-inbox.ts): Deploys [Inbox.sol](https://github.com/eco/ecoism/blob/main/contracts/Inbox.sol)
+- Intents
+  - Hash: 0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24
+  - Creation (Base): 0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408
+  - Fulfillment (ECO Testnet): 0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5
+    - Block: 699790 (0xaad8e)
 
-```bash
-ecoism (ECO-1885-JW-TEST)$ yarn deployInbox
-yarn run v1.22.22
-$ hardhat run --network baseSepolia scripts/deployInbox.ts
-Deploying contracts with the account: 0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4
-Inbox deployed to: 0x84b9b3521b20E4dCF10e743548362df09840D202
-The contract 0x84b9b3521b20E4dCF10e743548362df09840D202 has already been verified on the block explorer. If you're trying to verify a partially verified contract, please use the --force flag.
-https://sepolia.basescan.org/address/0x84b9b3521b20E4dCF10e743548362df09840D202#code
+### Proving ECO Testnet (intent sent to Base)
 
-✨  Done in 8.41s.
-```
+- Intent Hash: `0x9fcc6825d5739ef8c19f9ae1f891dc7e38e8433b9356aa940180a482c83774d0`
+- Intent Creation: [0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f](https://eco-testnet.explorer.caldera.xyz/tx/0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f)
+- Intent Fulfillment: [0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a](https://sepolia.basescan.org/tx/0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a)
+- Prove Settlement: [0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639](https://eco-testnet.explorer.caldera.xyz/tx/0xe4da50d298a380d911aed8ded28e242747a73105f52aef7aaae909bbfd814639)
+- Prove Destination: [0xfebd9b21f7a5cec18593a501cc0daeb9f74196ba9373ba8a056fa3181641d03e](https://eco-testnet.explorer.caldera.xyz/tx/0xfebd9b21f7a5cec18593a501cc0daeb9f74196ba9373ba8a056fa3181641d03e)
+- Prove Intent: [0xec28c74b4c26d6981241694729785a3d847c3ad8ba088b46414e6dfb79a6e448](https://eco-testnet.explorer.caldera.xyz/tx/0xec28c74b4c26d6981241694729785a3d847c3ad8ba088b46414e6dfb79a6e448)
+- Withdraw: [0x6a7ea0b1e7492092d8fb1429b0817937a615d6b3d0afc0a7b51be32b67ba17e2](https://eco-testnet.explorer.caldera.xyz/tx/0x6a7ea0b1e7492092d8fb1429b0817937a615d6b3d0afc0a7b51be32b67ba17e2)
 
-## Sample End To End Flow
+#### Sepolia (Settlement for Base) - Used to prove Base Has been Settled
 
-Following is a sample transaction flow with links to transactions in the Testnet (Sepolia) Environments.
-It also includes input and outputs
+- Sepolia Block (Used for Proving Base Block Has been settled): 6457204 (0x628774)
+  had to be 6442168 (or later)
 
-Transaction Flow (with links to transactions)
+#### Base (Destination from Eco) - Proving of FaultDispute Game to Show Base Block Has Been Settled
 
-- [Sepolia Optimism Intent Created](https://optimism-sepolia.blockscout.com/tx/0xdcec879122df8469101d4d18dabb382312acee435ff8fc138b2dbc1c7d058595)
-  - Input Values
-    - Destination Chain Id: `84532` (Sepolia Base)
-    - Targets : [`0x036CbD53842c5426634e7929541eC2318f3dCF7e`] (Target Token Address USDC Sepolia Base)
-    - data : `[await encodeTransfer(destAddress, amt)]` (Intent Amount = 1235)
-    - rewardTokens: `[0x00D2d1162c689179e8bA7a3b936f80A010A0b5CF]` Reward Token Address USDC Sepolia Optimism
-    - rewardAmounts - `1235` Reward token amount the solver or claimant will receive
-    - expiryTime - `(await ethers.provider.getBlock('latest'))!.timestamp + duration` duration is 3600 which means that we have an hour from the intent creation to solve and prove the intent so the solver (or claimant) can claim the funds.
-  - Output Values - query the IntentSource contract [here](https://optimism-sepolia.blockscout.com/address/0xf8e03e7FD9f45B9B050a5a2c0e41fF5a3021Ff46?tab=read_contract) with the Intent Hash
-    - INTENT_TRANSACTION 0xdcec879122df8469101d4d18dabb382312acee435ff8fc138b2dbc1c7d058595
-    - INTENT_HASH 0x53819d1039447c99d2fc31960ac5b56a389d961cddde355941a02f8ff0b7d9c8
-    - INTENT_NONCE 0xbdf8aa3e891eaf55796069c59400592f18ace63bccfc836dab094d09c3ed6ce3
-    - IntentCreated Event:
-      - `intentHash`: `` need to writ
-      - `intents[intentHash]`: `0x53819d1039447c99d2fc31960ac5b56a389d961cddde355941a02f8ff0b7d9c8` this is the value to be queried to get the intent nonce
-      - **intentNonce** - TBD we may want to add this as intent nonce is used by the solver
-- [Sepolia Base Intent Solved](https://sepolia.basescan.org/tx/0x73a239917783af3d1b9bbaf6152ed19de757096b34636d168a42ef3450d5906f)
-  - Input Values
-    - nonce: `0xbdf8aa3e891eaf55796069c59400592f18ace63bccfc836dab094d09c3ed6ce3` The nonce of the intent we are tsolving
-    - targets: `0x036CbD53842c5426634e7929541eC2318f3dCF7e` The target token USDC Sepolia Base
-    - calldata: `[await encodeTransfer(destAddress, amt)]` The recepients address and the amount they should have received
-    - timeStamp: `17177241503600` the intent expiry time
-    - claimerAddress: `0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58` the address of the solver (or the claimer) who can claim the funds once it is proven that the intent has been solved.
-  - Output Values
-    - Transaction Hash : `0x73a239917783af3d1b9bbaf6152ed19de757096b34636d168a42ef3450d5906f` the transaction hash of the solve on the L2 Destination Chain [Sepolia Base]
-    - Fulfillment Event
-      - `intentHash` : `0x53819d1039447c99d2fc31960ac5b56a389d961cddde355941a02f8ff0b7d9c8` the hash of the intent we just solved
-- [Sepolia Base L1 World State Proven](https://optimism-sepolia.blockscout.com/tx/0x5ec51e387ccc39ec7dd3f21b5bfc1bd7f12f71c7a3ab1f283969c1f4deedc591)
-  - i.e. L2 Batch of Blocks have been Settled from Sepolia Base to Sepolia and published to Sepolia Optimism (we need to prove the L1 Block that the L2 Batch was submitted on) and this needs to be proved within a block time due to the fact that we are checking the L1BlockOracle contract on the L2 Source Chain which holds the Latest Ethereum block `require(keccak256(rlpEncodedL1BlockData) == l1BlockhashOracle.hash(), "hash does not match block data");`
-  - Input
-    - `rlpEncodedL1BlockData`: `prover.rlpEncodeDataLibList(blockData)` Cleaned block data retrieved from L1 (Sepolia) for our test we had
-      - FULFILLMENT_TRANSACTION=0x73a239917783af3d1b9bbaf6152ed19de757096b34636d168a42ef3450d5906f
-      - FULFILLMENT_BLOCK_NUMBER=10978073
-      - FULFILLMENT_BLOCK_HASH=0xcc682ef8fc55061db71007cc76662d1a109ca2a94168e5aa7d3f9aebd38364fa
-      - FULFILLMENT_BLOCK_BATCH=91483
-      - FULFILLMENT_BLOCK_BATCH_LAST_BLOCK=10978080
-      - FULFILLMENT_BLOCK_BATCH_LAST_BLOCK_HASH=0xe41b89c14bc987d9c557742e790dfaee50ddb1bf981c5e9854fe5c50a96646fb
-      - FULFILLMENT_L1BLOCK=6054921
-      - FULFILLMENT_L1BLOCK_HASH=0x43399d539577a23a93d713934c6b490210c69915aba2f1c4c9203618cc141c64
-      - FULFILLMENT_L1_WORLD_STATE_ROOT=0xbffb76d782f51dde41ea7d7f9715664b4dd0617fc7373ba20a670281645ba135
-      - FULFILLMENT_L1_STATE_ROOT_SUBMISSION_TX=0xbc0d0b35f144aeb2239b3d97c36b56b7e0d933618e3d9bf6c6ab16882a464f8a
-  - Output
-    - Transaction Hash
-    - **TBD** May also want to add an event with the L1WorldState and some helper function which we use for proving the L2World State
-- [Sepolia Base L2 World State Proven](https://optimism-sepolia.blockscout.com/tx/0xb8d84173ca20eb1c2eb3a5f41734a5705963c11ac4460b0133d526d790f4e677)
-  - Proves the world state of the L2 transaction on Sepolia Base
-  - Input
-    - `l2WorldStateRoot`: `0xb14d9f17dc0617917016f2618c0dfd6eb7b76d7932950a86d23b7d036c6259e7` this is the stateRoot from the last block in the L1Batch on the L2 Destination chain (Sepolia Base) for the intent we are trying to prove
-    - `l2MessagePasserStateRoot` this is the State root from the message parser contract (i.e. the storageHash) Note it is retrieved from the block the intent was executed in (not the last block of the batch)
-    - `l2LatestBlockHash`: The hash of the latest L2 Destination (Sepolia Base) block in the L1 Batch
-    - `l2OutputIndex`: The L1 State Batch Index retrieved from the L2 Destination Chain (Base Sepolia) for the L1 Batch of the transaction the intent was solved in.
-    - `l1StorageProof`
-    - `rlpEncodedOutputOracleData`
-    - `l1AccountProof`
-    - `l1WorldStateRoot`
-  - Output
-    - Transaction Hash
-    - **TBD** may want to add an event here with information about what we have just proven
-- [Sepolia Base Prove Intent](https://optimism-sepolia.blockscout.com/tx/0x0b75140daab00193cc5c9b00ba612ad1dbb0ef4c2d69dd5669eb540536671150)
-  - i.e. This intent has been proven to have been solved on Sepolia Base and the prover contract on Optimism Base has this intent marked as proven **Note: it requires L1 and L2 State Proven**
-  - Input
-    - `address claimant,`
-    - `address inboxContract,`
-    - `bytes32 intentHash,`
-    - `uint256 intentOutputIndex,`
-    - `bytes[] calldata l2StorageProof,`
-    - `bytes calldata rlpEncodedInboxData,`
-    - `bytes[] calldata l2AccountProof,`
-    - `bytes32 l2WorldStateRoot`
-  - Output
-    - Transaction Hash
-    - **TBD** May need to add an event her with additional info
-- [Sepolia Base Claimant Withdraws Funds](https://optimism-sepolia.blockscout.com/tx/0xf67b2f771b5fa978ae99c349d2230091e8ef3453c22750f5da9429f60f53d228)
-  - Input
-    - `intentHash`
-  - Output
-    - `emit Withdrawal(_hash, msg.sender);`
+Method : `proveWorldStateCannon`
 
-### Positive Walkthrough Clawback
+- Fault Dispute Game : 0xE6585806C6864D6a3285CC72961eB1Ed7e078E2E
+- Fault Dispute Game Transaction : 0x25f0965510cd29f9d7cac6637bc694b71e7da369d7a5b264f4d648d584cc822b
+- Fault Dispute Game Transaction Block: 6419979
+- Base End Batch Block Number: 13398533
+- Fault Dispute Game Resolved Transaction: 0xed2920cc5e60aea2aed360cea446ffa2bf07fd79922cec77b6983ff885642a5b
+- Fault Dispute Game Resolved Block: 6442168
 
-1. Intent Creation
-2. Claw Back Funds
+#### Intent Proof
 
-## Additional References
+- Intents
+  - Hash: 0x9fcc6825d5739ef8c19f9ae1f891dc7e38e8433b9356aa940180a482c83774d0
+  - Creation(EcoTestNet): 0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f
+  - Fulfillment(BaseSepolia): 0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a
+    - Block: 13398241
 
-Proving
+### Standalone State Tests
 
-- [EIP-1186: RPC-Method to get Merkle Proofs - eth_getProof](https://eips.ethereum.org/EIPS/eip-1186)
-- [Ethereum Merkle Patricia Trie Explained](https://medium.com/@chiqing/merkle-patricia-trie-explained-ae3ac6a7e123)
-- [Verify Ethereum Account Balance with State Proof](https://medium.com/@chiqing/verify-ethereum-account-balance-with-state-proof-83b51ceb15cf): used for proveAccount
-- [Verify Ethereum Smart Contract State with Proof](https://medium.com/@chiqing/verify-ethereum-smart-contract-state-with-proof-1a8a0b4c8008) : Used for proveStorage
-- [How to use Ethereum Proofs](https://www.infura.io/blog/post/how-to-use-ethereum-proofs-2)
-- [Deep dive into Merkle proofs and eth_getProof (Chainstack)](https://docs.chainstack.com/docs/deep-dive-into-merkle-proofs-and-eth-getproof-ethereum-rpc-method)
-- [SecureMerkleTrie.sol (Optimism)](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol)
+Sepolia
 
-Storage Layout
+- Block
 
-- [Alchemy - Smart Contract Storage Layout](https://docs.alchemy.com/docs/smart-contract-storage-layout): good explanation of storage and storage slots
-- [Alchmey eth_createAccessList](https://docs.alchemy.com/reference/eth-createaccesslist)
-- [Storage in Solidity](https://leanmind.es/en/blog/storage-in-solidity/): explains how to calculate the storage slot using kecakk256 and adding the array element to it.
+BaseSepolia
 
-Proving Protocols
+- Sepolia L1 Block
+- Fault Dispute Game : 0xc36c450bc3a00c592b5e6915da18f3458951cad7 (approx 84 hours to settle)
+- Block - 13272366
+- Intents - None
 
-- [Blockchain Interoperability Part III: Storage Proofs, Powering new cross-chain use cases](https://mirror.xyz/0xsuperscrypt.eth/-H1mV7irQ79Sy2KqtGQ050vUh8ENayRNjTx0YWbfRf4)
-- [The current state of storage proofs (Dec 2023)](https://defi.sucks/insights/current-state-of-storage-proofs)
+ECO Testnet
 
-Solvers
+- Batch Index - 1850
+- Block - 444240
+- Block on Base: 13270761
+- Transaction on Base: 0x2fe4d6288468f2e607343165ee2419b48d3220c4e36d86c686777f51fb7401fd
+- Intents - None
 
-- [Illuminating Ethereum's Order Flow Landscape](https://writings.flashbots.net/illuminate-the-order-flow)
+OptimismSepolia
 
-## ToDo List
+- Sepolia L1 Block
+- Fault Dispute Game : 0xFA0c778b9460D3E76223C52e0887ca12cD143F63 (approx 84 hours to settle)
+- Block - 15255829
+- Intents - None
 
-- [ ] Query Capabilities for Open Intents
-  - [ ] see [Iterable Mappings](https://docs.soliditylang.org/en/v0.8.13/types.html#iterable-mappings)
-  - [ ] [Iterable Mappings by example](https://solidity-by-example.org/app/iterable-mapping/)
-- [ ] Refactor Chain Monitoring to use preferred tool
-  - [ ] [Substream](https://substreams.streamingfast.io/)
-  - [ ] [Ponder vs. subgraphs, incl. hosting options](https://x.com/LukeYoungblood/status/1784244530071605612)
-    - [ ] [Moonwell subgraph](https://github.com/moonwell-fi/moonwell-subgraph)
-  - [ ] [Ponder Documentation](https://ponder.sh/docs/getting-started/new-project)
-  - [ ] [Goldsky](https://goldsky.com/products/subgraphs)
-- [ ] Review and update Specification
-  - [ ] [Ecoism Component Overview](https://docs.google.com/document/d/1uRRl4LKN1Ob24dUs0A0l4tzY1rEwHG44iC5OAs0agmQ/edit)
-  - [ ] [Ecoism Research](https://www.notion.so/eco-corp/ECOism-Research-5afa3c34c9f343c1ac8c697af019a679)
-  - [ ] [Ecoism Protocol Hub](https://www.notion.so/eco-corp/Ecoism-Protocol-Hub-434388a819e84238979281f408c02db4)
+OptimismSepolia
+
+- Sepolia L1 Block
+- Fault Dispute Game : 0xFA0c778b9460D3E76223C52e0887ca12cD143F63 (approx 84 hours to settle)
+- Block - 15255829
+- Intents - None
+
+### ECO Base Optimism Tests (Cannon and Bedrock and Self)
+
+## Cannon Base to Optimism
+
+### Sepolia
+
+| Contract           | Address                                                                                                                       |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| DisputeGameFactory | [0x05f9613adb30026ffd634f38e5c4dfd30a197fa1](https://sepolia.etherscan.io/address/0x05f9613adb30026ffd634f38e5c4dfd30a197fa1) |
+
+#### Original Monday Jul 21st
+
+| Contract                         | Address                                                                                                                                                                  |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| IntentSource                     | [0xD82974FCFEA46C8E1D286B431603FB91268ec5d2](https://sepolia.basescan.org/address/0xD82974FCFEA46C8E1D286B431603FB91268ec5d2)                                            |
+| Inbox                            | [0x32388BB27E07db4bdda11Cc1EC919634cc6afF65](https://optimism-sepolia.blockscout.com/address/0x32388BB27E07db4bdda11Cc1EC919634cc6afF65)                                 |
+| Prover                           | [0xb96E3188AA8c9638AC72eBd6CDEf1CD953fC115D](https://sepolia.basescan.org/address/0xb96E3188AA8c9638AC72eBd6CDEf1CD953fC115D)                                            |
+| Dispute Game Factory Transaction | [0x7cf990707ea8f7ea86e3763ca801b606a191dfcb909fd8a3b752e0cb3edb97cc](https://sepolia.etherscan.io/tx/0x7cf990707ea8f7ea86e3763ca801b606a191dfcb909fd8a3b752e0cb3edb97cc) |
+| Fault Dispute Game               | [0x7DAa5306319cb4e209f9d7560B4aaaDE77BA1aC8](https://sepolia.etherscan.io/address/0x7daa5306319cb4e209f9d7560b4aaade77ba1ac8)                                            |
+
+Transactions
+
+| Transaction             | Address                                                                                                                                                                             | Information                                                                                                         |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Intent Creation         | [0xcc08cdbee27bb66ddc085f197aa6328718e221c7b21c58fd0d004e9ec2e6c4a9](https://sepolia.basescan.org/tx/0xcc08cdbee27bb66ddc085f197aa6328718e221c7b21c58fd0d004e9ec2e6c4a9)            | Intent Hash : `0x529197ed6c5f98bb6812cecef7847838e945350fc5cdd1cd3442bf0edb37a58d`                                  |
+| Intent Fulfillment      | [0xdbd0882a4e7d63bfdc6f73b62627cdaa9eb2567bb01e4c12f83b84db2bb41da8](https://optimism-sepolia.blockscout.com/tx/0xdbd0882a4e7d63bfdc6f73b62627cdaa9eb2567bb01e4c12f83b84db2bb41da8) |                                                                                                                     |
+| Settlement Block Proof  | [0x362abc971b0f8ed560be5464ece000e1004ae470adb004814ababcbf9686dab9](https://sepolia.basescan.org/tx/0x362abc971b0f8ed560be5464ece000e1004ae470adb004814ababcbf9686dab9)            | Block: 0x61608e (6381710), layer1WorldStateRoot: 0x03e20642aa0e444a4a8d917944a99700d2a8e57dee59f475a87f68b45513626f |
+| Destination Block Proof |                                                                                                                                                                                     |                                                                                                                     |
+| Intent Proof            |                                                                                                                                                                                     |
+| Withdrawal              |                                                                                                                                                                                     |
+
+#### Current - Transactions created July 25th
+
+| Contract                         | Address                                                                                                                                  |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| IntentSource                     | [0x5bCEb706104192CBDE12FF0dB54B5eD28E10a9f0](https://sepolia.basescan.org/address/0x5bCEb706104192CBDE12FF0dB54B5eD28E10a9f0)            |
+| Inbox                            | [0x44B5a2B4083c3EbFc6d1a61C9b5CBf30E73A90C1](https://optimism-sepolia.blockscout.com/address/0x44B5a2B4083c3EbFc6d1a61C9b5CBf30E73A90C1) |
+| Prover                           | [0x03Fe851c0fC4Eb335505C105a595FD215B5A6735](https://sepolia.basescan.org/address/0x03Fe851c0fC4Eb335505C105a595FD215B5A6735)            |
+| Dispute Game Factory Transaction | [TBD](https://sepolia.etherscan.io/tx/TBD)                                                                                               |
+| Fault Dispute Game               | [TBD](https://sepolia.etherscan.io/address/TBD)                                                                                          |
+
+Transactions
+
+| Transaction             | Address                                                                                                                                                                             | Information                                                                        |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Intent Creation         | [0xa4c2aa341a1f3a0bb8088e2850daa48533bc8b85919a5e3f07a44f0c6666d8af](https://sepolia.basescan.org/tx/0xa4c2aa341a1f3a0bb8088e2850daa48533bc8b85919a5e3f07a44f0c6666d8af)            | Intent Hash : `0x6e19cae3dcc04a2f63f195dbdaf4f28fac2d52b156c620c52687df043a4ca526` |
+| Intent Fulfillment      | [0x1f81893d6851ec43222486a93d5e6553f0e2259e720ff16d4b1e71aadc878e24](https://optimism-sepolia.blockscout.com/tx/0x1f81893d6851ec43222486a93d5e6553f0e2259e720ff16d4b1e71aadc878e24) |                                                                                    |
+| Settlement Block Proof  |                                                                                                                                                                                     | Block:                                                                             |
+| Destination Block Proof |                                                                                                                                                                                     |                                                                                    |
+| Intent Proof            |                                                                                                                                                                                     |
+| Withdrawal              |                                                                                                                                                                                     |
+
+### Mainnet
+
+| Contract           | Address                                                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| DisputeGameFactory | [0xe5965Ab5962eDc7477C8520243A95517CD252fA9](https://etherscan.io/address/0xe5965Ab5962eDc7477C8520243A95517CD252fA9) |
+
+#### Current Transaction created July 25th
+
+| Contract                         | Address                                                                                                                          |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| IntentSource                     | [0x2b16FD1Bd15d1cC73f50B8780cE8D82bcc835f17](https://basescan.org/address/0x2b16FD1Bd15d1cC73f50B8780cE8D82bcc835f17)            |
+| Inbox                            | [0x2609cE6d0c4DE600be06b1814Eb4ED6B6bBFd48c](https://optimistic.etherscan.io/address/0x2609cE6d0c4DE600be06b1814Eb4ED6B6bBFd48c) |
+| Prover                           | [0x5d0cab22a8E2F01CE4482F2CbFE304627d8F1816](https://basescan.org/address/0x5d0cab22a8E2F01CE4482F2CbFE304627d8F1816)            |
+| Dispute Game Factory Transaction | [TBD](https://etherscan.io/tx/TBD)                                                                                               |
+| Fault Dispute Game               | [TBD](https://etherscan.io/address/TBD)                                                                                          |
+
+Transactions
+
+| Transaction             | Address                                                                                                                                                                     | Information                                                                        |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Intent Creation         | [0xc54756d7d9388bcb537dd39315fecba74e13e57899415c1646c67c800dc56d3f](https://basescan.org/tx/0xc54756d7d9388bcb537dd39315fecba74e13e57899415c1646c67c800dc56d3f)            | Intent Hash : `0xf1d6659cafc9850da14f64b129b6ba26528de723ab0af2cbeb2600d2c84a8711` |
+| Intent Fulfillment      | [0xadb6d52154591c05e740e0953817d3ebb4c8b43ec019fc768e83c5139c1ec71a](https://optimistic.etherscan.io/tx/0xadb6d52154591c05e740e0953817d3ebb4c8b43ec019fc768e83c5139c1ec71a) |                                                                                    |
+| Settlement Block Proof  |                                                                                                                                                                             | Block:                                                                             |
+| Destination Block Proof |                                                                                                                                                                             |                                                                                    |
+| Intent Proof            |                                                                                                                                                                             |
+| Withdrawal              |                                                                                                                                                                             |
+
+## Inbox Storage Slots
+
+| Name            | Type                        | Slot | Offset | Bytes | Value                                            | Hex Value                                                          | Contract                  |
+| --------------- | --------------------------- | ---- | ------ | ----- | ------------------------------------------------ | ------------------------------------------------------------------ | ------------------------- |
+| \_owner         | address                     | 0    | 0      | 20    | 620454579669818780374221507524376586082813009364 | 0x0000000000000000000000006cae25455bf5fcf19ce737ad50ee3bc481fcddd4 | contracts/Inbox.sol:Inbox |
+| fulfilled       | mapping(bytes32 => address) | 1    | 0      | 32    | 0                                                | 0x0000000000000000000000000000000000000000000000000000000000000000 | contracts/Inbox.sol:Inbox |
+| solverWhitelist | mapping(address => bool)    | 2    | 0      | 32    | 0                                                | 0x0000000000000000000000000000000000000000000000000000000000000000 | contracts/Inbox.sol:Inbox |
+| isSolvingPublic | bool                        | 3    | 0      | 1     | 0                                                | 0x0000000000000000000000000000000000000000000000000000000000000000 | contracts/Inbox.sol:Inbox |

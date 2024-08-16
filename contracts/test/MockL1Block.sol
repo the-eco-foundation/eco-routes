@@ -10,7 +10,7 @@ import {IL1Block} from "../interfaces/IL1Block.sol";
 ///         Values within this contract are updated once per epoch (every L1 block) and can only be
 ///         set by the "depositor" account, a special system address. Depositor account transactions
 ///         are created by the protocol whenever we move to a new epoch.
-contract MockL1Block is IL1Block {
+contract MockL1Block {
     /// @notice The latest L1 block number known by the L2 system.
     uint64 public number;
 
@@ -65,7 +65,7 @@ contract MockL1Block is IL1Block {
         bytes32 _batcherHash,
         uint256 _l1FeeOverhead,
         uint256 _l1FeeScalar
-    ) external override {
+    ) external {
         number = _number;
         timestamp = _timestamp;
         basefee = _basefee;
