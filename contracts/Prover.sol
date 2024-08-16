@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
+import "IntentSource.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
@@ -487,5 +488,21 @@ contract Prover is UUPSUpgradeable, OwnableUpgradeable {
         proveAccount(abi.encodePacked(inboxContract), rlpEncodedInboxData, l2AccountProof, l2WorldStateRoot);
 
         provenIntents[intentHash] = claimant;
+    }
+
+    proveAndClaim(
+        uint256 chainId, //the destination chain id of the intent we are proving
+        address claimant,
+        address inboxContract,
+        bytes32 intermediateHash,
+        bytes[] calldata l2StorageProof,
+        bytes calldata rlpEncodedInboxData,
+        bytes[] calldata l2AccountProof,
+        bytes32 l2WorldStateRoot
+    ) public {
+        if (msg.sender == claimant) {
+            proveIntent(chainId, claimant, inboxContract, intermediateHash, l2StorageProof, rlpEncodedInboxData, l2AccountProof, l2WorldStateRoot);
+            intentSource
+        }
     }
 }

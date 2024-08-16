@@ -122,20 +122,29 @@ contract IntentSource is IIntentSource {
         );
     }
 
-    function withdrawRewards(bytes32 _hash) external {
+    function withdrawTo(bytes32 _hash, address _destination) external {
+        Intent memory intent = intents[_hash];
+        if (msg.sender == intent.prover || msg.sender == intent.claimant) {
+            _withdrawTo(_hash, _destination);
+            return;
+        }
+        revert UnauthorizedWithdrawal(_hash);
+    }
+
+    function _withdrawTo(bytes32 _hash, address _destination) internal {
         Intent storage intent = intents[_hash];
         address claimant = PROVER.provenIntents(_hash);
         if (!intent.hasBeenWithdrawn) {
             if (
-                claimant == msg.sender
-                    || claimant == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime
+                claimant == _destination
+                    || claimant == address(0) && _destination == intent.creator && block.timestamp > intent.expiryTime
             ) {
                 uint256 len = intent.rewardTokens.length;
                 for (uint256 i = 0; i < len; i++) {
-                    IERC20(intent.rewardTokens[i]).transfer(msg.sender, intent.rewardAmounts[i]);
+                    IERC20(intent.rewardTokens[i]).transfer(_destination, intent.rewardAmounts[i]);
                 }
                 intent.hasBeenWithdrawn = true;
-                emit Withdrawal(_hash, msg.sender);
+                emit Withdrawal(_hash, _destination);
                 return;
             }
             revert UnauthorizedWithdrawal(_hash);
