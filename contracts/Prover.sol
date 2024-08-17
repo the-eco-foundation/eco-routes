@@ -5,8 +5,9 @@ import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/tr
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
+import {SimpleProver} from "./interfaces/SimpleProver.sol";
 
-contract Prover {
+contract Prover is SimpleProver{
     // uint16 public constant NONCE_PACKING = 1;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
@@ -68,9 +69,6 @@ contract Prover {
 
     // Store the last BlockProof for each ChainId
     mapping(uint256 => BlockProof) public provenStates;
-
-    // mapping from proven intents to the address that's authorized to claim them
-    mapping(bytes32 => address) public provenIntents;
 
     struct DisputeGameFactoryProofData {
         bytes32 messagePasserStateRoot;

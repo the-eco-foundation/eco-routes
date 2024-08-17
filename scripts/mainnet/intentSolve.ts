@@ -117,6 +117,7 @@ export async function baseOptimismIntentSolve() {
       [networks.base.usdcAddress], // reward Tokens on source chain
       intent.rewardAmounts, // reward amounts on source chain
       expiryTime, // intent expiry time
+      networks.base.proverContractAddress, // prover contract address
     )
     await intentTx.wait()
 

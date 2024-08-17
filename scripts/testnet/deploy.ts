@@ -104,7 +104,6 @@ async function main() {
 
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
   const intentSource: IntentSource = await intentSourceFactory.deploy(
-    await prover.getAddress(),
     minimumDuration,
     counter,
   )
