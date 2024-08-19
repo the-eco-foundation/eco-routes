@@ -92,3 +92,7 @@ deploy/deployments
 
 # outputs
 output/proofGenerationOutput.json
+
+# OpenZeppelin
+.openzeppelin/dev-*.json
+.openzeppelin/.session

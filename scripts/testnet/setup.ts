@@ -1,4 +1,4 @@
-import config from '../config/config'
+import config from '../../config/testnet/config'
 import {
   AbiCoder,
   BigNumberish,
@@ -13,8 +13,9 @@ import {
   IL1Block__factory,
   Prover__factory,
   ERC20__factory,
-} from '../typechain-types'
+} from '../../typechain-types'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
+import * as DisputeGameFactoryArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/DisputeGameFactory.sol/DisputeGameFactory.json'
 import * as L2ToL1MessagePasser from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
 export namespace s {
   // default AbiCoder
@@ -34,11 +35,11 @@ export namespace s {
     ALCHEMY_API_KEY,
   )
   export const layer2SourceProvider = new AlchemyProvider(
-    config.optimismSepolia.network,
+    config.baseSepolia.network,
     ALCHEMY_API_KEY,
   )
   export const layer2DestinationProvider = new AlchemyProvider(
-    config.baseSepolia.network,
+    config.optimismSepolia.network,
     ALCHEMY_API_KEY,
   )
 
@@ -77,61 +78,68 @@ export namespace s {
     L2OutputArtifact.abi,
     layer1Provider,
   )
-  // Layer 2 Source Sepolia Optimism
+  export const layer1Layer2DisputeGameFactory = new Contract(
+    config.sepolia.l2OptimismDisputeGameFactory,
+    DisputeGameFactoryArtifact.abi,
+    layer1Provider,
+  )
+  // Layer 2 Source Base Sepolia
   export const layer2Layer1BlockAddressContract = new Contract(
-    config.optimismSepolia.l1BlockAddress,
+    config.baseSepolia.l1BlockAddress,
     IL1Block__factory.abi,
     layer2SourceProvider,
   )
   export const layer2SourceIntentSourceContract = new Contract(
-    config.optimismSepolia.intentSourceAddress,
+    config.baseSepolia.intentSourceAddress,
     IntentSource__factory.abi,
     layer2SourceIntentCreator,
   )
   export const layer2SourceIntentSourceContractClaimant = new Contract(
-    config.optimismSepolia.intentSourceAddress,
+    config.baseSepolia.intentSourceAddress,
     IntentSource__factory.abi,
     layer2SourceClaimant,
   )
   export const layer2SourceProverContract = new Contract(
-    config.optimismSepolia.proverContractAddress,
+    config.baseSepolia.proverContractAddress,
     Prover__factory.abi,
     layer2SourceIntentProver,
   )
   export const layer2SourceUSDCContract = new Contract(
-    config.optimismSepolia.usdcAddress,
+    config.baseSepolia.usdcAddress,
     ERC20__factory.abi,
     layer2SourceIntentCreator,
   )
 
-  // Layer 2 Destination Sepolia Base
+  // Layer 2 Destination Optimism Sepolia
   export const layer2DestinationInboxContract = new Contract(
-    config.baseSepolia.inboxAddress,
+    config.optimismSepolia.inboxAddress,
     Inbox__factory.abi,
     layer2DestinationSolver,
   )
   export const Layer2DestinationMessagePasserContract = new Contract(
-    config.baseSepolia.l2l1MessageParserAddress,
+    config.optimismSepolia.l2l1MessageParserAddress,
     L2ToL1MessagePasser.abi,
     layer2DestinationProvider,
   )
   export const layer2DestinationUSDCContract = new Contract(
-    config.baseSepolia.usdcAddress,
+    config.optimismSepolia.usdcAddress,
     ERC20__factory.abi,
     layer2DestinationSolver,
   )
 
   // const rewardToken: ERC20 = ERC20__factory.connect(rewardTokens[0], creator)
 
-  // Intent Parameters
-  export const intentCreator = config.intent.creator
-  export const intentSourceAddress = config.optimismSepolia.intentSourceAddress
-  export const intentRewardAmounts = config.intent.rewardAmounts
-  export const intentRewardTokens = config.intent.rewardTokens
+  // Intent Parameters to baseSepolia
+  export const intentCreator = config.intents.optimismSepolia.creator
+  export const intentSourceAddress = config.baseSepolia.intentSourceAddress
+  export const intentRewardAmounts =
+    config.intents.optimismSepolia.rewardAmounts
+  export const intentRewardTokens = config.intents.optimismSepolia.rewardTokens
   export const intentDestinationChainId: BigNumberish =
-    config.intent.destinationChainId
-  export const intentTargetTokens = config.intent.targetTokens
-  export const intentTargetAmounts = config.intent.targetAmounts
-  export const intentRecipient = config.intent.recipient
-  export const intentDuration = config.intent.duration
+    config.intents.optimismSepolia.destinationChainId
+  export const intentTargetTokens = config.intents.optimismSepolia.targetTokens
+  export const intentTargetAmounts =
+    config.intents.optimismSepolia.targetAmounts
+  export const intentRecipient = config.intents.optimismSepolia.recipient
+  export const intentDuration = config.intents.optimismSepolia.duration
 }

@@ -47,14 +47,26 @@
     "variableOrder": "slither --print variable-order . 2>&1 | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' | tee  ./docs/slither/variable-order.txt",
     "vulnerability": "slither . --exclude-informational --exclude-low --exclude-medium 2>&1 | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' | tee  ./docs/slither/vulnerability.txt",
     "contractSummary": "slither --print contract-summary . 2>&1 | tee ./docs/slither/contract-summary.txt",
-    "deploySourceAndProver": "hardhat run --network optimismSepoliaBlockscout scripts/deploySourceAndProver.ts",
-    "deployInbox": "hardhat run --network baseSepolia scripts/deployInbox.ts",
-    "intentWalkThrough": "hardhat run scripts/intentWalkThrough.ts",
-    "deploySourceAndProverMainnet": "hardhat run --network optimism scripts/deploySourceAndProver.ts",
-    "deployInboxMainnet": "hardhat run --network base scripts/deployInbox.ts",
-    "intentSolveMainnet": "hardhat run scripts/intentSolveMainnet.ts",
-    "intentWithdrawMainnet": "hardhat run scripts/intentWithdrawMainnet.ts",
-    "deployUSDCLike": "hardhat run --network L3Caldera scripts/deployUSDClike.ts"
+    "Testnet": "-------- Testnet scripts below",
+    "deployEcoTestnet": "hardhat run --network ecoTestnet scripts/testnet/deploy.ts",
+    "deployUpgradeEcoTestnet": "hardhat run --network ecoTestnet scripts/testnet/deployUpgradeProver.ts",
+    "deployUpgradeProverBaseSepolia": "hardhat run --network baseSepolia scripts/testnet/deployUpgradeProver.ts",
+    "deployUpgradeProverOptimismSepolia": "hardhat run --network optimismSepolia scripts/testnet/deployUpgradeProver.ts",
+    "deployBaseSepolia": "hardhat run --network baseSepolia scripts/testnet/deploy.ts",
+    "deployOptimismSepolia": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/deploy.ts",
+    "intentSolve": "hardhat run scripts/testnet/intentSolve.ts",
+    "intentWithdraw": "hardhat run scripts/testnet/intentWithdraw.ts",
+    "TestnetBedrock": "-------- Bedrock scripts below --------",
+    "TestnetCannon": "-------- Cannon scripts below --------",
+    "intentWithdrawCannon": "hardhat run scripts/testnet/cannon/intentWithdraw.ts",
+    "Mainnet": "-------- Mainnet scripts below",
+    "deployBase": "hardhat run --network base scripts/mainnet/deploy.ts",
+    "deployOptimism": "hardhat run --network optimismBlockScout scripts/mainnet/deploy.ts",
+    "MainnetBedrock": "-------- Bedrock scripts below --------",
+    "intentSolveOpBase": "hardhat run scripts/mainnet/intentSolve.ts",
+    "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdraw.ts",
+    "MainnetCannon": "-------- Cannon scripts below --------",
+    "EndMainnetCannon": "-------- End Cannon scripts  --------"
   },
   "files": [
     "contracts/**.sol",
@@ -71,7 +83,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
-    "@openzeppelin/hardhat-upgrades": "^3.1.0",
+    "@openzeppelin/hardhat-upgrades": "^3.2.0",
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.2.0",
@@ -96,7 +108,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-promise": "^6.1.1",
     "ethers": "^6.9.0",
-    "hardhat": "^2.22.5",
+    "hardhat": "^2.22.6",
     "hardhat-gas-reporter": "^1.0.9",
     "prettier": "^3.1.1",
     "solhint": "^4.0.0",
@@ -110,6 +122,7 @@
   },
   "dependencies": {
     "@hyperlane-xyz/sdk": "^4.1.0",
-    "@openzeppelin/contracts": "^5.0.2"
+    "@openzeppelin/contracts": "^5.0.2",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2"
   }
 }

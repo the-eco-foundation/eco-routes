@@ -54,15 +54,16 @@ contract Inbox is Ownable, IInbox {
         bytes32 _expectedHash,
         bool hyperprove,
     ) external validated(_expiryTime, msg.sender) returns (bytes[] memory) {
-        bytes32 intentHash = encodeHash(_sourceChainID, block.chainid, address(this), _targets, _data, _expiryTime, _nonce);
-        
+        bytes32 intentHash =
+            encodeHash(_sourceChainID, block.chainid, address(this), _targets, _data, _expiryTime, _nonce);
+
         // revert if locally calculated hash does not match expected hash
-        if(intentHash != _expectedHash) {
+        if (intentHash != _expectedHash) {
             revert InvalidHash(_expectedHash);
         }
-        
+
         // revert if intent has already been fulfilled
-        if(fulfilled[intentHash] != address(0)) {
+        if (fulfilled[intentHash] != address(0)) {
             revert IntentAlreadyFulfilled(intentHash);
         }
         // Store the results of the calls
@@ -134,11 +135,10 @@ contract Inbox is Ownable, IInbox {
         uint256 _expiryTime,
         bytes32 _nonce
     ) internal pure returns (bytes32) {
-        return keccak256(abi.encode(
-            _inboxAddress, 
-            keccak256(abi.encode(
-                _sourceChainID, _chainId, _targets, _data, _expiryTime, _nonce
-            ))
-        ));
+        return keccak256(
+            abi.encode(
+                _inboxAddress, keccak256(abi.encode(_sourceChainID, _chainId, _targets, _data, _expiryTime, _nonce))
+            )
+        );
     }
 }
