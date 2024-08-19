@@ -82,7 +82,6 @@ async function main() {
 
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
   const intentSource: IntentSource = await intentSourceFactory.deploy(
-    await prover.getAddress(),
     minimumDuration,
     counter,
   )
@@ -96,11 +95,7 @@ async function main() {
       await setTimeout(30000)
       await run('verify:verify', {
         address: await intentSource.getAddress(),
-        constructorArguments: [
-          await prover.getAddress(),
-          minimumDuration,
-          counter,
-        ],
+        constructorArguments: [minimumDuration, counter],
       })
     }
     console.log('intentSource verified at:', await intentSource.getAddress())

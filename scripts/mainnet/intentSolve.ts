@@ -37,6 +37,7 @@ export async function optimismBaseIntentSolve() {
         [networks.optimism.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
+        networks.optimism.proverContractAddress, // prover contract address
       )
     await intentTx.wait()
 
@@ -176,7 +177,7 @@ async function main() {
   try {
     console.log('In Main')
     await optimismBaseIntentSolve()
-    // await baseOptimismIntentSolve()
+    await baseOptimismIntentSolve()
   } catch (e) {
     console.log(e)
   }
