@@ -1,17 +1,9 @@
-import {
-  getDefaultProvider,
-  AbiCoder,
-  AlchemyProvider,
-  Contract,
-  Wallet,
-  Signer,
-} from 'ethers'
+import { AbiCoder, AlchemyProvider, Contract, Wallet, Signer } from 'ethers'
 import {
   Inbox__factory,
   IntentSource__factory,
   IL1Block__factory,
   Prover__factory,
-  ProverL3__factory,
   ERC20__factory,
 } from '../../typechain-types'
 import { networks } from '../../config/testnet/config'
