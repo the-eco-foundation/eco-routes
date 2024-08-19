@@ -219,7 +219,7 @@ async function proveIntent(intentHash, l1BatchIndex, endBatchBlockData) {
   console.log('In proveIntent')
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
-    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 0])],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
   const intentInboxProof = await s.baseProvider.send('eth_getProof', [
     networks.base.inboxAddress,
@@ -230,7 +230,6 @@ async function proveIntent(intentHash, l1BatchIndex, endBatchBlockData) {
   const intentInfo =
     await s.optimismIntentSourceContractClaimant.getIntent(intentHash)
 
-  console.log(networkIds.ecoTestNet)
   const abiCoder = AbiCoder.defaultAbiCoder()
   const intermediateHash = keccak256(
     abiCoder.encode(

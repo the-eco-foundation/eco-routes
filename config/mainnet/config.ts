@@ -36,9 +36,9 @@ const intent: any = {
   rewardAmounts: [1001],
   targetAmounts: [1000],
   duration: 3600,
-  hash: '0x6e3a7a555c2da6e2530c4e562f657308cf1eae8e061f3e9dc3941a25576caf7c',
+  hash: '0x95ede9ae552aa114ce6aa3b08c8b36833aae0a4b4f75099b2f5af2d006d88de1',
   fulfillTransaction:
-    '0x90a9c960fe11dc6d8ad88461c4d8af40ef690e9bb2a363a78ff12de10e321e2d',
+    '0x5782e08d42a328eeb68f5bf07ea8725c917d572911e20baab04a4410d71751d6',
 }
 
 const networks: any = {
