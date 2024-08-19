@@ -1,17 +1,9 @@
-import {
-  getDefaultProvider,
-  AbiCoder,
-  AlchemyProvider,
-  Contract,
-  Wallet,
-  Signer,
-} from 'ethers'
+import { AbiCoder, AlchemyProvider, Contract, Wallet, Signer } from 'ethers'
 import {
   Inbox__factory,
   IntentSource__factory,
   IL1Block__factory,
   Prover__factory,
-  ProverL3__factory,
   ERC20__factory,
 } from '../../typechain-types'
 import { networks } from '../../config/testnet/config'
@@ -22,7 +14,7 @@ export namespace s {
   // default AbiCoder
   export const abiCoder = AbiCoder.defaultAbiCoder()
   // Private Keys
-  export const DEPLOYER_PRIVATE_KEY = process.env.DEPLOY_PRIVATE_KEY || ''
+  export const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || ''
   export const INTENT_CREATOR_PRIVATE_KEY =
     process.env.INTENT_CREATOR_PRIVATE_KEY || ''
   export const SOLVER_PRIVATE_KEY = process.env.SOLVER_PRIVATE_KEY || ''
@@ -222,78 +214,5 @@ export namespace s {
     networks.baseSepolia.usdcAddress,
     ERC20__factory.abi,
     baseSepoliaSolver,
-  )
-
-  // EcoTestNet
-  // Providers
-  export const ecoTestNetProvider = getDefaultProvider(
-    networks.ecoTestNet.rpcUrl,
-  )
-  // Signers
-  export const ecoTestNetDeployer: Signer = new Wallet(
-    DEPLOYER_PRIVATE_KEY,
-    ecoTestNetProvider,
-  )
-  export const ecoTestNetIntentCreator: Signer = new Wallet(
-    INTENT_CREATOR_PRIVATE_KEY,
-    ecoTestNetProvider,
-  )
-  export const ecoTestNetSolver: Signer = new Wallet(
-    SOLVER_PRIVATE_KEY,
-    ecoTestNetProvider,
-  )
-  export const ecoTestNetIntentProver: Signer = new Wallet(
-    PROVER_PRIVATE_KEY,
-    ecoTestNetProvider,
-  )
-  export const ecoTestNetClaimant: Signer = new Wallet(
-    CLAIMANT_PRIVATE_KEY,
-    ecoTestNetProvider,
-  )
-  // Contracts
-  // Settlement Contracts for other Chains
-
-  // System Proving Contracts
-  export const ecoTestNetl1Block = new Contract(
-    networks.ecoTestNet.proving.l1BlockAddress,
-    IL1Block__factory.abi,
-    ecoTestNetProvider,
-  )
-  export const ecoTestNetL2L1MessageParserContract = new Contract(
-    networks.ecoTestNet.proving.l2l1MessageParserAddress,
-    L2ToL1MessagePasserArtifact.abi,
-    ecoTestNetProvider,
-  )
-  // ECO PROTOCOL Contracts
-  export const ecoTestNetIntentSourceContractIntentCreator = new Contract(
-    networks.ecoTestNet.intentSourceAddress,
-    IntentSource__factory.abi,
-    ecoTestNetIntentCreator,
-  )
-
-  export const ecoTestNetIntentSourceContractClaimant = new Contract(
-    networks.ecoTestNet.intentSourceAddress,
-    IntentSource__factory.abi,
-    ecoTestNetClaimant,
-  )
-  export const ecoTestNetProverContract = new Contract(
-    networks.ecoTestNet.proverContractAddress,
-    ProverL3__factory.abi,
-    ecoTestNetDeployer, // Use deployer as prover as we need to do privileged operations
-  )
-  export const ecoTestNetInboxContractSolver = new Contract(
-    networks.ecoTestNet.inboxAddress,
-    Inbox__factory.abi,
-    ecoTestNetSolver,
-  )
-  export const ecoTestNetUSDCContractIntentCreator = new Contract(
-    networks.ecoTestNet.usdcAddress,
-    ERC20__factory.abi,
-    ecoTestNetIntentCreator,
-  )
-  export const ecoTestNetUSDCContractSolver = new Contract(
-    networks.ecoTestNet.usdcAddress,
-    ERC20__factory.abi,
-    ecoTestNetSolver,
   )
 }

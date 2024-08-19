@@ -117,11 +117,7 @@ async function main() {
       await setTimeout(30000)
       await run('verify:verify', {
         address: await intentSource.getAddress(),
-        constructorArguments: [
-          await prover.getAddress(),
-          minimumDuration,
-          counter,
-        ],
+        constructorArguments: [minimumDuration, counter],
       })
     }
     console.log('intentSource verified at:', await intentSource.getAddress())
