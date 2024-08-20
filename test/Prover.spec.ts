@@ -270,6 +270,10 @@ describe('Prover End to End Tests', () => {
       bedrock.settlementChain.rlpEncodedBlockData,
       networks.sepolia.chainId,
     )
+    const settlementProvenState = await prover.provenStates(
+      networks.sepolia.chainId,
+    )
+    console.log('Settlement Layer State: ', settlementProvenState)
 
     // test proveWorldStateCannon'
     const RLPEncodedDisputeGameFactoryData = await prover.rlpEncodeDataLibList(

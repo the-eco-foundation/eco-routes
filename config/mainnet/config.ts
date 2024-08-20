@@ -36,9 +36,9 @@ const intent: any = {
   rewardAmounts: [1001],
   targetAmounts: [1000],
   duration: 3600,
-  hash: '0x6e3a7a555c2da6e2530c4e562f657308cf1eae8e061f3e9dc3941a25576caf7c',
+  hash: '0xc945470804d20f738d1eb2cebff79137932c5a26cab431b756ec4d2e99b114e0',
   fulfillTransaction:
-    '0x90a9c960fe11dc6d8ad88461c4d8af40ef690e9bb2a363a78ff12de10e321e2d',
+    '0xba219e265cd2d7903195ad736c2a35262b837e56cbf0afb3e639b59c7de98b5e',
 }
 
 const networks: any = {
@@ -55,7 +55,7 @@ const networks: any = {
     network: 'optimism',
     chainId: networkIds.optimism,
     intentSourceAddress: '0x532BA2D408e77B773b1d05Dafa5E4A2392e5ED11',
-    proverContractAddress: '0x4a6d1db2F51fb3A293814b4A3fC4a56Df4C53194',
+    proverContractAddress: '0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf',
     inboxAddress: '0xd01168742A682146095c3bCe1ad6527837593a85',
     intentSource: {
       minimumDuration: 1000,
@@ -78,7 +78,7 @@ const networks: any = {
     network: 'base',
     chainId: networkIds.base,
     intentSourceAddress: '0x5e46855a436FDc16342EB0689f6555Db59b0245B',
-    proverContractAddress: '0x0B2c4477B1F3bEc34089De8Be5D7C35cA1CB3C5B',
+    proverContractAddress: '0x4c0aC1529d1ef977C37c534255785F8c5fE948AF',
     inboxAddress: '0x73f4eA10Ed8e6524aB3Ba60D604A6f33Cb95fc39',
     intentSource: {
       minimumDuration: 1000,

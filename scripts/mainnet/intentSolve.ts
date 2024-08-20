@@ -1,5 +1,5 @@
 import { encodeTransfer } from '../../utils/encode'
-import { BigNumberish, BytesLike, toQuantity } from 'ethers'
+import { BigNumberish, BytesLike, NonceManager, toQuantity } from 'ethers'
 import {
   networkIds,
   networks,
@@ -10,6 +10,9 @@ import { s } from '../../config/mainnet/setup'
 
 export async function optimismBaseIntentSolve() {
   console.log('In createIntent optimismBase')
+  const optimismIntentCreatorNonceManager = new NonceManager(
+    s.optimismIntentCreator,
+  )
   // approve lockup
   const rewardToken = s.optimismUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
@@ -17,6 +20,7 @@ export async function optimismBaseIntentSolve() {
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
+  optimismIntentCreatorNonceManager.increment()
 
   // get the block before creating the intent
   const latestBlock = await s.optimismProvider.getBlock('latest')
@@ -59,6 +63,7 @@ export async function optimismBaseIntentSolve() {
     console.log(e)
   }
   console.log('In fulfillIntent')
+  const baseSolverNonceManager = new NonceManager(s.baseSolver)
   try {
     // get intent Information
     const thisIntent =
@@ -71,6 +76,7 @@ export async function optimismBaseIntentSolve() {
       intent.targetAmounts[0],
     )
     await fundTx.wait()
+    baseSolverNonceManager.increment()
 
     // fulfill the intent
 
@@ -92,6 +98,7 @@ export async function optimismBaseIntentSolve() {
 }
 export async function baseOptimismIntentSolve() {
   console.log('In createIntent baseOptimism')
+  const baseIntentCreatorNonceManager = new NonceManager(s.baseIntentCreator)
   // approve lockup
   const rewardToken = s.baseUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
@@ -99,6 +106,7 @@ export async function baseOptimismIntentSolve() {
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
+  baseIntentCreatorNonceManager.increment()
 
   // get the block before creating the intent
   const latestBlock = await s.baseProvider.getBlock('latest')
@@ -140,6 +148,7 @@ export async function baseOptimismIntentSolve() {
     console.log(e)
   }
   console.log('In fulfillIntent')
+  const optimismSolverNonceManager = new NonceManager(s.optimismSolver)
   try {
     // get intent Information
     const thisIntent =
@@ -152,7 +161,7 @@ export async function baseOptimismIntentSolve() {
       intent.targetAmounts[0],
     )
     await fundTx.wait()
-
+    optimismSolverNonceManager.increment()
     // fulfill the intent
 
     const fulfillTx = await s.optimismInboxContractSolver.fulfill(

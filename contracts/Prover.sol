@@ -7,7 +7,7 @@ import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWr
 import {IL1Block} from "./interfaces/IL1Block.sol";
 import {SimpleProver} from "./interfaces/SimpleProver.sol";
 
-contract Prover is SimpleProver{
+contract Prover is SimpleProver {
     // uint16 public constant NONCE_PACKING = 1;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
@@ -150,6 +150,14 @@ contract Prover is SimpleProver{
         }
     }
 
+    function _bytesToUint(bytes memory b) internal pure returns (uint256) {
+        uint256 number;
+        for (uint256 i = 0; i < b.length; i++) {
+            number = number + uint256(uint8(b[i])) * (2 ** (8 * (b.length - (i + 1))));
+        }
+        return number;
+    }
+
     function assembleGameStatusStorage(
         uint64 createdAt,
         uint64 resolvedAt,
@@ -202,6 +210,7 @@ contract Prover is SimpleProver{
 
         BlockProof memory blockProof = BlockProof({
             blockNumber: uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]))),
+            // blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
@@ -271,7 +280,7 @@ contract Prover is SimpleProver{
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
-            blockNumber: uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]))),
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
@@ -413,7 +422,7 @@ contract Prover is SimpleProver{
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
-            blockNumber: uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]))),
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
