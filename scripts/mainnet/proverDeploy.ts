@@ -1,27 +1,22 @@
 import { ethers, run, network } from 'hardhat'
-import { IntentSource, Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
-import { networks, actors } from '../../config/mainnet/config'
+import { networks } from '../../config/mainnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
 let counter: number = 0
-let minimumDuration: number = 0
 switch (networkName) {
   case 'base':
     counter = networks.base.intentSource.counter
-    minimumDuration = networks.base.intentSource.minimumDuration
     break
   case 'optimism':
     counter = networks.optimism.intentSource.counter
-    minimumDuration = networks.optimism.intentSource.counter
     break
   default:
     counter = 0
-    minimumDuration = 0
     break
 }
 console.log('Counter: ', counter)
@@ -79,52 +74,6 @@ async function main() {
   } catch (e) {
     console.log(`Error verifying prover`, e)
   }
-
-  // const intentSourceFactory = await ethers.getContractFactory('IntentSource')
-  // const intentSource: IntentSource = await intentSourceFactory.deploy(
-  //   minimumDuration,
-  //   counter,
-  // )
-  // console.log('intentSource deployed to:', await intentSource.getAddress())
-
-  // // adding a try catch as if the contract has previously been deployed will get a
-  // // verification error when deploying the same bytecode to a new address
-  // try {
-  //   if (network.name !== 'hardhat') {
-  //     console.log('Waiting for 30 seconds for Bytecode to be on chain')
-  //     await setTimeout(30000)
-  //     await run('verify:verify', {
-  //       address: await intentSource.getAddress(),
-  //       constructorArguments: [minimumDuration, counter],
-  //     })
-  //   }
-  //   console.log('intentSource verified at:', await intentSource.getAddress())
-  // } catch (e) {
-  //   console.log(`Error verifying intentSource`, e)
-  // }
-
-  // const inboxFactory = await ethers.getContractFactory('Inbox')
-
-  // const inbox: Inbox = await inboxFactory.deploy(deployer.address, false, [
-  //   actors.solver,
-  // ])
-  // console.log('Inbox deployed to:', await inbox.getAddress())
-
-  // // adding a try catch as if the contract has previously been deployed will get a
-  // // verification error when deploying the same bytecode to a new address
-  // try {
-  //   if (network.name !== 'hardhat') {
-  //     console.log('Waiting for 30 seconds for Bytecode to be on chain')
-  //     await setTimeout(30000)
-  //     await run('verify:verify', {
-  //       address: await inbox.getAddress(),
-  //       constructorArguments: [deployer.address, false, [actors.solver]],
-  //     })
-  //   }
-  //   console.log('Inbox verified at:', await inbox.getAddress())
-  // } catch (e) {
-  //   console.log(`Error verifying inbox`, e)
-  // }
 }
 
 main().catch((error) => {

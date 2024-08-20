@@ -33,6 +33,7 @@ import {
   bedrock,
   cannon,
 } from './testData'
+import exp from 'constants'
 
 // Unit Tests
 describe('Prover Unit Tests', () => {
@@ -220,6 +221,20 @@ describe('Prover End to End Tests', () => {
       0,
       0,
     )
+    const hardhatChainConfiguration = {
+      chainId: networkIds.hardhat,
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, //provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, //settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, //settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), //blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
+      },
+    }
+    console.log('hardhatChainConfiguration', hardhatChainConfiguration)
+
     const baseSepoliaChainConfiguration = {
       chainId: networks.baseSepolia.chainId, //chainId
       chainConfiguration: {
@@ -260,6 +275,7 @@ describe('Prover End to End Tests', () => {
     }
     const proverContract = await ethers.getContractFactory('Prover')
     prover = await proverContract.deploy([
+      hardhatChainConfiguration,
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
       ecoTestNetChainConfiguration,
@@ -268,12 +284,20 @@ describe('Prover End to End Tests', () => {
   it('test proveSettlementLayerState', async () => {
     await prover.proveSettlementLayerState(
       bedrock.settlementChain.rlpEncodedBlockData,
+    )
+
+    const provenSettlementLayerState = await prover.provenStates(
       networks.sepolia.chainId,
     )
-    const settlementProvenState = await prover.provenStates(
-      networks.sepolia.chainId,
+    expect(provenSettlementLayerState.blockNumber).to.equal(
+      bedrock.settlementChain.blockNumber,
     )
-    console.log('Settlement Layer State: ', settlementProvenState)
+    expect(provenSettlementLayerState.blockHash).to.equal(
+      bedrock.settlementChain.blockHash,
+    )
+    expect(provenSettlementLayerState.stateRoot).to.equal(
+      bedrock.settlementChain.worldStateRoot,
+    )
 
     // test proveWorldStateCannon'
     const RLPEncodedDisputeGameFactoryData = await prover.rlpEncodeDataLibList(
@@ -325,7 +349,6 @@ describe('Prover End to End Tests', () => {
       faultDisputeGameAccountProof:
         bedrock.baseSepolia.faultDisputeGame.accountProof,
     }
-    console.log('about to proveWorldStateCannon')
     await prover.proveWorldStateCannon(
       networkIds.baseSepolia,
       bedrock.baseSepolia.rlpEncodedendBatchBlockData,
@@ -335,7 +358,18 @@ describe('Prover End to End Tests', () => {
       faultDisputeGameProofData,
       bedrock.settlementChain.worldStateRoot,
     )
-    console.log('Proved L2 World State Cannon on BaseSepolia')
+    const provenBaseSepoliaLayerState = await prover.provenStates(
+      networks.baseSepolia.chainId,
+    )
+    expect(provenBaseSepoliaLayerState.blockNumber).to.equal(
+      bedrock.baseSepolia.endBatchBlock,
+    )
+    expect(provenBaseSepoliaLayerState.blockHash).to.equal(
+      bedrock.baseSepolia.endBatchBlockHash,
+    )
+    expect(provenBaseSepoliaLayerState.stateRoot).to.equal(
+      bedrock.baseSepolia.worldStateRoot,
+    )
 
     // test proveWorldStateBedrock
 
@@ -349,6 +383,19 @@ describe('Prover End to End Tests', () => {
       await prover.rlpEncodeDataLibList(bedrock.destinationChain.contractData),
       bedrock.baseSepolia.accountProof,
       bedrock.baseSepolia.worldStateRoot,
+    )
+
+    const provenEcoTestNetLayerState = await prover.provenStates(
+      networkIds.ecoTestNet,
+    )
+    expect(provenEcoTestNetLayerState.blockNumber).to.equal(
+      bedrock.destinationChain.endBatchBlock,
+    )
+    expect(provenEcoTestNetLayerState.blockHash).to.equal(
+      bedrock.destinationChain.endBatchBlockHash,
+    )
+    expect(provenEcoTestNetLayerState.stateRoot).to.equal(
+      bedrock.destinationChain.worldStateRoot,
     )
 
     // test proveIntent

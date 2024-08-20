@@ -202,21 +202,23 @@ contract Prover is SimpleProver {
      * in that block corresponds to the block on the oracle contract, and that it represents a valid
      * state.
      */
-    function proveSettlementLayerState(bytes calldata rlpEncodedBlockData, uint256 chainId) public {
+    function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {
         require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
+        uint256 settlementChainId = chainConfigurations[block.chainid].settlementChainId;
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
         BlockProof memory blockProof = BlockProof({
-            blockNumber: uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]))),
-            // blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
-        BlockProof memory existingBlockProof = provenStates[chainId];
+        BlockProof memory existingBlockProof = provenStates[settlementChainId];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            provenStates[chainId] = blockProof;
+            provenStates[settlementChainId] = blockProof;
+        } else {
+            revert("block number is not greater than the existing block number");
         }
     }
     /**

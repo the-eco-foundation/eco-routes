@@ -55,7 +55,7 @@ const networks: any = {
     network: 'optimism',
     chainId: networkIds.optimism,
     intentSourceAddress: '0x532BA2D408e77B773b1d05Dafa5E4A2392e5ED11',
-    proverContractAddress: '0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf',
+    proverContractAddress: '0x61e45006a0E86B896A68451A2dcd6cd7DA2A99B2',
     inboxAddress: '0xd01168742A682146095c3bCe1ad6527837593a85',
     intentSource: {
       minimumDuration: 1000,
@@ -78,7 +78,7 @@ const networks: any = {
     network: 'base',
     chainId: networkIds.base,
     intentSourceAddress: '0x5e46855a436FDc16342EB0689f6555Db59b0245B',
-    proverContractAddress: '0x4c0aC1529d1ef977C37c534255785F8c5fE948AF',
+    proverContractAddress: '0x104803322B5d123D74462D7513c005f70594d421',
     inboxAddress: '0x73f4eA10Ed8e6524aB3Ba60D604A6f33Cb95fc39',
     intentSource: {
       minimumDuration: 1000,

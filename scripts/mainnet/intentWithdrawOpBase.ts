@@ -97,7 +97,6 @@ async function proveSettlementLayerState() {
     ])
     tx = await s.optimismProverContract.proveSettlementLayerState(
       getBytes(hexlify(rlpEncodedBlockData)),
-      networkIds.mainnet,
     )
     await tx.wait()
     console.log('Prove Settlement state tx: ', tx.hash)
