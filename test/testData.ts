@@ -17,11 +17,13 @@ const networkIds: any = {
   baseSepolia: 84532,
   ecoTestNet: 471923,
   arbitrumSepolia: 421614,
+  hardhat: 31337,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
   471923: 'ecoTestNet',
   421614: 'arbitrumSepolia',
+  31337: 'hardhat',
 }
 
 const actors: any = {

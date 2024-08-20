@@ -221,6 +221,20 @@ describe('Prover End to End Tests', () => {
       0,
       0,
     )
+    const hardhatChainConfiguration = {
+      chainId: networkIds.hardhat,
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, //provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, //settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, //settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), //blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
+      },
+    }
+    console.log('hardhatChainConfiguration', hardhatChainConfiguration)
+
     const baseSepoliaChainConfiguration = {
       chainId: networks.baseSepolia.chainId, //chainId
       chainConfiguration: {
@@ -261,6 +275,7 @@ describe('Prover End to End Tests', () => {
     }
     const proverContract = await ethers.getContractFactory('Prover')
     prover = await proverContract.deploy([
+      hardhatChainConfiguration,
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
       ecoTestNetChainConfiguration,
@@ -269,7 +284,6 @@ describe('Prover End to End Tests', () => {
   it('test proveSettlementLayerState', async () => {
     await prover.proveSettlementLayerState(
       bedrock.settlementChain.rlpEncodedBlockData,
-      networks.sepolia.chainId,
     )
 
     const provenSettlementLayerState = await prover.provenStates(
