@@ -33,6 +33,7 @@ import {
   bedrock,
   cannon,
 } from './testData'
+import exp from 'constants'
 
 // Unit Tests
 describe('Prover Unit Tests', () => {
@@ -271,6 +272,19 @@ describe('Prover End to End Tests', () => {
       networks.sepolia.chainId,
     )
 
+    const provenSettlementLayerState = await prover.provenStates(
+      networks.sepolia.chainId,
+    )
+    expect(provenSettlementLayerState.blockNumber).to.equal(
+      bedrock.settlementChain.blockNumber,
+    )
+    expect(provenSettlementLayerState.blockHash).to.equal(
+      bedrock.settlementChain.blockHash,
+    )
+    expect(provenSettlementLayerState.stateRoot).to.equal(
+      bedrock.settlementChain.worldStateRoot,
+    )
+
     // test proveWorldStateCannon'
     const RLPEncodedDisputeGameFactoryData = await prover.rlpEncodeDataLibList(
       bedrock.baseSepolia.disputeGameFactory.contractData,
@@ -321,7 +335,6 @@ describe('Prover End to End Tests', () => {
       faultDisputeGameAccountProof:
         bedrock.baseSepolia.faultDisputeGame.accountProof,
     }
-    console.log('about to proveWorldStateCannon')
     await prover.proveWorldStateCannon(
       networkIds.baseSepolia,
       bedrock.baseSepolia.rlpEncodedendBatchBlockData,
@@ -331,7 +344,18 @@ describe('Prover End to End Tests', () => {
       faultDisputeGameProofData,
       bedrock.settlementChain.worldStateRoot,
     )
-    console.log('Proved L2 World State Cannon on BaseSepolia')
+    const provenBaseSepoliaLayerState = await prover.provenStates(
+      networks.baseSepolia.chainId,
+    )
+    expect(provenBaseSepoliaLayerState.blockNumber).to.equal(
+      bedrock.baseSepolia.endBatchBlock,
+    )
+    expect(provenBaseSepoliaLayerState.blockHash).to.equal(
+      bedrock.baseSepolia.endBatchBlockHash,
+    )
+    expect(provenBaseSepoliaLayerState.stateRoot).to.equal(
+      bedrock.baseSepolia.worldStateRoot,
+    )
 
     // test proveWorldStateBedrock
 
@@ -345,6 +369,19 @@ describe('Prover End to End Tests', () => {
       await prover.rlpEncodeDataLibList(bedrock.destinationChain.contractData),
       bedrock.baseSepolia.accountProof,
       bedrock.baseSepolia.worldStateRoot,
+    )
+
+    const provenEcoTestNetLayerState = await prover.provenStates(
+      networkIds.ecoTestNet,
+    )
+    expect(provenEcoTestNetLayerState.blockNumber).to.equal(
+      bedrock.destinationChain.endBatchBlock,
+    )
+    expect(provenEcoTestNetLayerState.blockHash).to.equal(
+      bedrock.destinationChain.endBatchBlockHash,
+    )
+    expect(provenEcoTestNetLayerState.stateRoot).to.equal(
+      bedrock.destinationChain.worldStateRoot,
     )
 
     // test proveIntent
