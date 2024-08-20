@@ -299,6 +299,19 @@ describe('Prover End to End Tests', () => {
       bedrock.settlementChain.worldStateRoot,
     )
 
+    const provenSettlementLayerState = await prover.provenStates(
+      networks.sepolia.chainId,
+    )
+    expect(provenSettlementLayerState.blockNumber).to.equal(
+      bedrock.settlementChain.blockNumber,
+    )
+    expect(provenSettlementLayerState.blockHash).to.equal(
+      bedrock.settlementChain.blockHash,
+    )
+    expect(provenSettlementLayerState.stateRoot).to.equal(
+      bedrock.settlementChain.worldStateRoot,
+    )
+
     // test proveWorldStateCannon'
     const RLPEncodedDisputeGameFactoryData = await prover.rlpEncodeDataLibList(
       bedrock.baseSepolia.disputeGameFactory.contractData,
