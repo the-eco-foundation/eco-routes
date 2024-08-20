@@ -1,10 +1,9 @@
 import { ethers, run, network } from 'hardhat'
-import { IntentSource, Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
-import { networks, actors } from '../../config/testnet/config'
+import { networks } from '../../config/testnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
@@ -45,23 +44,18 @@ const ecoTestNetChainConfiguration = {
   },
 }
 let counter: number = 0
-let minimumDuration: number = 0
 switch (networkName) {
   case 'baseSepolia':
     counter = networks.baseSepolia.intentSource.counter
-    minimumDuration = networks.baseSepolia.intentSource.minimumDuration
     break
   case 'optimismSepolia':
     counter = networks.optimismSepolia.intentSource.counter
-    minimumDuration = networks.optimismSepolia.intentSource.counter
     break
   case 'ecoTestNet':
     counter = networks.ecoTestNet.intentSource.counter
-    minimumDuration = networks.ecoTestNet.intentSource.counter
     break
   default:
     counter = 0
-    minimumDuration = 0
     break
 }
 console.log('Counter: ', counter)

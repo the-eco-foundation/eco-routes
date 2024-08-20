@@ -1,27 +1,22 @@
 import { ethers, run, network } from 'hardhat'
-import { IntentSource, Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
-import { networks, actors } from '../../config/mainnet/config'
+import { networks } from '../../config/mainnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
 let counter: number = 0
-let minimumDuration: number = 0
 switch (networkName) {
   case 'base':
     counter = networks.base.intentSource.counter
-    minimumDuration = networks.base.intentSource.minimumDuration
     break
   case 'optimism':
     counter = networks.optimism.intentSource.counter
-    minimumDuration = networks.optimism.intentSource.counter
     break
   default:
     counter = 0
-    minimumDuration = 0
     break
 }
 console.log('Counter: ', counter)
