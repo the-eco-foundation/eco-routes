@@ -34,8 +34,6 @@
 
 The Eco protocol is an intents-driven permissionless, trust-neutral protocol and liquidity network enabling cross-L2 transactions. We are live on Optimism and Base, with cross-chain routes running in both directions. See it in action using our wallet, [Bend](bend.eco).
 
-### How it works
-
 The ecosystem has three main parts:
 
 - [Intent Creation / Settlement](#intent-creation--settlement)
@@ -45,12 +43,16 @@ The ecosystem has three main parts:
 There are also three main types of ecosystem participants:
 
 - Users: Individuals who want to transact across different L2s.
-- Fillers: Individuals interested in performing transactions on behalf of others (for a fee).
-- Provers: Individuals
+- Fillers: Individuals interested in performing transactions on behalf of others for a fee.
+- Provers: Individuals interested in proving on the source chain that an intent was fulfilled on the destination chain.
 
-Users initiate a cross-chain transaction by creating an intent. Put simply, an intent represents a user's end goals on the destination chain. It would contain the calls they'd want to make, those calls' corresponding addresses, and the price they'd be willing to pay someone to execute this call on their behalf, along with some other metadata. Seeing this intent and being enticed by the fee they'd receive, a filler creates and executes a fulfill transaction on the destination chain that corresponds to the user's intent, storing the fulfilled intent's hash on the destination chain. A prover - perhaps the filler themselves or a service they subscribe to - sees this fulfillment transaction and performs a proof that the hash of the fulfilled transaction on the destination chain matches that of the intent on the source chain. After the intent proven, the filler can withdraw their reward.
+### How it works
+
+A User initiates a cross-chain transaction by creating an intent. Put simply, an intent represents a user's end goals on the destination chain. It contains the calls they'd want to make, those calls' corresponding addresses, and the price they'd be willing to pay someone to execute this call on their behalf, along with other metadata. Seeing this intent and being enticed by the fee they'd receive, a Filler creates and executes a fulfill transaction on the destination chain that corresponds to the user's intent, storing the fulfilled intent's hash on the destination chain. A Prover - perhaps the filler themselves or a service they subscribe to - sees this fulfillment transaction and performs a proof that the hash of the fulfilled transaction on the destination chain matches that of the intent on the source chain. After the intent proven, the filler can withdraw their reward.
 
 ## Intent Creation / Settlement
+
+Intent Creation and final settlement processes live on the IntentSource contract. 
 
 ## Intent Fulfillment / Execution
 
