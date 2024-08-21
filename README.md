@@ -2,8 +2,8 @@
 
 <br />
 <div align="center">
-  <a href="https://github.com/eco/ecoism">
-    <img src="https://assets.website-files.com/609bd719ffb9df9499369faa/60ca59c5b5d40fee5d7ea4c9_eco-symbol.svg" alt="Logo" width="80" height="80">
+  <a href="https://github.com/eco/eco-protocol">
+    <img src="https://i.postimg.cc/ryNBfZkN/Logo-Blue.png" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">Eco - Intent Protocol</h3>
@@ -11,7 +11,7 @@
   <p align="center">
     The amazing ECO intent protocol!
     <br />
-    <a href="https://github.com/eco/ecoism"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/eco/eco-protocol"><strong>Explore the docs »</strong></a>
     <br />
   </p>
 </div>
@@ -32,7 +32,7 @@
 
 ## About The Project
 
-This is the ECO intent Protocol Backend
+The Eco protocol is an intents-driven permissionless, trust-neutral liquidity network enabling cross-L2 transactions. We are live on
 
 ### Built With
 
