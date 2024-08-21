@@ -295,6 +295,8 @@ contract Prover is SimpleProver {
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
+        } else {
+            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
 
@@ -437,6 +439,8 @@ contract Prover is SimpleProver {
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
+        } else {
+            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
 
