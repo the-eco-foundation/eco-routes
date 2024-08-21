@@ -6,7 +6,7 @@
     <img src="https://i.postimg.cc/ryNBfZkN/Logo-Blue.png" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">Eco - Intent Protocol</h3>
+<h3 align="center">Eco Protocol</h3>
 
   <p align="center">
     The amazing ECO intent protocol!
@@ -32,7 +32,17 @@
 
 ## About The Project
 
-The Eco protocol is an intents-driven permissionless, trust-neutral liquidity network enabling cross-L2 transactions. We are live on
+The Eco protocol is an intents-driven permissionless, trust-neutral liquidity network enabling cross-L2 transactions. We are live on Optimism and Base, with cross-chain routes running in both directions. See it in action using our wallet, [Bend](bend.eco).
+
+The ecosystem has three main parts:
+- [Intent Creation / Settlement](#intent-creation--settlement)
+- [Intent Fulfillment / Execution](#intent-fulfillment--execution)
+- [Intent Proving](#intent-proving)
+
+
+## Intent Creation / Settlement
+## Intent Fulfillment / Execution
+## Intent Proving
 
 ### Built With
 
@@ -96,10 +106,10 @@ nvm ls
 1. Clone the repo
 
 ```bash
- git clone git@github.com:eco/ecoism.git
+ git clone git@github.com:eco/eco-protocol.git
 ```
 
-2. Install and build ecoism using yarn
+2. Install and build using yarn
 
 ```bash
  yarn install
@@ -173,6 +183,6 @@ Coming soon
 
 ## Contact
 
-Project Link: [https://github.com/eco/ecoism](https://github.com/eco/ecoism)
+Project Link: [https://github.com/eco/eco-protocol](https://github.com/eco/eco-protocol)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
