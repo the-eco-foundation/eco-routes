@@ -233,7 +233,6 @@ describe('Prover End to End Tests', () => {
           networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
       },
     }
-    console.log('hardhatChainConfiguration', hardhatChainConfiguration)
 
     const baseSepoliaChainConfiguration = {
       chainId: networks.baseSepolia.chainId, //chainId

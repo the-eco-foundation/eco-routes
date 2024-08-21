@@ -97,6 +97,13 @@ contract Prover is SimpleProver {
         bytes[] faultDisputeGameAccountProof;
     }
 
+    /**
+     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+     * @param _inputBlockNumber the block number we are trying to prove
+     * @param _latestBlockNumber the latest block number that has been proven
+     */
+    error OutdatedBlock(uint256 _inputBlockNumber, uint256 _latestBlockNumber);
+
     constructor(ChainConfigurationConstructor[] memory _chainConfigurations) {
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
             _setChainConfiguration(_chainConfigurations[i].chainId, _chainConfigurations[i].chainConfiguration);
@@ -218,7 +225,7 @@ contract Prover is SimpleProver {
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[settlementChainId] = blockProof;
         } else {
-            revert("block number is not greater than the existing block number");
+            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
     /**
