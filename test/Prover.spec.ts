@@ -233,7 +233,6 @@ describe('Prover End to End Tests', () => {
           networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
       },
     }
-    console.log('hardhatChainConfiguration', hardhatChainConfiguration)
 
     const baseSepoliaChainConfiguration = {
       chainId: networks.baseSepolia.chainId, //chainId
@@ -284,19 +283,6 @@ describe('Prover End to End Tests', () => {
   it('test proveSettlementLayerState', async () => {
     await prover.proveSettlementLayerState(
       bedrock.settlementChain.rlpEncodedBlockData,
-    )
-
-    const provenSettlementLayerState = await prover.provenStates(
-      networks.sepolia.chainId,
-    )
-    expect(provenSettlementLayerState.blockNumber).to.equal(
-      bedrock.settlementChain.blockNumber,
-    )
-    expect(provenSettlementLayerState.blockHash).to.equal(
-      bedrock.settlementChain.blockHash,
-    )
-    expect(provenSettlementLayerState.stateRoot).to.equal(
-      bedrock.settlementChain.worldStateRoot,
     )
 
     const provenSettlementLayerState = await prover.provenStates(
