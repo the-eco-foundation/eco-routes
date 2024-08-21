@@ -97,6 +97,13 @@ contract Prover is SimpleProver {
         bytes[] faultDisputeGameAccountProof;
     }
 
+    /**
+     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+     * @param _inputBlockNumber the block number we are trying to prove
+     * @param _latestBlockNumber the latest block number that has been proven
+     */
+    error OutdatedBlock(uint256 _inputBlockNumber, uint256 _latestBlockNumber);
+
     constructor(ChainConfigurationConstructor[] memory _chainConfigurations) {
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
             _setChainConfiguration(_chainConfigurations[i].chainId, _chainConfigurations[i].chainConfiguration);
@@ -202,9 +209,10 @@ contract Prover is SimpleProver {
      * in that block corresponds to the block on the oracle contract, and that it represents a valid
      * state.
      */
-    function proveSettlementLayerState(bytes calldata rlpEncodedBlockData, uint256 chainId) public {
+    function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {
         require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
+        uint256 settlementChainId = chainConfigurations[block.chainid].settlementChainId;
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
@@ -213,9 +221,11 @@ contract Prover is SimpleProver {
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
-        BlockProof memory existingBlockProof = provenStates[chainId];
+        BlockProof memory existingBlockProof = provenStates[settlementChainId];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            provenStates[chainId] = blockProof;
+            provenStates[settlementChainId] = blockProof;
+        } else {
+            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
     /**

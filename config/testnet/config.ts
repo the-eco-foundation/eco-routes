@@ -83,7 +83,7 @@ const networks: any = {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
     intentSourceAddress: '0x8c0332242c49FC3566bD7D9EB932b13Ed7B6E40F',
-    proverContractAddress: '0xba980DEcc39F5199769e27a84b1148f446345856',
+    proverContractAddress: '0xB01647c79402aDF27cB2908AD6D81fF56B7890bC',
     inboxAddress: '0x3487f465E285a4eC20a526903f89C74b172fE845',
     intentSource: {
       minimumDuration: 1000,
@@ -112,7 +112,7 @@ const networks: any = {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
     intentSourceAddress: '0x4fFf766A3E4A77584AaE21EaB8B2C2241619D983',
-    proverContractAddress: '0x755e48140807D290916F2a2777d0eCD905Ce5a73',
+    proverContractAddress: '0x7BE0456E06559988B97Db7444FC3E5B5930B6D59',
     inboxAddress: '0xe547628e5F7AEf5FEd847491b36Bf8bbF30E93E1',
     intentSource: {
       minimumDuration: 1000,
@@ -150,7 +150,7 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     intentSourceAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
-    proverContractAddress: '0x62fd344CE4E0e4c3d9C98D64390cA2739aF9021f',
+    proverContractAddress: '0xcF69B1e5517AA054515d5a8A97eA53260Dd86502',
     inboxAddress: '0xc06CA8866586cF19bf22E102a3083673C4246629',
     intentSource: {
       minimumDuration: 1000,

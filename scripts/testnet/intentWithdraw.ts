@@ -155,7 +155,6 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
     console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
     tx = await s.ecoTestNetProverContract.proveSettlementLayerStatePriveleged(
       getBytes(hexlify(rlpEncodedBlockData)),
-      networks.sepolia.chainId,
     )
     await tx.wait()
     console.log('Prove Settlement world state tx: ', tx.hash)
@@ -225,7 +224,6 @@ async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
     console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
     tx = await s.baseSepoliaProverContract.proveSettlementLayerState(
       getBytes(hexlify(rlpEncodedBlockData)),
-      networks.sepolia.chainId,
     )
     await tx.wait()
     console.log('Prove Settlement world state tx: ', tx.hash)
