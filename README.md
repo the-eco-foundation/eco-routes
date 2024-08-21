@@ -17,7 +17,10 @@
 </div>
 
 - [About The Project](#about-the-project)
--
+- [Components](#Components)
+    - [Intent Creation / Settlement](#intent-creation--settlement)
+    - [Intent Fulfillment / Execution](#intent-fulfillment--execution)
+    - [Intent Proving](#intent-proving)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -50,13 +53,21 @@ There are also three main types of ecosystem participants:
 
 A User initiates a cross-chain transaction by creating an intent. Put simply, an intent represents a user's end goals on the destination chain. It contains the calls they'd want to make, those calls' corresponding addresses, and the price they'd be willing to pay someone to execute this call on their behalf, along with other metadata. Seeing this intent and being enticed by the fee they'd receive, a Filler creates and executes a fulfill transaction on the destination chain that corresponds to the user's intent, storing the fulfilled intent's hash on the destination chain. A Prover - perhaps the filler themselves or a service they subscribe to - sees this fulfillment transaction and performs a proof that the hash of the fulfilled transaction on the destination chain matches that of the intent on the source chain. After the intent proven, the filler can withdraw their reward.
 
-## Intent Creation / Settlement
+## Components
 
-Intent Creation and final settlement processes live on the IntentSource contract. 
+Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each of n supported chain will have its own IntentSource(1), Inbox(1), and Provers(n-1)
 
-## Intent Fulfillment / Execution
+### Intent Creation / Settlement
 
-## Intent Proving
+Intent creation and filler settlement processes both exist on the IntentSource contract on the source chain, and is where the full intent lifecycle will start and end. Both Users and Fillers interact with this contract, Users to create intents and Fillers to claim their reward after fulfillment has been proven.
+
+### Intent Fulfillment / Execution
+
+Intent fulfillment lives on the Inbox contract, which lives on the destination chain. Fillers interact with this contract to fulfill Users' intents.
+
+### Intent Proving
+
+Intent proving lives on the Prover contact, which is on the source chain. Provers are the parties that should be interacting with the Prover contract, but the IntentSource contract does read state from it. 
 
 ## Getting Started
 
