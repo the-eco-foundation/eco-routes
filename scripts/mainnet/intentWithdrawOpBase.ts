@@ -202,7 +202,6 @@ async function proveWorldStateBedrock(
     await proveOutputTX.wait()
     console.log('Prove L2 World State tx: ', proveOutputTX.hash)
     return {
-      l1BatchIndex,
       endBatchBlockData,
     }
   } catch (e) {
@@ -307,13 +306,13 @@ async function main() {
   let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
-    intentHash = intent.hash
-    intentFulfillTransaction = intent.fulfillTransaction
+    intentHash = intent.opBaseBedrock.hash
+    intentFulfillTransaction = intent.opBaseBedrock.fulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     const { settlementBlockTag, settlementStateRoot } =
       await proveSettlementLayerState()
-    const { l1BatchIndex, endBatchBlockData } = await proveWorldStateBedrock(
+    const { endBatchBlockData } = await proveWorldStateBedrock(
       intentFulfillTransaction,
       settlementBlockTag,
       settlementStateRoot,

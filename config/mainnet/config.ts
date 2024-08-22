@@ -1,3 +1,5 @@
+import { resolveAddress } from 'ethers'
+
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0,
@@ -36,9 +38,26 @@ const intent: any = {
   rewardAmounts: [1001],
   targetAmounts: [1000],
   duration: 3600,
-  hash: '0xc945470804d20f738d1eb2cebff79137932c5a26cab431b756ec4d2e99b114e0',
-  fulfillTransaction:
-    '0xba219e265cd2d7903195ad736c2a35262b837e56cbf0afb3e639b59c7de98b5e',
+  opBaseBedrock: {
+    hash: '0xefc1e9809e636997b92978c4e12446ee0c61a726d26e578f9e7b15514c7935fd',
+    fulfillTransaction:
+      '0xa1e172f33a2bd9675258f11ac33ce03b533ea24056a8d9481572b183e5b2918c',
+  },
+  baseOpCannon: {
+    settlementBlockTag: '0x13a03ce', // 20579278n
+    settlementStateRoot:
+      '0xa0fda7c0651635b3d863322fd33ef463625ccdf797e946c8fd8e5fe16738f9fd',
+    // faultDisputeGame: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
+    faultDisputeGame: {
+      address: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
+      creationBlock: '0x1398b5d', // 20548445n
+      resolvedBlock: '0x139ed4d', // 20573517n
+      gameIndex: 1650,
+    },
+    hash: '0xf362fcd0ffb85c491f5d883ddd08c4e331d8bf7efc152ed97a62e912de71b3f4',
+    fulfillTransaction:
+      '0x2d44b7830f7fa3e78249739f4743edde5eaa73bd5e779de679271eb849d99baf',
+  },
 }
 
 const networks: any = {
@@ -55,7 +74,7 @@ const networks: any = {
     network: 'optimism',
     chainId: networkIds.optimism,
     intentSourceAddress: '0x532BA2D408e77B773b1d05Dafa5E4A2392e5ED11',
-    proverContractAddress: '0x8D4802BE8542f3ac41E25A2c6526AdBa269A1806',
+    proverContractAddress: '0x82A4c0d2BdE3929320130F29b7F7aE937b5B960A',
     inboxAddress: '0xd01168742A682146095c3bCe1ad6527837593a85',
     intentSource: {
       minimumDuration: 1000,
@@ -78,7 +97,7 @@ const networks: any = {
     network: 'base',
     chainId: networkIds.base,
     intentSourceAddress: '0x5e46855a436FDc16342EB0689f6555Db59b0245B',
-    proverContractAddress: '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394',
+    proverContractAddress: '0xaa48E74Da37ec626C2547f40f2fEB3BB2Fc2AbE4',
     inboxAddress: '0x73f4eA10Ed8e6524aB3Ba60D604A6f33Cb95fc39',
     intentSource: {
       minimumDuration: 1000,

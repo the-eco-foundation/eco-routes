@@ -143,6 +143,17 @@ contract Prover is SimpleProver {
 
         return RLPWriter.writeList(dataList);
     }
+    /// @notice Packs values into a 32 byte GameId type.
+    /// @param _gameType The game type.
+    /// @param _timestamp The timestamp of the game's creation.
+    /// @param _gameProxy The game proxy address.
+    /// @return gameId_ The packed GameId.
+
+    function pack(uint32 _gameType, uint64 _timestamp, address _gameProxy) public pure returns (bytes32 gameId_) {
+        assembly {
+            gameId_ := or(or(shl(224, _gameType), shl(160, _timestamp)), _gameProxy)
+        }
+    }
 
     /// @notice Unpacks values from a 32 byte GameId type.
     /// @param _gameId The packed GameId.
