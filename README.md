@@ -61,7 +61,7 @@ Within the following sections, the terms 'source chain' and 'destination chain' 
 
 Intent creation and filler settlement processes both exist on the `IntentSource` on the source chain, and is where the full intent lifecycle will start and end. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
 
-#### __*API*__
+#### __**API**__
 
 ##### Events
 
