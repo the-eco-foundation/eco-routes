@@ -65,9 +65,8 @@ Intent creation and filler settlement processes both exist on the `IntentSource`
 
 ##### Events
 
-_IntentCreated_: emitted on a successful call to createIntent
+__IntentCreated__: emitted on a successful call to createIntent
 Attributes:
-
 - `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
 - `_creator` (address) the address that created the intent
 - `_destinationChain` (uint256) the destination chain
@@ -76,6 +75,12 @@ Attributes:
 - `_rewardTokens` (address[]) the addresses of reward tokens
 - `_rewardAmounts` (uint256[]) the amounts of reward tokens
 - `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the solver to redeem rewards.
+
+__Withdrawal__: emitted on successful call to withdraw
+Attributes: 
+- _hash (bytes32) the hash of the intent on which withdraw was attempted
+- _recipient (address) the address that received the rewards for this intent
+
 
 ### Intent Fulfillment / Execution
 
