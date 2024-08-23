@@ -16,10 +16,9 @@ Within the following sections, the terms 'source chain' and 'destination chain' 
 Intent creation and filler settlement processes both exist on the `IntentSource` on the source chain, and is where the full intent lifecycle will start and end. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
 
 #### Events
-
 <h5><ins>**IntentCreated**:</ins> emitted on a successful call to createIntent</h5>
 
-Attributes:\
+Attributes:
 - `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
 - `_creator` (address) the address that created the intent
 - `_destinationChain` (uint256) the destination chain
