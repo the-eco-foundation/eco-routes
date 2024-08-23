@@ -17,7 +17,7 @@ Intent creation and filler settlement processes both exist on the `IntentSource`
 
 #### Events
 
-**IntentCreated**: emitted on a successful call to createIntent
+*__IntentCreated__: emitted on a successful call to createIntent*
 Attributes:
 
 - `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
