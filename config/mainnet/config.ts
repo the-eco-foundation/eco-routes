@@ -47,14 +47,14 @@ const intent: any = {
       '0x2c8ae6de0f5432d5b06626b19ec08f8948fec8c200a141bfc802dd56c310c668',
     // faultDisputeGame: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
     faultDisputeGame: {
-      address: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
-      creationBlock: '0x1398b5d', // 20548445n
-      resolvedBlock: '0x139ed4d', // 20573517n
-      gameIndex: 1650,
+      address: '0x212B650A940B2C9c924De8AA2c225a06Fca2E3f7',
+      creationBlock: '0x139d029', // 20566057n
+      resolvedBlock: '0x13a3205', // 20591109n
+      gameIndex: 1709,
     },
-    hash: '0xf362fcd0ffb85c491f5d883ddd08c4e331d8bf7efc152ed97a62e912de71b3f4',
+    hash: '0xfc0b72b6365e7313594d08d4aadf8132b05e9a125318d1a76e7bbf411b3a8611',
     fulfillTransaction:
-      '0x2d44b7830f7fa3e78249739f4743edde5eaa73bd5e779de679271eb849d99baf',
+      '0xb07002c38aa8df7ff282c382057faecea8eaa40d11c6b5ac3b89f32a84c40adb',
   },
 }
 
@@ -95,7 +95,7 @@ const networks: any = {
     network: 'base',
     chainId: networkIds.base,
     intentSourceAddress: '0x5e46855a436FDc16342EB0689f6555Db59b0245B',
-    proverContractAddress: '0x7fac74E2eDF61bA01d18Bb0d1D44E2101367952c',
+    proverContractAddress: '0x532BA2D408e77B773b1d05Dafa5E4A2392e5ED11',
     inboxAddress: '0x73f4eA10Ed8e6524aB3Ba60D604A6f33Cb95fc39',
     intentSource: {
       minimumDuration: 1000,

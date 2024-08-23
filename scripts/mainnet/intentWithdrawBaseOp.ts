@@ -437,14 +437,16 @@ async function proveWorldStateCannonBaseToOptimism(
     // console.log('disputeGameFactoryProofData: ', disputeGameFactoryProofData)
     // console.log('faultDisputeGameProofData: ', faultDisputeGameProofData)
     // console.log('settlementStateRoot: ', settlementStateRoot)
-    await s.baseProverContract.proveWorldStateCannon(
-      networkIds.optimism,
-      rlpEncodedEndBatchBlockData,
-      endBatchBlockData.stateRoot,
-      disputeGameFactoryProofData,
-      faultDisputeGameProofData,
-      settlementStateRoot,
-    )
+    const proveWorldStateCannonTx =
+      await s.baseProverContract.proveWorldStateCannon(
+        networkIds.optimism,
+        rlpEncodedEndBatchBlockData,
+        endBatchBlockData.stateRoot,
+        disputeGameFactoryProofData,
+        faultDisputeGameProofData,
+        settlementStateRoot,
+      )
+    await proveWorldStateCannonTx.wait()
     console.log('ProvenWorldStateCannon Base to Optimism')
     return endBatchBlockData
   } catch (e) {
@@ -473,6 +475,8 @@ async function proveIntent(intentHash, endBatchBlockData) {
   const intentInfo =
     await s.baseIntentSourceContractClaimant.getIntent(intentHash)
 
+  console.log('intentInfo: ', intentInfo)
+
   const abiCoder = AbiCoder.defaultAbiCoder()
   const intermediateHash = keccak256(
     abiCoder.encode(
@@ -490,6 +494,19 @@ async function proveIntent(intentHash, endBatchBlockData) {
 
   const balance = stripZerosLeft(toBeHex(intentInboxProof.balance)) // balance
   const nonce = toBeHex(intentInboxProof.nonce) // nonce
+  console.log('networkIds.optimism: ', networkIds.optimism)
+  console.log('actors.claimant: ', actors.claimant)
+  console.log(
+    'networks.optimism.inboxAddress: ',
+    networks.optimism.inboxAddress,
+  )
+  console.log('intermediateHash: ', intermediateHash)
+  console.log(
+    'intentInboxProof.storageProof[0].proof: ',
+    intentInboxProof.storageProof[0].proof,
+  )
+  console.log('intentInboxProof.accountProof: ', intentInboxProof.accountProof)
+  console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
   try {
     const proveIntentTx = await s.baseProverContract.proveIntent(
       networkIds.optimism,
@@ -498,8 +515,8 @@ async function proveIntent(intentHash, endBatchBlockData) {
       intermediateHash,
       intentInboxProof.storageProof[0].proof,
       await s.baseProverContract.rlpEncodeDataLibList([
-        nonce,
-        balance,
+        toBeHex(intentInboxProof.nonce), // nonce
+        stripZerosLeft(toBeHex(intentInboxProof.balance)),
         intentInboxProof.storageHash,
         intentInboxProof.codeHash,
       ]),
@@ -582,8 +599,8 @@ async function main() {
     //   intentFulfillTransaction,
     //   settlementStateRoot,
     // )
-    // await proveIntent(intentHash, l1BatchIndex, endBatchBlockData)
-    // await withdrawReward(intentHash)
+    await proveIntent(intentHash, endBatchBlockData)
+    await withdrawReward(intentHash)
     console.log('End of Main')
   } catch (e) {
     console.log(e)
