@@ -17,8 +17,7 @@ Intent creation and filler settlement processes both exist on the `IntentSource`
 
 #### Events
 
-*__IntentCreated__: emitted on a successful call to createIntent*
-
+<ins>*__IntentCreated__:*</ins> emitted on a successful call to createIntent
 Attributes:
 - `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
 - `_creator` (address) the address that created the intent
@@ -37,7 +36,7 @@ Attributes:
 
 #### API
 
-*__createIntent__: Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets. If a proof ON THE SOURCE CHAIN is not completed by the expiry time, the reward funds will not be redeemable by the solver, REGARDLESS OF WHETHER THE INSTRUCTIONS WERE EXECUTED. The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent solver. The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.*
+*__createIntent__:* Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets. If a proof on the source chain is not completed by the expiry time, the reward funds will not be redeemable by the solver, __regardless of whether the instructions were executed__. The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent filler. __The inbox contract on the destination chain will be the msg.sender for the instructions that are executed__.
 
 Attributes:
 - `_destinationChain` (uint256) the chain on which the user wishes to transact
