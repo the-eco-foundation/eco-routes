@@ -21,10 +21,7 @@ import {
   intent,
 } from '../../config/mainnet/config'
 import { s } from '../../config/mainnet/setup'
-import { int } from 'hardhat/internal/core/params/argumentTypes'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
-import { latest } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
-// import { network } from 'hardhat'
 
 async function getOptimismRLPEncodedBlock(block) {
   console.log('In getOptimismRLPEncodedBlock')
@@ -322,8 +319,10 @@ async function proveWorldStateCannonBaseToOptimism(
     faultDisputeGameAccountProof: faultDisputeGameRootClaimProof.accountProof,
   }
   try {
-    const { gameType_, timestamp_, gameProxy_ } =
-      await s.baseProverContract.unpack(disputeGameFactoryProofData.gameId)
+    // const { gameType_, timestamp_, gameProxy_ } =
+    const { gameProxy_ } = await s.baseProverContract.unpack(
+      disputeGameFactoryProofData.gameId,
+    ) // gameType_, timestamp_, gameProxy_ )
     // proveStorageDisputeGameFactory
     await s.baseProverContract.proveStorage(
       disputeGameFactoryStorageSlot,
@@ -423,8 +422,6 @@ async function proveIntent(intentHash, endBatchBlockData) {
     ),
   )
 
-  const balance = stripZerosLeft(toBeHex(intentInboxProof.balance)) // balance
-  const nonce = toBeHex(intentInboxProof.nonce) // nonce
   try {
     const proveIntentTx = await s.baseProverContract.proveIntent(
       networkIds.optimism,
