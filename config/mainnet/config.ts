@@ -95,7 +95,7 @@ const networks: any = {
     network: 'base',
     chainId: networkIds.base,
     intentSourceAddress: '0x5e46855a436FDc16342EB0689f6555Db59b0245B',
-    proverContractAddress: '0x82d64aB9f63Db4D46da927500815928C5E54b966',
+    proverContractAddress: '0x7fac74E2eDF61bA01d18Bb0d1D44E2101367952c',
     inboxAddress: '0x73f4eA10Ed8e6524aB3Ba60D604A6f33Cb95fc39',
     intentSource: {
       minimumDuration: 1000,

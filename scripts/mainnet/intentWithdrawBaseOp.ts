@@ -304,7 +304,8 @@ async function proveWorldStateCannonBaseToOptimism(
       faultDisputeGameContractData,
     )
   const faultDisputeGameProofData = {
-    faultDisputeGameStateRoot: endBatchBlockData.stateRoot,
+    // faultDisputeGameStateRoot: endBatchBlockData.stateRoot,
+    faultDisputeGameStateRoot: faultDisputeGameRootClaimProof.storageHash,
     faultDisputeGameRootClaimStorageProof:
       faultDisputeGameRootClaimProof.storageProof[0].proof,
     faultDisputeGameStatusSlotData: {
@@ -354,17 +355,17 @@ async function proveWorldStateCannonBaseToOptimism(
       settlementStateRoot,
     )
     // proveStorageFaultDisputeGameRootClaim
-    // console.log('proveStorageFaultDisputeGameRootClaim')
-    // console.log('_key: ', faultDisputeGameRootClaimStorageSlot)
-    // console.log(
-    //   '_value: ',
-    //   encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
-    // )
-    // console.log(
-    //   '_proof: ',
-    //   faultDisputeGameRootClaimProof.storageProof[0].proof,
-    // )
-    // console.log('_root: ', faultDisputeGameRootClaimProof.storageHash)
+    console.log('proveStorageFaultDisputeGameRootClaim')
+    console.log('_key: ', faultDisputeGameRootClaimStorageSlot)
+    console.log(
+      '_value: ',
+      encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
+    )
+    console.log(
+      '_proof: ',
+      faultDisputeGameRootClaimProof.storageProof[0].proof,
+    )
+    console.log('_root: ', faultDisputeGameRootClaimProof.storageHash)
     await s.baseProverContract.proveStorage(
       faultDisputeGameRootClaimStorageSlot,
       encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
@@ -398,6 +399,7 @@ async function proveWorldStateCannonBaseToOptimism(
         faultDisputeGameGameStatus,
         faultDisputeGameInitialized,
         faultDisputeGameL2BlockNumberChallenged,
+        // true,
       ),
       // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
       faultDisputeGameRootResolvedProof.storageProof[0].proof,
@@ -415,19 +417,19 @@ async function proveWorldStateCannonBaseToOptimism(
     )
     console.log('here')
 
-    // console.log(
-    //   'faultDisputeGameData.rootClaim_: ',
-    //   faultDisputeGameData.rootClaim_,
-    // )
-    // console.log(
-    //   'generateOutputRoot             : ',
-    //   await s.baseProverContract.generateOutputRoot(
-    //     0,
-    //     endBatchBlockData.stateRoot,
-    //     disputeGameFactoryProofData.messagePasserStateRoot,
-    //     disputeGameFactoryProofData.latestBlockHash,
-    //   ),
-    // )
+    console.log(
+      'faultDisputeGameData.rootClaim_: ',
+      faultDisputeGameData.rootClaim_,
+    )
+    console.log(
+      'generateOutputRoot             : ',
+      await s.baseProverContract.generateOutputRoot(
+        0,
+        endBatchBlockData.stateRoot,
+        disputeGameFactoryProofData.messagePasserStateRoot,
+        disputeGameFactoryProofData.latestBlockHash,
+      ),
+    )
     // console.log('proveWorldStateCannon')
     // console.log('networkIds.optimism: ', networkIds.optimism)
     // console.log('rlpEncodedEndBatchBlockData: ', rlpEncodedEndBatchBlockData)
@@ -543,16 +545,16 @@ async function main() {
   let intentHash, intentFulfillTransaction, faultDisputeGame
   try {
     console.log('In intentWithdrawBaseOp')
-    const settlementBlockTag = intent.baseOpCannon.settlementBlockTag
-    const settlementStateRoot = intent.baseOpCannon.settlementStateRoot
+    // const settlementBlockTag = intent.baseOpCannon.settlementBlockTag
+    // const settlementStateRoot = intent.baseOpCannon.settlementStateRoot
     faultDisputeGame = intent.baseOpCannon.faultDisputeGame
     intentHash = intent.baseOpCannon.hash
     intentFulfillTransaction = intent.baseOpCannon.fulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     console.log('faultDisputeGame: ', faultDisputeGame)
-    // const { settlementBlockTag, settlementStateRoot } =
-    //   await proveSettlementLayerState()
+    const { settlementBlockTag, settlementStateRoot } =
+      await proveSettlementLayerState()
     console.log('settlementBlockTag: ', settlementBlockTag)
     console.log('settlementStateRoot: ', settlementStateRoot)
     // await getLatestResolvedFaultDisputeGame()
