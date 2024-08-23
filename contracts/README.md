@@ -41,7 +41,7 @@ Attributes:
 ### Methods
 
 <h4><ins>createIntent</ins></h4>
-<h5> Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets. If a proof on the source chain is not completed by the expiry time, the reward funds will not be redeemable by the solver, **regardless of whether the instructions were executed**. The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent filler. **The inbox contract on the destination chain will be the msg.sender for the instructions that are executed. </h5>
+<h5> Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets. If a proof on the source chain is not completed by the expiry time, the reward funds will not be redeemable by the solver, <ins>regardless of whether the instructions were executed</ins>. The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent filler. <ins>The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.</ins></h5>
 
 Attributes:
 - `_destinationChain` (uint256) the chain on which the user wishes to transact
