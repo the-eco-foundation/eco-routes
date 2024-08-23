@@ -23,6 +23,7 @@ import {
 import { s } from '../../config/mainnet/setup'
 import { int } from 'hardhat/internal/core/params/argumentTypes'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
+import { latest } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
 // import { network } from 'hardhat'
 
 async function getOptimismRLPEncodedBlock(block) {
@@ -167,17 +168,27 @@ async function proveWorldStateCannonBaseToOptimism(
   // For more information on how DisputeGameFactory utility functions, see the following code
   // https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L82
   // get the endBatchBlockData
-  const endBatchBlockHex = toQuantity(
-    await faultDisputeGameContract.l2BlockNumber(),
-  )
+
+  // Note: For all proofs we use two block numbers
+  // For anything related to the settlement chain we use settlementBlockTag
+  // For anything related to the destination chain we use endBatchBlockHex
+  const disputeGameFactoryContract = s.mainnetSettlementContractOptimism
+  // Get the faultDisputeGame game data
+  const faultDisputeGameData = await faultDisputeGameContract.gameData()
+  const faultDisputeGameCreatedAt = await faultDisputeGameContract.createdAt()
+  const faultDisputeGameResolvedAt = await faultDisputeGameContract.resolvedAt()
+  const faultDisputeGameGameStatus = await faultDisputeGameContract.status()
+  const faultDisputeGameInitialized = true
+  const faultDisputeGameL2BlockNumberChallenged = false
+  const faultDisputeGameL2BlockNumber =
+    await faultDisputeGameContract.l2BlockNumber()
+  const endBatchBlockHex = toQuantity(faultDisputeGameL2BlockNumber)
   const endBatchBlockData = await s.optimismProvider.send(
     'eth_getBlockByNumber',
     [endBatchBlockHex, false],
   )
-  const rlpEncodedBlockData =
+  const rlpEncodedEndBatchBlockData =
     await getOptimismRLPEncodedBlock(endBatchBlockData)
-  // console.log('endBatchBlockData: ', endBatchBlockData)
-  console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
 
   // Get the Message Parser State Root at the end block of the batch
   const l2MesagePasserProof = await s.optimismProvider.send('eth_getProof', [
@@ -185,95 +196,264 @@ async function proveWorldStateCannonBaseToOptimism(
     [],
     endBatchBlockHex,
   ])
-  // Get the faultDisputeGame game data
-  const faultDisputeGameData = await faultDisputeGameContract.gameData()
-  const faultDisputeGameCreatedAt = await faultDisputeGameContract.createdAt()
-  console.log('faultDisputeGameData: ', faultDisputeGameData)
-  console.log(
-    'faultDisputeGameData.gameType_: ',
-    faultDisputeGameData.gameType_,
-  )
-  console.log(
-    'faultDisputeGameData.rootClaim_: ',
-    faultDisputeGameData.rootClaim_,
-  )
-  console.log(
-    'faultDisputeGameData.extraData_: ',
-    faultDisputeGameData.extraData_,
-  )
+
   // Get the DisputeGameFactory data GameId
   const faultDisputeGameId = await s.baseProverContract.pack(
     faultDisputeGameData.gameType_,
     faultDisputeGameCreatedAt,
     faultDisputeGameAddress,
   )
-  console.log('gameId: ', faultDisputeGameId)
-
-  const DisputeGameFactoryProof = await s.mainnetProvider.send('eth_getProof', [
+  // TODO: this needs to be enhanced to loop through all games until we find the correct gameIndex
+  const lastGame = (await disputeGameFactoryContract.gameCount()) - 50n
+  console.log('lastGame: ', lastGame)
+  // Get the DisputeGameFactory gameIndex for this faultDisputeGame
+  const latestGames = await disputeGameFactoryContract.findLatestGames(
+    faultDisputeGameData.gameType_,
+    lastGame,
+    50, // note if looking up more than 50 games it does not consistently return all the contracts have seen it return between 90 and 138 with limited tests
+  )
+  console.log('latestGames.length: ', latestGames.length)
+  // TODO gameIndex needs to come from above data by looking for matching faultDisputeGame rootClaim and extraData
+  const gameIndex = intent.baseOpCannon.faultDisputeGame.gameIndex
+  // disputeGameFactoryStorageSlot is where the gameId is stored
+  // In solidity
+  // uint256(keccak256(abi.encode(L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER)))
+  //                       + disputeGameFactoryProofData.gameIndex
+  const disputeGameFactorySlotNumber = 104
+  const disputeGameFactoryGameIndex = gameIndex
+  const arrayLengthSlot = zeroPadValue(
+    toBeArray(disputeGameFactorySlotNumber),
+    32,
+  )
+  const firstElementSlot = solidityPackedKeccak256(
+    ['bytes32'],
+    [arrayLengthSlot],
+  )
+  const disputeGameFactoryStorageSlot = toBeHex(
+    BigInt(firstElementSlot) + BigInt(Number(disputeGameFactoryGameIndex)),
+    32,
+  )
+  const disputeGameFactoryProof = await s.mainnetProvider.send('eth_getProof', [
     networks.mainnet.settlementContracts.optimism,
-    [l1BatchSlot],
+    [disputeGameFactoryStorageSlot],
     settlementBlockTag,
   ])
-
+  const disputeGameFactoryContractData = [
+    toBeHex(disputeGameFactoryProof.nonce), // nonce
+    stripZerosLeft(toBeHex(disputeGameFactoryProof.balance)), // balance
+    disputeGameFactoryProof.storageHash, // storageHash
+    disputeGameFactoryProof.codeHash, // CodeHash
+  ]
+  const RLPEncodedDisputeGameFactoryData =
+    await s.baseProverContract.rlpEncodeDataLibList(
+      disputeGameFactoryContractData,
+    )
   // populate fields for the DisputeGameFactory proof
-  // const disputeGameFactoryProofData = {
-  //   // destinationWorldStateRoot: bedrock.baseSepolia.endBatchBlockStateRoot,
-  //   messagePasserStateRoot: l2MesagePasserProof.storageHash,
-  //   latestBlockHash: endBatchBlockData.hash,
-  //   gameIndex: intent.baseOpCannon.faultDisputeGame.gameIndex,
-
-  //   // gameId: toBeHex(stripZerosLeft(config.cannon.gameId)),
-  //   gameId: faultDisputeGameId,
-  //   disputeFaultGameStorageProof:
-  //     bedrock.baseSepolia.disputeGameFactory.storageProof,
-  //   rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
-
-  //   disputeGameFactoryAccountProof:
-  //     bedrock.baseSepolia.disputeGameFactory.accountProof,
-  // }
+  const disputeGameFactoryProofData = {
+    messagePasserStateRoot: l2MesagePasserProof.storageHash,
+    latestBlockHash: endBatchBlockData.hash,
+    gameIndex: disputeGameFactoryGameIndex,
+    gameId: faultDisputeGameId,
+    disputeFaultGameStorageProof: disputeGameFactoryProof.storageProof[0].proof,
+    rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
+    disputeGameFactoryAccountProof: disputeGameFactoryProof.accountProof,
+  }
 
   // populate fields for the FaultDisputeGame rootclaim proof
-  // populate fields for the FaultDisputeGame resolved proof
-  // const RLPEncodedFaultDisputeGameData = await prover.rlpEncodeDataLibList(
-  //   bedrock.baseSepolia.faultDisputeGame.contractData,
-  // )
-  // const faultDisputeGameProofData = {
-  //   faultDisputeGameStateRoot: bedrock.baseSepolia.faultDisputeGame.stateRoot,
-  //   faultDisputeGameRootClaimStorageProof:
-  //     bedrock.baseSepolia.faultDisputeGame.rootClaim.storageProof,
-  //   faultDisputeGameStatusSlotData: {
-  //     createdAt: bedrock.baseSepolia.faultDisputeGame.status.storage.createdAt,
-  //     resolvedAt:
-  //       bedrock.baseSepolia.faultDisputeGame.status.storage.resolvedAt,
-  //     gameStatus:
-  //       bedrock.baseSepolia.faultDisputeGame.status.storage.gameStatus,
-  //     initialized:
-  //       bedrock.baseSepolia.faultDisputeGame.status.storage.initialized,
-  //     l2BlockNumberChallenged:
-  //       bedrock.baseSepolia.faultDisputeGame.status.storage
-  //         .l2BlockNumberChallenged,
-  //     // filler: getBytes(
-  //     //   bedrock.baseSepolia.faultDisputeGame.status.storage.filler,
-  //     // ),
-  //   },
-  //   faultDisputeGameStatusStorageProof:
-  //     bedrock.baseSepolia.faultDisputeGame.status.storageProof,
-  //   rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
-  //   faultDisputeGameAccountProof:
-  //     bedrock.baseSepolia.faultDisputeGame.accountProof,
-  // }
-  // prove the world state cannon
-  // await prover.proveWorldStateCannon(
-  //   networkIds.baseSepolia,
-  //   bedrock.baseSepolia.rlpEncodedendBatchBlockData,
-  //   // RLPEncodedBaseSepoliaEndBatchBlock,
-  //   bedrock.baseSepolia.endBatchBlockStateRoot,
-  //   disputeGameFactoryProofData,
-  //   faultDisputeGameProofData,
-  //   bedrock.settlementChain.worldStateRoot,
-  // )
-  console.log('ProvenWorldStateCannon Base to Optimism')
-  return endBatchBlockData
+  // Storage proof for faultDisputeGame root claim
+  // rootClaimSlot - hardocded value for the slot which is a keecak256 hash  the slot for rootClaim
+  const zeroSlot = solidityPackedKeccak256(
+    ['bytes32'],
+    [zeroPadValue(toBeArray(0), 32)],
+  )
+  console.log('zeroSlot: ', zeroSlot)
+
+  const faultDisputeGameRootClaimStorageSlot =
+    '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
+  console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
+  console.log('settlementBlockTag: ', settlementBlockTag)
+  const faultDisputeGameRootClaimProof = await s.mainnetProvider.send(
+    'eth_getProof',
+    [
+      faultDisputeGameAddress,
+      [faultDisputeGameRootClaimStorageSlot],
+      settlementBlockTag,
+    ],
+  )
+  // Storage proof for faultDisputeGame resolved
+  // rootClaimSlot - hardcoded value for slot zero which is where the status is stored
+  const faultDisputeGameResolvedStorageSlot =
+    '0x0000000000000000000000000000000000000000000000000000000000000000'
+  // '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
+  const faultDisputeGameRootResolvedProof = await s.mainnetProvider.send(
+    'eth_getProof',
+    [
+      faultDisputeGameAddress,
+      [faultDisputeGameResolvedStorageSlot],
+      settlementBlockTag,
+    ],
+  )
+  const faultDisputeGameContractData = [
+    toBeHex(faultDisputeGameRootClaimProof.nonce), // nonce
+    stripZerosLeft(toBeHex(faultDisputeGameRootClaimProof.balance)), // balance
+    faultDisputeGameRootClaimProof.storageHash, // storageHash
+    faultDisputeGameRootClaimProof.codeHash, // CodeHash
+  ]
+  const RLPEncodedFaultDisputeGameContractData =
+    await s.baseProverContract.rlpEncodeDataLibList(
+      faultDisputeGameContractData,
+    )
+  const faultDisputeGameProofData = {
+    faultDisputeGameStateRoot: endBatchBlockData.stateRoot,
+    faultDisputeGameRootClaimStorageProof:
+      faultDisputeGameRootClaimProof.storageProof[0].proof,
+    faultDisputeGameStatusSlotData: {
+      createdAt: faultDisputeGameCreatedAt,
+      resolvedAt: faultDisputeGameResolvedAt,
+      gameStatus: faultDisputeGameGameStatus,
+      initialized: faultDisputeGameInitialized,
+      l2BlockNumberChallenged: faultDisputeGameL2BlockNumberChallenged,
+    },
+    // populate fields for the FaultDisputeGame resolved proof
+    faultDisputeGameStatusStorageProof:
+      faultDisputeGameRootResolvedProof.storageProof[0].proof,
+    rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameContractData,
+    faultDisputeGameAccountProof: faultDisputeGameRootClaimProof.accountProof,
+  }
+  try {
+    const { gameType_, timestamp_, gameProxy_ } =
+      await s.baseProverContract.unpack(disputeGameFactoryProofData.gameId)
+    console.log(
+      'disputeGameFactoryProofData.gameId: ',
+      disputeGameFactoryProofData.gameId,
+    )
+    console.log('gameType_: ', gameType_)
+    console.log('timestamp_: ', timestamp_)
+    console.log('gameProxy_: ', gameProxy_)
+    // proveStorageDisputeGameFactory
+    // console.log('_key: ', disputeGameFactoryStorageSlot)
+    // console.log(
+    //   '_value: ',
+    //   encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameId))),
+    // )
+    // console.log('_proof: ', disputeGameFactoryProof.storageProof[0].proof)
+    // console.log('_root: ', disputeGameFactoryProof.storageHash)
+    await s.baseProverContract.proveStorage(
+      disputeGameFactoryStorageSlot,
+      encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameId))),
+      // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
+      disputeGameFactoryProof.storageProof[0].proof,
+      disputeGameFactoryProof.storageHash,
+    )
+    // proveAccountDisputeGameFactory
+    console.log('proveAccountDisputeGameFactory')
+    await s.baseProverContract.proveAccount(
+      networks.mainnet.settlementContracts.optimism,
+      disputeGameFactoryProofData.rlpEncodedDisputeGameFactoryData,
+      disputeGameFactoryProofData.disputeGameFactoryAccountProof,
+      settlementStateRoot,
+    )
+    // proveStorageFaultDisputeGameRootClaim
+    // console.log('proveStorageFaultDisputeGameRootClaim')
+    // console.log('_key: ', faultDisputeGameRootClaimStorageSlot)
+    // console.log(
+    //   '_value: ',
+    //   encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
+    // )
+    // console.log(
+    //   '_proof: ',
+    //   faultDisputeGameRootClaimProof.storageProof[0].proof,
+    // )
+    // console.log('_root: ', faultDisputeGameRootClaimProof.storageHash)
+    await s.baseProverContract.proveStorage(
+      faultDisputeGameRootClaimStorageSlot,
+      encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
+      // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
+      faultDisputeGameRootClaimProof.storageProof[0].proof,
+      faultDisputeGameRootClaimProof.storageHash,
+    )
+    // proveStorageFaultDisputeGameResolved
+    // console.log('proveStorageFaultDisputeGameResolved')
+    // console.log('_key: ', faultDisputeGameResolvedStorageSlot)
+    // console.log(
+    //   '_value: ',
+    //   await s.baseProverContract.assembleGameStatusStorage(
+    //     faultDisputeGameCreatedAt,
+    //     faultDisputeGameResolvedAt,
+    //     faultDisputeGameGameStatus,
+    //     faultDisputeGameInitialized,
+    //     faultDisputeGameL2BlockNumberChallenged,
+    //   ),
+    // )
+    // console.log(
+    //   '_proof: ',
+    //   faultDisputeGameRootResolvedProof.storageProof[0].proof,
+    // )
+    // console.log('_root: ', faultDisputeGameRootResolvedProof.storageHash)
+    await s.baseProverContract.proveStorage(
+      faultDisputeGameResolvedStorageSlot,
+      await s.baseProverContract.assembleGameStatusStorage(
+        faultDisputeGameCreatedAt,
+        faultDisputeGameResolvedAt,
+        faultDisputeGameGameStatus,
+        faultDisputeGameInitialized,
+        faultDisputeGameL2BlockNumberChallenged,
+      ),
+      // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
+      faultDisputeGameRootResolvedProof.storageProof[0].proof,
+      faultDisputeGameRootResolvedProof.storageHash,
+    )
+    // proveAccountFaultDisputeGame
+    console.log('proveAccountFaultDisputeGame')
+    await s.baseProverContract.proveAccount(
+      // faultDisputeGameAddress,
+      // '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
+      gameProxy_,
+      faultDisputeGameProofData.rlpEncodedFaultDisputeGameData,
+      faultDisputeGameProofData.faultDisputeGameAccountProof,
+      settlementStateRoot,
+    )
+    console.log('here')
+
+    // console.log(
+    //   'faultDisputeGameData.rootClaim_: ',
+    //   faultDisputeGameData.rootClaim_,
+    // )
+    // console.log(
+    //   'generateOutputRoot             : ',
+    //   await s.baseProverContract.generateOutputRoot(
+    //     0,
+    //     endBatchBlockData.stateRoot,
+    //     disputeGameFactoryProofData.messagePasserStateRoot,
+    //     disputeGameFactoryProofData.latestBlockHash,
+    //   ),
+    // )
+    // console.log('proveWorldStateCannon')
+    // console.log('networkIds.optimism: ', networkIds.optimism)
+    // console.log('rlpEncodedEndBatchBlockData: ', rlpEncodedEndBatchBlockData)
+    // console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
+    // console.log('disputeGameFactoryProofData: ', disputeGameFactoryProofData)
+    // console.log('faultDisputeGameProofData: ', faultDisputeGameProofData)
+    // console.log('settlementStateRoot: ', settlementStateRoot)
+    await s.baseProverContract.proveWorldStateCannon(
+      networkIds.optimism,
+      rlpEncodedEndBatchBlockData,
+      endBatchBlockData.stateRoot,
+      disputeGameFactoryProofData,
+      faultDisputeGameProofData,
+      settlementStateRoot,
+    )
+    console.log('ProvenWorldStateCannon Base to Optimism')
+    return endBatchBlockData
+  } catch (e) {
+    if (e.data && s.baseProverContract) {
+      const decodedError = s.baseProverContract.interface.parseError(e.data)
+      console.log(`Transaction failed: ${decodedError?.name}`)
+      console.log(`Error in ProveWorldStateCannon:`, e.shortMessage)
+    } else {
+      console.log(`Error in ProvenWorldStateCannon:`, e)
+    }
+  }
 }
 
 async function proveIntent(intentHash, endBatchBlockData) {

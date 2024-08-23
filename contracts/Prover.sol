@@ -319,9 +319,18 @@ contract Prover is SimpleProver {
     ) internal pure returns (address faultDisputeGameProxyAddress, bytes32 rootClaim) {
         bytes32 gameId = disputeGameFactoryProofData.gameId;
         bytes24 gameId24;
-
+        bytes29 gameId29;
+        bytes memory _value;
         assembly {
             gameId24 := shl(64, gameId)
+        }
+        assembly {
+            gameId29 := shl(24, gameId)
+        }
+        if (bytes1(uint8(gameId29[0])) == bytes1(uint8(0x00))) {
+            _value = bytes.concat(bytes1(uint8(0x98)), gameId24);
+        } else {
+            _value = bytes.concat(bytes1(uint8(0x9d)), gameId29);
         }
 
         bytes32 _rootClaim = generateOutputRoot(
@@ -347,7 +356,7 @@ contract Prover is SimpleProver {
 
         proveStorage(
             abi.encodePacked(disputeGameFactoryStorageSlot),
-            bytes.concat(bytes1(uint8(0x98)), gameId24),
+            _value,
             disputeGameFactoryProofData.disputeFaultGameStorageProof,
             bytes32(disputeGameFactoryStateRoot)
         );

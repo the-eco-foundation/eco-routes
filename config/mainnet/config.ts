@@ -1,5 +1,3 @@
-import { resolveAddress } from 'ethers'
-
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0,
@@ -39,14 +37,14 @@ const intent: any = {
   targetAmounts: [1000],
   duration: 3600,
   opBaseBedrock: {
-    hash: '0xefc1e9809e636997b92978c4e12446ee0c61a726d26e578f9e7b15514c7935fd',
+    hash: '0x9fe31be4a2325655dfbd4bb54d83e8b525cfd1a05a19865fcdac7c59a1dbc981',
     fulfillTransaction:
-      '0xa1e172f33a2bd9675258f11ac33ce03b533ea24056a8d9481572b183e5b2918c',
+      '0x59036b6f3138471a0b617982319a99ebb5343dc9a43760b1c7a0738e51b1ef7d',
   },
   baseOpCannon: {
-    settlementBlockTag: '0x13a03ce', // 20579278n
+    settlementBlockTag: '0x13a303b', // 20590651n
     settlementStateRoot:
-      '0xa0fda7c0651635b3d863322fd33ef463625ccdf797e946c8fd8e5fe16738f9fd',
+      '0x2c8ae6de0f5432d5b06626b19ec08f8948fec8c200a141bfc802dd56c310c668',
     // faultDisputeGame: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
     faultDisputeGame: {
       address: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
@@ -97,7 +95,7 @@ const networks: any = {
     network: 'base',
     chainId: networkIds.base,
     intentSourceAddress: '0x5e46855a436FDc16342EB0689f6555Db59b0245B',
-    proverContractAddress: '0xaa48E74Da37ec626C2547f40f2fEB3BB2Fc2AbE4',
+    proverContractAddress: '0x82d64aB9f63Db4D46da927500815928C5E54b966',
     inboxAddress: '0x73f4eA10Ed8e6524aB3Ba60D604A6f33Cb95fc39',
     intentSource: {
       minimumDuration: 1000,
