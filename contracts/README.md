@@ -31,10 +31,10 @@ Attributes:
 - `_rewardAmounts` (uint256[]) the amounts of reward tokens
 - `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the solver to redeem rewards.
 
-<h4><ins>Withdrawal</ins>: emitted on successful call to withdraw</h4>
+<h4><ins>Withdrawal:</ins></h4>
+<h5>Emitted on a successful call to withdrawReward</h5>
 
 Attributes:
-
 - `_hash` (bytes32) the hash of the intent on which withdraw was attempted
 - `_recipient` (address) the address that received the rewards for this intent
 
