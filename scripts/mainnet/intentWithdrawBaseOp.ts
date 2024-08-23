@@ -258,7 +258,7 @@ async function proveWorldStateCannonBaseToOptimism(
 
   // populate fields for the FaultDisputeGame rootclaim proof
   // Storage proof for faultDisputeGame root claim
-  // rootClaimSlot - hardocded value for the slot which is a keecak256 hash  the slot for rootClaim
+  // rootClaimSlot - hardcooded value for the slot which is a keecak256 hash  the slot for rootClaim
   const zeroSlot = solidityPackedKeccak256(
     ['bytes32'],
     [zeroPadValue(toBeArray(0), 32)],
@@ -319,10 +319,8 @@ async function proveWorldStateCannonBaseToOptimism(
     faultDisputeGameAccountProof: faultDisputeGameRootClaimProof.accountProof,
   }
   try {
-    // const { gameType_, timestamp_, gameProxy_ } =
     const { gameProxy_ } = await s.baseProverContract.unpack(
       disputeGameFactoryProofData.gameId,
-    ) // gameType_, timestamp_, gameProxy_ )
     // proveStorageDisputeGameFactory
     await s.baseProverContract.proveStorage(
       disputeGameFactoryStorageSlot,
