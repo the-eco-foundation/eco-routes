@@ -324,21 +324,7 @@ async function proveWorldStateCannonBaseToOptimism(
   try {
     const { gameType_, timestamp_, gameProxy_ } =
       await s.baseProverContract.unpack(disputeGameFactoryProofData.gameId)
-    console.log(
-      'disputeGameFactoryProofData.gameId: ',
-      disputeGameFactoryProofData.gameId,
-    )
-    console.log('gameType_: ', gameType_)
-    console.log('timestamp_: ', timestamp_)
-    console.log('gameProxy_: ', gameProxy_)
     // proveStorageDisputeGameFactory
-    // console.log('_key: ', disputeGameFactoryStorageSlot)
-    // console.log(
-    //   '_value: ',
-    //   encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameId))),
-    // )
-    // console.log('_proof: ', disputeGameFactoryProof.storageProof[0].proof)
-    // console.log('_root: ', disputeGameFactoryProof.storageHash)
     await s.baseProverContract.proveStorage(
       disputeGameFactoryStorageSlot,
       encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameId))),
@@ -347,7 +333,6 @@ async function proveWorldStateCannonBaseToOptimism(
       disputeGameFactoryProof.storageHash,
     )
     // proveAccountDisputeGameFactory
-    console.log('proveAccountDisputeGameFactory')
     await s.baseProverContract.proveAccount(
       networks.mainnet.settlementContracts.optimism,
       disputeGameFactoryProofData.rlpEncodedDisputeGameFactoryData,
@@ -355,17 +340,6 @@ async function proveWorldStateCannonBaseToOptimism(
       settlementStateRoot,
     )
     // proveStorageFaultDisputeGameRootClaim
-    console.log('proveStorageFaultDisputeGameRootClaim')
-    console.log('_key: ', faultDisputeGameRootClaimStorageSlot)
-    console.log(
-      '_value: ',
-      encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
-    )
-    console.log(
-      '_proof: ',
-      faultDisputeGameRootClaimProof.storageProof[0].proof,
-    )
-    console.log('_root: ', faultDisputeGameRootClaimProof.storageHash)
     await s.baseProverContract.proveStorage(
       faultDisputeGameRootClaimStorageSlot,
       encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
@@ -374,23 +348,6 @@ async function proveWorldStateCannonBaseToOptimism(
       faultDisputeGameRootClaimProof.storageHash,
     )
     // proveStorageFaultDisputeGameResolved
-    // console.log('proveStorageFaultDisputeGameResolved')
-    // console.log('_key: ', faultDisputeGameResolvedStorageSlot)
-    // console.log(
-    //   '_value: ',
-    //   await s.baseProverContract.assembleGameStatusStorage(
-    //     faultDisputeGameCreatedAt,
-    //     faultDisputeGameResolvedAt,
-    //     faultDisputeGameGameStatus,
-    //     faultDisputeGameInitialized,
-    //     faultDisputeGameL2BlockNumberChallenged,
-    //   ),
-    // )
-    // console.log(
-    //   '_proof: ',
-    //   faultDisputeGameRootResolvedProof.storageProof[0].proof,
-    // )
-    // console.log('_root: ', faultDisputeGameRootResolvedProof.storageHash)
     await s.baseProverContract.proveStorage(
       faultDisputeGameResolvedStorageSlot,
       await s.baseProverContract.assembleGameStatusStorage(
@@ -399,14 +356,11 @@ async function proveWorldStateCannonBaseToOptimism(
         faultDisputeGameGameStatus,
         faultDisputeGameInitialized,
         faultDisputeGameL2BlockNumberChallenged,
-        // true,
       ),
-      // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
       faultDisputeGameRootResolvedProof.storageProof[0].proof,
       faultDisputeGameRootResolvedProof.storageHash,
     )
     // proveAccountFaultDisputeGame
-    console.log('proveAccountFaultDisputeGame')
     await s.baseProverContract.proveAccount(
       // faultDisputeGameAddress,
       // '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
@@ -415,28 +369,7 @@ async function proveWorldStateCannonBaseToOptimism(
       faultDisputeGameProofData.faultDisputeGameAccountProof,
       settlementStateRoot,
     )
-    console.log('here')
-
-    console.log(
-      'faultDisputeGameData.rootClaim_: ',
-      faultDisputeGameData.rootClaim_,
-    )
-    console.log(
-      'generateOutputRoot             : ',
-      await s.baseProverContract.generateOutputRoot(
-        0,
-        endBatchBlockData.stateRoot,
-        disputeGameFactoryProofData.messagePasserStateRoot,
-        disputeGameFactoryProofData.latestBlockHash,
-      ),
-    )
     // console.log('proveWorldStateCannon')
-    // console.log('networkIds.optimism: ', networkIds.optimism)
-    // console.log('rlpEncodedEndBatchBlockData: ', rlpEncodedEndBatchBlockData)
-    // console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
-    // console.log('disputeGameFactoryProofData: ', disputeGameFactoryProofData)
-    // console.log('faultDisputeGameProofData: ', faultDisputeGameProofData)
-    // console.log('settlementStateRoot: ', settlementStateRoot)
     const proveWorldStateCannonTx =
       await s.baseProverContract.proveWorldStateCannon(
         networkIds.optimism,
@@ -475,8 +408,6 @@ async function proveIntent(intentHash, endBatchBlockData) {
   const intentInfo =
     await s.baseIntentSourceContractClaimant.getIntent(intentHash)
 
-  console.log('intentInfo: ', intentInfo)
-
   const abiCoder = AbiCoder.defaultAbiCoder()
   const intermediateHash = keccak256(
     abiCoder.encode(
@@ -494,19 +425,6 @@ async function proveIntent(intentHash, endBatchBlockData) {
 
   const balance = stripZerosLeft(toBeHex(intentInboxProof.balance)) // balance
   const nonce = toBeHex(intentInboxProof.nonce) // nonce
-  console.log('networkIds.optimism: ', networkIds.optimism)
-  console.log('actors.claimant: ', actors.claimant)
-  console.log(
-    'networks.optimism.inboxAddress: ',
-    networks.optimism.inboxAddress,
-  )
-  console.log('intermediateHash: ', intermediateHash)
-  console.log(
-    'intentInboxProof.storageProof[0].proof: ',
-    intentInboxProof.storageProof[0].proof,
-  )
-  console.log('intentInboxProof.accountProof: ', intentInboxProof.accountProof)
-  console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
   try {
     const proveIntentTx = await s.baseProverContract.proveIntent(
       networkIds.optimism,
@@ -583,22 +501,6 @@ async function main() {
       faultDisputeGameAddress,
       faultDisputeGameContract,
     )
-    // console.log('endBatchBlockData: ', endBatchBlockData)
-    // await proveFaultFaultDisputeGameRootClaim()
-    // await proveFaultDisputeGameResolved()
-    // await proveIntents()
-    // await withdrawIntents()
-    // intentHash = intent.hash
-    // intentFulfillTransaction = intent.fulfillTransaction
-    // console.log('intentHash: ', intentHash)
-    // console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    // const { settlementBlockTag, settlementStateRoot } =
-    //   await proveSettlementLayerState()
-    // const { l1BatchIndex, endBatchBlockData } = await proveWorldStateBedrock(
-    //   settlementBlockTag,
-    //   intentFulfillTransaction,
-    //   settlementStateRoot,
-    // )
     await proveIntent(intentHash, endBatchBlockData)
     await withdrawReward(intentHash)
     console.log('End of Main')
