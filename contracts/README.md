@@ -18,8 +18,8 @@ Intent creation and filler settlement processes both exist on the `IntentSource`
 #### Events
 
 *__IntentCreated__: emitted on a successful call to createIntent*
-Attributes:
 
+Attributes:
 - `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
 - `_creator` (address) the address that created the intent
 - `_destinationChain` (uint256) the destination chain
@@ -29,11 +29,30 @@ Attributes:
 - `_rewardAmounts` (uint256[]) the amounts of reward tokens
 - `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the solver to redeem rewards.
 
-**Withdrawal**: emitted on successful call to withdraw
-Attributes:
+*__Withdrawal__: emitted on successful call to withdraw*
 
-- \_hash (bytes32) the hash of the intent on which withdraw was attempted
-- \_recipient (address) the address that received the rewards for this intent
+Attributes:
+- `_hash` (bytes32) the hash of the intent on which withdraw was attempted
+- `_recipient` (address) the address that received the rewards for this intent
+
+#### API
+
+*__createIntent__: Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets. If a proof ON THE SOURCE CHAIN is not completed by the expiry time, the reward funds will not be redeemable by the solver, REGARDLESS OF WHETHER THE INSTRUCTIONS WERE EXECUTED. The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent solver. The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.*
+
+Attributes:
+- `_destinationChain` (uint256) the chain on which the user wishes to transact
+- `_targets` (address[]) the address on \_destinationChain at which the instruction sets need to be executed
+- `_data` (bytes[]) the instructions to be executed on \_targets
+- `_rewardTokens` (address[]) the addresses of reward tokens
+- `_rewardAmounts` (uint256[]) the amounts of reward tokens
+- `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the solver to redeem rewards.
+- `_prover` (address) the address of the prover against which the intent's status will be checked
+
+
+*__withdrawRewards__: allows withdawal of reward funds locked up for a given intent.*
+
+Attributes:
+- `_hash` (bytes32) the hash of the intent on which withdraw is being attempted
 
 ### Intent Fulfillment / Execution
 Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
@@ -59,5 +78,5 @@ Attributes:
 **Withdrawal**: emitted on successful call to withdraw
 Attributes:
 
-- \_hash (bytes32) the hash of the intent on which withdraw was attempted
-- \_recipient (address) the address that received the rewards for this intent
+- `_hash` (bytes32) the hash of the intent on which withdraw was attempted
+- `_recipient` (address) the address that received the rewards for this intent
