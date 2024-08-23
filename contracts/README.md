@@ -18,7 +18,7 @@ Intent creation and filler settlement processes both exist on the `IntentSource`
 
 ### Events
 
-<h4><ins>IntentCreated:</ins></h4>
+<h4><ins>IntentCreated</ins></h4>
 <h5>Emitted on a successful call to createIntent</h5>
 
 Attributes:
@@ -31,7 +31,7 @@ Attributes:
 - `_rewardAmounts` (uint256[]) the amounts of reward tokens
 - `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the solver to redeem rewards.
 
-<h4><ins>Withdrawal:</ins></h4>
+<h4><ins>Withdrawal</ins></h4>
 <h5>Emitted on a successful call to withdrawReward</h5>
 
 Attributes:
@@ -40,10 +40,10 @@ Attributes:
 
 ### Methods
 
-<ins>createIntent</ins>: Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets. If a proof on the source chain is not completed by the expiry time, the reward funds will not be redeemable by the solver, **regardless of whether the instructions were executed**. The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent filler. **The inbox contract on the destination chain will be the msg.sender for the instructions that are executed**.
+<h4><ins>createIntent</ins></h4>
+<h5> Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets. If a proof on the source chain is not completed by the expiry time, the reward funds will not be redeemable by the solver, **regardless of whether the instructions were executed**. The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent filler. **The inbox contract on the destination chain will be the msg.sender for the instructions that are executed. </h5>
 
 Attributes:
-
 - `_destinationChain` (uint256) the chain on which the user wishes to transact
 - `_targets` (address[]) the address on \_destinationChain at which the instruction sets need to be executed
 - `_data` (bytes[]) the instructions to be executed on \_targets
@@ -52,10 +52,10 @@ Attributes:
 - `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the solver to redeem rewards.
 - `_prover` (address) the address of the prover against which the intent's status will be checked
 
-<ins>**withdrawRewards**</ins>: Allows withdawal of reward funds locked up for a given intent.\
+<h4><ins>withdrawRewards</ins></h4> 
+<h5>Allows withdawal of reward funds locked up for a given intent.</h5>
 
 Attributes:
-
 - `_hash` (bytes32) the hash of the intent on which withdraw is being attempted
 
 ### Intent Fulfillment / Execution
