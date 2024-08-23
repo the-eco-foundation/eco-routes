@@ -18,7 +18,7 @@ Intent creation and filler settlement processes both exist on the `IntentSource`
 
 ### Events
 
-<h5><ins>IntentCreated:</ins> emitted on a successful call to createIntent</h5>
+<h4><ins>IntentCreated:</ins> emitted on a successful call to createIntent</h4>
 
 Attributes:
 
@@ -31,7 +31,7 @@ Attributes:
 - `_rewardAmounts` (uint256[]) the amounts of reward tokens
 - `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the solver to redeem rewards.
 
-<ins>**Withdrawal**</ins>: emitted on successful call to withdraw
+<h4><ins>**Withdrawal**</ins>: emitted on successful call to withdraw</h4>
 
 Attributes:\
 
