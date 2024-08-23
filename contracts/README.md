@@ -18,9 +18,11 @@ Intent creation and filler settlement processes both exist on the `IntentSource`
 
 ### Events
 
-<h4><ins>IntentCreated:</ins> emitted on a successful call to createIntent</h4>
+<h4><ins>IntentCreated:</ins>\
+Emitted on a successful call to createIntent</h4>
 
 Attributes:
+
 - `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
 - `_creator` (address) the address that created the intent
 - `_destinationChain` (uint256) the destination chain
@@ -33,12 +35,13 @@ Attributes:
 <h4><ins>Withdrawal</ins>: emitted on successful call to withdraw</h4>
 
 Attributes:
+
 - `_hash` (bytes32) the hash of the intent on which withdraw was attempted
 - `_recipient` (address) the address that received the rewards for this intent
 
-#### Methods
+### Methods
 
-<ins>**createIntent**</ins>: Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets. If a proof on the source chain is not completed by the expiry time, the reward funds will not be redeemable by the solver, **regardless of whether the instructions were executed**. The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent filler. **The inbox contract on the destination chain will be the msg.sender for the instructions that are executed**.
+<ins>createIntent</ins>: Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets. If a proof on the source chain is not completed by the expiry time, the reward funds will not be redeemable by the solver, **regardless of whether the instructions were executed**. The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent filler. **The inbox contract on the destination chain will be the msg.sender for the instructions that are executed**.
 
 Attributes:
 
