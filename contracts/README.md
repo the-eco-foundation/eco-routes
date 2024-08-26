@@ -58,9 +58,20 @@ Attributes:
 Attributes:
 - `_hash` (bytes32) the hash of the intent on which withdraw is being attempted
 
-### Intent Fulfillment / Execution
+## Intent Fulfillment / Execution
 
 Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
+
+### Events
+
+<h4><ins>Fulfillment</ins></h4>
+<h5>Emitted when an intent is successfully fulfilled</h5>
+
+Attributes:
+- `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
+- `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
+- `_claimant` (address) the address that can claim the fulfilled intent's fee on the source chain
+
 
 ### Intent Proving
 

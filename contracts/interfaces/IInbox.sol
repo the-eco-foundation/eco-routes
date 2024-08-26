@@ -25,7 +25,7 @@ interface IInbox {
         bytes32 _expectedHash
     ) external returns (bytes[] memory);
 
-    // Event emitted when an intent is succesfully fulfilled
+    // Event emitted when an intent is successfully fulfilled
     event Fulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
     // Event emitted when solving is made public
