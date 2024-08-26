@@ -52,6 +52,9 @@ Attributes:
 - `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the solver to redeem rewards.
 - `_prover` (address) the address of the prover against which the intent's status will be checked
 
+Security: 
+This method has no permissioning, it can be called by anyone. Notably, it contains raw calldata to be executed by the solver, and transfers tokens from the user into the IntentSource contract. It is very important, therefore, that a user of this method know exactly what commands they are executing and what their consequences are, as well as what tokens in what quantity they intent to lock up. Also, the user must give this contract permission to move their tokens via a method like permit or approve.
+
 <h4><ins>withdrawRewards</ins></h4> 
 <h5>Allows withdawal of reward funds locked up for a given intent.</h5>
 
