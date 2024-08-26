@@ -123,22 +123,26 @@ contract IntentSource is IIntentSource {
     function withdrawRewards(bytes32 _hash) external {
         Intent storage intent = intents[_hash];
         address claimant = SimpleProver(intent.prover).provenIntents(_hash);
+        address withdrawTo;
         if (!intent.hasBeenWithdrawn) {
-            if (
-                claimant == msg.sender
-                    || claimant == address(0) && msg.sender == intent.creator && block.timestamp > intent.expiryTime
-            ) {
-                uint256 len = intent.rewardTokens.length;
-                for (uint256 i = 0; i < len; i++) {
-                    IERC20(intent.rewardTokens[i]).transfer(msg.sender, intent.rewardAmounts[i]);
+            if (claimant != address(0)) {
+                withdrawTo = claimant;
+            } else {
+                if (block.timestamp > intent.expiryTime) {
+                    withdrawTo = intent.creator;
+                } else {
+                    revert UnauthorizedWithdrawal(_hash);q
                 }
-                intent.hasBeenWithdrawn = true;
-                emit Withdrawal(_hash, msg.sender);
-                return;
             }
-            revert UnauthorizedWithdrawal(_hash);
+            uint256 len = intent.rewardTokens.length;
+            for (uint256 i = 0; i < len; i++) {
+                IERC20(intent.rewardTokens[i]).transfer(withdrawTo, intent.rewardAmounts[i]);
+            }
+            intent.hasBeenWithdrawn = true;
+            emit Withdrawal(_hash, withdrawTo);
+        } else {
+            revert NothingToWithdraw(_hash);
         }
-        revert NothingToWithdraw(_hash);
     }
 
     function getIntent(bytes32 identifier) public view returns (Intent memory) {

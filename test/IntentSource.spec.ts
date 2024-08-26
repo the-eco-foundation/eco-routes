@@ -15,6 +15,8 @@ describe('Intent Source Test', (): void => {
   let tokenB: TestERC20
   let creator: SignerWithAddress
   let solver: SignerWithAddress
+  let claimant: SignerWithAddress
+  let otherPerson: SignerWithAddress
   const mintAmount: number = 1000
   const minimumDuration = 1000
 
@@ -35,8 +37,11 @@ describe('Intent Source Test', (): void => {
     creator: SignerWithAddress
     solver: SignerWithAddress
     owner: SignerWithAddress
+    claimant: SignerWithAddress
+    otherPerson: SignerWithAddress
   }> {
-    const [creator, solver, owner] = await ethers.getSigners()
+    const [creator, solver, owner, claimant, otherPerson] =
+      await ethers.getSigners()
 
     // deploy prover
     prover = await (await ethers.getContractFactory('TestProver')).deploy()
@@ -60,6 +65,8 @@ describe('Intent Source Test', (): void => {
       creator,
       solver,
       owner,
+      claimant,
+      otherPerson,
     }
   }
 
@@ -340,13 +347,9 @@ describe('Intent Source Test', (): void => {
         )
     })
     context('before expiry, no proof', () => {
-      it('cant be withdrawn by solver or creator (or anyone else)', async () => {
+      it('cant be withdrawn', async () => {
         await expect(
-          intentSource.connect(creator).withdrawRewards(intentHash),
-        ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
-
-        await expect(
-          intentSource.connect(solver).withdrawRewards(intentHash),
+          intentSource.connect(claimant).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
       })
     })
@@ -354,43 +357,40 @@ describe('Intent Source Test', (): void => {
       beforeEach(async (): Promise<void> => {
         await prover
           .connect(creator)
-          .addProvenIntent(intentHash, await solver.getAddress())
+          .addProvenIntent(intentHash, await claimant.getAddress())
       })
-      it('cannot be withdrawn by non-solver', async () => {
-        await expect(
-          intentSource.connect(creator).withdrawRewards(intentHash),
-        ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
-      })
-      it('can be withdrawn by solver', async () => {
+      it('gets withdrawn to claimant', async () => {
         const initialBalanceA = await tokenA.balanceOf(
-          await solver.getAddress(),
+          await claimant.getAddress(),
         )
         const initialBalanceB = await tokenB.balanceOf(
-          await solver.getAddress(),
+          await claimant.getAddress(),
         )
         expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .false
 
-        await intentSource.connect(solver).withdrawRewards(intentHash)
+        await intentSource.connect(otherPerson).withdrawRewards(intentHash)
 
         expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .true
-        expect(await tokenA.balanceOf(await solver.getAddress())).to.eq(
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
-        expect(await tokenB.balanceOf(await solver.getAddress())).to.eq(
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceB) + rewardAmounts[1],
         )
       })
       it('emits event', async () => {
-        await expect(intentSource.connect(solver).withdrawRewards(intentHash))
+        await expect(
+          intentSource.connect(otherPerson).withdrawRewards(intentHash),
+        )
           .to.emit(intentSource, 'Withdrawal')
-          .withArgs(intentHash, await solver.getAddress())
+          .withArgs(intentHash, await claimant.getAddress())
       })
       it('does not allow repeat withdrawal', async () => {
-        await intentSource.connect(solver).withdrawRewards(intentHash)
+        await intentSource.connect(otherPerson).withdrawRewards(intentHash)
         await expect(
-          intentSource.connect(solver).withdrawRewards(intentHash),
+          intentSource.connect(otherPerson).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, 'NothingToWithdraw')
       })
     })
@@ -398,12 +398,7 @@ describe('Intent Source Test', (): void => {
       beforeEach(async (): Promise<void> => {
         await time.increaseTo(expiry)
       })
-      it('cannot be withdrawn by non-creator', async () => {
-        await expect(
-          intentSource.connect(solver).withdrawRewards(intentHash),
-        ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
-      })
-      it('can be withdrawn by creator', async () => {
+      it('gets withdrawn to creator', async () => {
         const initialBalanceA = await tokenA.balanceOf(
           await creator.getAddress(),
         )
@@ -413,7 +408,7 @@ describe('Intent Source Test', (): void => {
         expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .false
 
-        await intentSource.connect(creator).withdrawRewards(intentHash)
+        await intentSource.connect(otherPerson).withdrawRewards(intentHash)
 
         expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .true
@@ -429,17 +424,29 @@ describe('Intent Source Test', (): void => {
       beforeEach(async (): Promise<void> => {
         await prover
           .connect(creator)
-          .addProvenIntent(intentHash, await solver.getAddress())
+          .addProvenIntent(intentHash, await claimant.getAddress())
         await time.increaseTo(expiry)
       })
-      it('cannot be withdrawn by non-solver', async () => {
-        await expect(
-          intentSource.connect(creator).withdrawRewards(intentHash),
-        ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
-      })
-      it('can be withdrawn by solver', async () => {
-        await expect(intentSource.connect(solver).withdrawRewards(intentHash))
-          .to.not.be.reverted
+      it('gets withdrawn to claimant', async () => {
+        const initialBalanceA = await tokenA.balanceOf(
+          await claimant.getAddress(),
+        )
+        const initialBalanceB = await tokenB.balanceOf(
+          await claimant.getAddress(),
+        )
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .false
+
+        await intentSource.connect(otherPerson).withdrawRewards(intentHash)
+
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .true
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
+          Number(initialBalanceA) + rewardAmounts[0],
+        )
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
+          Number(initialBalanceB) + rewardAmounts[1],
+        )
       })
     })
   })
