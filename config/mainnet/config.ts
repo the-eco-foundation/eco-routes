@@ -36,9 +36,26 @@ const intent: any = {
   rewardAmounts: [1001],
   targetAmounts: [1000],
   duration: 3600,
-  hash: '0x95ede9ae552aa114ce6aa3b08c8b36833aae0a4b4f75099b2f5af2d006d88de1',
-  fulfillTransaction:
-    '0x5782e08d42a328eeb68f5bf07ea8725c917d572911e20baab04a4410d71751d6',
+  opBaseBedrock: {
+    hash: '0x9fe31be4a2325655dfbd4bb54d83e8b525cfd1a05a19865fcdac7c59a1dbc981',
+    fulfillTransaction:
+      '0x59036b6f3138471a0b617982319a99ebb5343dc9a43760b1c7a0738e51b1ef7d',
+  },
+  baseOpCannon: {
+    settlementBlockTag: '0x13a303b', // 20590651n
+    settlementStateRoot:
+      '0x2c8ae6de0f5432d5b06626b19ec08f8948fec8c200a141bfc802dd56c310c668',
+    // faultDisputeGame: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
+    faultDisputeGame: {
+      address: '0x212B650A940B2C9c924De8AA2c225a06Fca2E3f7',
+      creationBlock: '0x139d029', // 20566057n
+      resolvedBlock: '0x13a3205', // 20591109n
+      gameIndex: 1709,
+    },
+    hash: '0xfc0b72b6365e7313594d08d4aadf8132b05e9a125318d1a76e7bbf411b3a8611',
+    fulfillTransaction:
+      '0xb07002c38aa8df7ff282c382057faecea8eaa40d11c6b5ac3b89f32a84c40adb',
+  },
 }
 
 const networks: any = {
@@ -55,7 +72,7 @@ const networks: any = {
     network: 'optimism',
     chainId: networkIds.optimism,
     intentSourceAddress: '0x532BA2D408e77B773b1d05Dafa5E4A2392e5ED11',
-    proverContractAddress: '0x8D4802BE8542f3ac41E25A2c6526AdBa269A1806',
+    proverContractAddress: '0x82A4c0d2BdE3929320130F29b7F7aE937b5B960A',
     inboxAddress: '0xd01168742A682146095c3bCe1ad6527837593a85',
     intentSource: {
       minimumDuration: 1000,
@@ -77,9 +94,15 @@ const networks: any = {
   base: {
     network: 'base',
     chainId: networkIds.base,
+<<<<<<< HEAD
     intentSourceAddress: '0x5e46855a436FDc16342EB0689f6555Db59b0245B',
     proverContractAddress: '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394',
     inboxAddress: '0x73f4eA10Ed8e6524aB3Ba60D604A6f33Cb95fc39',
+=======
+    intentSourceAddress: '0x61e45006a0E86B896A68451A2dcd6cd7DA2A99B2',
+    proverContractAddress: '0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf',
+    inboxAddress: '0x8D4802BE8542f3ac41E25A2c6526AdBa269A1806',
+>>>>>>> OPEN-SOURCE
     intentSource: {
       minimumDuration: 1000,
       counter: 0,

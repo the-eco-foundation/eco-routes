@@ -82,9 +82,9 @@ const networks: any = {
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
-    intentSourceAddress: '0x8c0332242c49FC3566bD7D9EB932b13Ed7B6E40F',
-    proverContractAddress: '0x87898EbfaA6fCa5c4dFF901C27f5D702b697f64b',
-    inboxAddress: '0x3487f465E285a4eC20a526903f89C74b172fE845',
+    intentSourceAddress: '0x4Ce3dba6598B4c1197f13680804808f867FDc044',
+    proverContractAddress: '0xb31Fd140643dbD868E7732EECB5aC9C859348eb9',
+    inboxAddress: '0xE855D08e3798AA174155e8f8684d955056Fe6c8D',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -111,9 +111,15 @@ const networks: any = {
   baseSepolia: {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
+<<<<<<< HEAD
     intentSourceAddress: '0x4fFf766A3E4A77584AaE21EaB8B2C2241619D983',
     proverContractAddress: '0xe25003c99Fd00E455F87D999Faa0825f87A27De6',
     inboxAddress: '0xe547628e5F7AEf5FEd847491b36Bf8bbF30E93E1',
+=======
+    intentSourceAddress: '0x62fd344CE4E0e4c3d9C98D64390cA2739aF9021f',
+    proverContractAddress: '0xDDf437F557129f5900b2F9Bd1ca78B2AD90f5630',
+    inboxAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
+>>>>>>> OPEN-SOURCE
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -149,9 +155,15 @@ const networks: any = {
     chainId: networkIds.ecoTestNet,
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
+<<<<<<< HEAD
     intentSourceAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
     proverContractAddress: '0x4eE5C3a97D61B5698E04601B75Cde8D152C4Cc2c',
     inboxAddress: '0xc06CA8866586cF19bf22E102a3083673C4246629',
+=======
+    intentSourceAddress: '0xc2D0b0dE92e3F49Ea07F456836686a54D5920985',
+    proverContractAddress: '0x4e505B68dF3472AED954c072E15b29F553194a86',
+    inboxAddress: '0x88F8DedD36a19d8124bC126d8173A54Cd4Fc3D67',
+>>>>>>> OPEN-SOURCE
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
