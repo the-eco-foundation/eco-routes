@@ -318,9 +318,12 @@ async function proveWorldStateCannonBaseToOptimism(
     rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameContractData,
     faultDisputeGameAccountProof: faultDisputeGameRootClaimProof.accountProof,
   }
+
   try {
+    // Note: ProveStorage and ProveAccount are pure functions and included here just for unit testing
     const { gameProxy_ } = await s.baseProverContract.unpack(
       disputeGameFactoryProofData.gameId,
+    )
     // proveStorageDisputeGameFactory
     await s.baseProverContract.proveStorage(
       disputeGameFactoryStorageSlot,

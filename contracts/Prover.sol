@@ -409,7 +409,7 @@ contract Prover is SimpleProver {
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
         );
 
-        // // The Account Proof for FaultDisputeGameFactory
+        // The Account Proof for FaultDisputeGameFactory
         proveAccount(
             abi.encodePacked(faultDisputeGameProxyAddress),
             faultDisputeGameProofData.rlpEncodedFaultDisputeGameData,
