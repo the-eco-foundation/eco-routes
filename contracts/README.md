@@ -11,9 +11,10 @@
 
 ## API Documentation
 
-Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each of n supported chain will have its own `IntentSource`(1), `Inbox`(1), and `Prover`s(n-1)
+Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each of n supported chain will have its own `IntentSources`(1), `Inboxes`(1), and `Provers`(n-1)
 
 <h3><ins>Intent Creation / Settlement</ins></h3>
+---
 Intent creation and filler settlement processes both exist on the `IntentSource` on the source chain, and is where the full intent lifecycle will start and end. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
 
 ### Events
