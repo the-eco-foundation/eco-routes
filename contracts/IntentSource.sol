@@ -131,7 +131,7 @@ contract IntentSource is IIntentSource {
                 if (block.timestamp > intent.expiryTime) {
                     withdrawTo = intent.creator;
                 } else {
-                    revert UnauthorizedWithdrawal(_hash);q
+                    revert UnauthorizedWithdrawal(_hash);
                 }
             }
             uint256 len = intent.rewardTokens.length;

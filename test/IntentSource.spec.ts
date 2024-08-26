@@ -36,13 +36,11 @@ describe('Intent Source Test', (): void => {
     tokenB: TestERC20
     creator: SignerWithAddress
     solver: SignerWithAddress
-    owner: SignerWithAddress
     claimant: SignerWithAddress
     otherPerson: SignerWithAddress
   }> {
     const [creator, solver, owner, claimant, otherPerson] =
       await ethers.getSigners()
-
     // deploy prover
     prover = await (await ethers.getContractFactory('TestProver')).deploy()
 
@@ -64,7 +62,6 @@ describe('Intent Source Test', (): void => {
       tokenB,
       creator,
       solver,
-      owner,
       claimant,
       otherPerson,
     }
@@ -79,8 +76,16 @@ describe('Intent Source Test', (): void => {
   }
 
   beforeEach(async (): Promise<void> => {
-    ;({ intentSource, prover, tokenA, tokenB, creator, solver } =
-      await loadFixture(deploySourceFixture))
+    ;({
+      intentSource,
+      prover,
+      tokenA,
+      tokenB,
+      creator,
+      solver,
+      claimant,
+      otherPerson,
+    } = await loadFixture(deploySourceFixture))
 
     // fund the creator and approve it to create an intent
     await mintAndApprove()
@@ -349,7 +354,7 @@ describe('Intent Source Test', (): void => {
     context('before expiry, no proof', () => {
       it('cant be withdrawn', async () => {
         await expect(
-          intentSource.connect(claimant).withdrawRewards(intentHash),
+          intentSource.connect(otherPerson).withdrawRewards(intentHash),
         ).to.be.revertedWithCustomError(intentSource, `UnauthorizedWithdrawal`)
       })
     })
