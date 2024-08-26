@@ -298,17 +298,14 @@ describe('Prover End to End Tests', () => {
     )
     // Prove the L2 World State for Cannon
     const disputeGameFactoryProofData = {
-      // destinationWorldStateRoot: bedrock.baseSepolia.endBatchBlockStateRoot,
       messagePasserStateRoot: bedrock.baseSepolia.messagePasserStateRoot,
       latestBlockHash: bedrock.baseSepolia.endBatchBlockHash,
       gameIndex:
         bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameIndex,
-      // gameId: toBeHex(stripZerosLeft(config.cannon.gameId)),
       gameId: bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameId,
       disputeFaultGameStorageProof:
         bedrock.baseSepolia.disputeGameFactory.storageProof,
       rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
-
       disputeGameFactoryAccountProof:
         bedrock.baseSepolia.disputeGameFactory.accountProof,
     }
@@ -332,9 +329,6 @@ describe('Prover End to End Tests', () => {
         l2BlockNumberChallenged:
           bedrock.baseSepolia.faultDisputeGame.status.storage
             .l2BlockNumberChallenged,
-        // filler: getBytes(
-        //   bedrock.baseSepolia.faultDisputeGame.status.storage.filler,
-        // ),
       },
       faultDisputeGameStatusStorageProof:
         bedrock.baseSepolia.faultDisputeGame.status.storageProof,
