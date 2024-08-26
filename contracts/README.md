@@ -9,11 +9,11 @@
 <h3 align="center">Eco API Documentation</h3>
 </div>
 
-## API Documentation
+# API Documentation
 
 Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each of n supported chain will have its own `IntentSources`(1), `Inboxes`(1), and `Provers`(n-1)
 
-<h3><ins>Intent Creation / Settlement</ins></h3>
+<h2><ins>Intent Creation / Settlement</ins></h2>
 
 ---
 
