@@ -98,6 +98,28 @@ contract Prover is SimpleProver {
     }
 
     /**
+     * @notice emitted when L1 world state is proven for a given intent
+     * @param _blockNumber  the block number corresponding to this L1 world state
+     * @param _L1WorldStateRoot the world state root at _blockNumber
+     */
+    event L1WorldStateProven(uint256 indexed _blockNumber, bytes32 _L1WorldStateRoot);
+
+    /**
+     * @notice emitted when L2 world state is proven
+     * @param _destinationChainID
+     * @param _blockNumber the blocknumber corresponding to the world state
+     * @param _L2WorldStateRoot the world state root at _blockNumber
+     */
+    event L2WorldStateProven(uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot);
+    
+    /**
+     * @notice emitted when an intent intent has been successfully proven
+     * @param _hash  the hash of the intent
+     * @param _claimant the address that can claim this intent's rewards
+     */
+    event IntentProven(bytes32 indexed _hash, address indexed _claimant);
+
+    /**
      * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
      * @param _inputBlockNumber the block number we are trying to prove
      * @param _latestBlockNumber the latest block number that has been proven
@@ -224,6 +246,7 @@ contract Prover is SimpleProver {
         BlockProof memory existingBlockProof = provenStates[settlementChainId];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[settlementChainId] = blockProof;
+            emit L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
             revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
@@ -295,6 +318,7 @@ contract Prover is SimpleProver {
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
+            emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
         } else {
             revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
@@ -361,7 +385,7 @@ contract Prover is SimpleProver {
     ) public pure {
         require(
             faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
-        ); // ensure lfaultDisputeGame is resolved
+        ); // ensure faultDisputeGame is resolved
         // Prove that the FaultDispute game has been settled
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
         proveStorage(
@@ -439,6 +463,7 @@ contract Prover is SimpleProver {
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
+            emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
         } else {
             revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
@@ -493,5 +518,6 @@ contract Prover is SimpleProver {
         proveAccount(abi.encodePacked(inboxContract), rlpEncodedInboxData, l2AccountProof, l2WorldStateRoot);
 
         provenIntents[intentHash] = claimant;
+        emit IntentProven(intentHash, claimant);
     }
 }
