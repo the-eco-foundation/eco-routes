@@ -134,11 +134,11 @@ contract IntentSource is IIntentSource {
                     revert UnauthorizedWithdrawal(_hash);
                 }
             }
+            intent.hasBeenWithdrawn = true;
             uint256 len = intent.rewardTokens.length;
             for (uint256 i = 0; i < len; i++) {
                 IERC20(intent.rewardTokens[i]).transfer(withdrawTo, intent.rewardAmounts[i]);
             }
-            intent.hasBeenWithdrawn = true;
             emit Withdrawal(_hash, withdrawTo);
         } else {
             revert NothingToWithdraw(_hash);
