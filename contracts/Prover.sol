@@ -106,7 +106,7 @@ contract Prover is SimpleProver {
 
     /**
      * @notice emitted when L2 world state is proven
-     * @param _destinationChainID
+     * @param _destinationChainID the chainID of the destination chain
      * @param _blockNumber the blocknumber corresponding to the world state
      * @param _L2WorldStateRoot the world state root at _blockNumber
      */
