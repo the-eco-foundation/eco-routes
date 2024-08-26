@@ -1,31 +1,19 @@
-import { ethers, upgrades } from 'hardhat'
+import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deploy } from './utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import {
-  MockL1Block__factory,
-  Prover,
-  Prover__factory,
-} from '../typechain-types'
+import { MockL1Block__factory, Prover } from '../typechain-types'
 import {
   AbiCoder,
   encodeRlp,
   getAddress,
-  getBigInt,
   getBytes,
-  getUint,
-  hexlify,
   keccak256,
-  toBeArray,
   toBeHex,
-  toBigInt,
   solidityPackedKeccak256,
-  toQuantity,
   stripZerosLeft,
-  zeroPadValue,
 } from 'ethers'
 import {
-  provingMechanisms,
   networkIds,
   // enshrined,
   actors,
@@ -33,7 +21,6 @@ import {
   bedrock,
   cannon,
 } from './testData'
-import exp from 'constants'
 
 // Unit Tests
 describe('Prover Unit Tests', () => {
@@ -71,15 +58,15 @@ describe('Prover Unit Tests', () => {
       0,
     )
     const baseSepoliaChainConfiguration = {
-      chainId: networks.baseSepolia.chainId, //chainId
+      chainId: networks.baseSepolia.chainId, // chainId
       chainConfiguration: {
-        provingMechanism: networks.baseSepolia.proving.mechanism, //provingMechanism
-        settlementChainId: networks.baseSepolia.proving.settlementChain.id, //settlementChainId
+        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
-          networks.baseSepolia.proving.settlementChain.contract, //settlementContract
-        blockhashOracle: await blockhashOracle.getAddress(), //blockhashOracle
+          networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
-          networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
+          networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       },
     }
 
@@ -194,7 +181,7 @@ describe('Prover End to End Tests', () => {
   let claimantSigner: SignerWithAddress
   let proverSigner: SignerWithAddress
   let recipientSigner: SignerWithAddress
-  let prover
+  let prover: Prover
   let blockhashOracle
 
   before(async () => {
@@ -224,26 +211,26 @@ describe('Prover End to End Tests', () => {
     const hardhatChainConfiguration = {
       chainId: networkIds.hardhat,
       chainConfiguration: {
-        provingMechanism: networks.baseSepolia.proving.mechanism, //provingMechanism
-        settlementChainId: networks.baseSepolia.proving.settlementChain.id, //settlementChainId
+        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
-          networks.baseSepolia.proving.settlementChain.contract, //settlementContract
-        blockhashOracle: await blockhashOracle.getAddress(), //blockhashOracle
+          networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
-          networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
+          networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       },
     }
 
     const baseSepoliaChainConfiguration = {
-      chainId: networks.baseSepolia.chainId, //chainId
+      chainId: networks.baseSepolia.chainId, // chainId
       chainConfiguration: {
-        provingMechanism: networks.baseSepolia.proving.mechanism, //provingMechanism
-        settlementChainId: networks.baseSepolia.proving.settlementChain.id, //settlementChainId
+        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
-          networks.baseSepolia.proving.settlementChain.contract, //settlementContract
-        blockhashOracle: await blockhashOracle.getAddress(), //blockhashOracle
+          networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
-          networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
+          networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       },
     }
 
@@ -281,9 +268,16 @@ describe('Prover End to End Tests', () => {
     ])
   })
   it('test proveSettlementLayerState', async () => {
-    await prover.proveSettlementLayerState(
-      bedrock.settlementChain.rlpEncodedBlockData,
+    await expect(
+      prover.proveSettlementLayerState(
+        bedrock.settlementChain.rlpEncodedBlockData,
+      ),
     )
+      .to.emit(prover, 'L1WorldStateProven')
+      .withArgs(
+        bedrock.settlementChain.blockNumber,
+        bedrock.settlementChain.worldStateRoot,
+      )
 
     const provenSettlementLayerState = await prover.provenStates(
       networks.sepolia.chainId,
@@ -342,15 +336,23 @@ describe('Prover End to End Tests', () => {
       faultDisputeGameAccountProof:
         bedrock.baseSepolia.faultDisputeGame.accountProof,
     }
-    await prover.proveWorldStateCannon(
-      networkIds.baseSepolia,
-      bedrock.baseSepolia.rlpEncodedendBatchBlockData,
-      // RLPEncodedBaseSepoliaEndBatchBlock,
-      bedrock.baseSepolia.endBatchBlockStateRoot,
-      disputeGameFactoryProofData,
-      faultDisputeGameProofData,
-      bedrock.settlementChain.worldStateRoot,
+    await expect(
+      prover.proveWorldStateCannon(
+        networkIds.baseSepolia,
+        bedrock.baseSepolia.rlpEncodedendBatchBlockData,
+        // RLPEncodedBaseSepoliaEndBatchBlock,
+        bedrock.baseSepolia.endBatchBlockStateRoot,
+        disputeGameFactoryProofData,
+        faultDisputeGameProofData,
+        bedrock.settlementChain.worldStateRoot,
+      ),
     )
+      .to.emit(prover, 'L2WorldStateProven')
+      .withArgs(
+        networkIds.baseSepolia,
+        bedrock.baseSepolia.endBatchBlock,
+        bedrock.baseSepolia.worldStateRoot,
+      )
     const provenBaseSepoliaLayerState = await prover.provenStates(
       networks.baseSepolia.chainId,
     )
@@ -366,17 +368,27 @@ describe('Prover End to End Tests', () => {
 
     // test proveWorldStateBedrock
 
-    await prover.proveWorldStateBedrock(
-      bedrock.intent.destinationChainId,
-      bedrock.destinationChain.rlpEncodedBlockData, //TODO: Check if this is the correct data
-      bedrock.destinationChain.worldStateRoot,
-      bedrock.destinationChain.messageParserStateRoot,
-      bedrock.destinationChain.batchIndex,
-      bedrock.baseSepolia.storageProof,
-      await prover.rlpEncodeDataLibList(bedrock.destinationChain.contractData),
-      bedrock.baseSepolia.accountProof,
-      bedrock.baseSepolia.worldStateRoot,
+    await expect(
+      prover.proveWorldStateBedrock(
+        bedrock.intent.destinationChainId,
+        bedrock.destinationChain.rlpEncodedBlockData, // TODO: Check if this is the correct data
+        bedrock.destinationChain.worldStateRoot,
+        bedrock.destinationChain.messageParserStateRoot,
+        bedrock.destinationChain.batchIndex,
+        bedrock.baseSepolia.storageProof,
+        await prover.rlpEncodeDataLibList(
+          bedrock.destinationChain.contractData,
+        ),
+        bedrock.baseSepolia.accountProof,
+        bedrock.baseSepolia.worldStateRoot,
+      ),
     )
+      .to.emit(prover, 'L2WorldStateProven')
+      .withArgs(
+        bedrock.intent.destinationChainId,
+        bedrock.destinationChain.endBatchBlock,
+        bedrock.destinationChain.worldStateRoot,
+      )
 
     const provenEcoTestNetLayerState = await prover.provenStates(
       networkIds.ecoTestNet,
@@ -399,10 +411,10 @@ describe('Prover End to End Tests', () => {
         [networks.ecoTestNet.inboxAddress, bedrock.intent.intermediateHash],
       ),
     )
-    const intentStorageSlot = solidityPackedKeccak256(
-      ['bytes'],
-      [abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
-    )
+    // const intentStorageSlot = solidityPackedKeccak256(
+    //   ['bytes'],
+    //   [abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
+    // )
     await prover.proveIntent(
       bedrock.intent.destinationChainId,
       getAddress(actors.claimant),
