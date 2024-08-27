@@ -216,7 +216,8 @@ const bedrock: any = {
         // GameId id = LibGameId.pack(_gameType, Timestamp.wrap(uint64(block.timestamp)), address(proxy_));
         // LibGameId is here https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L82C1-L118C2
         gameId:
-          '0x000000000000000066ac4364e6585806c6864d6a3285cc72961eb1ed7e078e2e',
+          '0x000000000000000066ac4364e6585806c6864d6a3285cc72961eb1ed7e078e2e', // GameType 0 test
+        // '0x000000010000000066c09c234d664dd0f78673034b29e4a51177333d1131ac44', // GameType 1 test
         // '0x66997f68e611c3b8ec600691b9d16e54b433e03742e3b9d8',
         gameIdRLPEncoded:
           '0x9866ac4364e6585806c6864d6a3285cc72961eb1ed7e078e2e',
