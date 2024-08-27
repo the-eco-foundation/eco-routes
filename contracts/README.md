@@ -58,7 +58,7 @@ Attributes:
 
 <ins>Security:</ins> This method has no permissioning, it can be called by anyone. Notably, it asks the user for raw calldata to be executed by the filler, and transfers tokens from the user into the IntentSource contract. It is very important, therefore, that a user know exactly what commands they are executing and what their consequences are, as well as what tokens in what quantity they intend to lock up. Also, the user must give this contract permission to move their tokens via a method like permit or approve, otherwise it will revert.
 
-<h4><ins>withdrawRewards</ins></h4> 
+<h4><ins>withdrawRewards</ins></h4>
 <h5>Allows withdawal of reward funds locked up for a given intent.</h5>
 
 Attributes:
@@ -101,11 +101,11 @@ Attributes:
 
 ## Intent Proving
 
-Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` does read state from it. The methods in this contract are complex and require inputs that can be difficult to generate. As a result, Eco will in the future be running services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples. 
+Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` does read state from it. The methods in this contract are complex and require inputs that can be difficult to generate. As a result, Eco will in the future be running services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples.
 
 ### Events
 
-<h4><ins>L1WorldStateProven</ins></h4> 
+<h4><ins>L1WorldStateProven</ins></h4>
 <h5> emitted when L1 world state is proven</h5>
 
 Attributes:
@@ -113,7 +113,7 @@ Attributes:
 - `_blocknumber` (uint256) the block number corresponding to this L1 world state
 - `_L1WorldStateRoot` (bytes32) the world state root at \_blockNumber
 
-<h4><ins>L2WorldStateProven</ins></h4> 
+<h4><ins>L2WorldStateProven</ins></h4>
 <h5> emitted when L2 world state is proven</h5>
 
 Attributes:
@@ -122,7 +122,7 @@ Attributes:
 - `_blocknumber` (uint256) the block number corresponding to this L2 world state
 - `_L2WorldStateRoot` (bytes32) the world state root at \_blockNumber
 
-<h4><ins>IntentProven</ins></h4> 
+<h4><ins>IntentProven</ins></h4>
 <h5> emitted when an intent has been successfully proven</h5>
 
 Attributes:
@@ -132,7 +132,7 @@ Attributes:
 
 ### Methods
 
-<h4><ins>proveSettlementLayerState</ins></h4> 
+<h4><ins>proveSettlementLayerState</ins></h4>
 <h5> validates input L1 block state against the L1 oracle contract. This method does not need to be called per intent, but the L2 batch containing the intent must have been settled to L1 on or before this block.</h5>
 
 Attributes:
@@ -141,8 +141,16 @@ Attributes:
 
 <ins>Security:</ins> Inputting the correct block's data encoded as expected will result in its hash matching the blockhash found on the L1 oracle contract. This means that the world state root found in that block corresponds to the block on the oracle contract, and that it represents a valid state. Notably, only one block's data is present on the oracle contract at a time, so the input data must match that block specifically, or the method will revert.
 
-<h4><ins>proveWorldStateBedrock</ins></h4> 
-<h5> Validates World state by ensuring that the passed in world state root corresponds to value in the L2 output oracle on the Settlement Layer</h5>
+<h4><ins>proveWorldStateBedrock</ins></h4>
+<h5> Validates World state by ensuring that the passed in world state root corresponds to value in the L2 output oracle on the Settlement Layer.  We submit a `StorageProof` proving that the L2 Block is included in a batch that has been settled to L1 and an `AccountProof` proving that the `StorageProof` submitted is linked to a `WorldState` for the contract that the `StorageProof` is for.</h5>
+
+For Optimisms BedRock release we submit an `outputRoot` storage proof created by concatenating
+
+```solidity
+output_root = kecakk256( version_byte || state_root || withdrawal_storage_root || latest_block_hash)
+```
+
+as documented in [Optimism L2 Commitment Construction](https://specs.optimism.io/protocol/proposals.html#l2-output-commitment-construction).
 
 Attributes:
 
@@ -151,36 +159,53 @@ Attributes:
 - `l2WorldStateRoot` (bytes32) the state root of the last block in the batch which contains the block in which the fulfill tx happened
 - `l2MessagePasserStateRoot` (bytes32) storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
 - `l2OutputIndex` (uint256) the batch number
-- `l1StorageProof` (bytes[]) TODO
+- `l1StorageProof` (bytes[]) storage proof of the l2OuputOracle showing the batch has been submitted
 - `rlpEncodedOutputOracleData` (bytes) rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
 - `l1AccountProof` (bytes[]) accountProof from eth_getProof(L2OutputOracle, [], )
 - `l1WorldStateRoot` (bytes32) the l1 world state root that was proven in proveSettlementLayerState
 
-<ins>Security:</ins> TODO
+<ins>Security:</ins> Proving the batch has been settled ensures that the L2OutputBlock has been settled and allows us to prove any intents up to that block.
 
-<h4><ins>proveWorldStateCannon</ins></h4> 
-<h5> Validates world state for Cannon by validating the following Storage proofs for the faultDisputeGame.</h5> TODO
+<h4><ins>proveWorldStateCannon</ins></h4>
+<h5> Validates world state for Cannon by validating the following Storage proofs for the faultDisputeGame.
 
-Attributes: 
+see [Optimisms Cannon Release](https://specs.optimism.io/fault-proof/cannon-fault-proof-vm.html).</h5>
+
+We Prove L2 World State by
+
+- Creating a Storage Proof that the `FaultDisputeGame` was created by the `DisputeGameFactory`
+- Creating a Account Proof showing that the state root for the `l2BlockNumber` is for a valid L1 World State this is tied to the above Storage proof by `storageHash` (stateRoot) used in both and passed in `rlpEncodedDiputeFactoryData`
+  - This will be done by checking the `FaultDisputeGame` contract address is for a game deployed by the `DisputeGameFactory` see [games function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L59) and [unpack](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L107)
+- Creating a Storage Proof that the `FaultDisputeGame` is for the correct `rootClaim` this can use the same `generateOutputRoot` function that is used in bedrock documented in [Optimism L2 Commitment Construction](https://specs.optimism.io/protocol/proposals.html#l2-output-commitment-construction)
+- Creating a Storage Proof that the `FaultDisputeGame` has been settled
+- Creating a Account Proof showing that the state root for the `l2BlockNumber` is for a valid L1 World State this is tied to the above Storage proof by `storageHash` (stateRoot) used in both and passed in `rlpEncodedFaultDisputeGameData`
+
+```solidity
+output_root = kecakk256( version_byte || state_root || withdrawal_storage_root || latest_block_hash)
+```
+
+Attributes:
+
 - `chainId` (uint256) the chain id of the chain we are proving
 - `rlpEncodedBlockData` (bytes) properly encoded L1 block data
-- `l2WorldStateRoot` (bytes32) TODO
-- `disputeGameFactoryProofData` (DisputeGameFactoryProofData) TODO
-- `faultDisputeGameProofData` (FaultDisputeGameProofData) TODO
+- `l2WorldStateRoot` (bytes32) the state root of the destination chains last block in the batch
+- `disputeGameFactoryProofData` (DisputeGameFactoryProofData) all information need to prove disputeGameFactory created the FaultDisputeGame
+- `faultDisputeGameProofData` (FaultDisputeGameProofData) all information needed to prove the FaultDisputeGame is for the correct destination batch and has a status of resolved
 - `l1WorldStateRoot` (bytes32) a proven l1 world state root from a block on or after the L1 settlement block for this batch
 
-<ins>Security:</ins> TODO
+<ins>Security:</ins> Proving the FaultDisputeGame was creaed by the DisputeGameFactory and the FaultDisputeGame has a valid rootClaim (which contains the destination chains block number being settled) and that the FaultDisputeGame has been resolved ensures that the L2OutputBlock has been settled and allows us to prove any intents up to that block.
 
-<h4><ins>proveIntent</ins></h4> 
+<h4><ins>proveIntent</ins></h4>
 <h5> Validates the intentHash and claimant address on the destination chain's inbox contract using the L2 state root</h5>
 
 Attributes:
+
 - `claimant` (address) the address that can claim the reward
 - `inboxContract` (address) the address of the inbox contract
 - `intermediateHash` (bytes32) the hash which, when hashed with the correct inbox contract, will result in the correct intentHash
-- `l2StorageProof` (bytes[]) TODO
-- `rlpEncodedInboxData` (bytes) TODO
-- `l2AccountProof` (bytes[]) TODO
-- `l2WorldStateRoot` (bytes32) TODO
+- `l2StorageProof` (bytes[]) storageProof showing that the intentHash has been fulfilled by checking against the claimant
+- `rlpEncodedInboxData` (bytes) RLPEncoded data for the inbox contract on the destination chain used in the AccountProof
+- `l2AccountProof` (bytes[]) The storageHash from the IntentInbox storageProof used in the AccountProof
+- `l2WorldStateRoot` (bytes32) the stateRoot of the destination chain used in the AccountProof
 
-<ins>Security:</ins> TODO
+<ins>Security:</ins> Proving that the intent has been fulfilled by ensuring that the Inbox contract has stored a claimant against that intentHash (updated at time of fulfillment) and that the block that the intent was fulfilled has already been settled from the destination chain to the settlement chain by checking the stateRoot for the destination chain ensures that the intent has been fulfilled and the claimant can now claim their funds on the source chain.
