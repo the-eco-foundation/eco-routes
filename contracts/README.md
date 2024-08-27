@@ -57,6 +57,8 @@ Attributes:
 <h4><ins>withdrawRewards</ins></h4> 
 <h5>Allows withdawal of reward funds locked up for a given intent.</h5>
 
+<ins>Security:</ins> This method can be called by anyone, but the caller has no specific rights. Whether or not this method succeeds and who receives the funds if it does depend solely on the intent's proven status and expiry time. 
+
 Attributes:
 - `_hash` (bytes32) the hash of the intent on which withdraw is being attempted
 
@@ -74,6 +76,21 @@ Attributes:
 - `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
 - `_claimant` (address) the address that can claim the fulfilled intent's fee on the source chain
 
+### Methods
+
+<h4><ins>fulfill</ins></h4>
+<h5> Allows a solver to fulfill an intent on its destination chain. The solver also gets to predetermine the address on the destination chain that will receive the reward on the intent's fulfillment and subsequent proof</h5>
+
+Attributes:
+- `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
+- `_targets` (address[]) the address on the destination chain at which the instruction sets need to be executed
+- `_data` (bytes[]) the instructions to be executed on \_targets
+- `_expiryTime` (uint256) the timestamp at which the intent expires
+- `_nonce` (bytes32) the nonce of the calldata. Composed of the hash on the source chain of the global nonce and chainID
+- `_claimant` (address) the address that can claim the fulfilled intent's fee on the source chain
+- `_expectedHash` (bytes32) the hash of the intent. Used to verify that the correct data is being input
+
+<ins>Security:</ins> This method can be called by anyone, but cannot be called again for the same intent, thus preventing a double fulfillment. This method executes arbitrary calls written by the intent creator on behalf of the Inbox contract - it is important that the caller be aware of what they are executing. The Inbox will be the msg.sender for these calls. _sourceChainID, the destination's chainID, the inbox address, _targets, _data, _expiryTime, and _nonce are hashed together to form the intent's hash on the IntentSource - any incorrect inputs will result in a hash that differs from the original, and will prevent the intent's reward from being withdrawn (as this means the intent fulfilled differed from the one created). The _expectedHash input exists only to help prevent this before fulfillment. 
 
 ### Intent Proving
 
