@@ -98,7 +98,7 @@ contract Prover is SimpleProver {
     }
 
     /**
-     * @notice emitted when L1 world state is proven for a given intent
+     * @notice emitted when L1 world state is proven
      * @param _blockNumber  the block number corresponding to this L1 world state
      * @param _L1WorldStateRoot the world state root at _blockNumber
      */
@@ -107,13 +107,13 @@ contract Prover is SimpleProver {
     /**
      * @notice emitted when L2 world state is proven
      * @param _destinationChainID the chainID of the destination chain
-     * @param _blockNumber the blocknumber corresponding to the world state
+     * @param _blockNumber the blocknumber corresponding to this L2 world state
      * @param _L2WorldStateRoot the world state root at _blockNumber
      */
     event L2WorldStateProven(uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot);
     
     /**
-     * @notice emitted when an intent intent has been successfully proven
+     * @notice emitted when an intent has been successfully proven
      * @param _hash  the hash of the intent
      * @param _claimant the address that can claim this intent's rewards
      */

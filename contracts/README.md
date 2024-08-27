@@ -98,17 +98,27 @@ Intent proving lives on the `Prover`, which is on the source chain. `Prover`s ar
 
 ##### Events
 
-**IntentCreated**: emitted on a successful call to createIntent
-Attributes:
+<h4><ins>L1WorldStateProven</ins></h4> 
+<h5> emitted when L1 world state is proven</h5>
 
-- `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
-- `_creator` (address) the address that created the intent
-- `_destinationChain` (uint256) the destination chain
-- `_targets` (address[]) the address on \_destinationChain at which the instruction sets need to be executed
-- `_data` (bytes[]) the instructions to be executed on \_targets
-- `_rewardTokens` (address[]) the addresses of reward tokens
-- `_rewardAmounts` (uint256[]) the amounts of reward tokens
-- `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the solver to redeem rewards.
+Attributes:
+- `_blocknumber` (uint256) the block number corresponding to this L1 world state
+- `_L1WorldStateRoot` (bytes32) the world state root at _blockNumber
+
+<h4><ins>L2WorldStateProven</ins></h4> 
+<h5> emitted when L2 world state is proven</h5>
+
+Attributes:
+- `_destinationChainID` (uint256) the chainID of the destination chain
+- `_blocknumber` (uint256) the block number corresponding to this L2 world state
+- `_L2WorldStateRoot` (bytes32) the world state root at _blockNumber
+
+<h4><ins>IntentProven</ins></h4> 
+<h5> emitted when an intent has been successfully proven</h5>
+
+Attributes:
+- `_hash` (bytes32) the hash of the intent
+- `_claimant` (address) the address that can claim this intent's rewards
 
 **Withdrawal**: emitted on successful call to withdraw
 Attributes:
