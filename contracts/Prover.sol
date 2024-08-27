@@ -264,7 +264,7 @@ contract Prover is SimpleProver {
     }
     /**
      * @notice Validates World state by ensuring that the passed in world state root corresponds to value in the L2 output oracle on the Settlement Layer
-     * @param chainId the chain id of the chain we are proving
+     * @param chainId the chain id of the chain we are proving (destination chain)
      * @param rlpEncodedBlockData properly encoded L1 block data
      * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
      * @param l2MessagePasserStateRoot // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
@@ -276,7 +276,7 @@ contract Prover is SimpleProver {
      */
 
     function proveWorldStateBedrock(
-        uint256 chainId, //the destination chain id of the intent we are proving
+        uint256 chainId,
         bytes calldata rlpEncodedBlockData,
         bytes32 l2WorldStateRoot,
         bytes32 l2MessagePasserStateRoot,
