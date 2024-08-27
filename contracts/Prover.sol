@@ -165,6 +165,17 @@ contract Prover is SimpleProver {
 
         return RLPWriter.writeList(dataList);
     }
+    /// @notice Packs values into a 32 byte GameId type.
+    /// @param _gameType The game type.
+    /// @param _timestamp The timestamp of the game's creation.
+    /// @param _gameProxy The game proxy address.
+    /// @return gameId_ The packed GameId.
+
+    function pack(uint32 _gameType, uint64 _timestamp, address _gameProxy) public pure returns (bytes32 gameId_) {
+        assembly {
+            gameId_ := or(or(shl(224, _gameType), shl(160, _timestamp)), _gameProxy)
+        }
+    }
 
     /// @notice Unpacks values from a 32 byte GameId type.
     /// @param _gameId The packed GameId.
@@ -320,7 +331,9 @@ contract Prover is SimpleProver {
             provenStates[chainId] = blockProof;
             emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
         } else {
-            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+            if (existingBlockProof.blockNumber > blockProof.blockNumber) {
+                revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+            }
         }
     }
 
@@ -332,9 +345,18 @@ contract Prover is SimpleProver {
     ) internal pure returns (address faultDisputeGameProxyAddress, bytes32 rootClaim) {
         bytes32 gameId = disputeGameFactoryProofData.gameId;
         bytes24 gameId24;
-
+        bytes29 gameId29;
+        bytes memory _value;
         assembly {
             gameId24 := shl(64, gameId)
+        }
+        assembly {
+            gameId29 := shl(24, gameId)
+        }
+        if (bytes1(uint8(gameId29[0])) == bytes1(uint8(0x00))) {
+            _value = bytes.concat(bytes1(uint8(0x98)), gameId24);
+        } else {
+            _value = bytes.concat(bytes1(uint8(0x9d)), gameId29);
         }
 
         bytes32 _rootClaim = generateOutputRoot(
@@ -360,7 +382,7 @@ contract Prover is SimpleProver {
 
         proveStorage(
             abi.encodePacked(disputeGameFactoryStorageSlot),
-            bytes.concat(bytes1(uint8(0x98)), gameId24),
+            _value,
             disputeGameFactoryProofData.disputeFaultGameStorageProof,
             bytes32(disputeGameFactoryStateRoot)
         );
@@ -465,7 +487,9 @@ contract Prover is SimpleProver {
             provenStates[chainId] = blockProof;
             emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
         } else {
-            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+            if (existingBlockProof.blockNumber > blockProof.blockNumber) {
+                revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+            }
         }
     }
 
