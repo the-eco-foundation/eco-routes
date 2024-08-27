@@ -105,7 +105,7 @@ async function main() {
 
   const inboxFactory = await ethers.getContractFactory('Inbox')
 
-  const inbox: Inbox = await inboxFactory.deploy(deployer.address, false, [
+  const inbox: Inbox = await inboxFactory.deploy(actors.inboxOwner, false, [
     actors.solver,
   ])
   console.log('Inbox deployed to:', await inbox.getAddress())
