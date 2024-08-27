@@ -15,7 +15,7 @@ Within the following sections, the terms 'source chain' and 'destination chain' 
 
 ## Intent Creation / Settlement
 
-Intent creation and filler settlement processes both exist on the `IntentSource` on the source chain, and is where the full intent lifecycle will start and end. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
+Intent creation and filler settlement processes both exist on `IntentSource.sol` on the source chain, and is where the full intent lifecycle will start and end. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
 
 ### Events
 
@@ -69,7 +69,7 @@ Attributes:
 
 ## Intent Fulfillment / Execution
 
-Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
+Intent fulfillment lives on `Inbox.sol`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
 
 ### Events
 
@@ -101,7 +101,7 @@ Attributes:
 
 ## Intent Proving
 
-Intent proving lives on the `Prover`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` does read state from it. The methods in this contract are complex and require inputs that can be difficult to generate. As a result, Eco will in the future be running services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples. 
+Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` does read state from it. The methods in this contract are complex and require inputs that can be difficult to generate. As a result, Eco will in the future be running services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples. 
 
 ### Events
 
