@@ -152,6 +152,8 @@ output_root = kecakk256( version_byte || state_root || withdrawal_storage_root |
 
 as documented in [Optimism L2 Commitment Construction](https://specs.optimism.io/protocol/proposals.html#l2-output-commitment-construction).
 
+**Note: The current Bedrock proving approach considers a block finalized when the batch has been "posted" to the settlement chain. It does not include a Finalization Period (e.g. a week) as implemented in [OptimismPortal.sol](https://github.com/ethereum-optimism/optimism/blob/62c7f3b05a70027b30054d4c8974f44000606fb7/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol#L362).**
+
 Attributes:
 
 - `chainId` (uint256) the chain id of the chain we are proving (destination chain)
