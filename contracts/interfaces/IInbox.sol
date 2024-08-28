@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2024 Eco, Inc.
 pragma solidity ^0.8.26;
 
 interface IInbox {
@@ -26,7 +25,7 @@ interface IInbox {
         bytes32 _expectedHash
     ) external returns (bytes[] memory);
 
-    // Event emitted when an intent is succesfully fulfilled
+    // Event emitted when an intent is successfully fulfilled
     event Fulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
     // Event emitted when the intent can no longer be fulfilled because its timestamp has expired
