@@ -11,14 +11,10 @@ const networkIds: any = {
   sepolia: 11155111,
   optimismSepolia: 11155420,
   baseSepolia: 84532,
-  ecoTestNet: 471923,
-  arbitrumSepolia: 421614,
   hardhat: 31337,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
-  471923: 'ecoTestNet',
-  421614: 'arbitrumSepolia',
   31337: 'hardhat',
 }
 
@@ -96,52 +92,7 @@ const networks: any = {
         contract: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
       },
     },
-    // The following settlement contracts are useful for event listening
-    settlementContracts: {
-      ecoTestNet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet L2 Output Oracle
-    },
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
-  },
-  ecoTestNet: {
-    network: 'eco-testnet',
-    chainId: networkIds.ecoTestNet,
-    rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
-    settlementNetwork: 'baseSepolia',
-    intentSourceAddress: '0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8',
-    proverContractAddress: '0x4eE5C3a97D61B5698E04601B75Cde8D152C4Cc2c', // implementation 0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4
-    inboxAddress: '0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1',
-    intentSource: {
-      minimumDuration: 1000,
-      counter: 0,
-    },
-    proving: {
-      mechanism: 1,
-      l1BlockAddress: '0x4200000000000000000000000000000000000015',
-      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
-      outputRootVersionNumber: 0,
-      settlementChain: {
-        network: 'baseSepolia',
-        id: 84532,
-        contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
-      },
-    },
-    usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
-    arbitrumSepolia: {
-      network: 'arbitrum-sepolia',
-      chainId: 421614,
-      settlementNetwork: 'sepolia',
-      intentSourceAddress: '',
-      proverContractAddress: '',
-      inboxAddress: '',
-      intentSource: {
-        minimumDuration: 1000,
-        counter: 0,
-      },
-      proving: {
-        mechanism: 3,
-      },
-      usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
-    },
   },
 }
 // TODO Update Bedrock with from BaseSepolia to ECOTestNet
@@ -562,7 +513,7 @@ const cannon: any = {
     recipient: actors.recipient,
     targetTokens: [networks.baseSepolia.usdcAddress],
     targetAmounts: intent.targetAmounts,
-    rewardTokens: [networks.ecoTestNet.usdcAddress],
+    rewardTokens: ['0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708'],
     rewardAmounts: intent.rewardAmounts,
     duration: intent.duration,
     expiryTime: 1722568357,
