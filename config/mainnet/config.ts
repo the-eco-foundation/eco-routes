@@ -38,9 +38,9 @@ const intent: any = {
   targetAmounts: [1000],
   duration: 3600,
   opBaseBedrock: {
-    hash: '0x9fe31be4a2325655dfbd4bb54d83e8b525cfd1a05a19865fcdac7c59a1dbc981',
+    hash: '0xd093c375174f1a3bae72779a000166b46262ac9c62dca8ce410bebe663414e27',
     fulfillTransaction:
-      '0x59036b6f3138471a0b617982319a99ebb5343dc9a43760b1c7a0738e51b1ef7d',
+      '0xcc10211f2bda384a385264c680eafa15e648413ce053ee00dcdd835b2d7246f6',
   },
   baseOpCannon: {
     settlementBlockTag: '0x13a303b', // 20590651n
@@ -48,14 +48,14 @@ const intent: any = {
       '0x2c8ae6de0f5432d5b06626b19ec08f8948fec8c200a141bfc802dd56c310c668',
     // faultDisputeGame: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
     faultDisputeGame: {
-      address: '0x212B650A940B2C9c924De8AA2c225a06Fca2E3f7',
-      creationBlock: '0x139d029', // 20566057n
-      resolvedBlock: '0x13a3205', // 20591109n
-      gameIndex: 1709,
+      address: '0x7066f76DC4C04730793928bD32634C430d95793B',
+      creationBlock: '0x139d153', // 20566355n
+      resolvedBlock: '0x13a332d', // 20591405n
+      gameIndex: 1710,
     },
-    hash: '0xfc0b72b6365e7313594d08d4aadf8132b05e9a125318d1a76e7bbf411b3a8611',
+    hash: '0x64cfcf941df8efa0ba72a089b1bd46ddeef801200ca591d70cd13fa2d6a0209e',
     fulfillTransaction:
-      '0xb07002c38aa8df7ff282c382057faecea8eaa40d11c6b5ac3b89f32a84c40adb',
+      '0xf7dabff5669c2187070a33ce1d718f78fe5058090f3412d5c5347fae868acbcd',
   },
 }
 
@@ -72,9 +72,9 @@ const networks: any = {
   optimism: {
     network: 'optimism',
     chainId: networkIds.optimism,
-    intentSourceAddress: '0x8b0A7aEeC5D243d0a21b52Edcd943270c006a590',
-    proverContractAddress: '0xFB35271eC603A55e0322f77F0C1F3f02804d9156',
-    inboxAddress: '0xBAD17e5280eF02c82f6aa26eE3d5E77458e53538',
+    intentSourceAddress: '0xBB05f92D342572F68AEA18171dAe83a7a8ff098A',
+    proverContractAddress: '0xa20c508f230433F3E347c96cA10aAbB64fAD1fEf',
+    inboxAddress: '0x560D77D7CDAB38DD5033674571359d3C9B68bbAC',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -95,9 +95,9 @@ const networks: any = {
   base: {
     network: 'base',
     chainId: networkIds.base,
-    intentSourceAddress: '0x8b0A7aEeC5D243d0a21b52Edcd943270c006a590',
-    proverContractAddress: '0xFB35271eC603A55e0322f77F0C1F3f02804d9156',
-    inboxAddress: '0xBAD17e5280eF02c82f6aa26eE3d5E77458e53538',
+    intentSourceAddress: '0x4df739d075095B54C33f5E79B10d1284577e2d20',
+    proverContractAddress: '0x0CA4437E8f89a5C9b3569Cd430E89E72B2e26bFf',
+    inboxAddress: '0x3B4232f5c2dC798Cc07424d26562c097D6100900',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
