@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2024 Eco, inc.
 pragma solidity ^0.8.26;
 
 import "./interfaces/IInbox.sol";
