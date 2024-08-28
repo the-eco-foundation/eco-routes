@@ -143,7 +143,7 @@ $ yarn coverage
 
 ### Deployment
 
-Deploy using `deploy.ts` in the scripts directory. This script draws from the configs (found in the `config` directory) as well as a local .env
+Deploy using `deploy.ts` in the `scripts` directory. This script draws from the configs (found in the `config` directory) as well as a local .env file. See `.env.example`.
 
 ### End-To-End Testing
 
