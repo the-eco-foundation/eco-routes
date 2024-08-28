@@ -1,12 +1,5 @@
 <div id="top"></div>
-
-<br />
-<div align="center">
-  <a href="https://github.com/eco/eco-protocol">
-    <img src="https://i.postimg.cc/ryNBfZkN/Logo-Blue.png" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">Eco API Documentation</h3>
+<h1 align="center">API Documentation</h1>
 </div>
 
 # API Documentation
@@ -101,7 +94,7 @@ Attributes:
 
 ## Intent Proving
 
-Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` reads state from it. The methods in this contract are complex and require inputs that can be difficult to generate. As a result, Eco will in the future be running services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples.
+Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` reads state from it. The methods in this contract are complex and require inputs that can be difficult to generate. In the future we will be building out services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples.
 
 ### Events
 

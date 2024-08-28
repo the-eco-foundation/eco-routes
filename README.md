@@ -7,9 +7,9 @@
 - [Components](#Components)
 - [Usage](#usage)
   - [Installation](#installation)
-  - [Test](#test)
+  - [Testing](#testing)
   - [Deployment](#deployment)
-  - [End to End Testing](#end-to-end-testing)
+  - [End-to-End Testing](#end-to-end-testing)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -131,7 +131,7 @@ nvm ls
 yarn lint
 ```
 
-### Test
+### Testing
 
 ```bash
 # tests
