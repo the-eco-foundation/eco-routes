@@ -127,9 +127,7 @@ async function main() {
 
   const inboxFactory = await ethers.getContractFactory('Inbox')
 
-  const inbox: Inbox = await inboxFactory.deploy(deployer.address, false, [
-    actors.solver,
-  ])
+  const inbox: Inbox = await inboxFactory.deploy()
   console.log('Inbox deployed to:', await inbox.getAddress())
 
   // adding a try catch as if the contract has previously been deployed will get a

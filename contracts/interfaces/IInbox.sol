@@ -28,15 +28,6 @@ interface IInbox {
     // Event emitted when an intent is succesfully fulfilled
     event Fulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
-    // Event emitted when solving is made public
-    event SolvingIsPublic();
-
-    // Event emitted when a change is made to the solver whitelist
-    event SolverWhitelistChanged(address indexed _solver, bool indexed _canSolve);
-
-    // Event emitted when solving intents is not public and a non-whitelisted address made a solve attempt
-    error UnauthorizedSolveAttempt(address _solver);
-
     // Event emitted when the intent can no longer be fulfilled because its timestamp has expired
     error IntentExpired();
 
