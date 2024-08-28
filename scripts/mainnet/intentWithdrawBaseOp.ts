@@ -214,7 +214,7 @@ async function getGameIndex(
   console.log('In getGameIndex')
   // TODO: this needs to be enhanced to loop through all games until we find the correct gameIndex
   let lastGame = (await disputeGameFactoryContract.gameCount()) - 1n
-  lastGame = 1712n
+  // lastGame = 1712n
   console.log('lastGame: ', lastGame)
   while (lastGame > 0) {
     const game = await disputeGameFactoryContract.gameAtIndex(lastGame)
