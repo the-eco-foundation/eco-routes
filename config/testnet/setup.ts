@@ -166,12 +166,6 @@ export namespace s {
     baseSepoliaProvider,
   )
   // Contracts
-  // Settlement Contracts for other Chains
-  export const baseSepoliaSettlementContractEcoTestNet = new Contract(
-    networks.baseSepolia.settlementContracts.ecoTestNet,
-    L2OutputArtifact.abi,
-    baseSepoliaProvider,
-  )
   // System Proving Contracts
   export const baseSepolial1Block = new Contract(
     networks.baseSepolia.proving.l1BlockAddress,
