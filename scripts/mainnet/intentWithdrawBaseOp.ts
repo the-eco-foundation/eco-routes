@@ -397,7 +397,7 @@ async function proveIntent(intentHash, endBatchBlockData) {
   console.log('In proveIntent')
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
-    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 0])],
   )
   const intentInboxProof = await s.optimismProvider.send('eth_getProof', [
     networks.optimism.inboxAddress,

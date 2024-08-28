@@ -3,13 +3,9 @@ const provingMechanisms: any = {
   self: 0,
   bedrock: 1,
   cannon: 2,
-  nitro: 3,
-  hyperProver: 4,
   0: 'self',
   1: 'bedrock',
   2: 'cannon',
-  3: 'nitro',
-  4: 'hyperProver',
 }
 const networkIds: any = {
   mainnet: 1,
@@ -37,9 +33,9 @@ const intent: any = {
   targetAmounts: [1000],
   duration: 3600,
   opBaseBedrock: {
-    hash: '0x9fe31be4a2325655dfbd4bb54d83e8b525cfd1a05a19865fcdac7c59a1dbc981',
+    hash: '0x0fed842176725764fad91a35b2d89cf6471a6b683baa8d32fcba626aed8387f0',
     fulfillTransaction:
-      '0x59036b6f3138471a0b617982319a99ebb5343dc9a43760b1c7a0738e51b1ef7d',
+      '0x53cbfbcbc0bf17f943a23fa03f384b010dc0745900eab5a98e79261375d6293b',
   },
   baseOpCannon: {
     settlementBlockTag: '0x13a303b', // 20590651n
@@ -52,9 +48,9 @@ const intent: any = {
       resolvedBlock: '0x13a3205', // 20591109n
       gameIndex: 1709,
     },
-    hash: '0xfc0b72b6365e7313594d08d4aadf8132b05e9a125318d1a76e7bbf411b3a8611',
+    hash: '0x63724004eb8f42dcbb7dd98fc8fb0fb9f01e59c01725c3d8f06da53a534d4734',
     fulfillTransaction:
-      '0xb07002c38aa8df7ff282c382057faecea8eaa40d11c6b5ac3b89f32a84c40adb',
+      '0x07c88cd89a86366e073d1641cc3b2466d6d9854298f8c1ac330b65b76e164537',
   },
 }
 
@@ -71,9 +67,9 @@ const networks: any = {
   optimism: {
     network: 'optimism',
     chainId: networkIds.optimism,
-    intentSourceAddress: '0x532BA2D408e77B773b1d05Dafa5E4A2392e5ED11',
-    proverContractAddress: '0x82A4c0d2BdE3929320130F29b7F7aE937b5B960A',
-    inboxAddress: '0xd01168742A682146095c3bCe1ad6527837593a85',
+    intentSourceAddress: '0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72',
+    proverContractAddress: '0xb1a9D27bda1E329999B9D1EE47c6BA3A688c8817',
+    inboxAddress: '0xb77fD18e34bBC02b8362aF0978B40b46d80Ce54e',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -94,9 +90,9 @@ const networks: any = {
   base: {
     network: 'base',
     chainId: networkIds.base,
-    intentSourceAddress: '0x61e45006a0E86B896A68451A2dcd6cd7DA2A99B2',
-    proverContractAddress: '0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf',
-    inboxAddress: '0x8D4802BE8542f3ac41E25A2c6526AdBa269A1806',
+    intentSourceAddress: '0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72',
+    proverContractAddress: '0xb1a9D27bda1E329999B9D1EE47c6BA3A688c8817',
+    inboxAddress: '0xb77fD18e34bBC02b8362aF0978B40b46d80Ce54e',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,

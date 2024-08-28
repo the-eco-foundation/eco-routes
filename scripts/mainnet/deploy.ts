@@ -4,7 +4,7 @@ import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
-import { networks, actors } from '../../config/mainnet/config'
+import { networks } from '../../config/mainnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
@@ -105,9 +105,7 @@ async function main() {
 
   const inboxFactory = await ethers.getContractFactory('Inbox')
 
-  const inbox: Inbox = await inboxFactory.deploy(deployer.address, false, [
-    actors.solver,
-  ])
+  const inbox: Inbox = await inboxFactory.deploy()
   console.log('Inbox deployed to:', await inbox.getAddress())
 
   // adding a try catch as if the contract has previously been deployed will get a
@@ -118,7 +116,7 @@ async function main() {
       await setTimeout(30000)
       await run('verify:verify', {
         address: await inbox.getAddress(),
-        constructorArguments: [deployer.address, false, [actors.solver]],
+        // constructorArguments: [deployer.address, false, [actors.solver]],
       })
     }
     console.log('Inbox verified at:', await inbox.getAddress())

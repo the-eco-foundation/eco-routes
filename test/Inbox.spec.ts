@@ -34,9 +34,7 @@ describe('Inbox Test', (): void => {
   }> {
     const [owner, solver, dstAddr] = await ethers.getSigners()
     const inboxFactory = await ethers.getContractFactory('Inbox')
-    const inbox = await inboxFactory.deploy(owner.address, false, [
-      solver.address,
-    ])
+    const inbox = await inboxFactory.deploy()
 
     // deploy ERC20 test
     const erc20Factory = await ethers.getContractFactory('TestERC20')
@@ -86,69 +84,20 @@ describe('Inbox Test', (): void => {
       ),
     )
   })
-  it('initializes correctly', async () => {
-    expect(await inbox.owner()).to.eq(owner.address)
-    expect(await inbox.isSolvingPublic()).to.be.false
-    expect(await inbox.solverWhitelist(solver)).to.be.true
-    expect(await inbox.solverWhitelist(owner)).to.be.false
-  })
-
-  describe('setters', async () => {
-    it('doesnt let non-owner call set functions', async () => {
-      await expect(
-        inbox.connect(solver).makeSolvingPublic(),
-      ).to.be.revertedWithCustomError(inbox, 'OwnableUnauthorizedAccount')
-      await expect(
-        inbox.connect(solver).changeSolverWhitelist(owner.address, true),
-      ).to.be.revertedWithCustomError(inbox, 'OwnableUnauthorizedAccount')
-    })
-    it('lets owner make solving public', async () => {
-      expect(await inbox.isSolvingPublic()).to.be.false
-      await inbox.connect(owner).makeSolvingPublic()
-      expect(await inbox.isSolvingPublic()).to.be.true
-    })
-    it('ets owner change the solver whitelist', async () => {
-      expect(await inbox.solverWhitelist(solver)).to.be.true
-      expect(await inbox.solverWhitelist(owner)).to.be.false
-      await inbox.connect(owner).changeSolverWhitelist(solver.address, false)
-      await inbox.connect(owner).changeSolverWhitelist(owner.address, true)
-      expect(await inbox.solverWhitelist(solver)).to.be.false
-      expect(await inbox.solverWhitelist(owner)).to.be.true
-    })
-  })
 
   describe('when the intent is invalid', () => {
-    it('should revert if solved by someone who isnt whitelisted when solving isnt public', async () => {
-      expect(await inbox.isSolvingPublic()).to.be.false
-      expect(await inbox.solverWhitelist(owner.address)).to.be.false
-      await expect(
-        inbox
-          .connect(owner)
-          .fulfill(
-            sourceChainID,
-            [erc20Address],
-            [calldata],
-            timeDelta,
-            nonce,
-            dstAddr.address,
-            intentHash,
-          ),
-      ).to.be.revertedWithCustomError(inbox, 'UnauthorizedSolveAttempt')
-    })
     it('should revert if the timestamp is expired', async () => {
       timeStamp -= 2 * timeDelta
       await expect(
-        inbox
-          .connect(solver)
-          .fulfill(
-            sourceChainID,
-            [erc20Address],
-            [calldata],
-            timeStamp,
-            nonce,
-            dstAddr.address,
-            intentHash,
-          ),
+        inbox.fulfill(
+          sourceChainID,
+          [erc20Address],
+          [calldata],
+          timeStamp,
+          nonce,
+          dstAddr.address,
+          intentHash,
+        ),
       ).to.be.revertedWithCustomError(inbox, 'IntentExpired')
     })
 
@@ -159,24 +108,23 @@ describe('Inbox Test', (): void => {
           ["you wouldn't block a chain"],
         ),
       )
+      //   const asvfa = keccak256("you wouldn't block a chain")
       await expect(
-        inbox
-          .connect(solver)
-          .fulfill(
-            sourceChainID,
-            [erc20Address],
-            [calldata],
-            timeStamp,
-            nonce,
-            dstAddr.address,
-            goofyHash,
-          ),
+        inbox.fulfill(
+          sourceChainID,
+          [erc20Address],
+          [calldata],
+          timeStamp,
+          nonce,
+          dstAddr.address,
+          goofyHash,
+        ),
       ).to.be.revertedWithCustomError(inbox, 'InvalidHash')
     })
     it('should revert via InvalidHash if all intent data was input correctly, but the intent used a different inbox on creation', async () => {
       const anotherInbox = await (
         await ethers.getContractFactory('Inbox')
-      ).deploy(owner.address, false, [owner.address])
+      ).deploy()
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
       const intermediateHash = keccak256(
         abiCoder.encode(
@@ -199,17 +147,15 @@ describe('Inbox Test', (): void => {
       )
 
       await expect(
-        inbox
-          .connect(solver)
-          .fulfill(
-            sourceChainID,
-            [erc20Address],
-            [calldata],
-            timeStamp,
-            nonce,
-            dstAddr.address,
-            sameIntentDifferentInboxHash,
-          ),
+        inbox.fulfill(
+          sourceChainID,
+          [erc20Address],
+          [calldata],
+          timeStamp,
+          nonce,
+          dstAddr.address,
+          sameIntentDifferentInboxHash,
+        ),
       ).to.be.revertedWithCustomError(inbox, 'InvalidHash')
     })
   })
@@ -217,58 +163,16 @@ describe('Inbox Test', (): void => {
   describe('when the intent is valid', () => {
     it('should revert if the call fails', async () => {
       await expect(
-        inbox
-          .connect(solver)
-          .fulfill(
-            sourceChainID,
-            [erc20Address],
-            [calldata],
-            timeStamp,
-            nonce,
-            dstAddr.address,
-            intentHash,
-          ),
+        inbox.fulfill(
+          sourceChainID,
+          [erc20Address],
+          [calldata],
+          timeStamp,
+          nonce,
+          dstAddr.address,
+          intentHash,
+        ),
       ).to.be.revertedWithCustomError(inbox, 'IntentCallFailed')
-    })
-    it('should not revert when called by a whitelisted solver', async () => {
-      expect(await inbox.solverWhitelist(solver)).to.be.true
-
-      await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
-
-      await expect(
-        inbox
-          .connect(solver)
-          .fulfill(
-            sourceChainID,
-            [erc20Address],
-            [calldata],
-            timeStamp,
-            nonce,
-            dstAddr.address,
-            intentHash,
-          ),
-      ).to.not.be.reverted
-    })
-    it('should not revert when called by a non-whitelisted solver when solving is public', async () => {
-      expect(await inbox.solverWhitelist(owner)).to.be.false
-      await inbox.connect(owner).makeSolvingPublic()
-      expect(await inbox.isSolvingPublic()).to.be.true
-
-      await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
-
-      await expect(
-        inbox
-          .connect(owner)
-          .fulfill(
-            sourceChainID,
-            [erc20Address],
-            [calldata],
-            timeStamp,
-            nonce,
-            dstAddr.address,
-            intentHash,
-          ),
-      ).to.not.be.reverted
     })
 
     it('should succeed', async () => {

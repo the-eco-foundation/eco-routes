@@ -1,5 +1,6 @@
 /* -*- c-basic-offset: 4 -*- */
-// SPDX-License-hash: MIT
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2024 Eco, Inc.
 pragma solidity ^0.8.26;
 
 import {Intent} from "../types/Intent.sol";

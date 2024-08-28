@@ -39,16 +39,13 @@ describe('Intent Source Test', (): void => {
     claimant: SignerWithAddress
     otherPerson: SignerWithAddress
   }> {
-    const [creator, solver, owner, claimant, otherPerson] =
-      await ethers.getSigners()
+    const [creator, solver, claimant, otherPerson] = await ethers.getSigners()
     // deploy prover
     prover = await (await ethers.getContractFactory('TestProver')).deploy()
 
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
     const intentSource = await intentSourceFactory.deploy(minimumDuration, 0)
-    inbox = await (
-      await ethers.getContractFactory('Inbox')
-    ).deploy(owner.address, false, [owner.address])
+    inbox = await (await ethers.getContractFactory('Inbox')).deploy()
 
     // deploy ERC20 test
     const erc20Factory = await ethers.getContractFactory('TestERC20')

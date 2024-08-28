@@ -40,9 +40,7 @@ contract Prover is SimpleProver {
     enum ProvingMechanism {
         Self, // Used for Ethereum and Sepolia (any chain that settles to itself)
         Bedrock,
-        Cannon,
-        Arbitrum,
-        HyperProver
+        Cannon
     }
 
     struct ChainConfiguration {
@@ -110,8 +108,10 @@ contract Prover is SimpleProver {
      * @param _blockNumber the blocknumber corresponding to this L2 world state
      * @param _L2WorldStateRoot the world state root at _blockNumber
      */
-    event L2WorldStateProven(uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot);
-    
+    event L2WorldStateProven(
+        uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot
+    );
+
     /**
      * @notice emitted when an intent has been successfully proven
      * @param _hash  the hash of the intent
@@ -518,7 +518,7 @@ contract Prover is SimpleProver {
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
                 intentHash,
-                1 // storage position of the intents mapping is the first slot
+                0 // storage position of the intents mapping is slot 1
             )
         );
 
