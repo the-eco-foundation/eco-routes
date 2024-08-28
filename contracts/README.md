@@ -6,6 +6,22 @@
 
 Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox` and `Prover`.
 
+This repo makes heavy use of the Intent struct (found at `types/Intent.sol`). 
+
+Attributes:
+- `creator` (address): creator of the intent
+- `destinationChainID` (uint256): ID of chain where we want instructions executed
+- `targets` (address[]): addresses on destinationChain where we want instructions executed
+- `data` (bytes[]): instructions we want executed on the destinationChain
+- `rewardTokens` (address[]): addresses of reward tokens
+- `rewardAmounts` (uint256[]): corresponding amounts of reward tokens
+- `expiryTime` (uint256): intent expiry timestamp
+- `hasBeenWithdrawn` (bool): true if this intent's associated rewards have already been withdrawn
+- `nonce` (bytes32): hash of the IntentSource's counter and the chainID
+- `prover` (address): address of the prover this intent will be checked against
+
+
+
 ## Intent Creation / Settlement
 
 Intent creation and filler settlement processes both exist on `IntentSource.sol` on the source chain, and is where the full intent lifecycle will start and end. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
