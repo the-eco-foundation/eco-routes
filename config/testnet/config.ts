@@ -69,7 +69,6 @@ const networks: any = {
     // The following destination chains are useful for proving
     // destinationChains: [
     //   84532, // baseSepolia
-    //   471923, // ecoTestNet
     //   421614, // arbitrumSepolia
     // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
@@ -99,13 +98,10 @@ const networks: any = {
       },
     },
     // The following settlement contracts are useful for event listening
-    settlementContracts: {
-      ecoTestNet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet L2 Output Oracle
-    },
+    settlementContracts: {},
     // The following destination chains are useful for proving
     // destinationChains: [
     //   11155420, // optimismSepolia
-    //   471923, // ecoTestNet
     //   421614, // arbitrumSepolia
     // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
