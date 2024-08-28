@@ -21,7 +21,6 @@
 - [Usage](#usage)
   - [Installation](#installation)
   - [Test](#test)
-  - [Testnet End to End Tests](#testnet-end-to-end-tests)
   - [Deployment](#deployment)
   - [End to End Testing](#end-to-end-testing)
 - [Contributing](#contributing)
@@ -30,7 +29,7 @@
 
 ## About the project
 
-The Eco protocol is an intents-driven permissionless, trust-neutral protocol and liquidity network enabling cross-L2 transactions. We are live on `Optimism` and `Base`, with cross-chain routes running in both directions. See it in action using our wallet, [Bend](bend.eco).
+The Eco protocol is an intents-driven permissionless, trust-neutral protocol and liquidity network enabling cross-L2 transactions. We are live on `Optimism` and `Base`, with cross-chain routes running in both directions. See it in action soon on our wallet, [Bend](bend.eco).
 
 The ecosystem has three main parts:
 
@@ -49,18 +48,22 @@ There are also three main types of ecosystem participants:
 A `User` initiates a cross-chain transaction by creating an intent. Put simply, an intent represents a `User`'s end goals on the destination chain. It contains the calls they'd want to make, those calls' corresponding addresses, and the price they'd be willing to pay someone to execute this call on their behalf, along with other metadata. Seeing this intent and being enticed by the fee they'd receive, a `Filler` creates and executes a fulfill transaction on the destination chain that corresponds to the user's intent, storing the fulfilled intent's hash on the destination chain. A `Prover` - perhaps the `Filler` themselves or a service they subscribe to - sees this fulfillment transaction and performs a proof that the hash of the fulfilled transaction on the destination chain matches that of the intent on the source chain. After the intent proven, the filler can withdraw their reward.
 
 ## Components
-Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each of n supported chain will have its own `IntentSource`(1), `Inbox`(1), and `Prover`s(n-1)
+
+Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox` and `Prover`.
 
 ### Intent Creation / Settlement
+
 Intent creation and filler settlement processes both exist on the `IntentSource` on the source chain, and is where the full intent lifecycle will start and end. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
 
 ### Intent Fulfillment / Execution
+
 Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
 
 ### Intent Proving
-Intent proving lives on the `Prover`, which is on the source chain. `Prover`s are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it. At the outset, Eco will run a proving service that manages this step for all intents. 
 
-See the readme in the contracts directory for a detailed API documentation. 
+Intent proving lives on the `Prover`, which is on the source chain. `Provers` are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it. At the outset, Eco will run a proving service that manages this step for all intents.
+
+See the readme in the contracts directory for a detailed API documentation.
 
 ## Usage
 
