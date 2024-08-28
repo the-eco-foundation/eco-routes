@@ -44,7 +44,6 @@ const networks: any = {
     settlementContracts: {
       baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
       optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
-      // arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia Rollup Admin Contract
     },
   },
   optimismSepolia: {
@@ -327,7 +326,6 @@ const bedrock: any = {
       '0x1d1c3367a68dfd1e730f2e728a2bc7d95bc1f6881d1051751e2536370736ee39',
   },
 }
-// Eco Testnet to Base
 const cannon: any = {
   settlementChain: {
     blockNumber: '0x628774', // 6457204
