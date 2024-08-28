@@ -1,5 +1,5 @@
 <div id="top"></div>
-<h2>Cross-L2 Actions: an implementation of RIP-7755</h2>
+<h2>Cross-L2 Actions</h2>
 
 </div>
 
@@ -16,15 +16,13 @@
 
 ## Abstract
 
-The Eco protocol is an intents-driven permissionless, trust-neutral protocol and liquidity network enabling cross-L2 transactions. We are live on `Optimism` and `Base`, with cross-chain routes running in both directions. See it in action soon on our wallet, [Bend](bend.eco).
-
-The ecosystem has three main parts:
+An intents-driven, permissionless, trust-neutral protocol for facilitating the creation, incentivized execution, and proof of cross-L2 transactions, or intents. 
 
 - [Intent Creation / Settlement](#intent-creation--settlement)
 - [Intent Fulfillment / Execution](#intent-fulfillment--execution)
 - [Intent Proving](#intent-proving)
 
-There are also three main types of ecosystem participants:
+We identify three main user profiles:
 
 - `Users`: Individuals who want to transact across different L2s.
 - `Fillers`: Individuals interested in performing transactions on behalf of others for a fee.
@@ -48,9 +46,13 @@ Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `
 
 ### Intent Proving
 
-Intent proving lives on the `Prover`, which is on the source chain. `Provers` are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it. At the outset, Eco will run a proving service that manages this step for all intents.
+Intent proving lives on the `Prover`, which is on the source chain. `Provers` are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it. 
 
 See the readme in the contracts directory for a detailed API documentation.
+
+
+## Future Work
+We are working on services for the proving and solving functionalities to make crosschain transactions even simpler. We also intend to build out support for additional chains. 
 
 ## Usage
 
@@ -110,7 +112,7 @@ nvm ls
 1. Clone the repo
 
 ```bash
- git clone git@github.com:eco/eco-protocol.git
+ git clone git@github.com:ecoinc/Cross-L2-Actions.git
 ```
 
 2. Install and build using yarn
@@ -161,6 +163,6 @@ $ yarn coverage
 
 ## Contact
 
-Project Link: [https://github.com/eco/eco-protocol](https://github.com/eco/eco-protocol)
+Project Link: [https://github.com/ecoinc/Cross-L2-Actions](https://github.com/ecoinc/Cross-L2-Actions)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
