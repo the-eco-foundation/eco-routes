@@ -155,6 +155,79 @@ async function getFaultDisputeGame() {
   return { faultDisputeGameAddress, faultDisputeGameContract }
 }
 
+async function mockGetLatestResolvedFaultDisputeGame(
+  disputeGameFactoryContract,
+  faultDisputeGameAddress,
+  faultDisputeGameData,
+) {
+  const lastGame = await disputeGameFactoryContract.gameCount()
+  console.log('lastGame: ', lastGame)
+  // Get the DisputeGameFactory gameIndex for this faultDisputeGame
+  const latestGames = await disputeGameFactoryContract.findLatestGames(
+    faultDisputeGameData.gameType_,
+    lastGame - 1n,
+    50, // note if looking up more than 50 games it does not consistently return all the contracts have seen it return between 90 and 138 with limited tests
+  )
+  // Note this is the structure returned by findLatestGames
+  //   struct GameSearchResult {
+  //     uint256 index;
+  //     GameId metadata;
+  //     Timestamp timestamp;
+  //     Claim rootClaim;
+  //     bytes extraData; //this holds the creation block number
+  // }
+  console.log('latestGames.length: ', latestGames.length)
+  for (let i = 0; i < latestGames.length; i++) {
+    const game = latestGames[i]
+    console.log('game: ', game)
+    console.log('block: ', stripZerosLeft(game.extraData))
+    const faultDisputeGameContract = new Contract(
+      faultDisputeGameAddress,
+      FaultDisputeGameArtifact.abi,
+      s.mainnetProvider,
+    )
+    const faultDisputeGameResolvedEvents =
+      await faultDisputeGameContract.queryFilter(
+        faultDisputeGameContract.getEvent('Resolved'),
+        // stripZerosLeft(game.extraData),
+        // game.extraData,
+      )
+    console.log('gameIndex: ', game.index)
+    console.log(
+      'faultDisputeGameResolvedEvents.length: ',
+      faultDisputeGameResolvedEvents.length,
+    )
+    // console.log(
+    //   'faultDisputeGameResolvedEvents: ',
+    //   faultDisputeGameResolvedEvents,
+    // )
+    if (faultDisputeGameResolvedEvents.length !== 0) {
+      return game.index
+    }
+  }
+}
+
+async function getGameIndex(
+  disputeGameFactoryContract,
+  faultDisputeGameAddress,
+) {
+  console.log('In getGameIndex')
+  // TODO: this needs to be enhanced to loop through all games until we find the correct gameIndex
+  let lastGame = (await disputeGameFactoryContract.gameCount()) - 1n
+  lastGame = 1712n
+  console.log('lastGame: ', lastGame)
+  while (lastGame > 0) {
+    const game = await disputeGameFactoryContract.gameAtIndex(lastGame)
+    console.log('lastGame: ', lastGame)
+    console.log('game.proxy_: ', game.proxy_)
+
+    if (game.proxy_ === faultDisputeGameAddress) {
+      return lastGame.toString()
+    }
+    lastGame -= 1n
+  }
+}
+
 async function proveWorldStateCannonBaseToOptimism(
   settlementBlockTag,
   settlementStateRoot,
@@ -200,18 +273,11 @@ async function proveWorldStateCannonBaseToOptimism(
     faultDisputeGameCreatedAt,
     faultDisputeGameAddress,
   )
-  // TODO: this needs to be enhanced to loop through all games until we find the correct gameIndex
-  const lastGame = (await disputeGameFactoryContract.gameCount()) - 50n
-  console.log('lastGame: ', lastGame)
-  // Get the DisputeGameFactory gameIndex for this faultDisputeGame
-  const latestGames = await disputeGameFactoryContract.findLatestGames(
-    faultDisputeGameData.gameType_,
-    lastGame,
-    50, // note if looking up more than 50 games it does not consistently return all the contracts have seen it return between 90 and 138 with limited tests
-  )
-  console.log('latestGames.length: ', latestGames.length)
   // TODO gameIndex needs to come from above data by looking for matching faultDisputeGame rootClaim and extraData
-  const gameIndex = intent.baseOpCannon.faultDisputeGame.gameIndex
+  const gameIndex = await getGameIndex(
+    disputeGameFactoryContract,
+    faultDisputeGameAddress,
+  )
   // disputeGameFactoryStorageSlot is where the gameId is stored
   // In solidity
   // uint256(keccak256(abi.encode(L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER)))
@@ -282,6 +348,7 @@ async function proveWorldStateCannonBaseToOptimism(
   const faultDisputeGameResolvedStorageSlot =
     '0x0000000000000000000000000000000000000000000000000000000000000000'
   // '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
+  console.log('Just here')
   const faultDisputeGameRootResolvedProof = await s.mainnetProvider.send(
     'eth_getProof',
     [
@@ -290,6 +357,7 @@ async function proveWorldStateCannonBaseToOptimism(
       settlementBlockTag,
     ],
   )
+  console.log('Here')
   const faultDisputeGameContractData = [
     toBeHex(faultDisputeGameRootClaimProof.nonce), // nonce
     stripZerosLeft(toBeHex(faultDisputeGameRootClaimProof.balance)), // balance
@@ -478,16 +546,16 @@ async function main() {
   let intentHash, intentFulfillTransaction, faultDisputeGame
   try {
     console.log('In intentWithdrawBaseOp')
-    // const settlementBlockTag = intent.baseOpCannon.settlementBlockTag
-    // const settlementStateRoot = intent.baseOpCannon.settlementStateRoot
+    const settlementBlockTag = intent.baseOpCannon.settlementBlockTag
+    const settlementStateRoot = intent.baseOpCannon.settlementStateRoot
     faultDisputeGame = intent.baseOpCannon.faultDisputeGame
     intentHash = intent.baseOpCannon.hash
     intentFulfillTransaction = intent.baseOpCannon.fulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     console.log('faultDisputeGame: ', faultDisputeGame)
-    const { settlementBlockTag, settlementStateRoot } =
-      await proveSettlementLayerState()
+    // const { settlementBlockTag, settlementStateRoot } =
+    //   await proveSettlementLayerState()
     console.log('settlementBlockTag: ', settlementBlockTag)
     console.log('settlementStateRoot: ', settlementStateRoot)
     // await getLatestResolvedFaultDisputeGame()

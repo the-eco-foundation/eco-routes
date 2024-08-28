@@ -43,9 +43,9 @@ const intent: any = {
       '0xcc10211f2bda384a385264c680eafa15e648413ce053ee00dcdd835b2d7246f6',
   },
   baseOpCannon: {
-    settlementBlockTag: '0x13a303b', // 20590651n
+    settlementBlockTag: '0x13aca7f', // 20630143n
     settlementStateRoot:
-      '0x2c8ae6de0f5432d5b06626b19ec08f8948fec8c200a141bfc802dd56c310c668',
+      '0x72b6739729dabea437bd2b97441e656550170f06ce75fff795dc547378e88457',
     // faultDisputeGame: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
     faultDisputeGame: {
       address: '0x7066f76DC4C04730793928bD32634C430d95793B',
