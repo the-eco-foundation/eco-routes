@@ -64,9 +64,9 @@ export namespace s {
     mainnetProvider,
   )
   // System Proving Contracts
-  // ECO PROTOCOL Contracts
+  // PROTOCOL Contracts
 
-  // Opstimismmainnet
+  // OptimismMainnet
   // Providers
   export const optimismProvider = new AlchemyProvider(
     networks.optimism.network,
@@ -107,7 +107,7 @@ export namespace s {
     optimismProvider,
   )
 
-  // ECO PROTOCOL Contracts
+  // PROTOCOL Contracts
   export const optimismIntentSourceContractIntentCreator = new Contract(
     networks.optimism.intentSourceAddress,
     IntentSource__factory.abi,
@@ -174,7 +174,7 @@ export namespace s {
     baseProvider,
   )
 
-  // ECO PROTOCOL Contracts
+  // PROTOCOL Contracts
   export const baseIntentSourceContractIntentCreator = new Contract(
     networks.base.intentSourceAddress,
     IntentSource__factory.abi,
