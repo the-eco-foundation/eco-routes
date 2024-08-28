@@ -212,8 +212,14 @@ async function getGameIndex(
   faultDisputeGameAddress,
 ) {
   console.log('In getGameIndex')
-  // TODO: this needs to be enhanced to loop through all games until we find the correct gameIndex
-  let lastGame = (await disputeGameFactoryContract.gameCount()) - 1n
+  // Recommend making approximateUnsettledGames configurable and could go as high as 84 but safest is zero.
+  const approximateUnsettledGames = 72n
+  // Optionally you could subtract say 50 games from the last game to reduce RPC calls
+  //
+  let lastGame =
+    (await disputeGameFactoryContract.gameCount()) -
+    1n -
+    approximateUnsettledGames
   // lastGame = 1712n
   console.log('lastGame: ', lastGame)
   while (lastGame > 0) {
