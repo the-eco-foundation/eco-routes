@@ -338,7 +338,7 @@ const cannon: any = {
     worldStateRoot:
       '0x0793c92b71543fa6ec37eace8d6b8d2c1ce63c68e4ca8a1aafce95f55a2afbc1',
   },
-  // Destination Chain is BaseSepolia (not EcoTestnet)
+  // Destination Chain is BaseSepolia
   destinationChain: {
     endBatchBlock: '0xcc7205', // 13398533
     endBatchBlockHash:
