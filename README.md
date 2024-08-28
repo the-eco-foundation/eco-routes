@@ -149,32 +149,6 @@ $ yarn  test
 $ yarn coverage
 ```
 
-## Testnet End to End Tests
-
-For more information please see [TESTING.md](./TESTING.md)
-
-### Deployment
-
-Before beginning end to end tests on sepolia you must deploy the following contracts
-
-```bash
-
-# Deploy IntentSource and Prover contracts on Source Chain
-yarn deploySourceAndProver
-
-# Deploy Inbox contract on Destination chain
-yarn deployInbox
-
-```
-
-### End to End Testing
-
-Coming soon
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- CONTRIBUTING -->
-
 ## Contributing
 
 1. Fork the Project
