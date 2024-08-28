@@ -1,8 +1,6 @@
 <div id="top"></div>
+<h2>Cross-L2 Actions: an implementation of RIP-7755</h2>
 
-<br />
-<h2>Cross-L2 Actions</h2>
-an implementation of RIP-7755
 </div>
 
 - [Abstract](#Abstract)
