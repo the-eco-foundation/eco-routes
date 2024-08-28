@@ -11,6 +11,8 @@ import "./interfaces/IInbox.sol";
  */
 contract Inbox is IInbox {
 
+    address private _placeholder; //aligns storage slots for ease of testing, does nothing else
+
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
 

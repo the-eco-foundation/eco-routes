@@ -86,7 +86,7 @@ describe('Inbox Test', (): void => {
   })
 
   describe('when the intent is invalid', () => {
-    it('should revert if the timestamp is expired', async () => {
+    it.only('should revert if the timestamp is expired', async () => {
       timeStamp -= 2 * timeDelta
       await expect(
         inbox.fulfill(

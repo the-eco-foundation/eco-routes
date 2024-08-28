@@ -40,7 +40,7 @@ contract Prover is SimpleProver {
     enum ProvingMechanism {
         Self, // Used for Ethereum and Sepolia (any chain that settles to itself)
         Bedrock,
-        Cannon,
+        Cannon
     }
 
     struct ChainConfiguration {
@@ -516,7 +516,7 @@ contract Prover is SimpleProver {
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
                 intentHash,
-                0 // storage position of the intents mapping is slot 0
+                1 // storage position of the intents mapping is slot 1
             )
         );
 
