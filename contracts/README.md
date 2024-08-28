@@ -11,7 +11,7 @@
 
 # API Documentation
 
-Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each of n supported chain will have its own `IntentSources`(1), `Inboxes`(1), and `Provers`(n-1)
+Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox` and `Prover`.
 
 ## Intent Creation / Settlement
 
@@ -51,8 +51,8 @@ Attributes:
 - `_destinationChain` (uint256) the chain on which the user wishes to transact
 - `_targets` (address[]) the address on \_destinationChain at which the instruction sets need to be executed
 - `_data` (bytes[]) the instructions to be executed on \_targets
-- `_rewardTokens` (address[]) the addresses of reward tokens
-- `_rewardAmounts` (uint256[]) the amounts of reward tokens
+- `_rewardTokens` (address[]) the addresses of source chain reward tokens
+- `_rewardAmounts` (uint256[]) the amounts of source chain reward tokens
 - `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the filler to redeem rewards.
 - `_prover` (address) the address of the prover against which the intent's status will be checked
 
@@ -80,7 +80,7 @@ Attributes:
 
 - `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
 - `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
-- `_claimant` (address) the address that can claim the fulfilled intent's fee on the source chain
+- `_claimant` (address) the address (on the source chain) that will receive the fulfilled intent's reward
 
 ### Methods
 
@@ -101,7 +101,7 @@ Attributes:
 
 ## Intent Proving
 
-Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` does read state from it. The methods in this contract are complex and require inputs that can be difficult to generate. As a result, Eco will in the future be running services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples.
+Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` reads state from it. The methods in this contract are complex and require inputs that can be difficult to generate. As a result, Eco will in the future be running services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples.
 
 ### Events
 
@@ -139,7 +139,7 @@ Attributes:
 
 - `rlpEncodedBlockData` (bytes) properly encoded L1 block data
 
-<ins>Security:</ins> Inputting the correct block's data encoded as expected will result in its hash matching the blockhash found on the L1 oracle contract. This means that the world state root found in that block corresponds to the block on the oracle contract, and that it represents a valid state. Notably, only one block's data is present on the oracle contract at a time, so the input data must match that block specifically, or the method will revert.
+<ins>Security:</ins> This method can be called by anyone. Inputting the correct block's data encoded as expected will result in its hash matching the blockhash found on the L1 oracle contract. This means that the world state root found in that block corresponds to the block on the oracle contract, and that it represents a valid state. Notably, only one block's data is present on the oracle contract at a time, so the input data must match that block specifically, or the method will revert.
 
 <h4><ins>proveWorldStateBedrock</ins></h4>
 <h5> Validates World state by ensuring that the passed in world state root corresponds to value in the L2 output oracle on the Settlement Layer.  We submit a `StorageProof` proving that the L2 Block is included in a batch that has been settled to L1 and an `AccountProof` proving that the `StorageProof` submitted is linked to a `WorldState` for the contract that the `StorageProof` is for.</h5>
@@ -166,7 +166,7 @@ Attributes:
 - `l1AccountProof` (bytes[]) accountProof from eth_getProof(L2OutputOracle, [], )
 - `l1WorldStateRoot` (bytes32) the l1 world state root that was proven in proveSettlementLayerState
 
-<ins>Security:</ins> Proving the batch has been settled ensures that the L2OutputBlock has been settled and allows us to prove any intents up to that block.
+<ins>Security:</ins> This method can be called by anyone. Proving the batch has been settled ensures that the L2OutputBlock has been settled and allows us to prove any intents up to that block.
 
 <h4><ins>proveWorldStateCannon</ins></h4>
 <h5> Validates world state for Cannon by validating the following Storage proofs for the faultDisputeGame.
@@ -195,7 +195,7 @@ Attributes:
 - `faultDisputeGameProofData` (FaultDisputeGameProofData) all information needed to prove the FaultDisputeGame is for the correct destination batch and has a status of resolved
 - `l1WorldStateRoot` (bytes32) a proven l1 world state root from a block on or after the L1 settlement block for this batch
 
-<ins>Security:</ins> Proving the FaultDisputeGame was creaed by the DisputeGameFactory and the FaultDisputeGame has a valid rootClaim (which contains the destination chains block number being settled) and that the FaultDisputeGame has been resolved ensures that the L2OutputBlock has been settled and allows us to prove any intents up to that block.
+<ins>Security:</ins> This method can be called by anyone. Proving the FaultDisputeGame was creaed by the DisputeGameFactory and the FaultDisputeGame has a valid rootClaim (which contains the destination chains block number being settled) and that the FaultDisputeGame has been resolved ensures that the L2OutputBlock has been settled and allows us to prove any intents up to that block.
 
 <h4><ins>proveIntent</ins></h4>
 <h5> Validates the intentHash and claimant address on the destination chain's inbox contract using the L2 state root</h5>
