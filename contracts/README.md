@@ -1,7 +1,3 @@
-<div id="top"></div>
-<h1 align="center">API Documentation</h1>
-</div>
-
 # API Documentation
 
 Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox` and `Prover`.
