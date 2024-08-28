@@ -157,53 +157,58 @@ async function getFaultDisputeGame() {
 
 async function mockGetLatestResolvedFaultDisputeGame(
   disputeGameFactoryContract,
-  faultDisputeGameAddress,
-  faultDisputeGameData,
+  gameType,
 ) {
-  const lastGame = await disputeGameFactoryContract.gameCount()
+  let lastGame = (await disputeGameFactoryContract.gameCount()) - 1n
   console.log('lastGame: ', lastGame)
-  // Get the DisputeGameFactory gameIndex for this faultDisputeGame
-  const latestGames = await disputeGameFactoryContract.findLatestGames(
-    faultDisputeGameData.gameType_,
-    lastGame - 1n,
-    50, // note if looking up more than 50 games it does not consistently return all the contracts have seen it return between 90 and 138 with limited tests
-  )
-  // Note this is the structure returned by findLatestGames
-  //   struct GameSearchResult {
-  //     uint256 index;
-  //     GameId metadata;
-  //     Timestamp timestamp;
-  //     Claim rootClaim;
-  //     bytes extraData; //this holds the creation block number
-  // }
-  console.log('latestGames.length: ', latestGames.length)
-  for (let i = 0; i < latestGames.length; i++) {
-    const game = latestGames[i]
-    console.log('game: ', game)
-    console.log('block: ', stripZerosLeft(game.extraData))
-    const faultDisputeGameContract = new Contract(
-      faultDisputeGameAddress,
-      FaultDisputeGameArtifact.abi,
-      s.mainnetProvider,
+  const gamesToRetrieve = 50
+  while (true) {
+    // Get the DisputeGameFactory gameIndex for this faultDisputeGame
+    const latestGames = await disputeGameFactoryContract.findLatestGames(
+      gameType,
+      lastGame,
+      gamesToRetrieve, // note if looking up more than 50 games it does not consistently return all the contracts have seen it return between 90 and 138 with limited tests
     )
-    const faultDisputeGameResolvedEvents =
-      await faultDisputeGameContract.queryFilter(
-        faultDisputeGameContract.getEvent('Resolved'),
-        // stripZerosLeft(game.extraData),
-        // game.extraData,
+    // Note this is the structure returned by findLatestGames
+    //   struct GameSearchResult {
+    //     uint256 index;
+    //     GameId metadata;
+    //     Timestamp timestamp;
+    //     Claim rootClaim;
+    //     bytes extraData; //this holds the creation block number
+    // }
+    console.log('latestGames.length: ', latestGames.length)
+    for (let i = 0; i < latestGames.length; i++) {
+      const game = latestGames[i]
+      console.log('game: ', game)
+      console.log('block: ', stripZerosLeft(game.extraData))
+      const gameData = await disputeGameFactoryContract.gameAtIndex(i)
+      console.log('gameData.proxy_: ', gameData.proxy_)
+      const faultDisputeGameContract = new Contract(
+        gameData.proxy_,
+        FaultDisputeGameArtifact.abi,
+        s.mainnetProvider,
       )
-    console.log('gameIndex: ', game.index)
-    console.log(
-      'faultDisputeGameResolvedEvents.length: ',
-      faultDisputeGameResolvedEvents.length,
-    )
-    // console.log(
-    //   'faultDisputeGameResolvedEvents: ',
-    //   faultDisputeGameResolvedEvents,
-    // )
-    if (faultDisputeGameResolvedEvents.length !== 0) {
-      return game.index
+      const faultDisputeGameResolvedEvents =
+        await faultDisputeGameContract.queryFilter(
+          faultDisputeGameContract.getEvent('Resolved'),
+          // stripZerosLeft(game.extraData),
+          // game.extraData,
+        )
+      console.log('gameIndex: ', game.index)
+      console.log(
+        'faultDisputeGameResolvedEvents.length: ',
+        faultDisputeGameResolvedEvents.length,
+      )
+      // console.log(
+      //   'faultDisputeGameResolvedEvents: ',
+      //   faultDisputeGameResolvedEvents,
+      // )
+      if (faultDisputeGameResolvedEvents.length !== 0) {
+        return gameData.proxy_
+      }
     }
+    lastGame -= BigInt(gamesToRetrieve)
   }
 }
 
