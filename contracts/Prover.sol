@@ -41,8 +41,6 @@ contract Prover is SimpleProver {
         Self, // Used for Ethereum and Sepolia (any chain that settles to itself)
         Bedrock,
         Cannon,
-        Arbitrum,
-        HyperProver
     }
 
     struct ChainConfiguration {

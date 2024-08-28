@@ -3,13 +3,9 @@ const provingMechanisms: any = {
   self: 0,
   bedrock: 1,
   cannon: 2,
-  nitro: 3,
-  hyperProver: 4,
   0: 'self',
   1: 'bedrock',
   2: 'cannon',
-  3: 'nitro',
-  4: 'hyperProver',
 }
 const networkIds: any = {
   sepolia: 11155111,

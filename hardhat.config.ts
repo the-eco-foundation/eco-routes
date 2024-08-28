@@ -57,16 +57,6 @@ const config: HardhatUserConfig = {
       url: `https://base-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
-    ecoTestnet: {
-      chainId: 471923,
-      url: `https://eco-testnet.rpc.caldera.xyz/http`,
-      accounts: [DEPLOYER_PRIVATE_KEY],
-    },
-    arbitrumSepolia: {
-      chainId: 421614,
-      url: `https://arb-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      accounts: [DEPLOYER_PRIVATE_KEY],
-    },
     mainnet: {
       chainId: 1,
       url: `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
@@ -89,23 +79,16 @@ const config: HardhatUserConfig = {
       url: `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
-    arbitrum: {
-      chainId: 42161,
-      url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-      accounts: [DEPLOYER_PRIVATE_KEY],
-    },
   },
   etherscan: {
     apiKey: {
       optimismSepolia: process.env.OPTIMISM_SCAN_API_KEY || '',
       optimismSepoliaBlockscout: process.env.OPTIMISM_BLOCKSCOUT_API_KEY || '',
       baseSepolia: process.env.BASE_SCAN_API_KEY || '',
-      arbitrumSepolia: process.env.ARBITRUM_SCAN_API_KEY || '',
       optimism: process.env.OPTIMISM_SCAN_API_KEY || '',
       optimismBlockscout: process.env.OPTIMISM_BLOCKSCOUT_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISM_SCAN_API_KEY || '',
       base: process.env.BASE_SCAN_API_KEY || '',
-      ecoTestnet: process.env.CALDERA_SCAN_API_KEY || '',
     },
     customChains: [
       {
@@ -122,14 +105,6 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://optimism-sepolia.blockscout.com/api',
           browserURL: 'https://optimism-sepolia.blockscout.com/',
-        },
-      },
-      {
-        network: 'ecoTestnet',
-        chainId: 471923,
-        urls: {
-          apiURL: 'https://eco-testnet.explorer.caldera.xyz/api',
-          browserURL: 'https://eco-testnet.explorer.caldera.xyz/',
         },
       },
     ],
