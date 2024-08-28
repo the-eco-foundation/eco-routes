@@ -1,22 +1,14 @@
 <div id="top"></div>
 
 <br />
-<div align="center">
-  <a href="https://github.com/eco/eco-protocol">
-    <img src="https://i.postimg.cc/ryNBfZkN/Logo-Blue.png" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">Eco Protocol</h3>
+<h3 align="center">Cross-L2 Actions</h3>
 
   <p align="center">
-    The amazing ECO intent protocol!
-    <br />
-    <a href="https://github.com/eco/eco-protocol"><strong>Explore the docs »</strong></a>
-    <br />
+    an implementation of RIP-7755
   </p>
 </div>
 
-- [About The Project](#about-the-project)
+- [Abstract](#Abstract)
 - [Components](#Components)
 - [Usage](#usage)
   - [Installation](#installation)
@@ -27,7 +19,7 @@
 - [License](#license)
 - [Contact](#contact)
 
-## About the project
+## Abstract
 
 The Eco protocol is an intents-driven permissionless, trust-neutral protocol and liquidity network enabling cross-L2 transactions. We are live on `Optimism` and `Base`, with cross-chain routes running in both directions. See it in action soon on our wallet, [Bend](bend.eco).
 
