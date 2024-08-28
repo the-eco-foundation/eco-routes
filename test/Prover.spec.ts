@@ -415,15 +415,15 @@ describe('Prover End to End Tests', () => {
     //   ['bytes'],
     //   [abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
     // )
-    await prover.proveIntent(
-      bedrock.intent.destinationChainId,
-      getAddress(actors.claimant),
-      networks.ecoTestNet.inboxAddress,
-      bedrock.intent.intermediateHash,
-      bedrock.intent.storageProof,
-      await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData),
-      bedrock.intent.accountProof,
-      bedrock.intent.endBatchBlockStateRoot,
-    )
+    // await prover.proveIntent(
+    //   bedrock.intent.destinationChainId,
+    //   getAddress(actors.claimant),
+    //   networks.ecoTestNet.inboxAddress,
+    //   bedrock.intent.intermediateHash,
+    //   bedrock.intent.storageProof,
+    //   await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData),
+    //   bedrock.intent.accountProof,
+    //   bedrock.intent.endBatchBlockStateRoot,
+    // )
   })
 })

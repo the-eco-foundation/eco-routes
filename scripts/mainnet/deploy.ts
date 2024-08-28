@@ -116,7 +116,7 @@ async function main() {
       await setTimeout(30000)
       await run('verify:verify', {
         address: await inbox.getAddress(),
-        constructorArguments: [deployer.address, false, [actors.solver]],
+        // constructorArguments: [deployer.address, false, [actors.solver]],
       })
     }
     console.log('Inbox verified at:', await inbox.getAddress())
