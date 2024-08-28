@@ -33,9 +33,9 @@ const intent: any = {
   targetAmounts: [1000],
   duration: 3600,
   opBaseBedrock: {
-    hash: '0x9fe31be4a2325655dfbd4bb54d83e8b525cfd1a05a19865fcdac7c59a1dbc981',
+    hash: '0x0fed842176725764fad91a35b2d89cf6471a6b683baa8d32fcba626aed8387f0',
     fulfillTransaction:
-      '0x59036b6f3138471a0b617982319a99ebb5343dc9a43760b1c7a0738e51b1ef7d',
+      '0x53cbfbcbc0bf17f943a23fa03f384b010dc0745900eab5a98e79261375d6293b',
   },
   baseOpCannon: {
     settlementBlockTag: '0x13a303b', // 20590651n
@@ -48,9 +48,9 @@ const intent: any = {
       resolvedBlock: '0x13a3205', // 20591109n
       gameIndex: 1709,
     },
-    hash: '0xfc0b72b6365e7313594d08d4aadf8132b05e9a125318d1a76e7bbf411b3a8611',
+    hash: '0x63724004eb8f42dcbb7dd98fc8fb0fb9f01e59c01725c3d8f06da53a534d4734',
     fulfillTransaction:
-      '0xb07002c38aa8df7ff282c382057faecea8eaa40d11c6b5ac3b89f32a84c40adb',
+      '0x07c88cd89a86366e073d1641cc3b2466d6d9854298f8c1ac330b65b76e164537',
   },
 }
 
