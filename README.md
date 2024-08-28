@@ -1,5 +1,5 @@
 <div id="top"></div>
-<h2>Cross-L2 Actions</h2>
+<h1>Cross-L2 Actions</h1>
 
 </div>
 
@@ -125,13 +125,13 @@ nvm ls
  yarn build
 ```
 
-## Lint
+### Lint
 
 ```bash
 yarn lint
 ```
 
-## Test
+### Test
 
 ```bash
 # tests
@@ -140,6 +140,14 @@ $ yarn  test
 # test coverage
 $ yarn coverage
 ```
+
+### Deployment
+
+Deploy using `deploy.ts` in the scripts directory. This script draws from the configs (found in the `config` directory) as well as a local .env
+
+### End-To-End Testing
+
+This section is under development. While the tests are not yet operational, the scripts are available in the `scripts` directory
 
 ## Contributing
 
