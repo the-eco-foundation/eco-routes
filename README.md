@@ -52,7 +52,7 @@ See the readme in the contracts directory for a detailed API documentation.
 
 
 ## Future Work
-We are working on services for the proving and solving functionalities to make crosschain transactions even simpler. We also intend to build out support for additional chains. 
+Fully-operational end-to-end tests are currently under development. We are also working on services for streamlining proving and solving functionalities. Additionally, we intend to build out support for additional chains. 
 
 ## Usage
 
