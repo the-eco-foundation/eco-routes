@@ -16,7 +16,7 @@
 
 ## Abstract
 
-An intents-driven, permissionless, trust-neutral protocol for facilitating the creation, incentivized execution, and proof of cross-L2 transactions, or intents. 
+An intents-driven, permissionless, trust-neutral protocol for facilitating the creation, incentivized execution, and proof of cross-L2 transactions.
 
 - [Intent Creation / Settlement](#intent-creation--settlement)
 - [Intent Fulfillment / Execution](#intent-fulfillment--execution)
