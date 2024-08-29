@@ -60,7 +60,14 @@ export async function optimismBaseIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.baseIntentSourceContractIntentCreator.interface.parseError(e.data)
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
   const baseSolverNonceManager = new NonceManager(s.baseSolver)
@@ -93,7 +100,15 @@ export async function optimismBaseIntentSolve() {
     console.log('Fulfillment tx: ', fulfillTx.hash)
     return fulfillTx.hash
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseInboxContractSolver) {
+      const decodedError = s.baseInboxContractSolver.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed in fulfillIntent : ${decodedError?.name}`)
+      console.log('fulfillIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in fulfillIntent:`, e)
+    }
   }
 }
 export async function baseOptimismIntentSolve() {
@@ -145,7 +160,14 @@ export async function baseOptimismIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.baseIntentSourceContractIntentCreator.interface.parseError(e.data)
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
   const optimismSolverNonceManager = new NonceManager(s.optimismSolver)
@@ -177,7 +199,15 @@ export async function baseOptimismIntentSolve() {
     console.log('Fulfillment tx: ', fulfillTx.hash)
     return fulfillTx.hash
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseInboxContractSolver) {
+      const decodedError = s.baseInboxContractSolver.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed in fulfillIntent : ${decodedError?.name}`)
+      console.log('fulfillIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in fulfillIntent:`, e)
+    }
   }
 }
 
