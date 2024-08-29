@@ -1,5 +1,5 @@
 import { ethers, run, network } from 'hardhat'
-import { IntentSource, Inbox } from '../../typechain-types'
+import { IntentSource, Inbox, ProverL3, Prover } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
@@ -72,12 +72,25 @@ async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
   console.log(`**************************************************`)
-  const proverFactory = await ethers.getContractFactory('Prover')
-  const prover = await proverFactory.deploy([
-    baseSepoliaChainConfiguration,
-    optimismSepoliaChainConfiguration,
-    ecoTestNetChainConfiguration,
-  ])
+  let prover
+  if (network.name === 'ecoTestnet') {
+    prover = await (
+      await ethers.getContractFactory('ProverL3')
+    ).deploy(deployer.address, [
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+      ecoTestNetChainConfiguration,
+    ])
+  } else {
+    prover = await (
+      await ethers.getContractFactory('Prover')
+    ).deploy([
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+      ecoTestNetChainConfiguration,
+    ])
+  }
+
   console.log('prover implementation deployed to: ', await prover.getAddress())
 
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
