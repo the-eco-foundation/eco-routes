@@ -1,17 +1,22 @@
-<div id="top"></div>
-
-<br />
-<div align="center">
-  <a href="https://github.com/eco/eco-protocol">
-    <img src="https://i.postimg.cc/ryNBfZkN/Logo-Blue.png" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">Eco API Documentation</h3>
-</div>
-
 # API Documentation
 
 Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox` and `Prover`.
+
+This repo makes heavy use of the Intent struct (found at `types/Intent.sol`). 
+
+Attributes:
+- `creator` (address): creator of the intent
+- `destinationChainID` (uint256): ID of chain where we want instructions executed
+- `targets` (address[]): addresses on destinationChain where we want instructions executed
+- `data` (bytes[]): instructions we want executed on the destinationChain
+- `rewardTokens` (address[]): addresses of reward tokens
+- `rewardAmounts` (uint256[]): corresponding amounts of reward tokens
+- `expiryTime` (uint256): intent expiry timestamp
+- `hasBeenWithdrawn` (bool): true if this intent's associated rewards have already been withdrawn
+- `nonce` (bytes32): hash of the IntentSource's counter and the chainID
+- `prover` (address): address of the prover this intent will be checked against
+
+
 
 ## Intent Creation / Settlement
 
@@ -101,7 +106,7 @@ Attributes:
 
 ## Intent Proving
 
-Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` reads state from it. The methods in this contract are complex and require inputs that can be difficult to generate. As a result, Eco will in the future be running services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples.
+Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` reads state from it. The methods in this contract are complex and require inputs that can be difficult to generate. In the future we will be building out services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples.
 
 ### Events
 
