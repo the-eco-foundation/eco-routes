@@ -21,4 +21,6 @@ struct Intent {
     bool hasBeenWithdrawn;
     // hash of counter, chainid
     bytes32 nonce;
+    // address of the prover this intent will be checked against
+    address prover;
 }

@@ -1,27 +1,19 @@
-import { ethers, upgrades } from 'hardhat'
+import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { deploy } from './utils'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { MockL1Block__factory, Prover__factory } from '../typechain-types'
+import { MockL1Block__factory, Prover } from '../typechain-types'
 import {
   AbiCoder,
   encodeRlp,
   getAddress,
-  getBigInt,
   getBytes,
-  getUint,
-  hexlify,
   keccak256,
-  toBeArray,
   toBeHex,
-  toBigInt,
   solidityPackedKeccak256,
-  toQuantity,
   stripZerosLeft,
-  zeroPadValue,
 } from 'ethers'
 import {
-  provingMechanisms,
   networkIds,
   // enshrined,
   actors,
@@ -38,6 +30,8 @@ describe('Prover Unit Tests', () => {
   let claimantSigner: SignerWithAddress
   let proverSigner: SignerWithAddress
   let recipientSigner: SignerWithAddress
+  let prover: Prover
+  let blockhashOracle
 
   before(async () => {
     ;[
@@ -49,9 +43,6 @@ describe('Prover Unit Tests', () => {
       recipientSigner,
     ] = await ethers.getSigners()
   })
-
-  let prover
-  let blockhashOracle
 
   beforeEach(async () => {
     blockhashOracle = await deploy(deployerSigner, MockL1Block__factory)
@@ -66,36 +57,36 @@ describe('Prover Unit Tests', () => {
       0,
       0,
     )
-
-    const proverContract = await ethers.getContractFactory('Prover')
-    prover = await upgrades.deployProxy(
-      proverContract,
-      [deployerSigner.address],
-      {
-        initializer: 'initialize',
-        kind: 'uups',
+    const baseSepoliaChainConfiguration = {
+      chainId: networks.baseSepolia.chainId, // chainId
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       },
-    )
+    }
 
-    //baseSepolia Config
-    await prover.setChainConfiguration(
-      networks.baseSepolia.chainId, //chainId
-      networks.baseSepolia.proving.mechanism, //provingMechanism
-      networks.baseSepolia.proving.settlementChain.id, //settlementChainId
-      networks.baseSepolia.proving.settlementChain.contract, //settlementContract
-      await blockhashOracle.getAddress(), //blockhashOracle
-      networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
-    )
-
-    //optimismSepolia Config
-    await prover.setChainConfiguration(
-      networks.optimismSepolia.chainId,
-      networks.optimismSepolia.proving.mechanism,
-      networks.optimismSepolia.proving.settlementChain.id,
-      networks.optimismSepolia.proving.settlementChain.contract,
-      await blockhashOracle.getAddress(),
-      networks.optimismSepolia.proving.outputRootVersionNumber,
-    )
+    const optimismSepoliaChainConfiguration = {
+      chainId: networks.optimismSepolia.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.optimismSepolia.proving.mechanism,
+        settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
+        settlementContract:
+          networks.optimismSepolia.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.optimismSepolia.proving.outputRootVersionNumber,
+      },
+    }
+    const proverContract = await ethers.getContractFactory('Prover')
+    prover = await proverContract.deploy([
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+    ])
   })
 
   it('test ethers functions', async () => {
@@ -105,28 +96,6 @@ describe('Prover Unit Tests', () => {
     expect('0x56315b90c40730925ec5485cf004d835058518A0').to.equal(
       getAddress('0x56315b90c40730925ec5485cf004d835058518A0'),
     )
-  })
-  it('test setChainConfiguration', async () => {
-    const baseSepoliaChainConfiguration = await prover.chainConfigurations(
-      networkIds.baseSepolia,
-    )
-    // expect(baseSepoliaChainConfiguration.provingMechanism).to.equal(
-    //   networks.baseSepolia.chainId) //chainId
-    expect(baseSepoliaChainConfiguration.provingMechanism).to.equal(
-      networks.baseSepolia.proving.mechanism,
-    ) //provingMechanism
-    expect(baseSepoliaChainConfiguration.settlementChainId).to.equal(
-      networks.baseSepolia.proving.settlementChain.id,
-    ) //settlementChainId
-    expect(baseSepoliaChainConfiguration.settlementContract).to.equal(
-      networks.baseSepolia.proving.settlementChain.contract,
-    ) //settlementContract
-    expect(baseSepoliaChainConfiguration.blockhashOracle).to.equal(
-      await blockhashOracle.getAddress(),
-    ) //blockhashOracle
-    expect(baseSepoliaChainConfiguration.outputRootVersionNumber).to.equal(
-      networks.baseSepolia.proving.outputRootVersionNumber,
-    ) //outputRootVersionNumber
   })
   it('test generateOutputRoot', async () => {
     const cannonRootClaimFromProver = await prover.generateOutputRoot(
@@ -212,6 +181,8 @@ describe('Prover End to End Tests', () => {
   let claimantSigner: SignerWithAddress
   let proverSigner: SignerWithAddress
   let recipientSigner: SignerWithAddress
+  let prover: Prover
+  let blockhashOracle
 
   before(async () => {
     ;[
@@ -223,9 +194,6 @@ describe('Prover End to End Tests', () => {
       recipientSigner,
     ] = await ethers.getSigners()
   })
-
-  let prover
-  let blockhashOracle
 
   beforeEach(async () => {
     blockhashOracle = await deploy(deployerSigner, MockL1Block__factory)
@@ -240,51 +208,88 @@ describe('Prover End to End Tests', () => {
       0,
       0,
     )
-
-    const proverContract = await ethers.getContractFactory('Prover')
-    prover = await upgrades.deployProxy(
-      proverContract,
-      [deployerSigner.address],
-      {
-        initializer: 'initialize',
-        kind: 'uups',
+    const hardhatChainConfiguration = {
+      chainId: networkIds.hardhat,
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       },
-    )
+    }
 
-    //baseSepolia Config
-    await prover.setChainConfiguration(
-      networks.baseSepolia.chainId, //chainId
-      networks.baseSepolia.proving.mechanism, //provingMechanism
-      networks.baseSepolia.proving.settlementChain.id, //settlementChainId
-      networks.baseSepolia.proving.settlementChain.contract, //settlementContract
-      await blockhashOracle.getAddress(), //blockhashOracle
-      networks.baseSepolia.proving.outputRootVersionNumber, //outputRootVersionNumber
-    )
+    const baseSepoliaChainConfiguration = {
+      chainId: networks.baseSepolia.chainId, // chainId
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      },
+    }
 
-    //optimismSepolia Config
-    await prover.setChainConfiguration(
-      networks.optimismSepolia.chainId,
-      networks.optimismSepolia.proving.mechanism,
-      networks.optimismSepolia.proving.settlementChain.id,
-      networks.optimismSepolia.proving.settlementChain.contract,
-      await blockhashOracle.getAddress(),
-      networks.optimismSepolia.proving.outputRootVersionNumber,
-    )
+    const optimismSepoliaChainConfiguration = {
+      chainId: networks.optimismSepolia.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.optimismSepolia.proving.mechanism,
+        settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
+        settlementContract:
+          networks.optimismSepolia.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.optimismSepolia.proving.outputRootVersionNumber,
+      },
+    }
 
-    //ecoTestNet Config
-    await prover.setChainConfiguration(
-      networks.ecoTestNet.chainId,
-      networks.ecoTestNet.proving.mechanism,
-      networks.ecoTestNet.proving.settlementChain.id,
-      networks.ecoTestNet.proving.settlementChain.contract,
-      await blockhashOracle.getAddress(),
-      networks.ecoTestNet.proving.outputRootVersionNumber,
-    )
+    const ecoTestNetChainConfiguration = {
+      chainId: networks.ecoTestNet.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.ecoTestNet.proving.mechanism,
+        settlementChainId: networks.ecoTestNet.proving.settlementChain.id,
+        settlementContract:
+          networks.ecoTestNet.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.ecoTestNet.proving.outputRootVersionNumber,
+      },
+    }
+    const proverContract = await ethers.getContractFactory('Prover')
+    prover = await proverContract.deploy([
+      hardhatChainConfiguration,
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+      ecoTestNetChainConfiguration,
+    ])
   })
   it('test proveSettlementLayerState', async () => {
-    await prover.proveSettlementLayerState(
-      bedrock.settlementChain.rlpEncodedBlockData,
+    await expect(
+      prover.proveSettlementLayerState(
+        bedrock.settlementChain.rlpEncodedBlockData,
+      ),
+    )
+      .to.emit(prover, 'L1WorldStateProven')
+      .withArgs(
+        bedrock.settlementChain.blockNumber,
+        bedrock.settlementChain.worldStateRoot,
+      )
+
+    const provenSettlementLayerState = await prover.provenStates(
       networks.sepolia.chainId,
+    )
+    expect(provenSettlementLayerState.blockNumber).to.equal(
+      bedrock.settlementChain.blockNumber,
+    )
+    expect(provenSettlementLayerState.blockHash).to.equal(
+      bedrock.settlementChain.blockHash,
+    )
+    expect(provenSettlementLayerState.stateRoot).to.equal(
+      bedrock.settlementChain.worldStateRoot,
     )
 
     // test proveWorldStateCannon'
@@ -293,17 +298,14 @@ describe('Prover End to End Tests', () => {
     )
     // Prove the L2 World State for Cannon
     const disputeGameFactoryProofData = {
-      // destinationWorldStateRoot: bedrock.baseSepolia.endBatchBlockStateRoot,
       messagePasserStateRoot: bedrock.baseSepolia.messagePasserStateRoot,
       latestBlockHash: bedrock.baseSepolia.endBatchBlockHash,
       gameIndex:
         bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameIndex,
-      // gameId: toBeHex(stripZerosLeft(config.cannon.gameId)),
       gameId: bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameId,
       disputeFaultGameStorageProof:
         bedrock.baseSepolia.disputeGameFactory.storageProof,
       rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
-
       disputeGameFactoryAccountProof:
         bedrock.baseSepolia.disputeGameFactory.accountProof,
     }
@@ -327,9 +329,6 @@ describe('Prover End to End Tests', () => {
         l2BlockNumberChallenged:
           bedrock.baseSepolia.faultDisputeGame.status.storage
             .l2BlockNumberChallenged,
-        // filler: getBytes(
-        //   bedrock.baseSepolia.faultDisputeGame.status.storage.filler,
-        // ),
       },
       faultDisputeGameStatusStorageProof:
         bedrock.baseSepolia.faultDisputeGame.status.storageProof,
@@ -337,30 +336,71 @@ describe('Prover End to End Tests', () => {
       faultDisputeGameAccountProof:
         bedrock.baseSepolia.faultDisputeGame.accountProof,
     }
-    console.log('about to proveWorldStateCannon')
-    await prover.proveWorldStateCannon(
-      networkIds.baseSepolia,
-      bedrock.baseSepolia.rlpEncodedendBatchBlockData,
-      // RLPEncodedBaseSepoliaEndBatchBlock,
-      bedrock.baseSepolia.endBatchBlockStateRoot,
-      disputeGameFactoryProofData,
-      faultDisputeGameProofData,
-      bedrock.settlementChain.worldStateRoot,
+    await expect(
+      prover.proveWorldStateCannon(
+        networkIds.baseSepolia,
+        bedrock.baseSepolia.rlpEncodedendBatchBlockData,
+        // RLPEncodedBaseSepoliaEndBatchBlock,
+        bedrock.baseSepolia.endBatchBlockStateRoot,
+        disputeGameFactoryProofData,
+        faultDisputeGameProofData,
+        bedrock.settlementChain.worldStateRoot,
+      ),
     )
-    console.log('Proved L2 World State Cannon on BaseSepolia')
+      .to.emit(prover, 'L2WorldStateProven')
+      .withArgs(
+        networkIds.baseSepolia,
+        bedrock.baseSepolia.endBatchBlock,
+        bedrock.baseSepolia.worldStateRoot,
+      )
+    const provenBaseSepoliaLayerState = await prover.provenStates(
+      networks.baseSepolia.chainId,
+    )
+    expect(provenBaseSepoliaLayerState.blockNumber).to.equal(
+      bedrock.baseSepolia.endBatchBlock,
+    )
+    expect(provenBaseSepoliaLayerState.blockHash).to.equal(
+      bedrock.baseSepolia.endBatchBlockHash,
+    )
+    expect(provenBaseSepoliaLayerState.stateRoot).to.equal(
+      bedrock.baseSepolia.worldStateRoot,
+    )
 
     // test proveWorldStateBedrock
 
-    await prover.proveWorldStateBedrock(
-      bedrock.intent.destinationChainId,
-      bedrock.destinationChain.rlpEncodedBlockData, //TODO: Check if this is the correct data
+    await expect(
+      prover.proveWorldStateBedrock(
+        bedrock.intent.destinationChainId,
+        bedrock.destinationChain.rlpEncodedBlockData, // TODO: Check if this is the correct data
+        bedrock.destinationChain.worldStateRoot,
+        bedrock.destinationChain.messageParserStateRoot,
+        bedrock.destinationChain.batchIndex,
+        bedrock.baseSepolia.storageProof,
+        await prover.rlpEncodeDataLibList(
+          bedrock.destinationChain.contractData,
+        ),
+        bedrock.baseSepolia.accountProof,
+        bedrock.baseSepolia.worldStateRoot,
+      ),
+    )
+      .to.emit(prover, 'L2WorldStateProven')
+      .withArgs(
+        bedrock.intent.destinationChainId,
+        bedrock.destinationChain.endBatchBlock,
+        bedrock.destinationChain.worldStateRoot,
+      )
+
+    const provenEcoTestNetLayerState = await prover.provenStates(
+      networkIds.ecoTestNet,
+    )
+    expect(provenEcoTestNetLayerState.blockNumber).to.equal(
+      bedrock.destinationChain.endBatchBlock,
+    )
+    expect(provenEcoTestNetLayerState.blockHash).to.equal(
+      bedrock.destinationChain.endBatchBlockHash,
+    )
+    expect(provenEcoTestNetLayerState.stateRoot).to.equal(
       bedrock.destinationChain.worldStateRoot,
-      bedrock.destinationChain.messageParserStateRoot,
-      bedrock.destinationChain.batchIndex,
-      bedrock.baseSepolia.storageProof,
-      await prover.rlpEncodeDataLibList(bedrock.destinationChain.contractData),
-      bedrock.baseSepolia.accountProof,
-      bedrock.baseSepolia.worldStateRoot,
     )
 
     // test proveIntent
@@ -371,10 +411,10 @@ describe('Prover End to End Tests', () => {
         [networks.ecoTestNet.inboxAddress, bedrock.intent.intermediateHash],
       ),
     )
-    const intentStorageSlot = solidityPackedKeccak256(
-      ['bytes'],
-      [abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
-    )
+    // const intentStorageSlot = solidityPackedKeccak256(
+    //   ['bytes'],
+    //   [abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
+    // )
     await prover.proveIntent(
       bedrock.intent.destinationChainId,
       getAddress(actors.claimant),

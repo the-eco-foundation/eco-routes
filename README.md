@@ -1,44 +1,62 @@
 <div id="top"></div>
+<h1>Cross-L2 Actions</h1>
 
-<br />
-<div align="center">
-  <a href="https://github.com/eco/ecoism">
-    <img src="https://assets.website-files.com/609bd719ffb9df9499369faa/60ca59c5b5d40fee5d7ea4c9_eco-symbol.svg" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">Eco - Intent Protocol</h3>
-
-  <p align="center">
-    The amazing ECO intent protocol!
-    <br />
-    <a href="https://github.com/eco/ecoism"><strong>Explore the docs »</strong></a>
-    <br />
-  </p>
 </div>
 
-- [About The Project](#about-the-project)
-  - [Built With](#built-with)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
+- [Abstract](#Abstract)
+- [Components](#Components)
+- [Usage](#usage)
   - [Installation](#installation)
-- [Lint](#lint)
-- [Test](#test)
-- [Testnet End to End Tests](#testnet-end-to-end-tests)
+  - [Testing](#testing)
   - [Deployment](#deployment)
-  - [End to End Testing](#end-to-end-testing)
+  - [End-to-End Testing](#end-to-end-testing)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
 
-## About The Project
+## Abstract
 
-This is the ECO intent Protocol Backend
+An intents-driven, permissionless, trust-neutral protocol for facilitating the creation, incentivized execution, and proof of cross-L2 transactions.
 
-### Built With
+**Warning: This code has not been audited. Use at your own risk.**
 
-- [Hardhat](https://hardhat.org)
+- [Intent Creation / Settlement](#intent-creation--settlement)
+- [Intent Fulfillment / Execution](#intent-fulfillment--execution)
+- [Intent Proving](#intent-proving)
 
-## Getting Started
+We identify three main user profiles:
+
+- `Users`: Individuals who want to transact across different L2s.
+- `Fillers`: Individuals interested in performing transactions on behalf of others for a fee.
+- `Provers`: Individuals interested in proving on the source chain that an intent was fulfilled on the destination chain.
+
+### How it works
+
+A `User` initiates a cross-chain transaction by creating an intent. Put simply, an intent represents a `User`'s end goals on the destination chain. It contains the calls they'd want to make, those calls' corresponding addresses, and the price they'd be willing to pay someone to execute this call on their behalf, along with other metadata. Seeing this intent and being enticed by the fee they'd receive, a `Filler` creates and executes a fulfill transaction on the destination chain that corresponds to the user's intent, storing the fulfilled intent's hash on the destination chain. A `Prover` - perhaps the `Filler` themselves or a service they subscribe to - sees this fulfillment transaction and performs a proof that the hash of the fulfilled transaction on the destination chain matches that of the intent on the source chain. After the intent proven, the filler can withdraw their reward.
+
+## Components
+
+Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox` and `Prover`.
+
+### Intent Creation / Settlement
+
+Intent creation and filler settlement processes both exist on the `IntentSource` on the source chain, and is where the full intent lifecycle will start and end. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
+
+### Intent Fulfillment / Execution
+
+Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
+
+### Intent Proving
+
+Intent proving lives on the `Prover`, which is on the source chain. `Provers` are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it.
+
+**See [contracts](/contracts) for a detailed API documentation**
+
+## Future Work
+
+Fully-operational end-to-end tests are currently under development. We are also working on services for streamlining proving and solving functionalities. Additionally, we intend to build out support for additional chains.
+
+## Usage
 
 To get a local copy up and running follow these simple steps.
 
@@ -96,10 +114,10 @@ nvm ls
 1. Clone the repo
 
 ```bash
- git clone git@github.com:eco/ecoism.git
+ git clone git@github.com:ecoinc/Cross-L2-Actions.git
 ```
 
-2. Install and build ecoism using yarn
+2. Install and build using yarn
 
 ```bash
  yarn install
@@ -109,13 +127,13 @@ nvm ls
  yarn build
 ```
 
-## Lint
+### Lint
 
 ```bash
 yarn lint
 ```
 
-## Test
+### Testing
 
 ```bash
 # tests
@@ -125,31 +143,13 @@ $ yarn  test
 $ yarn coverage
 ```
 
-## Testnet End to End Tests
-
-For more information please see [TESTING.md](./TESTING.md)
-
 ### Deployment
 
-Before beginning end to end tests on sepolia you must deploy the following contracts
+Deploy using `deploy.ts` in the `scripts` directory. This script draws from the configs (found in the `config` directory) as well as a local .env file. See `.env.example`.
 
-```bash
+### End-To-End Testing
 
-# Deploy IntentSource and Prover contracts on Source Chain
-yarn deploySourceAndProver
-
-# Deploy Inbox contract on Destination chain
-yarn deployInbox
-
-```
-
-### End to End Testing
-
-Coming soon
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- CONTRIBUTING -->
+This section is under development. While the tests are not yet operational, the scripts are available in the `scripts` directory
 
 ## Contributing
 
@@ -173,6 +173,6 @@ Coming soon
 
 ## Contact
 
-Project Link: [https://github.com/eco/ecoism](https://github.com/eco/ecoism)
+Project Link: [https://github.com/ecoinc/Cross-L2-Actions](https://github.com/ecoinc/Cross-L2-Actions)
 
 <p align="right">(<a href="#top">back to top</a>)</p>

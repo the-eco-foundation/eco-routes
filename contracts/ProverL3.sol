@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
+import {SimpleProver} from "./interfaces/SimpleProver.sol";
 
-contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
+contract ProverL3 is SimpleProver, Ownable {
     // uint16 public constant NONCE_PACKING = 1;
 
-    // Output slot for Bedrock OUTPUT_ORACLE where Settled Batches are stored
-    uint256 public constant OUTPUT_SLOT_NUMBER = 3;
+    // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
+    uint256 public constant L2_OUTPUT_SLOT_NUMBER = 3;
 
-    uint256 public constant OUTPUT_ROOT_VERSION_NUMBER = 0;
+    uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
     // L2OutputOracle on Ethereum used for Bedrock (Base) Proving
     // address public immutable l1OutputOracleAddress;
@@ -24,14 +24,14 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
     // address public immutable faultGameFactoryAddress;
 
     // Output slot for Cannon DisputeGameFactory where FaultDisputeGames gameId's are stored
-    uint256 public constant DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER = 104;
+    uint256 public constant L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER = 104;
 
     // Output slot for the root claim (used as the block number settled is part of the root claim)
-    uint256 public constant FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT =
+    uint256 public constant L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT =
         0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1;
 
     // Output slot for the game status (fixed)
-    uint256 public constant FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
+    uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
@@ -54,6 +54,11 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
         uint256 outputRootVersionNumber;
     }
 
+    struct ChainConfigurationConstructor {
+        uint256 chainId;
+        ChainConfiguration chainConfiguration;
+    }
+
     // map the chain id to chain configuration
     mapping(uint256 => ChainConfiguration) public chainConfigurations;
 
@@ -65,9 +70,6 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
 
     // Store the last BlockProof for each ChainId
     mapping(uint256 => BlockProof) public provenStates;
-
-    // mapping from proven intents to the address that's authorized to claim them
-    mapping(bytes32 => address) public provenIntents;
 
     struct DisputeGameFactoryProofData {
         bytes32 messagePasserStateRoot;
@@ -96,32 +98,44 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
         bytes[] faultDisputeGameAccountProof;
     }
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() initializer {}
+    /**
+     * @notice emitted when L1 world state is proven for a given intent
+     * @param _blockNumber  the block number corresponding to this L1 world state
+     * @param _L1WorldStateRoot the world state root at _blockNumber
+     */
+    event L1WorldStateProven(uint256 indexed _blockNumber, bytes32 _L1WorldStateRoot);
 
-    function initialize(address _owner) public initializer {
-        __Ownable_init(_owner);
-        __UUPSUpgradeable_init();
+    /**
+     * @notice emitted when L2 world state is proven
+     * @param _destinationChainID the chainID of the destination chain
+     * @param _blockNumber the blocknumber corresponding to the world state
+     * @param _L2WorldStateRoot the world state root at _blockNumber
+     */
+    event L2WorldStateProven(uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot);
+    
+    /**
+     * @notice emitted when an intent intent has been successfully proven
+     * @param _hash  the hash of the intent
+     * @param _claimant the address that can claim this intent's rewards
+     */
+    event IntentProven(bytes32 indexed _hash, address indexed _claimant);
+
+    /**
+     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+     * @param _inputBlockNumber the block number we are trying to prove
+     * @param _latestBlockNumber the latest block number that has been proven
+     */
+    error OutdatedBlock(uint256 _inputBlockNumber, uint256 _latestBlockNumber);
+
+    constructor(address _owner, ChainConfigurationConstructor[] memory _chainConfigurations) Ownable(_owner) {
+        for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
+            _setChainConfiguration(_chainConfigurations[i].chainId, _chainConfigurations[i].chainConfiguration);
+        }
     }
 
-    function _authorizeUpgrade(address) internal override onlyOwner {}
-
-    function setChainConfiguration(
-        uint256 chainId,
-        uint8 provingMechanism,
-        uint256 settlementChainId,
-        address settlementContract,
-        address blockhashOracle,
-        uint256 outputRootVersionNumber
-    ) public onlyOwner {
-        chainConfigurations[chainId] = ChainConfiguration({
-            provingMechanism: provingMechanism,
-            settlementChainId: settlementChainId,
-            settlementContract: settlementContract,
-            blockhashOracle: blockhashOracle,
-            outputRootVersionNumber: outputRootVersionNumber
-        });
-        l1BlockhashOracle = IL1Block(blockhashOracle);
+    function _setChainConfiguration(uint256 chainId, ChainConfiguration memory chainConfiguration) internal {
+        chainConfigurations[chainId] = chainConfiguration;
+        l1BlockhashOracle = IL1Block(chainConfiguration.blockhashOracle);
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
@@ -152,6 +166,17 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
 
         return RLPWriter.writeList(dataList);
     }
+    /// @notice Packs values into a 32 byte GameId type.
+    /// @param _gameType The game type.
+    /// @param _timestamp The timestamp of the game's creation.
+    /// @param _gameProxy The game proxy address.
+    /// @return gameId_ The packed GameId.
+
+    function pack(uint32 _gameType, uint64 _timestamp, address _gameProxy) public pure returns (bytes32 gameId_) {
+        assembly {
+            gameId_ := or(or(shl(224, _gameType), shl(160, _timestamp)), _gameProxy)
+        }
+    }
 
     /// @notice Unpacks values from a 32 byte GameId type.
     /// @param _gameId The packed GameId.
@@ -164,6 +189,14 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
             timestamp_ := and(shr(160, _gameId), 0xFFFFFFFFFFFFFFFF)
             gameProxy_ := and(_gameId, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
         }
+    }
+
+    function _bytesToUint(bytes memory b) internal pure returns (uint256) {
+        uint256 number;
+        for (uint256 i = 0; i < b.length; i++) {
+            number = number + uint256(uint8(b[i])) * (2 ** (8 * (b.length - (i + 1))));
+        }
+        return number;
     }
 
     function assembleGameStatusStorage(
@@ -210,22 +243,27 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
      * in that block corresponds to the block on the oracle contract, and that it represents a valid
      * state.
      */
-    function proveSettlementLayerState(bytes calldata rlpEncodedBlockData, uint256 chainId) public {
+    function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {
         require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
+        uint256 settlementChainId = chainConfigurations[block.chainid].settlementChainId;
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
         BlockProof memory blockProof = BlockProof({
-            blockNumber: uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]))),
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
-        BlockProof memory existingBlockProof = provenStates[chainId];
+        BlockProof memory existingBlockProof = provenStates[settlementChainId];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            provenStates[chainId] = blockProof;
+            provenStates[settlementChainId] = blockProof;
+            emit L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
+        } else {
+            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
+
     /**
      * @notice Priveleged operation to allow setting L1 block state for chains that do not have a L1 oracle contract
      * and example of which is an L3 which has the L2 block oracle but needs to prove the L1 state.
@@ -247,6 +285,7 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
             provenStates[chainId] = blockProof;
         }
     }
+
     /**
      * @notice Validates World state by ensuring that the passed in world state root corresponds to value in the L2 output oracle on the Settlement Layer
      * @param chainId the chain id of the chain we are proving
@@ -281,11 +320,11 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
         );
 
         bytes32 outputRoot = generateOutputRoot(
-            OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, keccak256(rlpEncodedBlockData)
+            L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, keccak256(rlpEncodedBlockData)
         );
 
         bytes32 outputRootStorageSlot =
-            bytes32(abi.encode((uint256(keccak256(abi.encode(OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
+            bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
 
         bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
@@ -308,12 +347,17 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
-            blockNumber: uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]))),
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
+            emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
+        } else {
+            if (existingBlockProof.blockNumber > blockProof.blockNumber) {
+                revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+            }
         }
     }
 
@@ -325,13 +369,22 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
     ) internal pure returns (address faultDisputeGameProxyAddress, bytes32 rootClaim) {
         bytes32 gameId = disputeGameFactoryProofData.gameId;
         bytes24 gameId24;
-
+        bytes29 gameId29;
+        bytes memory _value;
         assembly {
             gameId24 := shl(64, gameId)
         }
+        assembly {
+            gameId29 := shl(24, gameId)
+        }
+        if (bytes1(uint8(gameId29[0])) == bytes1(uint8(0x00))) {
+            _value = bytes.concat(bytes1(uint8(0x98)), gameId24);
+        } else {
+            _value = bytes.concat(bytes1(uint8(0x9d)), gameId29);
+        }
 
         bytes32 _rootClaim = generateOutputRoot(
-            OUTPUT_ROOT_VERSION_NUMBER,
+            L2_OUTPUT_ROOT_VERSION_NUMBER,
             l2WorldStateRoot,
             disputeGameFactoryProofData.messagePasserStateRoot,
             disputeGameFactoryProofData.latestBlockHash
@@ -340,7 +393,7 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 disputeGameFactoryStorageSlot = bytes32(
             abi.encode(
                 (
-                    uint256(keccak256(abi.encode(DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER)))
+                    uint256(keccak256(abi.encode(L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER)))
                         + disputeGameFactoryProofData.gameIndex
                 )
             )
@@ -353,7 +406,7 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
 
         proveStorage(
             abi.encodePacked(disputeGameFactoryStorageSlot),
-            bytes.concat(bytes1(uint8(0x98)), gameId24),
+            _value,
             disputeGameFactoryProofData.disputeFaultGameStorageProof,
             bytes32(disputeGameFactoryStateRoot)
         );
@@ -378,11 +431,11 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
     ) public pure {
         require(
             faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
-        ); // ensure lfaultDisputeGame is resolved
+        ); // ensure faultDisputeGame is resolved
         // Prove that the FaultDispute game has been settled
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
         proveStorage(
-            abi.encodePacked(uint256(FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT)),
+            abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT)),
             bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(rootClaim)),
             faultDisputeGameProofData.faultDisputeGameRootClaimStorageProof,
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
@@ -398,7 +451,7 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
         // faultDisputeGameProofData.faultDisputeGameStatusSlotData.filler
         // storage proof for FaultDisputeGame status (showing defender won)
         proveStorage(
-            abi.encodePacked(uint256(FAULT_DISPUTE_GAME_STATUS_SLOT)),
+            abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
             faultDisputeGameStatusStorage,
             faultDisputeGameProofData.faultDisputeGameStatusStorageProof,
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
@@ -450,12 +503,17 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
-            blockNumber: uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8]))),
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId] = blockProof;
+            emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
+        } else {
+            if (existingBlockProof.blockNumber > blockProof.blockNumber) {
+                revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+            }
         }
     }
 
@@ -488,7 +546,7 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
         bytes32 messageMappingSlot = keccak256(
             abi.encode(
                 intentHash,
-                1 // storage position of the intents mapping
+                1 // storage position of the intents mapping is the first slot
             )
         );
 
@@ -508,5 +566,6 @@ contract ProverL3 is UUPSUpgradeable, OwnableUpgradeable {
         proveAccount(abi.encodePacked(inboxContract), rlpEncodedInboxData, l2AccountProof, l2WorldStateRoot);
 
         provenIntents[intentHash] = claimant;
+        emit IntentProven(intentHash, claimant);
     }
 }
