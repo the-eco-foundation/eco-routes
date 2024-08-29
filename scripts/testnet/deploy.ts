@@ -5,6 +5,7 @@ import { setTimeout } from 'timers/promises'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
 import { networks, actors } from '../../config/testnet/config'
+import { deploy } from '@openzeppelin/hardhat-upgrades/dist/utils'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
@@ -110,17 +111,29 @@ async function main() {
   if (network.name !== 'hardhat') {
     console.log('Waiting for 30 seconds for Bytecode to be on chain')
     await setTimeout(30000)
+    let constructorArgs
+    constructorArgs = [
+      [
+        baseSepoliaChainConfiguration,
+        optimismSepoliaChainConfiguration,
+        ecoTestNetChainConfiguration,
+      ],
+    ]
+    if (network.name === 'ecoTestnet') {
+      constructorArgs = [
+        deployer.address,
+        [
+          baseSepoliaChainConfiguration,
+          optimismSepoliaChainConfiguration,
+          ecoTestNetChainConfiguration,
+        ],
+      ]
+    }
     try {
       await run('verify:verify', {
         address: await prover.getAddress(),
         // constructorArguments: [l1BlockAddressSepolia, deployer.address],
-        constructorArguments: [
-          [
-            baseSepoliaChainConfiguration,
-            optimismSepoliaChainConfiguration,
-            ecoTestNetChainConfiguration,
-          ],
-        ],
+        constructorArguments: constructorArgs,
       })
     } catch (e) {
       console.log(`Error verifying prover`, e)

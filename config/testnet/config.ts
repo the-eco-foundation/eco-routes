@@ -149,9 +149,9 @@ const networks: any = {
     chainId: networkIds.ecoTestNet,
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
-    proverContractAddress: '0x837e79d2155816427C5fEf1dBb95F6848a251eDb',
-    intentSourceAddress: '0xAfDb19bb37AD9eDFEb461812204B7e5f52EEa18C',
-    inboxAddress: '0x3f37b650463451b49256c17c16175E40f9f1eb2C',
+    proverContractAddress: '0xdE109433a16d7Ecab942bE083E8eEbF589281b51',
+    intentSourceAddress: '0xa07760bb3953f7Cd7C2Baa3a5b102dd5243456ED',
+    inboxAddress: '0x2e7Cfdb7356463c7Cc8a8Ae595e5b7517cDC193a',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
