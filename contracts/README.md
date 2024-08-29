@@ -2,9 +2,10 @@
 
 Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox` and `Prover`.
 
-This repo makes heavy use of the [Intent](types/Intent.sol) struct. 
+This repo makes heavy use of the [Intent](types/Intent.sol) struct.
 
 Attributes:
+
 - `creator` (address): creator of the intent
 - `destinationChainID` (uint256): ID of chain where we want instructions executed
 - `targets` (address[]): addresses on destinationChain where we want instructions executed
@@ -15,8 +16,6 @@ Attributes:
 - `hasBeenWithdrawn` (bool): true if this intent's associated rewards have already been withdrawn
 - `nonce` (bytes32): hash of the IntentSource's counter and the chainID
 - `prover` (address): address of the prover this intent will be checked against
-
-
 
 ## Intent Creation / Settlement
 

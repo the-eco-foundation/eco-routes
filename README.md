@@ -48,13 +48,13 @@ Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `
 
 ### Intent Proving
 
-Intent proving lives on the `Prover`, which is on the source chain. `Provers` are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it. 
+Intent proving lives on the `Prover`, which is on the source chain. `Provers` are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it.
 
 **See [contracts](/contracts) for a detailed API documentation**
 
-
 ## Future Work
-Fully-operational end-to-end tests are currently under development. We are also working on services for streamlining proving and solving functionalities. Additionally, we intend to build out support for additional chains. 
+
+Fully-operational end-to-end tests are currently under development. We are also working on services for streamlining proving and solving functionalities. Additionally, we intend to build out support for additional chains.
 
 ## Usage
 
