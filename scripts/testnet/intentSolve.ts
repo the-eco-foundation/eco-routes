@@ -37,6 +37,7 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
+        networks.ecoTestNet.proverContractAddress, // prover contract address on the source
       )
     await intentTx.wait()
 
