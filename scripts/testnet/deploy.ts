@@ -1,11 +1,10 @@
 import { ethers, run, network } from 'hardhat'
-import { IntentSource, Inbox, ProverL3, Prover } from '../../typechain-types'
+import { IntentSource, Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
 import { networks, actors } from '../../config/testnet/config'
-import { deploy } from '@openzeppelin/hardhat-upgrades/dist/utils'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)

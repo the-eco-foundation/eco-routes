@@ -7,7 +7,6 @@ import {
   intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
-import { network } from 'hardhat'
 
 export async function baseSepoliaEcoTestNetIntentSolve() {
   console.log('In createIntent BaseSepoliaEcoTestNet')
