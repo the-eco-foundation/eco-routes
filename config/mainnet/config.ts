@@ -38,14 +38,14 @@ const intent: any = {
   targetAmounts: [1000],
   duration: 3600,
   opBaseBedrock: {
-    hash: '0xd093c375174f1a3bae72779a000166b46262ac9c62dca8ce410bebe663414e27',
+    hash: '0x09845d510c8166e4b7c6a5dcbbed13d8f76bffa328494c5b6a6e4e4f0cac7c43',
     fulfillTransaction:
-      '0xcc10211f2bda384a385264c680eafa15e648413ce053ee00dcdd835b2d7246f6',
+      '0xdbb4e79eea99d5c30437845561ab92a315ef3cab9cfd27792d8004c0a4b66f4f',
   },
   baseOpCannon: {
-    settlementBlockTag: '0x13aca7f', // 20630143n
+    settlementBlockTag: '0x13acc81', //  20630657n
     settlementStateRoot:
-      '0x72b6739729dabea437bd2b97441e656550170f06ce75fff795dc547378e88457',
+      '0xfb29fc804ca4e3f4a82803999f8f122eda9b6f650bd8a03f2bf74fafddd6c4af',
     // faultDisputeGame: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
     faultDisputeGame: {
       address: '0x7066f76DC4C04730793928bD32634C430d95793B',
@@ -53,9 +53,9 @@ const intent: any = {
       resolvedBlock: '0x13a332d', // 20591405n
       gameIndex: 1710,
     },
-    hash: '0x64cfcf941df8efa0ba72a089b1bd46ddeef801200ca591d70cd13fa2d6a0209e',
+    hash: '0xef6c5da6a39b7d271028a7400e518b868ea438f3736fb1f16c6c4c9bfe23abf4',
     fulfillTransaction:
-      '0xf7dabff5669c2187070a33ce1d718f78fe5058090f3412d5c5347fae868acbcd',
+      '0xddfd586d0ab0b05e5451935eca79bb43a51c368bfc36bb24a557e3feb891abc4',
   },
 }
 

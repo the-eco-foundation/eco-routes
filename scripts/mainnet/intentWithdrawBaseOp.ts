@@ -110,105 +110,46 @@ async function proveSettlementLayerState() {
   }
 }
 
-async function getFaultDisputeGame() {
+async function getFaultDisputeGame(gameType) {
+  // Recommend making approximateUnsettledGames configurable and could go as high as 84 but safest is zero.
   console.log('In getFaultDisputeGame')
-  const faultDisputeGame = intent.baseOpCannon.faultDisputeGame
-  // The following code shows how to listen for creation events on DisputeGameFactory for faultDisputeGames
-  // Currently I have hardcoded the block number for the faultDisputeGame I am using
-  // this can be replaced by an event listener for all creation events
-  const faultDisputeGameCreationEvents =
-    await s.mainnetSettlementContractOptimism.queryFilter(
-      s.mainnetSettlementContractOptimism.getEvent('DisputeGameCreated'),
-      intent.baseOpCannon.faultDisputeGame.creationBlock,
-    )
-  const faultDisputeGameAddress = getAddress(
-    stripZerosLeft(toBeHex(faultDisputeGameCreationEvents[0].topics[1])),
-  )
-  console.log('FaultDisputeGame: ', faultDisputeGame)
-  // The following code shows how to listen for resolved events for a faultDisputeGame
-  // topic 1 contains the FaultDisputeGame address
-  // giving an array of created FaultDisputeGames
-  // Currently I have hardcoded the block number for the FaultDisputeGame resolve event
-  // This can be replaced by a service which listens for events from the faultDisputeGame
-  const faultDisputeGameContract = new Contract(
-    faultDisputeGameAddress,
-    FaultDisputeGameArtifact.abi,
-    s.mainnetProvider,
-  )
-  const faultDisputeGameResolvedEvents =
-    await faultDisputeGameContract.queryFilter(
-      faultDisputeGameContract.getEvent('Resolved'),
-      intent.baseOpCannon.faultDisputeGame.resolvedBlock,
-    )
-  const faultDisputeGameResolvedEventSignature =
-    faultDisputeGameResolvedEvents[0].topics[0]
-  const faultDisputeGameStatus = BigInt(
-    faultDisputeGameResolvedEvents[0].topics[1],
-  )
-  console.log(
-    'FaultDisputeGameResolvedEventSignature: ',
-    faultDisputeGameResolvedEventSignature,
-  )
-  console.log('FaultDisputeGameStatus: ', faultDisputeGameStatus.toString())
-  const endBatchBlockHex = await faultDisputeGameContract.l2BlockNumber()
-  console.log('endBatchBlockHex: ', endBatchBlockHex)
-  return { faultDisputeGameAddress, faultDisputeGameContract }
-}
-
-async function mockGetLatestResolvedFaultDisputeGame(
-  disputeGameFactoryContract,
-  gameType,
-) {
-  let lastGame = (await disputeGameFactoryContract.gameCount()) - 1n
+  const disputeGameFactoryContract = s.mainnetSettlementContractOptimism
+  const approximateUnsettledGames = 72n
+  let lastGame =
+    (await disputeGameFactoryContract.gameCount()) -
+    1n -
+    approximateUnsettledGames
+  // lastGame = 1712n
   console.log('lastGame: ', lastGame)
-  const gamesToRetrieve = 50
-  while (true) {
-    // Get the DisputeGameFactory gameIndex for this faultDisputeGame
-    const latestGames = await disputeGameFactoryContract.findLatestGames(
-      gameType,
-      lastGame,
-      gamesToRetrieve, // note if looking up more than 50 games it does not consistently return all the contracts have seen it return between 90 and 138 with limited tests
+  while (lastGame > 0) {
+    console.log('lastGame: ', lastGame)
+    const gameData = await disputeGameFactoryContract.gameAtIndex(lastGame)
+    console.log('gameData.proxy_: ', gameData.proxy_)
+    const faultDisputeGameAddress = gameData.proxy_
+    const faultDisputeGameContract = new Contract(
+      faultDisputeGameAddress,
+      FaultDisputeGameArtifact.abi,
+      s.mainnetProvider,
     )
-    // Note this is the structure returned by findLatestGames
-    //   struct GameSearchResult {
-    //     uint256 index;
-    //     GameId metadata;
-    //     Timestamp timestamp;
-    //     Claim rootClaim;
-    //     bytes extraData; //this holds the creation block number
-    // }
-    console.log('latestGames.length: ', latestGames.length)
-    for (let i = 0; i < latestGames.length; i++) {
-      const game = latestGames[i]
-      console.log('game: ', game)
-      console.log('block: ', stripZerosLeft(game.extraData))
-      const gameData = await disputeGameFactoryContract.gameAtIndex(i)
-      console.log('gameData.proxy_: ', gameData.proxy_)
-      const faultDisputeGameContract = new Contract(
-        gameData.proxy_,
-        FaultDisputeGameArtifact.abi,
-        s.mainnetProvider,
+    const faultDisputeGameResolvedEvents =
+      await faultDisputeGameContract.queryFilter(
+        faultDisputeGameContract.getEvent('Resolved'),
+        // stripZerosLeft(game.extraData),
+        // game.extraData,
       )
-      const faultDisputeGameResolvedEvents =
-        await faultDisputeGameContract.queryFilter(
-          faultDisputeGameContract.getEvent('Resolved'),
-          // stripZerosLeft(game.extraData),
-          // game.extraData,
-        )
-      console.log('gameIndex: ', game.index)
-      console.log(
-        'faultDisputeGameResolvedEvents.length: ',
-        faultDisputeGameResolvedEvents.length,
-      )
-      // console.log(
-      //   'faultDisputeGameResolvedEvents: ',
-      //   faultDisputeGameResolvedEvents,
-      // )
-      if (faultDisputeGameResolvedEvents.length !== 0) {
-        return gameData.proxy_
-      }
+    console.log(
+      'faultDisputeGameResolvedEvents.length: ',
+      faultDisputeGameResolvedEvents.length,
+    )
+    // console.log(
+    //   'faultDisputeGameResolvedEvents: ',
+    //   faultDisputeGameResolvedEvents,
+    // )
+    if (faultDisputeGameResolvedEvents.length !== 0) {
+      console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
+      return { faultDisputeGameAddress, faultDisputeGameContract }
     }
-    lastGame -= BigInt(gamesToRetrieve)
+    lastGame -= 1n
   }
 }
 
@@ -478,6 +419,12 @@ async function proveIntent(intentHash, endBatchBlockData) {
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
+  console.log(
+    'networks.optimism.inboxAddress: ',
+    networks.optimism.inboxAddress,
+  )
+  console.log('inboxStorageSlot: ', inboxStorageSlot)
+  console.log('endBatchBlockData.number: ', endBatchBlockData.number)
   const intentInboxProof = await s.optimismProvider.send('eth_getProof', [
     networks.optimism.inboxAddress,
     [inboxStorageSlot],
@@ -503,6 +450,28 @@ async function proveIntent(intentHash, endBatchBlockData) {
   )
 
   try {
+    console.log('Proving Intent')
+    console.log('networkIds.optimism: ', networkIds.optimism)
+    console.log('actors.claimant: ', actors.claimant)
+    console.log(
+      'networks.optimism.inboxAddress: ',
+      networks.optimism.inboxAddress,
+    )
+    console.log('intermediateHash: ', intermediateHash)
+    console.log(
+      'intentInboxProof.storageProof[0].proof: ',
+      intentInboxProof.storageProof[0].proof,
+    )
+    console.log(
+      'baseProverContract.rlpEncodeDataLibList: ',
+      await s.baseProverContract.rlpEncodeDataLibList([
+        toBeHex(intentInboxProof.nonce), // nonce
+        stripZerosLeft(toBeHex(intentInboxProof.balance)),
+        intentInboxProof.storageHash,
+        intentInboxProof.codeHash,
+      ]),
+    )
+    console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
     const proveIntentTx = await s.baseProverContract.proveIntent(
       networkIds.optimism,
       actors.claimant,
@@ -557,21 +526,21 @@ async function main() {
   let intentHash, intentFulfillTransaction, faultDisputeGame
   try {
     console.log('In intentWithdrawBaseOp')
-    const settlementBlockTag = intent.baseOpCannon.settlementBlockTag
-    const settlementStateRoot = intent.baseOpCannon.settlementStateRoot
-    faultDisputeGame = intent.baseOpCannon.faultDisputeGame
     intentHash = intent.baseOpCannon.hash
     intentFulfillTransaction = intent.baseOpCannon.fulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    console.log('faultDisputeGame: ', faultDisputeGame)
-    // const { settlementBlockTag, settlementStateRoot } =
-    //   await proveSettlementLayerState()
+    const { settlementBlockTag, settlementStateRoot } =
+      await proveSettlementLayerState()
     console.log('settlementBlockTag: ', settlementBlockTag)
     console.log('settlementStateRoot: ', settlementStateRoot)
     // await getLatestResolvedFaultDisputeGame()
+    // const { faultDisputeGameAddress, faultDisputeGameContract } =
+    // await getFaultDisputeGameOriginal()
+    const gameType = 1 // 1 is the gameType for Optimism Cannon gameType
     const { faultDisputeGameAddress, faultDisputeGameContract } =
-      await getFaultDisputeGame()
+      await getFaultDisputeGame(gameType)
+    console.log('Main faultDisputeGameAddress: ', faultDisputeGameAddress)
     const endBatchBlockData = await proveWorldStateCannonBaseToOptimism(
       settlementBlockTag,
       settlementStateRoot,
