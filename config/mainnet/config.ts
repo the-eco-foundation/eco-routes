@@ -72,9 +72,9 @@ const networks: any = {
   optimism: {
     network: 'optimism',
     chainId: networkIds.optimism,
-    intentSourceAddress: '0x8b0A7aEeC5D243d0a21b52Edcd943270c006a590',
-    proverContractAddress: '0xFB35271eC603A55e0322f77F0C1F3f02804d9156',
-    inboxAddress: '0xBAD17e5280eF02c82f6aa26eE3d5E77458e53538',
+    proverContractAddress: '0x00E0DAad87eaC2AA746B0b4b8b75B95Ddf2a26A9',
+    intentSourceAddress: '0xbD5ADC6CF302CfBcF21488579D9b823CB3aAF45d',
+    inboxAddress: '0xdd5FD2C3ad80243caa7A06F1b3145CeBA3b81014',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -95,9 +95,9 @@ const networks: any = {
   base: {
     network: 'base',
     chainId: networkIds.base,
-    intentSourceAddress: '0x8b0A7aEeC5D243d0a21b52Edcd943270c006a590',
-    proverContractAddress: '0xFB35271eC603A55e0322f77F0C1F3f02804d9156',
-    inboxAddress: '0xBAD17e5280eF02c82f6aa26eE3d5E77458e53538',
+    proverContractAddress: '0x00E0DAad87eaC2AA746B0b4b8b75B95Ddf2a26A9',
+    intentSourceAddress: '0xbD5ADC6CF302CfBcF21488579D9b823CB3aAF45d',
+    inboxAddress: '0xdd5FD2C3ad80243caa7A06F1b3145CeBA3b81014',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
