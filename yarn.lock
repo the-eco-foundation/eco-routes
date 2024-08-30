@@ -684,6 +684,29 @@
   resolved "https://registry.yarnpkg.com/@fastify/busboy/-/busboy-2.1.1.tgz#b9da6a878a371829a0502c9b6c1c143ef6663f4d"
   integrity sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==
 
+"@gnosis.pm/singleton-deployer-core@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@gnosis.pm/singleton-deployer-core/-/singleton-deployer-core-2.0.0.tgz#31c43fb59dc8ba567f5818a66b4b0655c783de87"
+  integrity sha512-ZXykRF4xETzafQLpNmO9cy/IGA2CvFUoAnNUqtkg5bSisTfrwmelABwIituZWEjudS/64ZWXTwwJOHiwVnyVug==
+  dependencies:
+    "@types/ethereumjs-abi" "^0.6.3"
+    "@types/ethereumjs-util" "^6.1.0"
+    "@types/ethjs-util" "^0.1.0"
+    ethereumjs-abi "^0.6.8"
+    ethereumjs-util "^6.2.0"
+    ethjs-util "^0.1.6"
+
+"@gnosis.pm/singleton-deployer-eip2470-factory@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@gnosis.pm/singleton-deployer-eip2470-factory/-/singleton-deployer-eip2470-factory-2.0.0.tgz#3cbb2a671960d21edc3f900db6cdf77c753b4dbf"
+  integrity sha512-Fssm7Yul1Rcik+mgQBGMmS6KmCFpDozoqHX65yR5lUFVpSL7TsTF926zZBlOHeFrTzrbsETPF8CGIg1HTdXIPg==
+  dependencies:
+    "@gnosis.pm/singleton-deployer-core" "^2.0.0"
+    "@types/ethereumjs-abi" "^0.6.3"
+    "@types/ethereumjs-util" "^6.1.0"
+    ethereumjs-abi "^0.6.8"
+    ethereumjs-util "^6.2.0"
+
 "@humanwhocodes/config-array@^0.11.14":
   version "0.11.14"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.11.14.tgz#d78e481a039f7566ecc9660b4ea7fe6b1fec442b"
@@ -1348,6 +1371,27 @@
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@types/concat-stream/-/concat-stream-1.6.1.tgz#24bcfc101ecf68e886aaedce60dfd74b632a1b74"
   integrity sha512-eHE4cQPoj6ngxBZMvVf6Hw7Mh4jMW4U9lpGmS5GBPB9RYxlFg+CHaVN7ErNY4W9XfLIEn20b4VDYaIrbq0q4uA==
+  dependencies:
+    "@types/node" "*"
+
+"@types/ethereumjs-abi@^0.6.3":
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/@types/ethereumjs-abi/-/ethereumjs-abi-0.6.5.tgz#a28c8b18b76c388575d40ac29d580b8040311b38"
+  integrity sha512-2XOUOXXqYkWtZ5550hM0vdjwH3ccm1Q/4bowJWuXYmx2KpDTN7BrgADC563IYJdnltYnPrZhaHJxbuagjtNuAg==
+  dependencies:
+    "@types/node" "*"
+
+"@types/ethereumjs-util@^6.1.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@types/ethereumjs-util/-/ethereumjs-util-6.1.0.tgz#9dabd7302ec9728a7d99be15f4143977c33cd5ac"
+  integrity sha512-5N0RJldhKCKwDksdnuNHbEJuwO5pjEdtwdHj/kZLxaS84s5R1NLgYfAuDF/VZ4whYABJJvv+o0O8TXLm+F/Byw==
+  dependencies:
+    ethereumjs-util "*"
+
+"@types/ethjs-util@^0.1.0":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@types/ethjs-util/-/ethjs-util-0.1.3.tgz#98ccf8777cfacaf0013a990aeb2e3d4e7fd11d69"
+  integrity sha512-fwkBKSyLxfMm9Oe93gUgNU4dHK//THLNGnBxetWqCMbRB9Gy7M4lwrfRL/KtHVhnyJHZ+ocrhjLntJsgiNPFnQ==
   dependencies:
     "@types/node" "*"
 
@@ -3412,7 +3456,18 @@ ethereumjs-abi@^0.6.8:
     bn.js "^4.11.8"
     ethereumjs-util "^6.0.0"
 
-ethereumjs-util@^6.0.0, ethereumjs-util@^6.2.1:
+ethereumjs-util@*, ethereumjs-util@^7.0.3, ethereumjs-util@^7.1.4, ethereumjs-util@^7.1.5:
+  version "7.1.5"
+  resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-7.1.5.tgz#9ecf04861e4fbbeed7465ece5f23317ad1129181"
+  integrity sha512-SDl5kKrQAudFBUe5OJM9Ac6WmMyYmXX/6sTmLZ3ffG2eY6ZIGBes3pEDxNN6V72WyOw4CPD5RomKdsa8DAAwLg==
+  dependencies:
+    "@types/bn.js" "^5.1.0"
+    bn.js "^5.1.2"
+    create-hash "^1.1.2"
+    ethereum-cryptography "^0.1.3"
+    rlp "^2.2.4"
+
+ethereumjs-util@^6.0.0, ethereumjs-util@^6.2.0, ethereumjs-util@^6.2.1:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-6.2.1.tgz#fcb4e4dd5ceacb9d2305426ab1a5cd93e3163b69"
   integrity sha512-W2Ktez4L01Vexijrm5EB6w7dg4n/TgpoYU4avuT5T3Vmnw/eCRtiBrJfQYS/DCSvDIOLn2k57GcHdeBcgVxAqw==
@@ -3424,17 +3479,6 @@ ethereumjs-util@^6.0.0, ethereumjs-util@^6.2.1:
     ethereum-cryptography "^0.1.3"
     ethjs-util "0.1.6"
     rlp "^2.2.3"
-
-ethereumjs-util@^7.0.3, ethereumjs-util@^7.1.4, ethereumjs-util@^7.1.5:
-  version "7.1.5"
-  resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-7.1.5.tgz#9ecf04861e4fbbeed7465ece5f23317ad1129181"
-  integrity sha512-SDl5kKrQAudFBUe5OJM9Ac6WmMyYmXX/6sTmLZ3ffG2eY6ZIGBes3pEDxNN6V72WyOw4CPD5RomKdsa8DAAwLg==
-  dependencies:
-    "@types/bn.js" "^5.1.0"
-    bn.js "^5.1.2"
-    create-hash "^1.1.2"
-    ethereum-cryptography "^0.1.3"
-    rlp "^2.2.4"
 
 ethers@^5.7.2:
   version "5.7.2"
