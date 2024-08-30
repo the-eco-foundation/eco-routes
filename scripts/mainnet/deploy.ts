@@ -17,7 +17,7 @@ switch (networkName) {
     break
   case 'optimism':
     counter = networks.optimism.intentSource.counter
-    minimumDuration = networks.optimism.intentSource.counter
+    minimumDuration = networks.optimism.intentSource.minimumDuration
     break
   default:
     counter = 0

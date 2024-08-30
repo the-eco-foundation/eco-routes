@@ -1,19 +1,15 @@
-import { ethers, run, network } from 'hardhat'
+import { ethers, network } from 'hardhat'
 import {
   SingletonFactory__factory,
   SingletonFactory,
 } from '../../typechain-types'
-import { setTimeout } from 'timers/promises'
-// import { getAddress } from 'ethers'
-// import c from '../config/testnet/config'
-// import networks from '../config/testnet/config';
 import { networks, actors } from '../../config/mainnet/config'
 
 const singletonAddress = '0xce0042b868300000d44a59004da54a005ffdcf9f'
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
-let counter: number = 0
-let minimumDuration: number = 0
+let counter: number
+let minimumDuration: number
 switch (networkName) {
   case 'base':
     counter = networks.base.intentSource.counter
@@ -21,7 +17,7 @@ switch (networkName) {
     break
   case 'optimism':
     counter = networks.optimism.intentSource.counter
-    minimumDuration = networks.optimism.intentSource.counter
+    minimumDuration = networks.optimism.intentSource.minimumDuration
     break
   default:
     counter = 0
@@ -74,7 +70,6 @@ async function main() {
     ethers.sha256(ethers.toUtf8Bytes('zevthegod')),
     { gasLimit: 4_000_000 },
   )
-
   console.log('prover implementation deployed')
 
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
@@ -103,43 +98,8 @@ async function main() {
     { gasLimit: 4_000_000 },
   )
   console.log('Inbox deployed')
-
-  // adding a try catch as if the contract has previously been deployed will get a
-  // verification error when deploying the same bytecode to a new address
-  //   if (network.name !== 'hardhat') {
-  //     console.log('Waiting for 30 seconds for Bytecode to be on chain')
-  //     await setTimeout(30000)
-  //     try {
-  //       await run('verify:verify', {
-  //         address: proverAddress,
-  //         // constructorArguments: [l1BlockAddressSepolia, deployer.address],
-  //         constructorArguments: [
-  //           [baseChainConfiguration, optimismChainConfiguration],
-  //         ],
-  //       })
-  //     } catch (e) {
-  //       console.log(`Error verifying prover`, e)
-  //     }
-  //     try {
-  //       await run('verify:verify', {
-  //         address: intentSourceAddress,
-  //         constructorArguments: [minimumDuration, counter],
-  //       })
-  //       console.log('intentSource verified at:', intentSourceAddress)
-  //     } catch (e) {
-  //       console.log(`Error verifying intentSource`, e)
-  //     }
-  //     try {
-  //       await run('verify:verify', {
-  //         address: inboxAddress,
-  //         constructorArguments: [deployer.address, false, [actors.solver]],
-  //       })
-  //       console.log('Inbox verified at:', inboxAddress)
-  //     } catch (e) {
-  //       console.log(`Error verifying inbox`, e)
-  //     }
-  //   }
 }
+
 main().catch((error) => {
   console.error(error)
   process.exitCode = 1
