@@ -4,7 +4,6 @@ import {
   Contract,
   encodeRlp,
   getBytes,
-  getAddress,
   hexlify,
   keccak256,
   solidityPackedKeccak256,
@@ -523,7 +522,7 @@ async function withdrawReward(intentHash) {
 }
 
 async function main() {
-  let intentHash, intentFulfillTransaction, faultDisputeGame
+  let intentHash, intentFulfillTransaction
   try {
     console.log('In intentWithdrawBaseOp')
     intentHash = intent.baseOpCannon.hash
