@@ -119,11 +119,9 @@ async function getFaultDisputeGame(gameType) {
     1n -
     approximateUnsettledGames
   // lastGame = 1712n
-  console.log('lastGame: ', lastGame)
+  console.log('Starting lastGame: ', lastGame)
   while (lastGame > 0) {
-    console.log('lastGame: ', lastGame)
     const gameData = await disputeGameFactoryContract.gameAtIndex(lastGame)
-    console.log('gameData.proxy_: ', gameData.proxy_)
     const faultDisputeGameAddress = gameData.proxy_
     const faultDisputeGameContract = new Contract(
       faultDisputeGameAddress,
@@ -133,17 +131,7 @@ async function getFaultDisputeGame(gameType) {
     const faultDisputeGameResolvedEvents =
       await faultDisputeGameContract.queryFilter(
         faultDisputeGameContract.getEvent('Resolved'),
-        // stripZerosLeft(game.extraData),
-        // game.extraData,
       )
-    console.log(
-      'faultDisputeGameResolvedEvents.length: ',
-      faultDisputeGameResolvedEvents.length,
-    )
-    // console.log(
-    //   'faultDisputeGameResolvedEvents: ',
-    //   faultDisputeGameResolvedEvents,
-    // )
     if (faultDisputeGameResolvedEvents.length !== 0) {
       console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
       return { faultDisputeGameAddress, faultDisputeGameContract }
@@ -165,13 +153,9 @@ async function getGameIndex(
     (await disputeGameFactoryContract.gameCount()) -
     1n -
     approximateUnsettledGames
-  // lastGame = 1712n
-  console.log('lastGame: ', lastGame)
+  console.log('Starting lastGame: ', lastGame)
   while (lastGame > 0) {
     const game = await disputeGameFactoryContract.gameAtIndex(lastGame)
-    console.log('lastGame: ', lastGame)
-    console.log('game.proxy_: ', game.proxy_)
-
     if (game.proxy_ === faultDisputeGameAddress) {
       return lastGame.toString()
     }
@@ -299,7 +283,6 @@ async function proveWorldStateCannonBaseToOptimism(
   const faultDisputeGameResolvedStorageSlot =
     '0x0000000000000000000000000000000000000000000000000000000000000000'
   // '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
-  console.log('Just here')
   const faultDisputeGameRootResolvedProof = await s.mainnetProvider.send(
     'eth_getProof',
     [
@@ -308,7 +291,6 @@ async function proveWorldStateCannonBaseToOptimism(
       settlementBlockTag,
     ],
   )
-  console.log('Here')
   const faultDisputeGameContractData = [
     toBeHex(faultDisputeGameRootClaimProof.nonce), // nonce
     stripZerosLeft(toBeHex(faultDisputeGameRootClaimProof.balance)), // balance
