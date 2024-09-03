@@ -22,7 +22,7 @@ export namespace s {
   // default AbiCoder
   export const abiCoder = AbiCoder.defaultAbiCoder()
   // Private Keys
-  export const DEPLOYER_PRIVATE_KEY = process.env.DEPLOY_PRIVATE_KEY || ''
+  export const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || ''
   export const INTENT_CREATOR_PRIVATE_KEY =
     process.env.INTENT_CREATOR_PRIVATE_KEY || ''
   export const SOLVER_PRIVATE_KEY = process.env.SOLVER_PRIVATE_KEY || ''

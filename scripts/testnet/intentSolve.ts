@@ -576,8 +576,12 @@ async function main() {
   // define the variables used for each state of the intent lifecycle
   try {
     console.log('In Main')
+    await baseSepoliaEcoTestNetIntentSolve()
+    await ecoTestNetBaseSepoliaIntentSolve()
     await baseSepoliaOptimismSepoliaIntentSolve()
     await optimismSepoliaBaseSepoliaIntentSolve()
+    await optimismSepoliaEcoTestNetIntentSolve()
+    await ecoTestNetOptimismSepoliaIntentSolve()
   } catch (e) {
     console.log(e)
   }
