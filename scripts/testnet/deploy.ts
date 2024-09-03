@@ -71,36 +71,27 @@ console.log('Deploying to Network: ', network.name)
 async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
-  const proverFactory = await ethers.getContractFactory('Prover')
-  const prover = await proverFactory.deploy([
-    baseSepoliaChainConfiguration,
-    optimismSepoliaChainConfiguration,
-    ecoTestNetChainConfiguration,
-  ])
-  console.log('prover implementation deployed to: ', await prover.getAddress())
-
-  // adding a try catch as if the contract has previously been deployed will get a
-  // verification error when deploying the same bytecode to a new address
-  try {
-    if (network.name !== 'hardhat') {
-      console.log('Waiting for 30 seconds for Bytecode to be on chain')
-      await setTimeout(30000)
-      await run('verify:verify', {
-        address: await prover.getAddress(),
-        // constructorArguments: [l1BlockAddressSepolia, deployer.address],
-        constructorArguments: [
-          [
-            baseSepoliaChainConfiguration,
-            optimismSepoliaChainConfiguration,
-            ecoTestNetChainConfiguration,
-          ],
-        ],
-      })
-      console.log('prover  verified at:', await prover.getAddress())
-    }
-  } catch (e) {
-    console.log(`Error verifying prover`, e)
+  console.log(`**************************************************`)
+  let prover
+  if (network.name === 'ecoTestnet') {
+    prover = await (
+      await ethers.getContractFactory('ProverL3')
+    ).deploy(deployer.address, [
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+      ecoTestNetChainConfiguration,
+    ])
+  } else {
+    prover = await (
+      await ethers.getContractFactory('Prover')
+    ).deploy([
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+      ecoTestNetChainConfiguration,
+    ])
   }
+
+  console.log('prover implementation deployed to: ', await prover.getAddress())
 
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
   const intentSource: IntentSource = await intentSourceFactory.deploy(
@@ -109,43 +100,61 @@ async function main() {
   )
   console.log('intentSource deployed to:', await intentSource.getAddress())
 
-  // adding a try catch as if the contract has previously been deployed will get a
-  // verification error when deploying the same bytecode to a new address
-  try {
-    if (network.name !== 'hardhat') {
-      console.log('Waiting for 30 seconds for Bytecode to be on chain')
-      await setTimeout(30000)
-      await run('verify:verify', {
-        address: await intentSource.getAddress(),
-        constructorArguments: [minimumDuration, counter],
-      })
-    }
-    console.log('intentSource verified at:', await intentSource.getAddress())
-  } catch (e) {
-    console.log(`Error verifying intentSource`, e)
-  }
-
   const inboxFactory = await ethers.getContractFactory('Inbox')
 
-  const inbox: Inbox = await inboxFactory.deploy(deployer.address, false, [
-    actors.solver,
-  ])
+  const inbox: Inbox = await inboxFactory.deploy(deployer.address, true, [])
   console.log('Inbox deployed to:', await inbox.getAddress())
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
-  try {
-    if (network.name !== 'hardhat') {
-      console.log('Waiting for 30 seconds for Bytecode to be on chain')
-      await setTimeout(30000)
+  if (network.name !== 'hardhat') {
+    console.log('Waiting for 30 seconds for Bytecode to be on chain')
+    await setTimeout(30000)
+    let constructorArgs
+    constructorArgs = [
+      [
+        baseSepoliaChainConfiguration,
+        optimismSepoliaChainConfiguration,
+        ecoTestNetChainConfiguration,
+      ],
+    ]
+    if (network.name === 'ecoTestnet') {
+      constructorArgs = [
+        deployer.address,
+        [
+          baseSepoliaChainConfiguration,
+          optimismSepoliaChainConfiguration,
+          ecoTestNetChainConfiguration,
+        ],
+      ]
+    }
+    try {
+      await run('verify:verify', {
+        address: await prover.getAddress(),
+        // constructorArguments: [l1BlockAddressSepolia, deployer.address],
+        constructorArguments: constructorArgs,
+      })
+    } catch (e) {
+      console.log(`Error verifying prover`, e)
+    }
+    try {
+      await run('verify:verify', {
+        address: await intentSource.getAddress(),
+        constructorArguments: [minimumDuration, counter],
+      })
+      console.log('intentSource verified at:', await intentSource.getAddress())
+    } catch (e) {
+      console.log(`Error verifying intentSource`, e)
+    }
+    try {
       await run('verify:verify', {
         address: await inbox.getAddress(),
         constructorArguments: [deployer.address, false, [actors.solver]],
       })
+      console.log('Inbox verified at:', await inbox.getAddress())
+    } catch (e) {
+      console.log(`Error verifying inbox`, e)
     }
-    console.log('Inbox verified at:', await inbox.getAddress())
-  } catch (e) {
-    console.log(`Error verifying inbox`, e)
   }
 }
 

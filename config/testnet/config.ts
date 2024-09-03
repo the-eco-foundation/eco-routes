@@ -74,17 +74,17 @@ const networks: any = {
     chainId: networkIds.sepolia,
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
       optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
+      baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
       // arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia Rollup Admin Contract
     },
   },
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
-    intentSourceAddress: '0x4Ce3dba6598B4c1197f13680804808f867FDc044',
-    proverContractAddress: '0xb31Fd140643dbD868E7732EECB5aC9C859348eb9',
-    inboxAddress: '0xE855D08e3798AA174155e8f8684d955056Fe6c8D',
+    proverContractAddress: '0x5DB6D42ED376ca83F328AeC340a21031C74d3718',
+    intentSourceAddress: '0xe78FA8Cd98531583a144b57aBA3c0f158f8b5C7a',
+    inboxAddress: '0x97aEA8Ac7F850c2210207bF2Cf9FBbD2117A0854',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -111,9 +111,9 @@ const networks: any = {
   baseSepolia: {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
-    intentSourceAddress: '0x62fd344CE4E0e4c3d9C98D64390cA2739aF9021f',
-    proverContractAddress: '0xDDf437F557129f5900b2F9Bd1ca78B2AD90f5630',
-    inboxAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
+    proverContractAddress: '0x4e505B68dF3472AED954c072E15b29F553194a86',
+    intentSourceAddress: '0xc2D0b0dE92e3F49Ea07F456836686a54D5920985',
+    inboxAddress: '0x88F8DedD36a19d8124bC126d8173A54Cd4Fc3D67',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -149,9 +149,9 @@ const networks: any = {
     chainId: networkIds.ecoTestNet,
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
-    intentSourceAddress: '0xc2D0b0dE92e3F49Ea07F456836686a54D5920985',
-    proverContractAddress: '0x4e505B68dF3472AED954c072E15b29F553194a86',
-    inboxAddress: '0x88F8DedD36a19d8124bC126d8173A54Cd4Fc3D67',
+    proverContractAddress: '0xdE109433a16d7Ecab942bE083E8eEbF589281b51',
+    intentSourceAddress: '0xa07760bb3953f7Cd7C2Baa3a5b102dd5243456ED',
+    inboxAddress: '0x2e7Cfdb7356463c7Cc8a8Ae595e5b7517cDC193a',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
