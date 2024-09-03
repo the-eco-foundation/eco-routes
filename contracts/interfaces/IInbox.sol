@@ -34,6 +34,9 @@ interface IInbox {
     // Event emitted when a change is made to the solver whitelist
     event SolverWhitelistChanged(address indexed _solver, bool indexed _canSolve);
 
+    // Event emitted when the prover address of a chain is set
+    event proverSet(uint256 indexed _chainID, address indexed _prover);
+
     // Event emitted when solving intents is not public and a non-whitelisted address made a solve attempt
     error UnauthorizedSolveAttempt(address _solver);
 

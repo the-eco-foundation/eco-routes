@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IInbox.sol";
-import "./EcoMailbox.sol";
+import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -14,6 +14,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract Inbox is Ownable, IInbox {
 
     address public immutable mailbox;
+
+    // Mapping of chainIDs to prover addresses
+    mapping(uint256 => address) public provers;
 
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
@@ -87,8 +90,9 @@ contract Inbox is Ownable, IInbox {
         fulfilled[intentHash] = _claimant;
 
         if (hyperprove) {
-            EcoMailbox(mailbox).dispatch(
+            IMailbox(mailbox).dispatch(
                 _sourceChainID,
+                provers[_sourceChainID],
                 abi.encode(intentHash, _claimant),
                 )
         }
@@ -113,6 +117,11 @@ contract Inbox is Ownable, IInbox {
     function changeSolverWhitelist(address _solver, bool _canSolve) public onlyOwner {
         solverWhitelist[_solver] = _canSolve;
         emit SolverWhitelistChanged(_solver, _canSolve);
+    }
+
+    function addProver(uint256 _chainID, address _prover) public onlyOwner {
+        provers[_chainID] = _prover;
+        emit ProverAdded(_chainID, _prover);
     }
 
     /**
