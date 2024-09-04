@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 contract Inbox is Ownable, IInbox {
 
-    address public immutable mailbox;
+    address public immutable MAILBOX;
 
     // Mapping of chainIDs to prover addresses
     mapping(uint256 => address) public provers;
@@ -44,8 +44,9 @@ contract Inbox is Ownable, IInbox {
         for (uint256 i = 0; i < _solvers.length; i++) {
             solverWhitelist[_solvers[i]] = true;
         }
-        mailbox = _mailbox;
+        MAILBOX = _mailbox;
     }
+
 
     function fulfill(
         uint256 _sourceChainID,
@@ -55,8 +56,61 @@ contract Inbox is Ownable, IInbox {
         bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash,
-        bool hyperprove,
+        address _prover
     ) external validated(_expiryTime, msg.sender) returns (bytes[] memory) {
+        bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+        
+        IMailbox(mailbox).dispatch(
+            _sourceChainID,
+            _prover,
+            abi.encode(_expectedHash, _claimant),
+            );
+        
+        return results;
+    }
+
+    fulfill(
+        uint256 _sourceChainID,
+        address[] calldata _targets,
+        bytes[] calldata _data,
+        uint256 _expiryTime,
+        bytes32 _nonce,
+        address _claimant,
+        bytes32 _expectedHash,
+    ) external override returns (bytes[] memory) {
+        return _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+    }
+
+    // allows the owner to make solving public
+    function makeSolvingPublic() public onlyOwner {
+        isSolvingPublic = true;
+        emit SolvingIsPublic();
+    }
+
+    /**
+     * @notice allows the owner to make changes to the solver whitelist
+     * @param _solver the address of the solver whose permissions are being changed
+     * @param _canSolve whether or not the solver will be on the whitelist afterward
+     */
+    function changeSolverWhitelist(address _solver, bool _canSolve) public onlyOwner {
+        solverWhitelist[_solver] = _canSolve;
+        emit SolverWhitelistChanged(_solver, _canSolve);
+    }
+
+    function addProver(uint256 _chainID, address _prover) public onlyOwner {
+        provers[_chainID] = _prover;
+        emit ProverAdded(_chainID, _prover);
+    }
+
+    function _fulfill(
+        uint256 _sourceChainID,
+        address[] calldata _targets,
+        bytes[] calldata _data,
+        uint256 _expiryTime,
+        bytes32 _nonce,
+        address _claimant,
+        bytes32 _expectedHash,
+    ) internal validated(_expiryTime, msg.sender) returns (bytes[] memory) {
         bytes32 intentHash =
             encodeHash(_sourceChainID, block.chainid, address(this), _targets, _data, _expiryTime, _nonce);
 
@@ -89,39 +143,10 @@ contract Inbox is Ownable, IInbox {
         // Mark the intent as fulfilled
         fulfilled[intentHash] = _claimant;
 
-        if (hyperprove) {
-            IMailbox(mailbox).dispatch(
-                _sourceChainID,
-                provers[_sourceChainID],
-                abi.encode(intentHash, _claimant),
-                )
-        }
         // Emit an event
         emit Fulfillment(intentHash, _sourceChainID, _claimant);
 
-        // Return the results
         return results;
-    }
-
-    // allows the owner to make solving public
-    function makeSolvingPublic() public onlyOwner {
-        isSolvingPublic = true;
-        emit SolvingIsPublic();
-    }
-
-    /**
-     * @notice allows the owner to make changes to the solver whitelist
-     * @param _solver the address of the solver whose permissions are being changed
-     * @param _canSolve whether or not the solver will be on the whitelist afterward
-     */
-    function changeSolverWhitelist(address _solver, bool _canSolve) public onlyOwner {
-        solverWhitelist[_solver] = _canSolve;
-        emit SolverWhitelistChanged(_solver, _canSolve);
-    }
-
-    function addProver(uint256 _chainID, address _prover) public onlyOwner {
-        provers[_chainID] = _prover;
-        emit ProverAdded(_chainID, _prover);
     }
 
     /**

@@ -79,6 +79,8 @@ contract IntentSource is IIntentSource {
         }
 
         bytes32 _nonce = keccak256(abi.encode(counter, CHAIN_ID));
+        // prover doesn't have to be in the hash since the solver has no incentive to be dishonest about it
+        // it would only deprive them of the reward
         bytes32 intermediateHash = keccak256(abi.encode(CHAIN_ID, _destinationChainID, _targets, _data, _expiryTime, _nonce));
         bytes32 intentHash = keccak256(abi.encode(_inbox, intermediateHash));
 
