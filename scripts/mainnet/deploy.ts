@@ -17,7 +17,7 @@ switch (networkName) {
     break
   case 'optimism':
     counter = networks.optimism.intentSource.counter
-    minimumDuration = networks.optimism.intentSource.counter
+    minimumDuration = networks.optimism.intentSource.minimumDuration
     break
   default:
     counter = 0
@@ -75,6 +75,16 @@ async function main() {
     actors.solver,
   ])
   console.log('Inbox deployed to:', await inbox.getAddress())
+
+  const inboxOwnerSigner = await new ethers.Wallet(
+    process.env.INBOX_OWNER_PRIVATE_KEY || '0x' + '11'.repeat(32),
+    ethers.getDefaultProvider(networkName),
+  )
+  const setSolverTx = await inbox
+    .connect(inboxOwnerSigner)
+    .changeSolverWhitelist(actors.solver, true)
+  await setSolverTx.wait()
+  console.log('Solver added to whitelist:', actors.solver)
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address

@@ -4,7 +4,6 @@ import {
   Contract,
   encodeRlp,
   getBytes,
-  getAddress,
   hexlify,
   keccak256,
   solidityPackedKeccak256,
@@ -110,49 +109,58 @@ async function proveSettlementLayerState() {
   }
 }
 
-async function getFaultDisputeGame() {
+async function getFaultDisputeGame(gameType) {
+  // Recommend making approximateUnsettledGames configurable and could go as high as 84 but safest is zero.
   console.log('In getFaultDisputeGame')
-  const faultDisputeGame = intent.baseOpCannon.faultDisputeGame
-  // The following code shows how to listen for creation events on DisputeGameFactory for faultDisputeGames
-  // Currently I have hardcoded the block number for the faultDisputeGame I am using
-  // this can be replaced by an event listener for all creation events
-  const faultDisputeGameCreationEvents =
-    await s.mainnetSettlementContractOptimism.queryFilter(
-      s.mainnetSettlementContractOptimism.getEvent('DisputeGameCreated'),
-      intent.baseOpCannon.faultDisputeGame.creationBlock,
+  const disputeGameFactoryContract = s.mainnetSettlementContractOptimism
+  const approximateUnsettledGames = 72n
+  let lastGame =
+    (await disputeGameFactoryContract.gameCount()) -
+    1n -
+    approximateUnsettledGames
+  // lastGame = 1712n
+  console.log('Starting lastGame: ', lastGame)
+  while (lastGame > 0) {
+    const gameData = await disputeGameFactoryContract.gameAtIndex(lastGame)
+    const faultDisputeGameAddress = gameData.proxy_
+    const faultDisputeGameContract = new Contract(
+      faultDisputeGameAddress,
+      FaultDisputeGameArtifact.abi,
+      s.mainnetProvider,
     )
-  const faultDisputeGameAddress = getAddress(
-    stripZerosLeft(toBeHex(faultDisputeGameCreationEvents[0].topics[1])),
-  )
-  console.log('FaultDisputeGame: ', faultDisputeGame)
-  // The following code shows how to listen for resolved events for a faultDisputeGame
-  // topic 1 contains the FaultDisputeGame address
-  // giving an array of created FaultDisputeGames
-  // Currently I have hardcoded the block number for the FaultDisputeGame resolve event
-  // This can be replaced by a service which listens for events from the faultDisputeGame
-  const faultDisputeGameContract = new Contract(
-    faultDisputeGameAddress,
-    FaultDisputeGameArtifact.abi,
-    s.mainnetProvider,
-  )
-  const faultDisputeGameResolvedEvents =
-    await faultDisputeGameContract.queryFilter(
-      faultDisputeGameContract.getEvent('Resolved'),
-      intent.baseOpCannon.faultDisputeGame.resolvedBlock,
-    )
-  const faultDisputeGameResolvedEventSignature =
-    faultDisputeGameResolvedEvents[0].topics[0]
-  const faultDisputeGameStatus = BigInt(
-    faultDisputeGameResolvedEvents[0].topics[1],
-  )
-  console.log(
-    'FaultDisputeGameResolvedEventSignature: ',
-    faultDisputeGameResolvedEventSignature,
-  )
-  console.log('FaultDisputeGameStatus: ', faultDisputeGameStatus.toString())
-  const endBatchBlockHex = await faultDisputeGameContract.l2BlockNumber()
-  console.log('endBatchBlockHex: ', endBatchBlockHex)
-  return { faultDisputeGameAddress, faultDisputeGameContract }
+    const faultDisputeGameResolvedEvents =
+      await faultDisputeGameContract.queryFilter(
+        faultDisputeGameContract.getEvent('Resolved'),
+      )
+    if (faultDisputeGameResolvedEvents.length !== 0) {
+      console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
+      return { faultDisputeGameAddress, faultDisputeGameContract }
+    }
+    lastGame -= 1n
+  }
+}
+
+async function getGameIndex(
+  disputeGameFactoryContract,
+  faultDisputeGameAddress,
+) {
+  console.log('In getGameIndex')
+  // Recommend making approximateUnsettledGames configurable and could go as high as 84 but safest is zero.
+  const approximateUnsettledGames = 72n
+  // Optionally you could subtract say 50 games from the last game to reduce RPC calls
+  //
+  let lastGame =
+    (await disputeGameFactoryContract.gameCount()) -
+    1n -
+    approximateUnsettledGames
+  console.log('Starting lastGame: ', lastGame)
+  while (lastGame > 0) {
+    const game = await disputeGameFactoryContract.gameAtIndex(lastGame)
+    if (game.proxy_ === faultDisputeGameAddress) {
+      return lastGame.toString()
+    }
+    lastGame -= 1n
+  }
 }
 
 async function proveWorldStateCannonBaseToOptimism(
@@ -200,18 +208,11 @@ async function proveWorldStateCannonBaseToOptimism(
     faultDisputeGameCreatedAt,
     faultDisputeGameAddress,
   )
-  // TODO: this needs to be enhanced to loop through all games until we find the correct gameIndex
-  const lastGame = (await disputeGameFactoryContract.gameCount()) - 50n
-  console.log('lastGame: ', lastGame)
-  // Get the DisputeGameFactory gameIndex for this faultDisputeGame
-  const latestGames = await disputeGameFactoryContract.findLatestGames(
-    faultDisputeGameData.gameType_,
-    lastGame,
-    50, // note if looking up more than 50 games it does not consistently return all the contracts have seen it return between 90 and 138 with limited tests
-  )
-  console.log('latestGames.length: ', latestGames.length)
   // TODO gameIndex needs to come from above data by looking for matching faultDisputeGame rootClaim and extraData
-  const gameIndex = intent.baseOpCannon.faultDisputeGame.gameIndex
+  const gameIndex = await getGameIndex(
+    disputeGameFactoryContract,
+    faultDisputeGameAddress,
+  )
   // disputeGameFactoryStorageSlot is where the gameId is stored
   // In solidity
   // uint256(keccak256(abi.encode(L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER)))
@@ -399,6 +400,12 @@ async function proveIntent(intentHash, endBatchBlockData) {
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
+  console.log(
+    'networks.optimism.inboxAddress: ',
+    networks.optimism.inboxAddress,
+  )
+  console.log('inboxStorageSlot: ', inboxStorageSlot)
+  console.log('endBatchBlockData.number: ', endBatchBlockData.number)
   const intentInboxProof = await s.optimismProvider.send('eth_getProof', [
     networks.optimism.inboxAddress,
     [inboxStorageSlot],
@@ -424,6 +431,28 @@ async function proveIntent(intentHash, endBatchBlockData) {
   )
 
   try {
+    console.log('Proving Intent')
+    console.log('networkIds.optimism: ', networkIds.optimism)
+    console.log('actors.claimant: ', actors.claimant)
+    console.log(
+      'networks.optimism.inboxAddress: ',
+      networks.optimism.inboxAddress,
+    )
+    console.log('intermediateHash: ', intermediateHash)
+    console.log(
+      'intentInboxProof.storageProof[0].proof: ',
+      intentInboxProof.storageProof[0].proof,
+    )
+    console.log(
+      'baseProverContract.rlpEncodeDataLibList: ',
+      await s.baseProverContract.rlpEncodeDataLibList([
+        toBeHex(intentInboxProof.nonce), // nonce
+        stripZerosLeft(toBeHex(intentInboxProof.balance)),
+        intentInboxProof.storageHash,
+        intentInboxProof.codeHash,
+      ]),
+    )
+    console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
     const proveIntentTx = await s.baseProverContract.proveIntent(
       networkIds.optimism,
       actors.claimant,
@@ -475,24 +504,24 @@ async function withdrawReward(intentHash) {
 }
 
 async function main() {
-  let intentHash, intentFulfillTransaction, faultDisputeGame
+  let intentHash, intentFulfillTransaction
   try {
     console.log('In intentWithdrawBaseOp')
-    // const settlementBlockTag = intent.baseOpCannon.settlementBlockTag
-    // const settlementStateRoot = intent.baseOpCannon.settlementStateRoot
-    faultDisputeGame = intent.baseOpCannon.faultDisputeGame
     intentHash = intent.baseOpCannon.hash
     intentFulfillTransaction = intent.baseOpCannon.fulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
-    console.log('faultDisputeGame: ', faultDisputeGame)
     const { settlementBlockTag, settlementStateRoot } =
       await proveSettlementLayerState()
     console.log('settlementBlockTag: ', settlementBlockTag)
     console.log('settlementStateRoot: ', settlementStateRoot)
     // await getLatestResolvedFaultDisputeGame()
+    // const { faultDisputeGameAddress, faultDisputeGameContract } =
+    // await getFaultDisputeGameOriginal()
+    const gameType = 1 // 1 is the gameType for Optimism Cannon gameType
     const { faultDisputeGameAddress, faultDisputeGameContract } =
-      await getFaultDisputeGame()
+      await getFaultDisputeGame(gameType)
+    console.log('Main faultDisputeGameAddress: ', faultDisputeGameAddress)
     const endBatchBlockData = await proveWorldStateCannonBaseToOptimism(
       settlementBlockTag,
       settlementStateRoot,

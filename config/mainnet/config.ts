@@ -23,8 +23,8 @@ const networkIds: any = {
 const actors: any = {
   deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
   intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
-  inboxOwner: '0xd0d9fa3a953189258a65f8404a06599B3466F562',
-  solver: '0x3A322Ff8ef24592e5e50D2EB4E630cDA87Bd83A6',
+  inboxOwner: '0xBc6c49e5CdeC14CBD10478bf56296BD63c6c3F0e',
+  solver: '0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E',
   claimant: '0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58',
   prover: '0x923d4fDfD0Fb231FDA7A71545953Acca41123652',
   recipient: '0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9',
@@ -38,9 +38,9 @@ const intent: any = {
   targetAmounts: [1000],
   duration: 3600,
   opBaseBedrock: {
-    hash: '0x9fe31be4a2325655dfbd4bb54d83e8b525cfd1a05a19865fcdac7c59a1dbc981',
+    hash: '0xb8da53479f442d4f4592d17855185eddd3b414a71a13b29f507524a05986ed04',
     fulfillTransaction:
-      '0x59036b6f3138471a0b617982319a99ebb5343dc9a43760b1c7a0738e51b1ef7d',
+      '0xbe0c059d4303863a225791808725ddb0c6f3b061cc4233beb1c632af561fdd24',
   },
   baseOpCannon: {
     settlementBlockTag: '0x13a303b', // 20590651n
@@ -53,9 +53,9 @@ const intent: any = {
       resolvedBlock: '0x13a3205', // 20591109n
       gameIndex: 1709,
     },
-    hash: '0xfc0b72b6365e7313594d08d4aadf8132b05e9a125318d1a76e7bbf411b3a8611',
+    hash: '0xe11e44c20010fb864574e5f85f9b86d611f952835a5c772aa6606f282e72fad7',
     fulfillTransaction:
-      '0xb07002c38aa8df7ff282c382057faecea8eaa40d11c6b5ac3b89f32a84c40adb',
+      '0xfc5e71a24a608e78c5035b112f6b58f0a922434fa5189474165910e125b09ca0',
   },
 }
 
@@ -72,9 +72,9 @@ const networks: any = {
   optimism: {
     network: 'optimism',
     chainId: networkIds.optimism,
-    proverContractAddress: '0x00E0DAad87eaC2AA746B0b4b8b75B95Ddf2a26A9',
-    intentSourceAddress: '0xbD5ADC6CF302CfBcF21488579D9b823CB3aAF45d',
-    inboxAddress: '0xdd5FD2C3ad80243caa7A06F1b3145CeBA3b81014',
+    proverContractAddress: '0xDb2CF52d39Cdd2116bc66711cFc43cB16ce17A2b',
+    intentSourceAddress: '0x755e48140807D290916F2a2777d0eCD905Ce5a73',
+    inboxAddress: '0x4fFf766A3E4A77584AaE21EaB8B2C2241619D983',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -95,9 +95,9 @@ const networks: any = {
   base: {
     network: 'base',
     chainId: networkIds.base,
-    proverContractAddress: '0x00E0DAad87eaC2AA746B0b4b8b75B95Ddf2a26A9',
-    intentSourceAddress: '0xbD5ADC6CF302CfBcF21488579D9b823CB3aAF45d',
-    inboxAddress: '0xdd5FD2C3ad80243caa7A06F1b3145CeBA3b81014',
+    proverContractAddress: '0x62fd344CE4E0e4c3d9C98D64390cA2739aF9021f',
+    intentSourceAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
+    inboxAddress: '0xc06CA8866586cF19bf22E102a3083673C4246629',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
