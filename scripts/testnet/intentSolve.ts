@@ -33,10 +33,11 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
         networkIds.ecoTestNet, // desination chainId
         networks.ecoTestNet.inboxAddress, // destination inbox address
         [networks.ecoTestNet.usdcAddress], // target Tokens
-        data, // call datat for destination chain
+        data, // calldata for destination chain
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
+        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -57,7 +58,16 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseSepoliaIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.baseSepoliaIntentSourceContractIntentCreator.interface.parseError(
+          e.data,
+        )
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
   try {
@@ -78,7 +88,7 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
     const fulfillTx = await s.ecoTestNetInboxContractSolver.fulfill(
       networkIds.baseSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
-      thisIntent.data.toArray(), // call Data
+      thisIntent.data.toArray(), // calldata
       thisIntent.expiryTime, // expiry time
       thisIntent.nonce, // nonce
       actors.claimant, // claimant
@@ -117,10 +127,11 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
         networkIds.baseSepolia, // desination chainId
         networks.baseSepolia.inboxAddress, // destination inbox address
         [networks.baseSepolia.usdcAddress], // target Tokens
-        data, // call datat for destination chain
+        data, // calldata for destination chain
         [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
+        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -139,7 +150,16 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.ecoTestNetIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.ecoTestNetIntentSourceContractIntentCreator.interface.parseError(
+          e.data,
+        )
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
   try {
@@ -160,7 +180,7 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
     const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfill(
       networkIds.ecoTestNet, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
-      thisIntent.data.toArray(), // call Data
+      thisIntent.data.toArray(), // calldata
       thisIntent.expiryTime, // expiry time
       thisIntent.nonce, // nonce
       actors.claimant, // claimant
@@ -199,10 +219,11 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
         networkIds.optimismSepolia, // desination chainId
         networks.optimismSepolia.inboxAddress, // destination inbox address
         [networks.optimismSepolia.usdcAddress], // target Tokens
-        data, // call datat for destination chain
+        data, // calldata for destination chain
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
+        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -223,7 +244,16 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseSepoliaIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.baseSepoliaIntentSourceContractIntentCreator.interface.parseError(
+          e.data,
+        )
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
   try {
@@ -244,7 +274,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
     const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfill(
       networkIds.baseSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
-      thisIntent.data.toArray(), // call Data
+      thisIntent.data.toArray(), // calldata
       thisIntent.expiryTime, // expiry time
       thisIntent.nonce, // nonce
       actors.claimant, // claimant
@@ -283,10 +313,11 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
         networkIds.baseSepolia, // desination chainId
         networks.baseSepolia.inboxAddress, // destination inbox address
         [networks.baseSepolia.usdcAddress], // target Tokens
-        data, // call datat for destination chain
+        data, // calldata for destination chain
         [networks.optimismSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
+        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -307,7 +338,16 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.optimismSepoliaIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.optimismSepoliaIntentSourceContractIntentCreator.interface.parseError(
+          e.data,
+        )
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
   try {
@@ -330,7 +370,7 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
     const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfill(
       networkIds.optimismSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
-      thisIntent.data.toArray(), // call Data
+      thisIntent.data.toArray(), // calldata
       thisIntent.expiryTime, // expiry time
       thisIntent.nonce, // nonce
       actors.claimant, // claimant
@@ -369,10 +409,11 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
         networkIds.ecoTestNet, // desination chainId
         networks.ecoTestNet.inboxAddress, // destination inbox address
         [networks.ecoTestNet.usdcAddress], // target Tokens
-        data, // call datat for destination chain
+        data, // calldata for destination chain
         [networks.optimismSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
+        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -393,7 +434,16 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.optimismSepoliaIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.optimismSepoliaIntentSourceContractIntentCreator.interface.parseError(
+          e.data,
+        )
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
   try {
@@ -416,7 +466,7 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
     const fulfillTx = await s.ecoTestNetInboxContractSolver.fulfill(
       networkIds.optimismSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
-      thisIntent.data.toArray(), // call Data
+      thisIntent.data.toArray(), // calldata
       thisIntent.expiryTime, // expiry time
       thisIntent.nonce, // nonce
       actors.claimant, // claimant
@@ -455,10 +505,11 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
         networkIds.optimismSepolia, // desination chainId
         networks.optimismSepolia.inboxAddress, // destination inbox address
         [networks.optimismSepolia.usdcAddress], // target Tokens
-        data, // call datat for destination chain
+        data, // calldata for destination chain
         [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
+        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -477,7 +528,16 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.ecoTestNetIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.ecoTestNetIntentSourceContractIntentCreator.interface.parseError(
+          e.data,
+        )
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
   try {
@@ -498,7 +558,7 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
     const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfill(
       networkIds.ecoTestNet, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
-      thisIntent.data.toArray(), // call Data
+      thisIntent.data.toArray(), // calldata
       thisIntent.expiryTime, // expiry time
       thisIntent.nonce, // nonce
       actors.claimant, // claimant

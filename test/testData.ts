@@ -17,11 +17,13 @@ const networkIds: any = {
   baseSepolia: 84532,
   ecoTestNet: 471923,
   arbitrumSepolia: 421614,
+  hardhat: 31337,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
   471923: 'ecoTestNet',
   421614: 'arbitrumSepolia',
+  31337: 'hardhat',
 }
 
 const actors: any = {
@@ -57,7 +59,7 @@ const networks: any = {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
     intentSourceAddress: '0xA52662AAef7370bf029d78eb9D9CdD66dc474F75',
-    proverContractAddress: '0x82cd1fBE5fF76045F2dEaD6907E80A0176e733d2', // implementation 0x3d00187B8B66d54A642e1efce811242886141202
+    proverContractAddress: '0x87898EbfaA6fCa5c4dFF901C27f5D702b697f64b', // implementation 0x3d00187B8B66d54A642e1efce811242886141202
     inboxAddress: '0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7',
     intentSource: {
       minimumDuration: 1000,
@@ -80,7 +82,7 @@ const networks: any = {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
     intentSourceAddress: '0x5C9346960AFa8F810529DFcd95394B1a3CEb10b6',
-    proverContractAddress: '0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf', // immplementation 0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72
+    proverContractAddress: '0xe25003c99Fd00E455F87D999Faa0825f87A27De6', // immplementation 0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72
     inboxAddress: '0x5ACc1a4b80a659F037498336C695D25f889ea33b',
     intentSource: {
       minimumDuration: 1000,
@@ -110,7 +112,7 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     intentSourceAddress: '0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8',
-    proverContractAddress: '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394', // implementation 0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4
+    proverContractAddress: '0x4eE5C3a97D61B5698E04601B75Cde8D152C4Cc2c', // implementation 0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4
     inboxAddress: '0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1',
     intentSource: {
       minimumDuration: 1000,
@@ -214,7 +216,8 @@ const bedrock: any = {
         // GameId id = LibGameId.pack(_gameType, Timestamp.wrap(uint64(block.timestamp)), address(proxy_));
         // LibGameId is here https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L82C1-L118C2
         gameId:
-          '0x000000000000000066ac4364e6585806c6864d6a3285cc72961eb1ed7e078e2e',
+          '0x000000000000000066ac4364e6585806c6864d6a3285cc72961eb1ed7e078e2e', // GameType 0 test
+        // '0x000000010000000066c09c234d664dd0f78673034b29e4a51177333d1131ac44', // GameType 1 test
         // '0x66997f68e611c3b8ec600691b9d16e54b433e03742e3b9d8',
         gameIdRLPEncoded:
           '0x9866ac4364e6585806c6864d6a3285cc72961eb1ed7e078e2e',

@@ -1,5 +1,5 @@
 import { encodeTransfer } from '../../utils/encode'
-import { BigNumberish, BytesLike, toQuantity } from 'ethers'
+import { BigNumberish, BytesLike, NonceManager, toQuantity } from 'ethers'
 import {
   networkIds,
   networks,
@@ -10,6 +10,9 @@ import { s } from '../../config/mainnet/setup'
 
 export async function optimismBaseIntentSolve() {
   console.log('In createIntent optimismBase')
+  const optimismIntentCreatorNonceManager = new NonceManager(
+    s.optimismIntentCreator,
+  )
   // approve lockup
   const rewardToken = s.optimismUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
@@ -17,6 +20,7 @@ export async function optimismBaseIntentSolve() {
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
+  optimismIntentCreatorNonceManager.increment()
 
   // get the block before creating the intent
   const latestBlock = await s.optimismProvider.getBlock('latest')
@@ -37,6 +41,7 @@ export async function optimismBaseIntentSolve() {
         [networks.optimism.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
+        networks.optimism.proverContractAddress, // prover contract address
       )
     await intentTx.wait()
 
@@ -55,9 +60,17 @@ export async function optimismBaseIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.baseIntentSourceContractIntentCreator.interface.parseError(e.data)
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
+  const baseSolverNonceManager = new NonceManager(s.baseSolver)
   try {
     // get intent Information
     const thisIntent =
@@ -70,6 +83,7 @@ export async function optimismBaseIntentSolve() {
       intent.targetAmounts[0],
     )
     await fundTx.wait()
+    baseSolverNonceManager.increment()
 
     // fulfill the intent
 
@@ -86,11 +100,20 @@ export async function optimismBaseIntentSolve() {
     console.log('Fulfillment tx: ', fulfillTx.hash)
     return fulfillTx.hash
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseInboxContractSolver) {
+      const decodedError = s.baseInboxContractSolver.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed in fulfillIntent : ${decodedError?.name}`)
+      console.log('fulfillIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in fulfillIntent:`, e)
+    }
   }
 }
 export async function baseOptimismIntentSolve() {
   console.log('In createIntent baseOptimism')
+  const baseIntentCreatorNonceManager = new NonceManager(s.baseIntentCreator)
   // approve lockup
   const rewardToken = s.baseUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
@@ -98,6 +121,7 @@ export async function baseOptimismIntentSolve() {
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
+  baseIntentCreatorNonceManager.increment()
 
   // get the block before creating the intent
   const latestBlock = await s.baseProvider.getBlock('latest')
@@ -117,6 +141,7 @@ export async function baseOptimismIntentSolve() {
       [networks.base.usdcAddress], // reward Tokens on source chain
       intent.rewardAmounts, // reward amounts on source chain
       expiryTime, // intent expiry time
+      networks.base.proverContractAddress, // prover contract address
     )
     await intentTx.wait()
 
@@ -135,9 +160,17 @@ export async function baseOptimismIntentSolve() {
     }
     console.log('Created Intent Hash: ', intentHash)
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseIntentSourceContractIntentCreator) {
+      const decodedError =
+        s.baseIntentSourceContractIntentCreator.interface.parseError(e.data)
+      console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
+      console.log('createIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in createIntent:`, e)
+    }
   }
   console.log('In fulfillIntent')
+  const optimismSolverNonceManager = new NonceManager(s.optimismSolver)
   try {
     // get intent Information
     const thisIntent =
@@ -150,7 +183,7 @@ export async function baseOptimismIntentSolve() {
       intent.targetAmounts[0],
     )
     await fundTx.wait()
-
+    optimismSolverNonceManager.increment()
     // fulfill the intent
 
     const fulfillTx = await s.optimismInboxContractSolver.fulfill(
@@ -166,7 +199,15 @@ export async function baseOptimismIntentSolve() {
     console.log('Fulfillment tx: ', fulfillTx.hash)
     return fulfillTx.hash
   } catch (e) {
-    console.log(e)
+    if (e.data && s.baseInboxContractSolver) {
+      const decodedError = s.baseInboxContractSolver.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed in fulfillIntent : ${decodedError?.name}`)
+      console.log('fulfillIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in fulfillIntent:`, e)
+    }
   }
 }
 
@@ -175,7 +216,7 @@ async function main() {
   try {
     console.log('In Main')
     await optimismBaseIntentSolve()
-    // await baseOptimismIntentSolve()
+    await baseOptimismIntentSolve()
   } catch (e) {
     console.log(e)
   }

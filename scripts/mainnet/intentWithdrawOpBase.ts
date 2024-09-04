@@ -29,6 +29,11 @@ async function getBaseRLPEncodedBlock(blockNumber) {
     false,
   ])
 
+  console.log('  toBeHex(block.number),', toBeHex(block.number))
+  console.log(
+    'stripZerosLeft(toBeHex(block.number)),',
+    stripZerosLeft(toBeHex(block.number)),
+  )
   const rlpEncodedBlockData = encodeRlp([
     block.parentHash,
     block.sha3Uncles,
@@ -38,7 +43,7 @@ async function getBaseRLPEncodedBlock(blockNumber) {
     block.receiptsRoot,
     block.logsBloom,
     stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
-    toBeHex(block.number),
+    stripZerosLeft(toBeHex(block.number)),
     toBeHex(block.gasLimit),
     toBeHex(block.gasUsed),
     block.timestamp,
@@ -92,7 +97,6 @@ async function proveSettlementLayerState() {
     ])
     tx = await s.optimismProverContract.proveSettlementLayerState(
       getBytes(hexlify(rlpEncodedBlockData)),
-      networkIds.mainnet,
     )
     await tx.wait()
     console.log('Prove Settlement state tx: ', tx.hash)
@@ -116,11 +120,11 @@ async function proveSettlementLayerState() {
 }
 
 async function proveWorldStateBedrock(
-  settlementBlockTag,
   intentFulfillTransaction,
+  settlementBlockTag,
   settlementStateRoot,
 ) {
-  console.log('In proveL2WorldState')
+  console.log('In proveWorldStateBedrock')
   // Get the L1 Batch Number for the transaction we are proving
   const txDetails = await s.baseProvider.getTransaction(
     intentFulfillTransaction,
@@ -198,7 +202,6 @@ async function proveWorldStateBedrock(
     await proveOutputTX.wait()
     console.log('Prove L2 World State tx: ', proveOutputTX.hash)
     return {
-      l1BatchIndex,
       endBatchBlockData,
     }
   } catch (e) {
@@ -215,11 +218,11 @@ async function proveWorldStateBedrock(
   }
 }
 
-async function proveIntent(intentHash, l1BatchIndex, endBatchBlockData) {
+async function proveIntent(intentHash, endBatchBlockData) {
   console.log('In proveIntent')
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
-    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 0])],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
   const intentInboxProof = await s.baseProvider.send('eth_getProof', [
     networks.base.inboxAddress,
@@ -230,7 +233,6 @@ async function proveIntent(intentHash, l1BatchIndex, endBatchBlockData) {
   const intentInfo =
     await s.optimismIntentSourceContractClaimant.getIntent(intentHash)
 
-  console.log(networkIds.ecoTestNet)
   const abiCoder = AbiCoder.defaultAbiCoder()
   const intermediateHash = keccak256(
     abiCoder.encode(
@@ -304,18 +306,18 @@ async function main() {
   let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
-    intentHash = intent.hash
-    intentFulfillTransaction = intent.fulfillTransaction
+    intentHash = intent.opBaseBedrock.hash
+    intentFulfillTransaction = intent.opBaseBedrock.fulfillTransaction
     console.log('intentHash: ', intentHash)
     console.log('intentFulfillTransaction: ', intentFulfillTransaction)
     const { settlementBlockTag, settlementStateRoot } =
       await proveSettlementLayerState()
-    const { l1BatchIndex, endBatchBlockData } = await proveWorldStateBedrock(
-      settlementBlockTag,
+    const { endBatchBlockData } = await proveWorldStateBedrock(
       intentFulfillTransaction,
+      settlementBlockTag,
       settlementStateRoot,
     )
-    await proveIntent(intentHash, l1BatchIndex, endBatchBlockData)
+    await proveIntent(intentHash, endBatchBlockData)
     await withdrawReward(intentHash)
   } catch (e) {
     console.log(e)

@@ -74,17 +74,17 @@ const networks: any = {
     chainId: networkIds.sepolia,
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
       optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
+      baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
       // arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia Rollup Admin Contract
     },
   },
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
-    intentSourceAddress: '0xA52662AAef7370bf029d78eb9D9CdD66dc474F75',
-    proverContractAddress: '0x82cd1fBE5fF76045F2dEaD6907E80A0176e733d2', // implementation 0x3d00187B8B66d54A642e1efce811242886141202
-    inboxAddress: '0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7',
+    proverContractAddress: '0x2427852f965ec94aB49F2eC4a2C8Fa7dea22d58b',
+    intentSourceAddress: '0x9Cd45DF0422e2dEE7D3D9D1bDF99F68072203d38',
+    inboxAddress: '0x7E9a496319C0C2CA09382D876e2226bED38D792F',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -111,9 +111,9 @@ const networks: any = {
   baseSepolia: {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
-    intentSourceAddress: '0x5C9346960AFa8F810529DFcd95394B1a3CEb10b6',
-    proverContractAddress: '0x653c1bB2960971Abb626Ebd12FF4591d8157EFAf', // immplementation 0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72
-    inboxAddress: '0x5ACc1a4b80a659F037498336C695D25f889ea33b',
+    proverContractAddress: '0x9262b3C1907917Cf6341AA8d993CaFCDD2c09491',
+    intentSourceAddress: '0x102071ad4D7aa2bb2D08a096955A213A46D95A68',
+    inboxAddress: '0xf713A0B30feC4A01212Ca72354bBB4869eE51464',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -149,9 +149,9 @@ const networks: any = {
     chainId: networkIds.ecoTestNet,
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
-    intentSourceAddress: '0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8',
-    proverContractAddress: '0x3AAc4C74E2Dd6446370Cc9850ae15e78624f5394', // implementation 0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4
-    inboxAddress: '0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1',
+    proverContractAddress: '0xC5Dd68f473854C4D305dDe12C74eDFC92eBfbFdF',
+    intentSourceAddress: '0x9356EE52c1ED51bFA8b5340768938ECc61a40795',
+    inboxAddress: '0xCA63cd958281afcB89b552935cf358eDafeA1c3A',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
