@@ -48,6 +48,7 @@ contract Inbox is Ownable, IInbox {
     }
 
 
+    // hyperprover
     function fulfill(
         uint256 _sourceChainID,
         address[] calldata _targets,
@@ -69,7 +70,8 @@ contract Inbox is Ownable, IInbox {
         return results;
     }
 
-    fulfill(
+    // bedrock and cannon
+    function fulfill(
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,

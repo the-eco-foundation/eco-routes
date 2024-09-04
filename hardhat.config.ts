@@ -14,6 +14,15 @@ const L3_DEPLOYER_PK = process.env.L3_DEPLOYER_PK || '0x' + '11'.repeat(32)
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
+      //   {
+      //     version: '0.8.15',
+      //     settings: {
+      //       viaIR: true,
+      //       optimizer: {
+      //         enabled: true,
+      //       },
+      //     },
+      //   },
       {
         version: '0.8.26',
         settings: {
