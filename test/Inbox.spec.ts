@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
-import { TestERC20, Inbox } from '../typechain-types'
+import { TestERC20, Inbox, TestMailbox } from '../typechain-types'
 import {
   time,
   loadFixture,
@@ -12,6 +12,7 @@ import { keccak256 } from 'ethers'
 
 describe('Inbox Test', (): void => {
   let inbox: Inbox
+  let mailbox: TestMailbox
   let erc20: TestERC20
   let owner: SignerWithAddress
   let solver: SignerWithAddress
@@ -27,16 +28,23 @@ describe('Inbox Test', (): void => {
 
   async function deployInboxFixture(): Promise<{
     inbox: Inbox
+    mailbox: TestMailbox
     erc20: TestERC20
     owner: SignerWithAddress
     solver: SignerWithAddress
     dstAddr: SignerWithAddress
   }> {
+    const mailbox = await (
+      await ethers.getContractFactory('TestMailbox')
+    ).deploy()
     const [owner, solver, dstAddr] = await ethers.getSigners()
     const inboxFactory = await ethers.getContractFactory('Inbox')
-    const inbox = await inboxFactory.deploy(owner.address, false, [
-      solver.address,
-    ])
+    const inbox = await inboxFactory.deploy(
+      owner.address,
+      false,
+      [solver.address],
+      await mailbox.getAddress(),
+    )
 
     // deploy ERC20 test
     const erc20Factory = await ethers.getContractFactory('TestERC20')
@@ -45,6 +53,7 @@ describe('Inbox Test', (): void => {
 
     return {
       inbox,
+      mailbox,
       erc20,
       owner,
       solver,
@@ -57,7 +66,7 @@ describe('Inbox Test', (): void => {
   }
 
   beforeEach(async (): Promise<void> => {
-    ;({ inbox, erc20, owner, solver, dstAddr } =
+    ;({ inbox, mailbox, erc20, owner, solver, dstAddr } =
       await loadFixture(deployInboxFixture))
 
     // fund the solver
@@ -176,7 +185,12 @@ describe('Inbox Test', (): void => {
     it('should revert via InvalidHash if all intent data was input correctly, but the intent used a different inbox on creation', async () => {
       const anotherInbox = await (
         await ethers.getContractFactory('Inbox')
-      ).deploy(owner.address, false, [owner.address])
+      ).deploy(
+        owner.address,
+        false,
+        [owner.address],
+        await mailbox.getAddress(),
+      )
       const abiCoder = ethers.AbiCoder.defaultAbiCoder()
       const intermediateHash = keccak256(
         abiCoder.encode(
