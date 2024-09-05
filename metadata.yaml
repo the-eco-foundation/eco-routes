@@ -5,9 +5,9 @@ blockExplorers:
     name: ECO Testnet explorer
     url: https://eco-testnet.explorer.caldera.xyz/
 blocks:
-  confirmations: 
+  confirmations:
   estimateBlockTime: 1
-  reorgPeriod: 
+  reorgPeriod:
 chainId: 471923
 deployer:
   name: Eco Protocol

@@ -27,7 +27,7 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     // local mailbox address
     address immutable MAILBOX;
 
-    function handle(uint32 _origin, bytes32 _sender, bytes calldata _messageBody) {
+    function handle(uint32 _origin, bytes32 _sender, bytes calldata _messageBody) public {
 
         if(MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);

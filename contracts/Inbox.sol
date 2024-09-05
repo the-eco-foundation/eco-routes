@@ -47,7 +47,21 @@ contract Inbox is Ownable, IInbox {
         MAILBOX = _mailbox;
     }
 
+    function fulfill(
+        uint256 _sourceChainID,
+        address[] calldata _targets,
+        bytes[] calldata _data,
+        uint256 _expiryTime,
+        bytes32 _nonce,
+        address _claimant,
+        bytes32 _expectedHash,
+    ) external override returns (bytes[] memory) {
+        emit Fulfillment(intentHash, _sourceChainID, _claimant);
 
+        return _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+    }
+    
+    // hyperprover fast path
     function fulfill(
         uint256 _sourceChainID,
         address[] calldata _targets,
@@ -59,7 +73,8 @@ contract Inbox is Ownable, IInbox {
         address _prover
     ) external validated(_expiryTime, msg.sender) returns (bytes[] memory) {
         bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
-        
+
+        emit FastFulfillment(intentHash, _sourceChainID, _claimant);
         IMailbox(mailbox).dispatch(
             _sourceChainID,
             _prover,
@@ -67,18 +82,6 @@ contract Inbox is Ownable, IInbox {
             );
         
         return results;
-    }
-
-    fulfill(
-        uint256 _sourceChainID,
-        address[] calldata _targets,
-        bytes[] calldata _data,
-        uint256 _expiryTime,
-        bytes32 _nonce,
-        address _claimant,
-        bytes32 _expectedHash,
-    ) external override returns (bytes[] memory) {
-        return _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
     }
 
     // allows the owner to make solving public
@@ -142,9 +145,6 @@ contract Inbox is Ownable, IInbox {
 
         // Mark the intent as fulfilled
         fulfilled[intentHash] = _claimant;
-
-        // Emit an event
-        emit Fulfillment(intentHash, _sourceChainID, _claimant);
 
         return results;
     }

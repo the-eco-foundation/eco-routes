@@ -25,8 +25,11 @@ interface IInbox {
         bytes32 _expectedHash
     ) external returns (bytes[] memory);
 
-    // Event emitted when an intent is succesfully fulfilled
+    // Event emitted when an intent is succesfully fulfilled with a non-hyperprover prover
     event Fulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
+
+    // Event emitted when an intent is successfully fulfilled with a hyperprover
+    event FastFulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
     // Event emitted when solving is made public
     event SolvingIsPublic();
@@ -35,7 +38,7 @@ interface IInbox {
     event SolverWhitelistChanged(address indexed _solver, bool indexed _canSolve);
 
     // Event emitted when the prover address of a chain is set
-    event proverSet(uint256 indexed _chainID, address indexed _prover);
+    event ProverSet(uint256 indexed _chainID, address indexed _prover);
 
     // Event emitted when solving intents is not public and a non-whitelisted address made a solve attempt
     error UnauthorizedSolveAttempt(address _solver);
