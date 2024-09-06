@@ -112,13 +112,6 @@ contract ProverL3 is SimpleProver, Ownable {
      * @param _L2WorldStateRoot the world state root at _blockNumber
      */
     event L2WorldStateProven(uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot);
-    
-    /**
-     * @notice emitted when an intent intent has been successfully proven
-     * @param _hash  the hash of the intent
-     * @param _claimant the address that can claim this intent's rewards
-     */
-    event IntentProven(bytes32 indexed _hash, address indexed _claimant);
 
     /**
      * @notice emitted on a proving state if the blockNumber is less than the current blockNumber

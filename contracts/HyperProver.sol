@@ -2,10 +2,13 @@
 pragma solidity ^0.8.26;
 
 import '@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol';
+import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import './interfaces/SimpleProver.sol';
 
 
 contract HyperProver is IMessageRecipient, SimpleProver {
+
+    using TypeCasts for bytes32;
 
     /**
      * emitted on an unauthorized call to the handle() method
@@ -26,19 +29,20 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     // local mailbox address
     address immutable MAILBOX;
 
-    function handle(uint32 _origin, bytes32 _sender, bytes calldata _messageBody) public {
+    function handle(uint32 _origin, bytes32 _sender, bytes calldata _messageBody) public payable{
 
         if(MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);
         }
-
         // message body is exactly what was sent into the mailbox on the inbox' chain
         // encode(intentHash, claimant)
-        if (INBOX != _sender) {
-            revert UnauthorizedDispatch(_sender);
+        address sender = _sender.bytes32ToAddress();
+        
+        if (INBOX != sender) {
+            revert UnauthorizedDispatch(sender);
         }
         (bytes32 intentHash, address claimant) = abi.decode(_messageBody, (bytes32, address));
-        provenIntents[intentsHash] = claimant;
+        provenIntents[intentHash] = claimant;
         emit IntentProven(intentHash, claimant);
     }
 }
