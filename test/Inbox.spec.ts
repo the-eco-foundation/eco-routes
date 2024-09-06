@@ -285,7 +285,7 @@ describe('Inbox Test', (): void => {
       ).to.not.be.reverted
     })
 
-    it('should succeed', async () => {
+    it('should succeed with non-hyper proving', async () => {
       expect(await inbox.fulfilled(intentHash)).to.equal(ethers.ZeroAddress)
       expect(await erc20.balanceOf(solver.address)).to.equal(mintAmount)
       expect(await erc20.balanceOf(dstAddr.address)).to.equal(0)
@@ -351,6 +351,34 @@ describe('Inbox Test', (): void => {
             intentHash,
           ),
       ).to.be.revertedWithCustomError(inbox, 'IntentAlreadyFulfilled')
+    })
+
+    it('should work with hyperproving', async () => {
+      const dummyHyperProver = await (
+        await ethers.getContractFactory('TestProver')
+      ).deploy()
+
+      expect(await mailbox.dispatched()).to.be.false
+
+      await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
+
+      await expect(
+        inbox.connect(solver).fulfill(
+          sourceChainID,
+          [erc20Address],
+          [calldata],
+          timeStamp,
+          nonce,
+          dstAddr.address,
+          intentHash,
+          await dummyHyperProver.getAddress(),
+          {}, // this is just a way to get around ethers' funky overloading
+        ),
+      )
+        .to.emit(inbox, 'FastFulfillment')
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
+
+      expect(await mailbox.dispatched()).to.be.true
     })
   })
 })

@@ -52,7 +52,7 @@ contract Inbox is Ownable, IInbox {
         bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash
-    ) external override returns (bytes[] memory) {
+    ) external returns (bytes[] memory) {
 
         bytes[] memory result = _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
 
@@ -63,7 +63,7 @@ contract Inbox is Ownable, IInbox {
     
     // hyperprover fast path
     function fulfill(
-        uint32 _sourceChainID,
+        uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
         uint256 _expiryTime,
@@ -71,12 +71,12 @@ contract Inbox is Ownable, IInbox {
         address _claimant,
         bytes32 _expectedHash,
         address _prover
-    ) external validated(_expiryTime, msg.sender) returns (bytes[] memory) {
+    ) external returns (bytes[] memory) {
         bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
 
         emit FastFulfillment(_expectedHash, _sourceChainID, _claimant);
         IMailbox(MAILBOX).dispatch(
-            _sourceChainID,
+            uint32(_sourceChainID),
             bytes32(bytes20(_prover)),
             abi.encode(_expectedHash, _claimant)
             );
