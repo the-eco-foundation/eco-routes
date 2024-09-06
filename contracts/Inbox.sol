@@ -3,6 +3,7 @@ pragma solidity ^0.8.26;
 
 import "./interfaces/IInbox.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
+import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -12,6 +13,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
 contract Inbox is Ownable, IInbox {
+
+    using TypeCasts for address;
 
     address public immutable MAILBOX;
 
@@ -77,7 +80,7 @@ contract Inbox is Ownable, IInbox {
         emit FastFulfillment(_expectedHash, _sourceChainID, _claimant);
         IMailbox(MAILBOX).dispatch(
             uint32(_sourceChainID),
-            bytes32(bytes20(_prover)),
+            _prover.addressToBytes32(),
             abi.encode(_expectedHash, _claimant)
             );
         
