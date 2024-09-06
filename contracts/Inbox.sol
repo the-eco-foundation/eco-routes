@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * It validates that the hash is the hash of the other parameters, and then executes the calldata.
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
-contract Inbox is Ownable, IInbox {
+contract Inbox is IInbox, Ownable {
 
     using TypeCasts for address;
 
