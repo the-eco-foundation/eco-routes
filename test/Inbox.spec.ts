@@ -378,6 +378,17 @@ describe('Inbox Test', (): void => {
         .to.emit(inbox, 'FastFulfillment')
         .withArgs(intentHash, sourceChainID, dstAddr.address)
 
+      expect(await mailbox.destinationDomain()).to.eq(sourceChainID)
+      expect(await mailbox.recipientAddress()).to.eq(
+        ethers.zeroPadValue(await dummyHyperProver.getAddress(), 32),
+      )
+      expect(await mailbox.messageBody()).to.eq(
+        ethers.AbiCoder.defaultAbiCoder().encode(
+          ['bytes32', 'address'],
+          [intentHash, dstAddr.address],
+        ),
+      )
+
       expect(await mailbox.dispatched()).to.be.true
     })
   })
