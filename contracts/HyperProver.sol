@@ -21,13 +21,18 @@ contract HyperProver is IMessageRecipient, SimpleProver {
      * @param _sender the address that called the dispatch() method
      */
     error UnauthorizedDispatch(address _sender);
+        
+    // local mailbox address
+    address immutable MAILBOX;
     
     // address of the Inbox contract
     // assumes that all Inboxes are deployed via ERC-2470 and hence have the same address
     address immutable INBOX;
 
-    // local mailbox address
-    address immutable MAILBOX;
+    constructor(address _mailbox, address _inbox) {
+        MAILBOX = _mailbox;
+        INBOX = _inbox;
+    }
 
     function handle(uint32 _origin, bytes32 _sender, bytes calldata _messageBody) public payable{
 
@@ -37,7 +42,7 @@ contract HyperProver is IMessageRecipient, SimpleProver {
         // message body is exactly what was sent into the mailbox on the inbox' chain
         // encode(intentHash, claimant)
         address sender = _sender.bytes32ToAddress();
-        
+
         if (INBOX != sender) {
             revert UnauthorizedDispatch(sender);
         }

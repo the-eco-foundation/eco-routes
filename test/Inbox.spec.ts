@@ -244,6 +244,41 @@ describe('Inbox Test', (): void => {
           ),
       ).to.be.revertedWithCustomError(inbox, 'IntentCallFailed')
     })
+    it('should revert if one of the targets is the mailbox', async () => {
+      const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+      const intermediateHash = keccak256(
+        abiCoder.encode(
+          ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [
+            sourceChainID,
+            (await owner.provider.getNetwork()).chainId,
+            [await mailbox.getAddress()],
+            [calldata],
+            timeStamp,
+            nonce,
+          ],
+        ),
+      )
+      const newHash = keccak256(
+        abiCoder.encode(
+          ['address', 'bytes32'],
+          [await inbox.getAddress(), intermediateHash],
+        ),
+      )
+      await expect(
+        inbox
+          .connect(solver)
+          .fulfill(
+            sourceChainID,
+            [await mailbox.getAddress()],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            newHash,
+          ),
+      ).to.be.revertedWithCustomError(inbox, 'CallToMailbox')
+    })
     it('should not revert when called by a whitelisted solver', async () => {
       expect(await inbox.solverWhitelist(solver)).to.be.true
 
