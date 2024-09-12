@@ -45,12 +45,19 @@ contract Prover is SimpleProver {
         HyperProver
     }
 
+    enum SettlementState {
+        Confirmed,
+        Posted,
+        Finalized
+    }
+
     struct ChainConfiguration {
         uint8 provingMechanism;
         uint256 settlementChainId;
         address settlementContract;
         address blockhashOracle;
         uint256 outputRootVersionNumber;
+        uint256 finalityDelaySeconds; // The minimum age of the L1 block used for the proof
     }
 
     struct ChainConfigurationConstructor {
@@ -62,9 +69,11 @@ contract Prover is SimpleProver {
     mapping(uint256 => ChainConfiguration) public chainConfigurations;
 
     struct BlockProof {
+        uint8 settlementState;
         uint256 blockNumber;
         bytes32 blockHash;
         bytes32 stateRoot;
+        uint256 blockTimestamp;
     }
 
     // Store the last BlockProof for each ChainId
@@ -110,8 +119,10 @@ contract Prover is SimpleProver {
      * @param _blockNumber the blocknumber corresponding to the world state
      * @param _L2WorldStateRoot the world state root at _blockNumber
      */
-    event L2WorldStateProven(uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot);
-    
+    event L2WorldStateProven(
+        uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot
+    );
+
     /**
      * @notice emitted when an intent intent has been successfully proven
      * @param _hash  the hash of the intent
