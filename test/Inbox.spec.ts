@@ -36,7 +36,7 @@ describe('Inbox Test', (): void => {
   }> {
     const mailbox = await (
       await ethers.getContractFactory('TestMailbox')
-    ).deploy()
+    ).deploy(ethers.ZeroAddress)
     const [owner, solver, dstAddr] = await ethers.getSigners()
     const inboxFactory = await ethers.getContractFactory('Inbox')
     const inbox = await inboxFactory.deploy(
@@ -116,7 +116,7 @@ describe('Inbox Test', (): void => {
       await inbox.connect(owner).makeSolvingPublic()
       expect(await inbox.isSolvingPublic()).to.be.true
     })
-    it('ets owner change the solver whitelist', async () => {
+    it('lets owner change the solver whitelist', async () => {
       expect(await inbox.solverWhitelist(solver)).to.be.true
       expect(await inbox.solverWhitelist(owner)).to.be.false
       await inbox.connect(owner).changeSolverWhitelist(solver.address, false)
