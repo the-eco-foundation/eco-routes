@@ -14,6 +14,7 @@ describe('Intent Source Test', (): void => {
   let tokenA: TestERC20
   let tokenB: TestERC20
   let creator: SignerWithAddress
+  let solver: SignerWithAddress
   let claimant: SignerWithAddress
   let otherPerson: SignerWithAddress
   const mintAmount: number = 1000
@@ -34,10 +35,12 @@ describe('Intent Source Test', (): void => {
     tokenA: TestERC20
     tokenB: TestERC20
     creator: SignerWithAddress
+    solver: SignerWithAddress
     claimant: SignerWithAddress
     otherPerson: SignerWithAddress
   }> {
-    const [creator, owner, claimant, otherPerson] = await ethers.getSigners()
+    const [creator, solver, owner, claimant, otherPerson] =
+      await ethers.getSigners()
     // deploy prover
     prover = await (await ethers.getContractFactory('TestProver')).deploy()
 
@@ -61,6 +64,7 @@ describe('Intent Source Test', (): void => {
       tokenA,
       tokenB,
       creator,
+      solver,
       claimant,
       otherPerson,
     }
@@ -75,8 +79,16 @@ describe('Intent Source Test', (): void => {
   }
 
   beforeEach(async (): Promise<void> => {
-    ;({ intentSource, prover, tokenA, tokenB, creator, claimant, otherPerson } =
-      await loadFixture(deploySourceFixture))
+    ;({
+      intentSource,
+      prover,
+      tokenA,
+      tokenB,
+      creator,
+      solver,
+      claimant,
+      otherPerson,
+    } = await loadFixture(deploySourceFixture))
 
     // fund the creator and approve it to create an intent
     await mintAndApprove()
