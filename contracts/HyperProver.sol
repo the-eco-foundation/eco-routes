@@ -35,7 +35,6 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     }
 
     function handle(uint32 _origin, bytes32 _sender, bytes calldata _messageBody) public payable{
-
         if(MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);
         }

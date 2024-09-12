@@ -5,10 +5,11 @@ import "@hyperlane-xyz/core/contracts/libs/Message.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 
+
 contract TestMailbox {
 
-    using Message for bytes;
     using TypeCasts for bytes32;
+    using TypeCasts for address;
 
     address public processor;
 
@@ -35,12 +36,12 @@ contract TestMailbox {
         dispatched = true;
 
         if (processor != address(0)) {
-            TestMailbox(processor).process(_messageBody);
+            process(_messageBody);
         }
         return(0);
     }
 
     function process(bytes calldata _msg) public {
-        IMessageRecipient((_msg.recipient()).bytes32ToAddress()).handle(_msg.origin(), _msg.sender(), _msg.body());
+        IMessageRecipient(recipientAddress.bytes32ToAddress()).handle(uint32(block.chainid), msg.sender.addressToBytes32(), _msg);
     }
 }
