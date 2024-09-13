@@ -7,7 +7,6 @@ import './interfaces/SimpleProver.sol';
 
 
 contract HyperProver is IMessageRecipient, SimpleProver {
-
     using TypeCasts for bytes32;
 
     /**
@@ -29,12 +28,23 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     // assumes that all Inboxes are deployed via ERC-2470 and hence have the same address
     address immutable INBOX;
 
+    /**
+     * @notice constructor
+     * @param _mailbox the address of the local mailbox
+     * @param _inbox the address of the Inbox contract
+     */
     constructor(address _mailbox, address _inbox) {
         MAILBOX = _mailbox;
         INBOX = _inbox;
     }
 
-    function handle(uint32 _origin, bytes32 _sender, bytes calldata _messageBody) public payable{
+    /**
+     * @notice implementation of the handle method required by IMessageRecipient
+     * @dev the uint32 value is not used in this implementation, but it is required by the interface. It is the chain ID of the intent's origin chain.
+     * @param _sender the address that called the dispatch() method
+     * @param _messageBody the message body
+     */
+    function handle(uint32, bytes32 _sender, bytes calldata _messageBody) public payable{
         if(MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);
         }
