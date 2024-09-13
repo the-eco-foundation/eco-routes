@@ -45,7 +45,7 @@ describe('Intent Source Test', (): void => {
     const intentSource = await intentSourceFactory.deploy(minimumDuration, 0)
     const mailbox = await (
       await ethers.getContractFactory('TestMailbox')
-    ).deploy()
+    ).deploy(ethers.ZeroAddress)
     inbox = await (
       await ethers.getContractFactory('Inbox')
     ).deploy(owner.address, false, [owner.address], await mailbox.getAddress())
