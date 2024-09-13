@@ -37,7 +37,7 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
+        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -131,7 +131,7 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
         [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -223,7 +223,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -317,7 +317,7 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
         [networks.optimismSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -413,7 +413,7 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
         [networks.optimismSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
+        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -509,7 +509,7 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
         [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
