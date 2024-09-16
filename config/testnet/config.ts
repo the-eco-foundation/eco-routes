@@ -83,7 +83,8 @@ const networks: any = {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
     proverContractAddress: '0x2427852f965ec94aB49F2eC4a2C8Fa7dea22d58b',
-    intentSourceAddress: '0x9Cd45DF0422e2dEE7D3D9D1bDF99F68072203d38',
+    proverContractDeploymentBlock: '0x1004705',
+    intentSourceAddress: '0x9Cd45DF022e2dEE7D3D9D1bDF99F68072203d38',
     inboxAddress: '0x7E9a496319C0C2CA09382D876e2226bED38D792F',
     intentSource: {
       minimumDuration: 1000,
