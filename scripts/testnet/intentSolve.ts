@@ -37,11 +37,10 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
+        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
-    console.log('Intent Creation tx: ', intentTx.hash)
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
       await s.baseSepoliaIntentSourceContractIntentCreator.queryFilter(
@@ -57,6 +56,7 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
       }
     }
     console.log('Created Intent Hash: ', intentHash)
+    console.log('Intent Creation tx: ', intentTx.hash)
   } catch (e) {
     if (e.data && s.baseSepoliaIntentSourceContractIntentCreator) {
       const decodedError =
@@ -69,7 +69,7 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
       console.log(`Error in createIntent:`, e)
     }
   }
-  console.log('In fulfillIntent')
+  // console.log('In fulfillIntent')
   try {
     // get intent Information
     const thisIntent =
@@ -131,11 +131,10 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
         [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
-    console.log('Intent Creation tx: ', intentTx.hash)
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
       await s.ecoTestNetIntentSourceContractIntentCreator.queryFilter(
@@ -149,6 +148,7 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
       }
     }
     console.log('Created Intent Hash: ', intentHash)
+    console.log('Intent Creation tx: ', intentTx.hash)
   } catch (e) {
     if (e.data && s.ecoTestNetIntentSourceContractIntentCreator) {
       const decodedError =
@@ -161,7 +161,7 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
       console.log(`Error in createIntent:`, e)
     }
   }
-  console.log('In fulfillIntent')
+  // console.log('In fulfillIntent')
   try {
     // get intent Information
     const thisIntent =
@@ -223,11 +223,10 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
-    console.log('Intent Creation tx: ', intentTx.hash)
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
       await s.baseSepoliaIntentSourceContractIntentCreator.queryFilter(
@@ -243,6 +242,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
       }
     }
     console.log('Created Intent Hash: ', intentHash)
+    console.log('Intent Creation tx: ', intentTx.hash)
   } catch (e) {
     if (e.data && s.baseSepoliaIntentSourceContractIntentCreator) {
       const decodedError =
@@ -255,7 +255,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
       console.log(`Error in createIntent:`, e)
     }
   }
-  console.log('In fulfillIntent')
+  // console.log('In fulfillIntent')
   try {
     // get intent Information
     const thisIntent =
@@ -317,11 +317,10 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
         [networks.optimismSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
-    console.log('Intent Creation tx: ', intentTx.hash)
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
       await s.optimismSepoliaIntentSourceContractIntentCreator.queryFilter(
@@ -337,6 +336,7 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
       }
     }
     console.log('Created Intent Hash: ', intentHash)
+    console.log('Intent Creation tx: ', intentTx.hash)
   } catch (e) {
     if (e.data && s.optimismSepoliaIntentSourceContractIntentCreator) {
       const decodedError =
@@ -349,7 +349,7 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
       console.log(`Error in createIntent:`, e)
     }
   }
-  console.log('In fulfillIntent')
+  // console.log('In fulfillIntent')
   try {
     // get intent Information
     const thisIntent =
@@ -413,11 +413,10 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
         [networks.optimismSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
+        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
-    console.log('Intent Creation tx: ', intentTx.hash)
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
       await s.optimismSepoliaIntentSourceContractIntentCreator.queryFilter(
@@ -433,6 +432,7 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
       }
     }
     console.log('Created Intent Hash: ', intentHash)
+    console.log('Intent Creation tx: ', intentTx.hash)
   } catch (e) {
     if (e.data && s.optimismSepoliaIntentSourceContractIntentCreator) {
       const decodedError =
@@ -445,7 +445,7 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
       console.log(`Error in createIntent:`, e)
     }
   }
-  console.log('In fulfillIntent')
+  // console.log('In fulfillIntent')
   try {
     // get intent Information
     const thisIntent =
@@ -509,11 +509,10 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
         [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
-    console.log('Intent Creation tx: ', intentTx.hash)
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
       await s.ecoTestNetIntentSourceContractIntentCreator.queryFilter(
@@ -527,6 +526,7 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
       }
     }
     console.log('Created Intent Hash: ', intentHash)
+    console.log('Intent Creation tx: ', intentTx.hash)
   } catch (e) {
     if (e.data && s.ecoTestNetIntentSourceContractIntentCreator) {
       const decodedError =
@@ -539,7 +539,7 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
       console.log(`Error in createIntent:`, e)
     }
   }
-  console.log('In fulfillIntent')
+  // console.log('In fulfillIntent')
   try {
     // get intent Information
     const thisIntent =
