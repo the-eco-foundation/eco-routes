@@ -27,6 +27,7 @@ import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge
 type SourceChainInfo = {
   sourceChain: number
   lastProvenBlock: BigInt
+  needNewProvenState: boolean
 }
 type SourceChains = SourceChainInfo[]
 
@@ -131,9 +132,11 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
         sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
         scanAllIntentsForInbox = true
       }
+      sourceChainInfo.needNewProvenState = false
       sourceChains.push(sourceChainInfo)
     } catch (e) {
       sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
+      sourceChainInfo.needNewProvenState = false
       sourceChains.push(sourceChainInfo)
       scanAllIntentsForInbox = true
       startingBlockNumber = inboxDeploymentBlock
@@ -166,6 +169,7 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
     // TODO: Filter out intents that have already been proven
     // Note this can use the proventStates from the Prover Contract
     // but also need to cater for the case where the proven World state is updated but the intents not proven
+    // also mark needProvenState as true for the chains which have new intents to prove
 
     intentsToProve.push(intentToProve)
   }
