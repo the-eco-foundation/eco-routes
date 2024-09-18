@@ -117,22 +117,22 @@ export namespace s {
 
   // ECO PROTOCOL Contracts
   export const optimismSepoliaIntentSourceContractIntentCreator = new Contract(
-    networks.optimismSepolia.intentSourceAddress,
+    networks.optimismSepolia.intentSource.address,
     IntentSource__factory.abi,
     optimismSepoliaIntentCreator,
   )
   export const optimismSepoliaIntentSourceContractClaimant = new Contract(
-    networks.optimismSepolia.intentSourceAddress,
+    networks.optimismSepolia.intentSource.address,
     IntentSource__factory.abi,
     optimismSepoliaClaimant,
   )
   export const optimismSepoliaProverContract = new Contract(
-    networks.optimismSepolia.proverContractAddress,
+    networks.optimismSepolia.proverContract.address,
     Prover__factory.abi,
     optimismSepoliaIntentProver,
   )
   export const optimismSepoliaInboxContractSolver = new Contract(
-    networks.optimismSepolia.inboxAddress,
+    networks.optimismSepolia.inbox.address,
     Inbox__factory.abi,
     optimismSepoliaSolver,
   )
@@ -193,23 +193,23 @@ export namespace s {
   )
   // ECO PROTOCOL Contracts
   export const baseSepoliaIntentSourceContractIntentCreator = new Contract(
-    networks.baseSepolia.intentSourceAddress,
+    networks.baseSepolia.intentSource.address,
     IntentSource__factory.abi,
     baseSepoliaIntentCreator,
   )
   export const baseSepoliaIntentSourceContractClaimant = new Contract(
-    networks.baseSepolia.intentSourceAddress,
+    networks.baseSepolia.intentSource.address,
     IntentSource__factory.abi,
     baseSepoliaClaimant,
   )
 
   export const baseSepoliaProverContract = new Contract(
-    networks.baseSepolia.proverContractAddress,
+    networks.baseSepolia.proverContract.address,
     Prover__factory.abi,
     baseSepoliaIntentProver,
   )
   export const baseSepoliaInboxContractSolver = new Contract(
-    networks.baseSepolia.inboxAddress,
+    networks.baseSepolia.inbox.address,
     Inbox__factory.abi,
     baseSepoliaSolver,
   )
@@ -266,23 +266,23 @@ export namespace s {
   )
   // ECO PROTOCOL Contracts
   export const ecoTestNetIntentSourceContractIntentCreator = new Contract(
-    networks.ecoTestNet.intentSourceAddress,
+    networks.ecoTestNet.intentSource.address,
     IntentSource__factory.abi,
     ecoTestNetIntentCreator,
   )
 
   export const ecoTestNetIntentSourceContractClaimant = new Contract(
-    networks.ecoTestNet.intentSourceAddress,
+    networks.ecoTestNet.intentSource.address,
     IntentSource__factory.abi,
     ecoTestNetClaimant,
   )
   export const ecoTestNetProverContract = new Contract(
-    networks.ecoTestNet.proverContractAddress,
+    networks.ecoTestNet.proverContract.address,
     ProverL3__factory.abi,
     ecoTestNetDeployer, // Use deployer as prover as we need to do privileged operations
   )
   export const ecoTestNetInboxContractSolver = new Contract(
-    networks.ecoTestNet.inboxAddress,
+    networks.ecoTestNet.inbox.address,
     Inbox__factory.abi,
     ecoTestNetSolver,
   )

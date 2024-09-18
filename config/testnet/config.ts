@@ -1,3 +1,5 @@
+import { deploy } from '@openzeppelin/hardhat-upgrades/dist/utils'
+
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0,
@@ -82,13 +84,20 @@ const networks: any = {
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
-    proverContractAddress: '0x2427852f965ec94aB49F2eC4a2C8Fa7dea22d58b',
-    proverContractDeploymentBlock: '0x1004705',
-    intentSourceAddress: '0x9Cd45DF022e2dEE7D3D9D1bDF99F68072203d38',
-    inboxAddress: '0x7E9a496319C0C2CA09382D876e2226bED38D792F',
+    sourceChains: ['baseSepolia', 'ecoTestNet'],
+    proverContract: {
+      address: '0x2427852f965ec94aB49F2eC4a2C8Fa7dea22d58b',
+      deploymentBlock: 16795390n, // '0x10046Fe'
+    },
     intentSource: {
+      address: '0x9Cd45DF0422e2dEE7D3D9D1bDF99F68072203d38',
+      deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
+    },
+    inbox: {
+      address: '0x7E9a496319C0C2CA09382D876e2226bED38D792F',
+      deploymentBlock: 16795397n, // '0x1004705
     },
     proving: {
       mechanism: provingMechanisms.cannon,
@@ -101,23 +110,25 @@ const networks: any = {
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
     },
-    // The following destination chains are useful for proving
-    // destinationChains: [
-    //   84532, // baseSepolia
-    //   471923, // ecoTestNet
-    //   421614, // arbitrumSepolia
-    // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
   baseSepolia: {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
-    proverContractAddress: '0x9262b3C1907917Cf6341AA8d993CaFCDD2c09491',
-    intentSourceAddress: '0x102071ad4D7aa2bb2D08a096955A213A46D95A68',
-    inboxAddress: '0xf713A0B30feC4A01212Ca72354bBB4869eE51464',
+    sourceChains: ['optimismSepolia', 'ecoTestNet'],
+    proverContract: {
+      address: '0x9262b3C1907917Cf6341AA8d993CaFCDD2c09491',
+      deploymentBlock: 14812482n, // '0xe20542',
+    },
     intentSource: {
+      address: '0x102071ad4D7aa2bb2D08a096955A213A46D95A68',
+      deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
+    },
+    inbox: {
+      address: '0xf713A0B30feC4A01212Ca72354bBB4869eE51464',
+      deploymentBlock: 14812488n, // '0xe20548',
     },
     proving: {
       mechanism: provingMechanisms.cannon,
@@ -137,25 +148,27 @@ const networks: any = {
     settlementContracts: {
       ecoTestNet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet L2 Output Oracle
     },
-    // The following destination chains are useful for proving
-    // destinationChains: [
-    //   11155420, // optimismSepolia
-    //   471923, // ecoTestNet
-    //   421614, // arbitrumSepolia
-    // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
   ecoTestNet: {
     network: 'eco-testnet',
     chainId: networkIds.ecoTestNet,
+    sourceChains: ['baseSepolia', 'optimismSepolia'],
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
-    proverContractAddress: '0xC5Dd68f473854C4D305dDe12C74eDFC92eBfbFdF',
-    intentSourceAddress: '0x9356EE52c1ED51bFA8b5340768938ECc61a40795',
-    inboxAddress: '0xCA63cd958281afcB89b552935cf358eDafeA1c3A',
+    proverContract: {
+      address: '0xC5Dd68f473854C4D305dDe12C74eDFC92eBfbFdF',
+      deploymentBlock: '0x35dc32', // 3529778n
+    },
     intentSource: {
+      address: '0x9356EE52c1ED51bFA8b5340768938ECc61a40795',
+      deploymentBlock: 3529780n, // '0x35dc34',
       minimumDuration: 1000,
       counter: 0,
+    },
+    inbox: {
+      address: '0xCA63cd958281afcB89b552935cf358eDafeA1c3A',
+      deploymentBlock: 3529786n, // '0x35dc3a',
     },
     proving: {
       mechanism: 1,
@@ -168,19 +181,16 @@ const networks: any = {
         contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
       },
     },
-    // The following destination chains are useful for proving
-    // destinationChains: [
-    //   84532, // baseSepolia
-    //   11155420, // optimismSepolia
-    //   421614, // arbitrumSepolia
-    // ],
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     arbitrumSepolia: {
       network: 'arbitrum-sepolia',
       chainId: 421614,
       settlementNetwork: 'sepolia',
       intentSourceAddress: '',
-      proverContractAddress: '',
+      proverContract: {
+        address: '',
+        deploymentBlock: '', // 0n
+      },
       inboxAddress: '',
       intentSource: {
         minimumDuration: 1000,
@@ -189,12 +199,6 @@ const networks: any = {
       proving: {
         mechanism: 3,
       },
-      // The following destination chains are useful for proving
-      // destinationChains: [
-      //   84532, // baseSepolia
-      //   11155420, // optimismSepolia
-      //   471923, // ecoTestNet
-      // ],
       usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
     },
   },

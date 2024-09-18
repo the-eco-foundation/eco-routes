@@ -13,7 +13,7 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
   // approve lockup
   const rewardToken = s.baseSepoliaUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.baseSepolia.intentSourceAddress,
+    networks.baseSepolia.intentSource.address,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
@@ -31,13 +31,13 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
     const intentTx =
       await s.baseSepoliaIntentSourceContractIntentCreator.createIntent(
         networkIds.ecoTestNet, // desination chainId
-        networks.ecoTestNet.inboxAddress, // destination inbox address
+        networks.ecoTestNet.inbox.address, // destination inbox address
         [networks.ecoTestNet.usdcAddress], // target Tokens
         data, // calldata for destination chain
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.baseSepolia.proverContract.address, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -78,7 +78,7 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.ecoTestNetUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.ecoTestNet.inboxAddress,
+      networks.ecoTestNet.inbox.address,
       intent.targetAmounts[0],
     )
     await fundTx.wait()
@@ -107,7 +107,7 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
   // approve lockup
   const rewardToken = s.ecoTestNetUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.ecoTestNet.intentSourceAddress,
+    networks.ecoTestNet.intentSource.address,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
@@ -125,13 +125,13 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
     const intentTx =
       await s.ecoTestNetIntentSourceContractIntentCreator.createIntent(
         networkIds.baseSepolia, // desination chainId
-        networks.baseSepolia.inboxAddress, // destination inbox address
+        networks.baseSepolia.inbox.address, // destination inbox address
         [networks.baseSepolia.usdcAddress], // target Tokens
         data, // calldata for destination chain
         [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
+        networks.ecoTestNet.proverContract.address, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -170,7 +170,7 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.baseSepoliaUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.baseSepolia.inboxAddress,
+      networks.baseSepolia.inbox.address,
       intent.targetAmounts[0],
     )
     await fundTx.wait()
@@ -199,7 +199,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
   // approve lockup
   const rewardToken = s.baseSepoliaUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.baseSepolia.intentSourceAddress,
+    networks.baseSepolia.intentSource.address,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
@@ -217,13 +217,13 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
     const intentTx =
       await s.baseSepoliaIntentSourceContractIntentCreator.createIntent(
         networkIds.optimismSepolia, // desination chainId
-        networks.optimismSepolia.inboxAddress, // destination inbox address
+        networks.optimismSepolia.inbox.address, // destination inbox address
         [networks.optimismSepolia.usdcAddress], // target Tokens
         data, // calldata for destination chain
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.baseSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.baseSepolia.proverContract.address, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -264,7 +264,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.optimismSepoliaUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.optimismSepolia.inboxAddress,
+      networks.optimismSepolia.inbox.address,
       intent.targetAmounts[0],
     )
     await fundTx.wait()
@@ -293,7 +293,7 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
   // approve lockup
   const rewardToken = s.optimismSepoliaUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.optimismSepolia.intentSourceAddress,
+    networks.optimismSepolia.intentSource.address,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
@@ -311,13 +311,13 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
     const intentTx =
       await s.optimismSepoliaIntentSourceContractIntentCreator.createIntent(
         networkIds.baseSepolia, // desination chainId
-        networks.baseSepolia.inboxAddress, // destination inbox address
+        networks.baseSepolia.inbox.address, // destination inbox address
         [networks.baseSepolia.usdcAddress], // target Tokens
         data, // calldata for destination chain
         [networks.optimismSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.optimismSepolia.proverContract.address, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -360,7 +360,7 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.baseSepoliaUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.baseSepolia.inboxAddress,
+      networks.baseSepolia.inbox.address,
       intent.targetAmounts[0],
     )
     await fundTx.wait()
@@ -389,7 +389,7 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
   // approve lockup
   const rewardToken = s.optimismSepoliaUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.optimismSepolia.intentSourceAddress,
+    networks.optimismSepolia.intentSource.address,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
@@ -407,13 +407,13 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
     const intentTx =
       await s.optimismSepoliaIntentSourceContractIntentCreator.createIntent(
         networkIds.ecoTestNet, // desination chainId
-        networks.ecoTestNet.inboxAddress, // destination inbox address
+        networks.ecoTestNet.inbox.address, // destination inbox address
         [networks.ecoTestNet.usdcAddress], // target Tokens
         data, // calldata for destination chain
         [networks.optimismSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.optimismSepolia.proverContractAddress, // prover contract address on the sourceChain
+        networks.optimismSepolia.proverContract.address, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -456,7 +456,7 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.ecoTestNetUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.ecoTestNet.inboxAddress,
+      networks.ecoTestNet.inbox.address,
       intent.targetAmounts[0],
     )
     await fundTx.wait()
@@ -485,7 +485,7 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
   // approve lockup
   const rewardToken = s.ecoTestNetUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.ecoTestNet.intentSourceAddress,
+    networks.ecoTestNet.intentSource.address,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
@@ -503,13 +503,13 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
     const intentTx =
       await s.ecoTestNetIntentSourceContractIntentCreator.createIntent(
         networkIds.optimismSepolia, // desination chainId
-        networks.optimismSepolia.inboxAddress, // destination inbox address
+        networks.optimismSepolia.inbox.address, // destination inbox address
         [networks.optimismSepolia.usdcAddress], // target Tokens
         data, // calldata for destination chain
         [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
+        networks.ecoTestNet.proverContract.address, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
@@ -548,7 +548,7 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.optimismSepoliaUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.optimismSepolia.inboxAddress,
+      networks.optimismSepolia.inbox.address,
       intent.targetAmounts[0],
     )
     await fundTx.wait()

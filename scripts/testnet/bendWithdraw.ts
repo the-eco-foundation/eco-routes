@@ -653,7 +653,7 @@ async function proveIntentOnEcoTestNet(intentHash) {
   const calcintentHash = keccak256(
     abiCoder.encode(
       ['address', 'bytes32'],
-      [networks.baseSepolia.inboxAddress, intermediateHash],
+      [networks.baseSepolia.inbox.address, intermediateHash],
     ),
   )
   console.log('calcintentHash: ', calcintentHash)
@@ -680,7 +680,7 @@ async function proveIntentOnEcoTestNet(intentHash) {
 
   console.log(cannon.intent.destinationChainId)
   console.log(getAddress(actors.claimant))
-  console.log(networks.baseSepolia.inboxAddress)
+  console.log(networks.baseSepolia.inbox.address)
   console.log(intermediateHash)
   console.log(cannon.intent.storageProof)
   console.log(
@@ -695,7 +695,7 @@ async function proveIntentOnEcoTestNet(intentHash) {
     cannon.intent.destinationChainId,
     getAddress(actors.claimant),
     // t.intents.optimismSepolia.rlpEncodedBlockData,
-    networks.baseSepolia.inboxAddress,
+    networks.baseSepolia.inbox.address,
     intermediateHash,
     // 1, // no need to be specific about output indexes yet
     cannon.intent.storageProof,
@@ -734,7 +734,7 @@ async function proveIntentOnBaseSepoliaFromEcoTestNet(intentHash) {
   const calcintentHash = keccak256(
     abiCoder.encode(
       ['address', 'bytes32'],
-      [networks.ecoTestNet.inboxAddress, intermediateHash],
+      [networks.ecoTestNet.inbox.address, intermediateHash],
     ),
   )
   console.log('calcintentHash: ', calcintentHash)
@@ -749,7 +749,7 @@ async function proveIntentOnBaseSepoliaFromEcoTestNet(intentHash) {
 
   console.log(bedrock.intent.destinationChainId)
   console.log(getAddress(actors.claimant))
-  console.log(networks.ecoTestNet.inboxAddress)
+  console.log(networks.ecoTestNet.inbox.address)
   console.log(intermediateHash)
   console.log(bedrock.intent.storageProof)
   console.log(
@@ -764,7 +764,7 @@ async function proveIntentOnBaseSepoliaFromEcoTestNet(intentHash) {
     bedrock.intent.destinationChainId,
     getAddress(actors.claimant),
     // t.intents.optimismSepolia.rlpEncodedBlockData,
-    networks.ecoTestNet.inboxAddress,
+    networks.ecoTestNet.inbox.address,
     intermediateHash,
     // 1, // no need to be specific about output indexes yet
     bedrock.intent.storageProof,

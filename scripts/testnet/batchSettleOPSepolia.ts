@@ -24,6 +24,12 @@ import {
 import { s } from '../../config/testnet/setup'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
 
+type SourceChainInfo = {
+  sourceChain: number
+  lastProvenBlock: BigInt
+}
+type SourceChains = SourceChainInfo[]
+
 type Intent = {
   sourceChain: number
   intentHash: string
@@ -71,31 +77,81 @@ export async function getBatchSettled() {
 }
 export async function getIntentsToProve(settlementBlockNumber: BigInt) {
   // get BaseSepolia Last OptimimsmSepolia BlockNumber from WorldState
-  const sourceChainIds = ['baseSepolia', 'ecoTestNet']
+
+  const sourceChainConfig = networks.optimismSepolia.sourceChains
+  const sourceChains: SourceChains = []
   const intentToProve: Intent = {} as Intent
   const intentsToProve: Intents = []
 
-  //   let optimismSepoliaBlockNumber = `networks.${'optimismSepolia'}.proverContractDeploymentBlock`
-  let optimismSepoliaBlockNumber =
-    networks.optimismSepolia.proverContractDeploymentBlock
-  try {
-    const baseSepoliaOptimismSepoliaProvenState =
-      await s.baseSepoliaProverContract.provenStates(networkIds.optimismSepolia)
-    optimismSepoliaBlockNumber =
-      baseSepoliaOptimismSepoliaProvenState.blockNumber
-  } catch (e) {
-    console.log('Error in getIntentsToProve: ', e.message)
+  // get the starting block to scan for intents
+  let optimismSepoliaProvenState
+  let startingBlockNumber = 0n
+  let scanAllIntentsForInbox = false
+  startingBlockNumber = networks.optimismSepolia.proverContractDeploymentBlock
+  const inboxDeploymentBlock = networks.optimismSepolia.inbox.deploymentBlock
+  // TODO: Parmaeterize the calls to provenStates and remove switch
+  for (const sourceChain of sourceChainConfig) {
+    const sourceChainInfo: SourceChainInfo = {} as SourceChainInfo
+    try {
+      switch (sourceChain) {
+        case 'baseSepolia':
+          sourceChainInfo.sourceChain = networkIds.baseSepolia
+          optimismSepoliaProvenState =
+            await s.baseSepoliaProverContract.provenStates(
+              networkIds.optimismSepolia,
+            )
+
+          break
+        case 'optimismSepolia':
+          sourceChainInfo.sourceChain = networkIds.optimismSepolia
+          optimismSepoliaProvenState =
+            await s.optimismSepoliaProverContract.provenStates(
+              networkIds.optimismSepolia,
+            )
+          break
+        case 'ecoTestNet':
+          sourceChainInfo.sourceChain = networkIds.ecoTestNet
+          optimismSepoliaProvenState =
+            await s.ecoTestNetProverContract.provenStates(
+              networkIds.optimismSepolia,
+            )
+          break
+        default:
+          optimismSepoliaProvenState = {}
+          break
+      }
+      sourceChainInfo.sourceChain = networkIds.sourceChainInfo.lastProvenBlock =
+        optimismSepoliaProvenState.blockNumber
+      if (optimismSepoliaProvenState.blockNumber > inboxDeploymentBlock) {
+        sourceChainInfo.lastProvenBlock = optimismSepoliaProvenState.blockNumber
+        if (optimismSepoliaProvenState.blockNumber < startingBlockNumber) {
+          startingBlockNumber = optimismSepoliaProvenState.blockNumber
+        }
+      } else {
+        sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
+        scanAllIntentsForInbox = true
+      }
+      sourceChains.push(sourceChainInfo)
+    } catch (e) {
+      sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
+      sourceChains.push(sourceChainInfo)
+      scanAllIntentsForInbox = true
+      startingBlockNumber = inboxDeploymentBlock
+      console.log('Error in getIntentsToProve: ', e.message)
+    }
   }
-  console.log(
-    'optimismSepoliaBlockNumber: ',
-    optimismSepoliaBlockNumber.toString(),
-  )
+  if (scanAllIntentsForInbox) {
+    startingBlockNumber = inboxDeploymentBlock
+  }
+  console.log('sourceChains: ', sourceChains)
+  console.log('startingBlockNumber: ', startingBlockNumber.toString())
+
   //   if (optimismSepoliaBlockNumber > settlementBlockNumber) {
   // Get the event from the latest Block checking transaction hash
   const intentHashEvents =
     await s.optimismSepoliaInboxContractSolver.queryFilter(
       s.optimismSepoliaInboxContractSolver.getEvent('Fulfillment'),
-      toQuantity(optimismSepoliaBlockNumber),
+      toQuantity(startingBlockNumber),
       toQuantity(settlementBlockNumber),
     )
   console.log('intentHashEvents.length: ', intentHashEvents.length)
@@ -106,13 +162,14 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
     intentToProve.claimant = getAddress(
       stripZerosLeft(intentHashEvent.topics[3]),
     )
+    console.log('intentHashhEvent.blockNumber: ', intentHashEvent.blockNumber)
+    // TODO: Filter out intents that have already been proven
+    // Note this can use the proventStates from the Prover Contract
+    // but also need to cater for the case where the proven World state is updated but the intents not proven
+
     intentsToProve.push(intentToProve)
-    console.log('intentsToProve: ', intentsToProve)
   }
-  //   }
-  // get all the intents from that to the latest resolved Optimism blockNumber
-  // get Eco Testnet Last OptimimsmSepolia BlockNumber from WorldState
-  // get all the intents from that to the latest resolved Optimism blockNumber
+  return { sourceChains, intentsToProve }
   // return [chainId, intentHash, intentFulfillTransaction]
 }
 export async function proveOpSepoliaBatchSettled() {}

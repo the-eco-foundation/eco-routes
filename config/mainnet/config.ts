@@ -72,12 +72,20 @@ const networks: any = {
   optimism: {
     network: 'optimism',
     chainId: networkIds.optimism,
-    proverContractAddress: '0xDb2CF52d39Cdd2116bc66711cFc43cB16ce17A2b',
-    intentSourceAddress: '0x755e48140807D290916F2a2777d0eCD905Ce5a73',
-    inboxAddress: '0x4fFf766A3E4A77584AaE21EaB8B2C2241619D983',
+    sourceChains: ['base'],
+    proverContract: {
+      address: '0xDb2CF52d39Cdd2116bc66711cFc43cB16ce17A2b',
+      deploymentBlock: 124901416n, // '0x771d828'
+    },
     intentSource: {
+      address: '0x755e48140807D290916F2a2777d0eCD905Ce5a73',
+      deploymentBlock: 124901419n, // '0x771d82b'
       minimumDuration: 1000,
       counter: 0,
+    },
+    inbox: {
+      address: '0x4fFf766A3E4A77584AaE21EaB8B2C2241619D983',
+      deploymentBlock: 124901422n, // '0x771d82e'
     },
     proving: {
       mechanism: provingMechanisms.cannon,
@@ -95,12 +103,20 @@ const networks: any = {
   base: {
     network: 'base',
     chainId: networkIds.base,
-    proverContractAddress: '0x62fd344CE4E0e4c3d9C98D64390cA2739aF9021f',
-    intentSourceAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
-    inboxAddress: '0xc06CA8866586cF19bf22E102a3083673C4246629',
+    sourceChains: ['optimism'],
+    proverContract: {
+      address: '0x62fd344CE4E0e4c3d9C98D64390cA2739aF9021f',
+      deploymentBlock: 19306164n, // '0x12696b4'
+    },
     intentSource: {
+      address: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
+      deploymentBlock: 19306167n, // '0x12696b7'
       minimumDuration: 1000,
       counter: 0,
+    },
+    inbox: {
+      address: '0xc06CA8866586cF19bf22E102a3083673C4246629',
+      deploymentBlock: 19306170n, // '0x12696ba'
     },
     proving: {
       mechanism: provingMechanisms.bedrock,

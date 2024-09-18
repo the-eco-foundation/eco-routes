@@ -109,22 +109,22 @@ export namespace s {
 
   // ECO PROTOCOL Contracts
   export const optimismIntentSourceContractIntentCreator = new Contract(
-    networks.optimism.intentSourceAddress,
+    networks.optimism.intentSource.address,
     IntentSource__factory.abi,
     optimismIntentCreator,
   )
   export const optimismIntentSourceContractClaimant = new Contract(
-    networks.optimism.intentSourceAddress,
+    networks.optimism.intentSource.address,
     IntentSource__factory.abi,
     optimismClaimant,
   )
   export const optimismProverContract = new Contract(
-    networks.optimism.proverContractAddress,
+    networks.optimism.proverContract.address,
     Prover__factory.abi,
     optimismIntentProver,
   )
   export const optimismInboxContractSolver = new Contract(
-    networks.optimism.inboxAddress,
+    networks.optimism.inbox.address,
     Inbox__factory.abi,
     optimismSolver,
   )
@@ -176,23 +176,23 @@ export namespace s {
 
   // ECO PROTOCOL Contracts
   export const baseIntentSourceContractIntentCreator = new Contract(
-    networks.base.intentSourceAddress,
+    networks.base.intentSource.address,
     IntentSource__factory.abi,
     baseIntentCreator,
   )
   export const baseIntentSourceContractClaimant = new Contract(
-    networks.base.intentSourceAddress,
+    networks.base.intentSource.address,
     IntentSource__factory.abi,
     baseClaimant,
   )
 
   export const baseProverContract = new Contract(
-    networks.base.proverContractAddress,
+    networks.base.proverContract.address,
     Prover__factory.abi,
     baseIntentProver,
   )
   export const baseInboxContractSolver = new Contract(
-    networks.base.inboxAddress,
+    networks.base.inbox.address,
     Inbox__factory.abi,
     baseSolver,
   )

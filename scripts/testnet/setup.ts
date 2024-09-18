@@ -90,17 +90,17 @@ export namespace s {
     layer2SourceProvider,
   )
   export const layer2SourceIntentSourceContract = new Contract(
-    config.baseSepolia.intentSourceAddress,
+    config.baseSepolia.intentSource.address,
     IntentSource__factory.abi,
     layer2SourceIntentCreator,
   )
   export const layer2SourceIntentSourceContractClaimant = new Contract(
-    config.baseSepolia.intentSourceAddress,
+    config.baseSepolia.intentSource.address,
     IntentSource__factory.abi,
     layer2SourceClaimant,
   )
   export const layer2SourceProverContract = new Contract(
-    config.baseSepolia.proverContractAddress,
+    config.baseSepolia.proverContract.address,
     Prover__factory.abi,
     layer2SourceIntentProver,
   )
@@ -112,7 +112,7 @@ export namespace s {
 
   // Layer 2 Destination Optimism Sepolia
   export const layer2DestinationInboxContract = new Contract(
-    config.optimismSepolia.inboxAddress,
+    config.optimismSepolia.inbox.address,
     Inbox__factory.abi,
     layer2DestinationSolver,
   )
@@ -131,7 +131,7 @@ export namespace s {
 
   // Intent Parameters to baseSepolia
   export const intentCreator = config.intents.optimismSepolia.creator
-  export const intentSourceAddress = config.baseSepolia.intentSourceAddress
+  export const intentSource.address = config.baseSepolia.intentSource.address
   export const intentRewardAmounts =
     config.intents.optimismSepolia.rewardAmounts
   export const intentRewardTokens = config.intents.optimismSepolia.rewardTokens
