@@ -131,7 +131,7 @@ export namespace s {
 
   // Intent Parameters to baseSepolia
   export const intentCreator = config.intents.optimismSepolia.creator
-  export const intentSource.address = config.baseSepolia.intentSource.address
+  export const intentSourceAddress = config.baseSepolia.intentSource.address
   export const intentRewardAmounts =
     config.intents.optimismSepolia.rewardAmounts
   export const intentRewardTokens = config.intents.optimismSepolia.rewardTokens

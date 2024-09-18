@@ -1,25 +1,25 @@
 import {
-  AbiCoder,
-  Block,
+  // AbiCoder,
+  // Block,
   Contract,
-  encodeRlp,
+  // encodeRlp,
   getAddress,
-  getBytes,
-  hexlify,
-  keccak256,
-  solidityPackedKeccak256,
+  // getBytes,
+  // hexlify,
+  // keccak256,
+  // solidityPackedKeccak256,
   stripZerosLeft,
-  toBeArray,
+  // toBeArray,
   toQuantity,
   toNumber,
-  zeroPadValue,
-  toBeHex,
+  // zeroPadValue,
+  // toBeHex,
 } from 'ethers'
 import {
   networkIds,
   networks,
-  actors,
-  intent,
+  // actors,
+  // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
@@ -172,11 +172,28 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
   return { sourceChains, intentsToProve }
   // return [chainId, intentHash, intentFulfillTransaction]
 }
-export async function proveOpSepoliaBatchSettled() {}
-export async function proveIntents() {
+export async function proveOpSepoliaBatchSettled(
+  blockNumber,
+  gameIndex,
+  faultDisputeGameAddress,
+  faultDisputeGameContract,
+  sourceChains,
+  intentsToProve,
+) {
+  console.log('In proveOpSepoliaBatchSettled')
+}
+export async function proveIntents(sourceChains, intentsToProve) {
   // loop through chainIds and intents
   // On new chainId, update the chains Optimism WorldState (and Ethereum and Base if needed)
   // prove each intent
+  console.log('In proveIntents')
+}
+
+export async function withdrawFunds(sourceChains, intentsToProve) {
+  // loop through chainIds and intents
+  // On new chainId, update the chains Optimism WorldState (and Ethereum and Base if needed)
+  // prove each intent
+  console.log('In withdrawFunds')
 }
 
 async function main() {
@@ -198,11 +215,20 @@ async function main() {
     console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
 
     // Get all the intents that can be proven for the batch by destination chain
-    await getIntentsToProve(blockNumber)
+    const { sourceChains, intentsToProve } =
+      await getIntentsToProve(blockNumber)
     // Prove the latest batch settled
-    await proveOpSepoliaBatchSettled()
+    await proveOpSepoliaBatchSettled(
+      blockNumber,
+      gameIndex,
+      faultDisputeGameAddress,
+      faultDisputeGameContract,
+      sourceChains,
+      intentsToProve,
+    )
     // Prove all the intents
-    await proveIntents()
+    await proveIntents(sourceChains, intentsToProve)
+    await withdrawFunds(sourceChains, intentsToProve)
   } catch (e) {
     console.log(e)
   }

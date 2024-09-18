@@ -1,5 +1,3 @@
-import { deploy } from '@openzeppelin/hardhat-upgrades/dist/utils'
-
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0,
