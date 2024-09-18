@@ -23,7 +23,7 @@ import {
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
-import { intent } from '../../test/testData'
+// import { intent } from '../../test/testData'
 
 type SourceChainInfo = {
   sourceChain: number
@@ -38,7 +38,7 @@ type Intent = {
   claimant: string
   blockNumber: BigInt
 }
-type Intents = Intent[]
+// type Intents = Intent[]
 
 export async function getBatchSettled() {
   // Get the latest resolved fault dispute game
