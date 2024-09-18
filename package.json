@@ -72,7 +72,7 @@
     "intentWithdrawBaseOp": "hardhat run scripts/mainnet/intentWithdrawBaseOp.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
     "EndMainnetCannon": "-------- End Cannon scripts  --------",
-    "DeployHyperProver": " hardhat run scripts/deployHyperProver.ts --network"
+    "DeployHyperProver": "hardhat run scripts/deployHyperProver.ts --network"
   },
   "files": [
     "contracts/**.sol",
