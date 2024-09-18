@@ -182,21 +182,27 @@ export async function proveOpSepoliaBatchSettled(
 ) {
   console.log('In proveOpSepoliaBatchSettled')
   // for (const sourceChain of sourceChains) {
-  for (const sourceChain of Object.entries(sourceChains)) {
+  // for (const sourceChain of Object.entries(sourceChains)) {
+  Object.entries(sourceChains).forEach(([sourceChainkey, sourceChain]) => {
+    console.log('key: ', sourceChainkey)
+    console.log('sourceChain: ', sourceChain)
     if (sourceChain.needNewProvenState) {
-      // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
+      //   // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
       switch (sourceChain.sourceChain) {
         case networkIds.baseSepolia: {
-          proveSepoliaSettlementLayerStateOnBaseSepolia()
-          proveWorldStateOptimismSepoliaOnBaseSepolia()
+          console.log('In baseSepolia')
+          //       proveSepoliaSettlementLayerStateOnBaseSepolia()
+          //       proveWorldStateOptimismSepoliaOnBaseSepolia()
           break
         }
         case networkIds.optimismSepolia: {
+          console.log('In optimismSepolia')
           break
         }
         case networkIds.ecoTestNet: {
-          proveSepoliaSettlementLayerStateOnEcoTestNet()
-          proveWorldStateOptimismSepoliaOnEcoTestNet()
+          console.log('In ecoTestNet')
+          //       proveSepoliaSettlementLayerStateOnEcoTestNet()
+          //       proveWorldStateOptimismSepoliaOnEcoTestNet()
           break
         }
         default: {
@@ -205,7 +211,7 @@ export async function proveOpSepoliaBatchSettled(
       }
       // Update the OptimismSepolia WorldState
     }
-  }
+  })
   // Loop through the sourceChains to prove
   // Switch on for each sourceChain
   // prove OptimismSepolia worldState for each sourceChain
