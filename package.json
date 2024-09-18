@@ -66,13 +66,14 @@
     "deployBaseOpen": "hardhat run --network base scripts/mainnet/deployOpen.ts",
     "deployOptimism": "hardhat run --network optimism scripts/mainnet/deploy.ts",
     "deployOptimismOpen": "hardhat run --network optimism scripts/mainnet/deployOpen.ts",
+    "deployHyperProverBase": "hardhat run --network base scripts/deployHyperProver.ts",
+    "deployHyperProverOptimism": "hardhat run --network optimism scripts/deployHyperProver.ts",
     "MainnetBedrock": "-------- Bedrock scripts below --------",
     "intentSolveMainnet": "hardhat run scripts/mainnet/intentSolve.ts",
     "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdrawOpBase.ts",
     "intentWithdrawBaseOp": "hardhat run scripts/mainnet/intentWithdrawBaseOp.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
-    "EndMainnetCannon": "-------- End Cannon scripts  --------",
-    "deployHyperProver": "hardhat run --network base scripts/deployHyperProver.ts"
+    "EndMainnetCannon": "-------- End Cannon scripts  --------"
   },
   "files": [
     "contracts/**.sol",
