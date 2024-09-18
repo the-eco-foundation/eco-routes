@@ -83,13 +83,11 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
 
   const sourceChainConfig = networks.optimismSepolia.sourceChains
   const sourceChains: Record<number, SourceChainInfo> = {}
-  // const intentToProve: Intent = {} as Intent
-  //  intentsToProve: Intents = []
-
   // get the starting block to scan for intents
   let optimismSepoliaProvenState
   let startingBlockNumber = 0n
   let scanAllIntentsForInbox = false
+  // TODO change to use contract factory for deploys then can use ethers deploymentTransaction to get the blockNumber
   startingBlockNumber = networks.optimismSepolia.proverContractDeploymentBlock
   const inboxDeploymentBlock = networks.optimismSepolia.inbox.deploymentBlock
   // TODO: Parmaeterize the calls to provenStates and remove switch
@@ -140,21 +138,10 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
       toQuantity(settlementBlockNumber),
     )
   console.log('intentHashEvents.length: ', intentHashEvents.length)
-  // for (const intentHashEvent of intentHashEvents) {
-  //   // add them to the intents to prove
-  //   intentToProve.sourceChain = toNumber(intentHashEvent.topics[2])
-  //   intentToProve.intentHash = intentHashEvent.topics[1]
-  //   intentToProve.claimant = getAddress(
-  //     stripZerosLeft(intentHashEvent.topics[3]),
-  //   )
-  //   intentToProve.blockNumber = BigInt(intentHashEvent.blockNumber)
-  //   // TODO: Filter out intents that have already been proven
-  //   // Note this can use the proventStates from the Prover Contract
-  //   // but also need to cater for the case where the proven World state is updated but the intents not proven
-  //   // also mark needProvenState as true for the chains which have new intents to prove
-
-  //   // intentsToProve.push(intentToProve)
-  // }
+  // Filter out intents that have already been proven
+  // Note this can use the proventStates from the Prover Contract
+  // but also need to cater for the case where the proven World state is updated but the intents not proven
+  // also mark needProvenState as true for the chains which have new intents to prove
   const intentsToProve = intentHashEvents
     .map((intentHashEvent) => {
       const intentToProve: Intent = {} as Intent
@@ -167,14 +154,20 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
       return intentToProve
     })
     .filter((intentToProve) => {
+      if (
+        intentToProve.blockNumber >
+        sourceChains[intentToProve.sourceChain].lastProvenBlock
+      ) {
+        sourceChains[intentToProve.sourceChain].needNewProvenState = true
+      }
       // False removes it true keeps it
-      console.log('intentToProve.sourceChain: ', intentToProve.sourceChain)
       return (
-        intentToProve.blockNumber <
+        intentToProve.blockNumber >
         sourceChains[intentToProve.sourceChain].lastProvenBlock
       )
     })
 
+  console.log('sourceChains: ', sourceChains)
   console.log('intentsToProve: ', intentsToProve)
   return { sourceChains, intentsToProve }
   // return [chainId, intentHash, intentFulfillTransaction]
@@ -188,6 +181,40 @@ export async function proveOpSepoliaBatchSettled(
   intentsToProve,
 ) {
   console.log('In proveOpSepoliaBatchSettled')
+  // for (const sourceChain of sourceChains) {
+  for (const sourceChain of Object.entries(sourceChains)) {
+    if (sourceChain.needNewProvenState) {
+      // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
+      switch (sourceChain.sourceChain) {
+        case networkIds.baseSepolia: {
+          proveSepoliaSettlementLayerStateOnBaseSepolia()
+          proveWorldStateOptimismSepoliaOnBaseSepolia()
+          break
+        }
+        case networkIds.optimismSepolia: {
+          break
+        }
+        case networkIds.ecoTestNet: {
+          proveSepoliaSettlementLayerStateOnEcoTestNet()
+          proveWorldStateOptimismSepoliaOnEcoTestNet()
+          break
+        }
+        default: {
+          break
+        }
+      }
+      // Update the OptimismSepolia WorldState
+    }
+  }
+  // Loop through the sourceChains to prove
+  // Switch on for each sourceChain
+  // prove OptimismSepolia worldState for each sourceChain
+  // prove OptimismSepolia worldState for BaseSepolia
+  //   proveSepoliaSettlementLayerStateOnBaseSepolia
+  //   proveWorldStateOptimismSepoliaOnBaseSepolia()
+  // prove OptimismSepolia worldState for EcoTestNet
+  //  proveSepoliaSettlementLayerStateOnEcoTestNet() using proveSettlementLayerStatePriveleged
+  //  proveWorldStateOptimismSepoliaOnEcoTestNet()
 }
 export async function proveIntents(sourceChains, intentsToProve) {
   // loop through chainIds and intents

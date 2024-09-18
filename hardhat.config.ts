@@ -78,7 +78,7 @@ const config: HardhatUserConfig = {
       gasPrice: 100000000,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
-    optimismBlockScout: {
+    optimismBlockscout: {
       chainId: 10,
       url: `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       gasPrice: 100000000,
@@ -130,6 +130,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://eco-testnet.explorer.caldera.xyz/api',
           browserURL: 'https://eco-testnet.explorer.caldera.xyz/',
+        },
+      },
+      {
+        network: 'optimismBlockscout',
+        chainId: 10,
+        urls: {
+          apiURL: 'https://optimism.blockscout.com/api',
+          browserURL: 'https://optimism.blockscout.com/',
         },
       },
     ],
