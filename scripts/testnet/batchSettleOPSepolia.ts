@@ -1,11 +1,11 @@
 import {
   // AbiCoder,
-  // Block,
+  Block,
   Contract,
-  // encodeRlp,
+  encodeRlp,
   getAddress,
-  // getBytes,
-  // hexlify,
+  getBytes,
+  hexlify,
   // keccak256,
   // solidityPackedKeccak256,
   stripZerosLeft,
@@ -13,7 +13,7 @@ import {
   toQuantity,
   toNumber,
   // zeroPadValue,
-  // toBeHex,
+  toBeHex,
 } from 'ethers'
 import {
   networkIds,
@@ -173,6 +173,146 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
   return { sourceChains, intentsToProve }
   // return [chainId, intentHash, intentFulfillTransaction]
 }
+
+// Include individual proving Mechanisms for each sourceChain
+// TODO: Consolidate the multiple functions into a parameterized function
+async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
+  console.log('In proveSettlementLayerState')
+  const setlementBlock = await s.baseSepolial1Block.number()
+  const settlmentBlockTag = toQuantity(setlementBlock)
+
+  const block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
+    settlmentBlockTag,
+    false,
+  ])
+  // const block: Block = await s.layer2DestinationProvider.send(
+  //   'eth_getBlockByNumber',
+  //   [config.cannon.layer2.endBatchBlock, false],
+  // )
+  // console.log('block: ', block)
+
+  let tx
+  let settlementWorldStateRoot
+  try {
+    const rlpEncodedBlockData = encodeRlp([
+      block.parentHash,
+      block.sha3Uncles,
+      block.miner,
+      block.stateRoot,
+      block.transactionsRoot,
+      block.receiptsRoot,
+      block.logsBloom,
+      stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+      toBeHex(block.number),
+      toBeHex(block.gasLimit),
+      toBeHex(block.gasUsed),
+      block.timestamp,
+      block.extraData,
+      block.mixHash,
+      block.nonce,
+      toBeHex(block.baseFeePerGas),
+      block.withdrawalsRoot,
+      stripZerosLeft(toBeHex(block.blobGasUsed)),
+      stripZerosLeft(toBeHex(block.excessBlobGas)),
+      block.parentBeaconBlockRoot,
+    ])
+    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
+    tx = await s.baseSepoliaProverContract.proveSettlementLayerState(
+      getBytes(hexlify(rlpEncodedBlockData)),
+    )
+    await tx.wait()
+    console.log('Prove Settlement world state tx: ', tx.hash)
+    settlementWorldStateRoot = block.stateRoot
+    console.log(
+      'Proven L1 world state block: ',
+      setlementBlock,
+      settlmentBlockTag,
+    )
+    console.log('Proven Settlement world state root:', settlementWorldStateRoot)
+    return { settlmentBlockTag, settlementWorldStateRoot }
+  } catch (e) {
+    if (e.data && s.baseSepoliaProverContract) {
+      const decodedError = s.baseSepoliaProverContract.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed: ${decodedError?.name}`)
+      console.log(`Error in proveSettlementLayerState:`, e.shortMessage)
+    } else {
+      console.log(`Error in proveSettlementLayerState:`, e)
+    }
+  }
+  //   have successfully proven L1 state
+}
+
+async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
+  console.log('In proveSepoliaSettlementLayerStateOnEcoTestNet')
+  const setlementBlock = await s.baseSepolial1Block.number()
+  const settlmentBlockTag = toQuantity(setlementBlock)
+
+  const block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
+    settlmentBlockTag,
+    false,
+  ])
+  // const block: Block = await s.layer2DestinationProvider.send(
+  //   'eth_getBlockByNumber',
+  //   [config.cannon.layer2.endBatchBlock, false],
+  // )
+  // console.log('block: ', block)
+
+  let tx
+  let settlementWorldStateRoot
+  try {
+    const rlpEncodedBlockData = encodeRlp([
+      block.parentHash,
+      block.sha3Uncles,
+      block.miner,
+      block.stateRoot,
+      block.transactionsRoot,
+      block.receiptsRoot,
+      block.logsBloom,
+      stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+      toBeHex(block.number),
+      toBeHex(block.gasLimit),
+      toBeHex(block.gasUsed),
+      block.timestamp,
+      block.extraData,
+      block.mixHash,
+      block.nonce,
+      toBeHex(block.baseFeePerGas),
+      block.withdrawalsRoot,
+      stripZerosLeft(toBeHex(block.blobGasUsed)),
+      stripZerosLeft(toBeHex(block.excessBlobGas)),
+      block.parentBeaconBlockRoot,
+    ])
+    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
+    tx = await s.ecoTestNetProverContract.proveSettlementLayerStatePriveleged(
+      getBytes(hexlify(rlpEncodedBlockData)),
+      networkIds.sepolia,
+    )
+    await tx.wait()
+    console.log('Prove Settlement world state tx: ', tx.hash)
+    settlementWorldStateRoot = block.stateRoot
+    console.log(
+      'Proven L1 world state block: ',
+      setlementBlock,
+      settlmentBlockTag,
+    )
+    console.log('Proven Settlement world state root:', settlementWorldStateRoot)
+    return { settlmentBlockTag, settlementWorldStateRoot }
+  } catch (e) {
+    if (e.data && s.baseSepoliaProverContract) {
+      const decodedError = s.baseSepoliaProverContract.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed: ${decodedError?.name}`)
+      console.log(`Error in proveSettlementLayerState:`, e.shortMessage)
+    } else {
+      console.log(`Error in proveSettlementLayerState:`, e)
+    }
+  }
+  //   have successfully proven L1 state
+}
+
 export async function proveOpSepoliaBatchSettled(
   blockNumber,
   gameIndex,
@@ -184,35 +324,37 @@ export async function proveOpSepoliaBatchSettled(
   console.log('In proveOpSepoliaBatchSettled')
   // for (const sourceChain of sourceChains) {
   // for (const sourceChain of Object.entries(sourceChains)) {
-  Object.entries(sourceChains).forEach(([sourceChainkey, sourceChain]) => {
-    console.log('key: ', sourceChainkey)
-    console.log('sourceChain: ', sourceChain)
-    if (sourceChain.needNewProvenState) {
-      //   // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
-      switch (sourceChain.sourceChain) {
-        case networkIds.baseSepolia: {
-          console.log('In baseSepolia')
-          //       proveSepoliaSettlementLayerStateOnBaseSepolia()
-          //       proveWorldStateOptimismSepoliaOnBaseSepolia()
-          break
+  await Object.entries(sourceChains).forEach(
+    async ([sourceChainkey, sourceChain]) => {
+      console.log('key: ', sourceChainkey)
+      console.log('sourceChain: ', sourceChain)
+      if (sourceChain.needNewProvenState) {
+        //   // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
+        switch (sourceChain.sourceChain) {
+          case networkIds.baseSepolia: {
+            console.log('In baseSepolia')
+            await proveSepoliaSettlementLayerStateOnBaseSepolia()
+            //       proveWorldStateOptimismSepoliaOnBaseSepolia()
+            break
+          }
+          case networkIds.optimismSepolia: {
+            console.log('In optimismSepolia')
+            break
+          }
+          case networkIds.ecoTestNet: {
+            console.log('In ecoTestNet')
+            await proveSepoliaSettlementLayerStateOnEcoTestNet()
+            //       proveWorldStateOptimismSepoliaOnEcoTestNet()
+            break
+          }
+          default: {
+            break
+          }
         }
-        case networkIds.optimismSepolia: {
-          console.log('In optimismSepolia')
-          break
-        }
-        case networkIds.ecoTestNet: {
-          console.log('In ecoTestNet')
-          //       proveSepoliaSettlementLayerStateOnEcoTestNet()
-          //       proveWorldStateOptimismSepoliaOnEcoTestNet()
-          break
-        }
-        default: {
-          break
-        }
+        // Update the OptimismSepolia WorldState
       }
-      // Update the OptimismSepolia WorldState
-    }
-  })
+    },
+  )
   // Loop through the sourceChains to prove
   // Switch on for each sourceChain
   // prove OptimismSepolia worldState for each sourceChain
