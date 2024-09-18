@@ -156,7 +156,8 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
     .filter((intentToProve) => {
       if (
         intentToProve.blockNumber >
-        sourceChains[intentToProve.sourceChain].lastProvenBlock
+          sourceChains[intentToProve.sourceChain].lastProvenBlock &&
+        intentToProve.blockNumber <= settlementBlockNumber
       ) {
         sourceChains[intentToProve.sourceChain].needNewProvenState = true
       }
