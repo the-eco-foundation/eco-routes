@@ -4,7 +4,7 @@ import {
   Inbox,
   SingletonFactory,
   HyperProver,
-} from '../../typechain-types'
+} from '../typechain-types'
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { chainAddresses, optimism } from '@hyperlane-xyz/registry'
 
@@ -21,14 +21,14 @@ const salt = ethers.keccak256(ethers.toUtf8Bytes('HYPERPROVER'))
 // const mailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039' //ecotestnet
 // const mailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039' //optimism sepolia
 // const mailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039' //base sepolia
-const mailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D' // optimism
+const mailboxAddress = '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D' // optimism
 // const mailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D' //base
 
 const networkName: string = network.name
 console.log('Deploying to Network: ', network.name)
 
 async function main() {
-  const deployer: SignerWithAddress = (await ethers.getSigners())[0]
+  const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
 
   // cant get this import to work
