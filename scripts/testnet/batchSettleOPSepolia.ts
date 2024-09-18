@@ -23,18 +23,20 @@ import {
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
+import { intent } from '../../test/testData'
 
 type SourceChainInfo = {
   sourceChain: number
   lastProvenBlock: BigInt
   needNewProvenState: boolean
 }
-type SourceChains = SourceChainInfo[]
+// type SourceChains = SourceChainInfo[]
 
 type Intent = {
   sourceChain: number
   intentHash: string
   claimant: string
+  blockNumber: BigInt
 }
 type Intents = Intent[]
 
@@ -80,9 +82,9 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
   // get BaseSepolia Last OptimimsmSepolia BlockNumber from WorldState
 
   const sourceChainConfig = networks.optimismSepolia.sourceChains
-  const sourceChains: SourceChains = []
-  const intentToProve: Intent = {} as Intent
-  const intentsToProve: Intents = []
+  const sourceChains: Record<number, SourceChainInfo> = {}
+  // const intentToProve: Intent = {} as Intent
+  //  intentsToProve: Intents = []
 
   // get the starting block to scan for intents
   let optimismSepoliaProvenState
@@ -94,33 +96,13 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
   for (const sourceChain of sourceChainConfig) {
     const sourceChainInfo: SourceChainInfo = {} as SourceChainInfo
     try {
-      switch (sourceChain) {
-        case 'baseSepolia':
-          sourceChainInfo.sourceChain = networkIds.baseSepolia
-          optimismSepoliaProvenState =
-            await s.baseSepoliaProverContract.provenStates(
-              networkIds.optimismSepolia,
-            )
-
-          break
-        case 'optimismSepolia':
-          sourceChainInfo.sourceChain = networkIds.optimismSepolia
-          optimismSepoliaProvenState =
-            await s.optimismSepoliaProverContract.provenStates(
-              networkIds.optimismSepolia,
-            )
-          break
-        case 'ecoTestNet':
-          sourceChainInfo.sourceChain = networkIds.ecoTestNet
-          optimismSepoliaProvenState =
-            await s.ecoTestNetProverContract.provenStates(
-              networkIds.optimismSepolia,
-            )
-          break
-        default:
-          optimismSepoliaProvenState = {}
-          break
-      }
+      sourceChainInfo.sourceChain = networkIds[sourceChain]
+      // @ts-ignore
+      const proverContract = s[`${sourceChain}ProverContract`] as Contract
+      optimismSepoliaProvenState = await proverContract.provenStates(
+        // await s.[sourceChain]ProverContract.provenStates(
+        networkIds.optimismSepolia,
+      )
       sourceChainInfo.sourceChain = networkIds.sourceChainInfo.lastProvenBlock =
         optimismSepoliaProvenState.blockNumber
       if (optimismSepoliaProvenState.blockNumber > inboxDeploymentBlock) {
@@ -133,11 +115,11 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
         scanAllIntentsForInbox = true
       }
       sourceChainInfo.needNewProvenState = false
-      sourceChains.push(sourceChainInfo)
+      sourceChains[networkIds[sourceChain]] = sourceChainInfo
     } catch (e) {
       sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
       sourceChainInfo.needNewProvenState = false
-      sourceChains.push(sourceChainInfo)
+      sourceChains[networkIds[sourceChain]] = sourceChainInfo
       scanAllIntentsForInbox = true
       startingBlockNumber = inboxDeploymentBlock
       console.log('Error in getIntentsToProve: ', e.message)
@@ -158,21 +140,42 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
       toQuantity(settlementBlockNumber),
     )
   console.log('intentHashEvents.length: ', intentHashEvents.length)
-  for (const intentHashEvent of intentHashEvents) {
-    // add them to the intents to prove
-    intentToProve.sourceChain = toNumber(intentHashEvent.topics[2])
-    intentToProve.intentHash = intentHashEvent.topics[1]
-    intentToProve.claimant = getAddress(
-      stripZerosLeft(intentHashEvent.topics[3]),
-    )
-    console.log('intentHashhEvent.blockNumber: ', intentHashEvent.blockNumber)
-    // TODO: Filter out intents that have already been proven
-    // Note this can use the proventStates from the Prover Contract
-    // but also need to cater for the case where the proven World state is updated but the intents not proven
-    // also mark needProvenState as true for the chains which have new intents to prove
+  // for (const intentHashEvent of intentHashEvents) {
+  //   // add them to the intents to prove
+  //   intentToProve.sourceChain = toNumber(intentHashEvent.topics[2])
+  //   intentToProve.intentHash = intentHashEvent.topics[1]
+  //   intentToProve.claimant = getAddress(
+  //     stripZerosLeft(intentHashEvent.topics[3]),
+  //   )
+  //   intentToProve.blockNumber = BigInt(intentHashEvent.blockNumber)
+  //   // TODO: Filter out intents that have already been proven
+  //   // Note this can use the proventStates from the Prover Contract
+  //   // but also need to cater for the case where the proven World state is updated but the intents not proven
+  //   // also mark needProvenState as true for the chains which have new intents to prove
 
-    intentsToProve.push(intentToProve)
-  }
+  //   // intentsToProve.push(intentToProve)
+  // }
+  const intentsToProve = intentHashEvents
+    .map((intentHashEvent) => {
+      const intentToProve: Intent = {} as Intent
+      intentToProve.sourceChain = toNumber(intentHashEvent.topics[2])
+      intentToProve.intentHash = intentHashEvent.topics[1]
+      intentToProve.claimant = getAddress(
+        stripZerosLeft(intentHashEvent.topics[3]),
+      )
+      intentToProve.blockNumber = BigInt(intentHashEvent.blockNumber)
+      return intentToProve
+    })
+    .filter((intentToProve) => {
+      // False removes it true keeps it
+      console.log('intentToProve.sourceChain: ', intentToProve.sourceChain)
+      return (
+        intentToProve.blockNumber <
+        sourceChains[intentToProve.sourceChain].lastProvenBlock
+      )
+    })
+
+  console.log('intentsToProve: ', intentsToProve)
   return { sourceChains, intentsToProve }
   // return [chainId, intentHash, intentFulfillTransaction]
 }
