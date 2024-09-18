@@ -20,6 +20,12 @@ contract HyperProver is IMessageRecipient, SimpleProver {
      * @param _sender the address that called the dispatch() method
      */
     error UnauthorizedDispatch(address _sender);
+
+    /**
+     * emitted on an attempt to register a claimant on an intent that has already been proven and has a claimant
+     * @param _intentHash the hash of the intent
+     */
+    error IntentAlreadyProven(bytes32 _intentHash);
         
     // local mailbox address
     address immutable MAILBOX;
@@ -56,6 +62,9 @@ contract HyperProver is IMessageRecipient, SimpleProver {
             revert UnauthorizedDispatch(sender);
         }
         (bytes32 intentHash, address claimant) = abi.decode(_messageBody, (bytes32, address));
+        if (provenIntents[intentHash] != address(0)) {
+            revert IntentAlreadyProven(intentHash);
+        }
         provenIntents[intentHash] = claimant;
         emit IntentProven(intentHash, claimant);
     }

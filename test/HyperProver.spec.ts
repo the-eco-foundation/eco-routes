@@ -157,7 +157,7 @@ describe('HyperProver Test', (): void => {
         ),
       ).to.be.revertedWithCustomError(hyperProver, 'UnauthorizedDispatch')
 
-      await expect(inbox.connect(solver).fulfill(...fulfillData, {}))
+      await expect(inbox.connect(solver).fulfillHyperInstant(...fulfillData))
         .to.emit(hyperProver, `IntentProven`)
         .withArgs(intentHash, await claimant.getAddress())
       expect(await hyperProver.provenIntents(intentHash)).to.eq(

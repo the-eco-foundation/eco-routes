@@ -14,6 +14,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 contract Inbox is IInbox, Ownable {
 
+    uint256 public constant MAX_BATCH_SIZE = 10;
+
     using TypeCasts for address;
 
     address public immutable MAILBOX;
@@ -26,6 +28,11 @@ contract Inbox is IInbox, Ownable {
 
     // Is solving public
     bool public isSolvingPublic;
+
+    struct hyperProverMessagePair {
+        bytes32 intentHash;
+        address claimant;
+    }
 
     // Check that the intent has not expired and that the sender is permitted to solve intents
     modifier validated(uint256 _expiryTime, address _solver) {
@@ -65,7 +72,7 @@ contract Inbox is IInbox, Ownable {
     }
     
     // hyperprover fast path
-    function fulfill(
+    function fulfillHyperInstant(
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
@@ -77,7 +84,7 @@ contract Inbox is IInbox, Ownable {
     ) external returns (bytes[] memory) {
         bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
 
-        emit FastFulfillment(_expectedHash, _sourceChainID, _claimant);
+        emit HyperInstantFulfillment(_expectedHash, _sourceChainID, _claimant);
         IMailbox(MAILBOX).dispatch(
             uint32(_sourceChainID),
             _prover.addressToBytes32(),
@@ -85,6 +92,44 @@ contract Inbox is IInbox, Ownable {
             );
         
         return results;
+    }
+
+    // hyperprover batched
+    function fulfillHyperBatched(
+        uint256 _sourceChainID,
+        address[] calldata _targets,
+        bytes[] calldata _data,
+        uint256 _expiryTime,
+        bytes32 _nonce,
+        address _claimant,
+        bytes32 _expectedHash,
+        address _prover
+    ) external returns (bytes[] memory){
+        bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+
+        emit AddToBatch(_expectedHash, _sourceChainID, _claimant, _prover);
+
+        return results;
+    }
+
+    function sendBatch(uint256 _sourceChainID, address _prover, bytes32[] calldata _intentHashes) public{
+        uint256 size = _intentHashes.length;
+        if (size > MAX_BATCH_SIZE) {
+            revert BatchTooLarge();
+        }
+        hyperProverMessagePair[] memory batch = new hyperProverMessagePair[](size);
+        for (uint256 i = 0; i < size; i++) {
+            address claimant = fulfilled[_intentHashes[i]];
+            if (claimant == address(0)) {
+                revert IntentNotFulfilled(_intentHashes[i]);
+            }
+            batch[i]=hyperProverMessagePair(_intentHashes[i], claimant);
+        }
+        IMailbox(MAILBOX).dispatch(
+            uint32(_sourceChainID),
+            _prover.addressToBytes32(),
+            abi.encode(batch)
+            );
     }
 
     // allows the owner to make solving public
