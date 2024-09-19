@@ -53,11 +53,11 @@ switch (networkName) {
     break
   case 'optimismSepolia':
     counter = networks.optimismSepolia.intentSource.counter
-    minimumDuration = networks.optimismSepolia.intentSource.counter
+    minimumDuration = networks.optimismSepolia.intentSource.minimumDuration
     break
   case 'ecoTestNet':
     counter = networks.ecoTestNet.intentSource.counter
-    minimumDuration = networks.ecoTestNet.intentSource.counter
+    minimumDuration = networks.ecoTestNet.intentSource.minimumDuration
     break
   default:
     counter = 0
