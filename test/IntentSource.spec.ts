@@ -302,6 +302,7 @@ describe('Intent Source Test', (): void => {
           rewardAmounts,
           expiry,
           nonce,
+          await prover.getAddress(),
         )
     })
   })
