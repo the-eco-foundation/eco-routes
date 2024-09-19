@@ -86,7 +86,7 @@ const networks: any = {
     proverContractAddress: '0xb31Fd140643dbD868E7732EECB5aC9C859348eb9',
     inboxAddress: '0xE855D08e3798AA174155e8f8684d955056Fe6c8D',
     intentSource: {
-      minimumDuration: 1000,
+      minimumDuration: 0,
       counter: 0,
     },
     proving: {
@@ -115,7 +115,7 @@ const networks: any = {
     proverContractAddress: '0xDDf437F557129f5900b2F9Bd1ca78B2AD90f5630',
     inboxAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
     intentSource: {
-      minimumDuration: 1000,
+      minimumDuration: 0,
       counter: 0,
     },
     proving: {
