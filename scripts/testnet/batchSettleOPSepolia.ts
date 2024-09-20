@@ -129,8 +129,9 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
         // await s.[sourceChain]ProverContract.provenStates(
         networkIds.optimismSepolia,
       )
-      sourceChainInfo.sourceChain = networkIds.sourceChainInfo.lastProvenBlock =
-        optimismSepoliaProvenState.blockNumber
+      console.log('sourceChain: ', sourceChain)
+      console.log('networkIds.sourceChain: ', networkIds[sourceChain])
+      sourceChainInfo.lastProvenBlock = optimismSepoliaProvenState.blockNumber
       if (optimismSepoliaProvenState.blockNumber > inboxDeploymentBlock) {
         sourceChainInfo.lastProvenBlock = optimismSepoliaProvenState.blockNumber
         if (optimismSepoliaProvenState.blockNumber < startingBlockNumber) {
@@ -154,8 +155,8 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
   if (scanAllIntentsForInbox) {
     startingBlockNumber = inboxDeploymentBlock
   }
-  console.log('sourceChains: ', sourceChains)
-  console.log('startingBlockNumber: ', startingBlockNumber.toString())
+  // console.log('sourceChains: ', sourceChains)
+  // console.log('startingBlockNumber: ', startingBlockNumber.toString())
 
   //   if (optimismSepoliaBlockNumber > settlementBlockNumber) {
   // Get the event from the latest Block checking transaction hash
