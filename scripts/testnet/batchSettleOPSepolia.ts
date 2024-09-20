@@ -206,7 +206,7 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
 // Include individual proving Mechanisms for each sourceChain
 // TODO: Consolidate the multiple functions into a parameterized function
 async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
-  console.log('In proveSettlementLayerState')
+  console.log('In proveSettlementLayerState on BaseSepolia')
   const setlementBlock = await s.baseSepolial1Block.number()
   const settlementBlockTag = toQuantity(setlementBlock)
 
@@ -265,9 +265,12 @@ async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
         e.data,
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
-      console.log(`Error in proveSettlementLayerState:`, e.shortMessage)
+      console.log(
+        `Error in proveSettlementLayerState BaseSepolia:`,
+        e.shortMessage,
+      )
     } else {
-      console.log(`Error in proveSettlementLayerState:`, e)
+      console.log(`Error in proveSettlementLayerState BaseSepolia:`, e)
     }
   }
   //   have successfully proven L1 state
@@ -329,9 +332,12 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
         e.data,
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
-      console.log(`Error in proveSettlementLayerState:`, e.shortMessage)
+      console.log(
+        `Error in proveSettlementLayerState EcoTestNet:`,
+        e.shortMessage,
+      )
     } else {
-      console.log(`Error in proveSettlementLayerState:`, e)
+      console.log(`Error in proveSettlementLayerState EcoTestNet:`, e)
     }
   }
   //   have successfully proven L1 state
@@ -568,23 +574,280 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
         e.data,
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
-      console.log(`Error in ProveWorldStateCannon:`, e.shortMessage)
+      console.log(`Error in ProveWorldStateCannon ecoTestNet:`, e.shortMessage)
     } else {
-      console.log(`Error in ProveWorldStateCannon:`, e)
+      console.log(`Error in ProveWorldStateCannon ecoTestNet:`, e)
     }
   }
 }
 
-async function proveWorldStatesOptimismOnEcoTestNet(
+async function proveWorldStateOptimismSepoliaOnBaseSepolia(
+  settlementBlockTag,
+  settlementStateRoot,
   faultDisputeGameAddress,
   faultDisputeGameContract,
   gameIndex,
 ) {
-  console.log('In proveWorldStatesOptimismOnEcoTestNet')
+  console.log('In proveWorldStateCannonBaseToBaseSepolia')
+  // For more information on how DisputeGameFactory utility functions, see the following code
+  // https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L82
+  // get the endBatchBlockData
+
+  // Note: For all proofs we use two block numbers
+  // For anything related to the settlement chain we use settlementBlockTag
+  // For anything related to the destination chain we use endBatchBlockHex
+  const disputeGameFactoryContract = s.sepoliaSettlementContractOptimism
+  // Get the faultDisputeGame game data
+  const faultDisputeGameData = await faultDisputeGameContract.gameData()
+  const faultDisputeGameCreatedAt = await faultDisputeGameContract.createdAt()
+  const faultDisputeGameResolvedAt = await faultDisputeGameContract.resolvedAt()
+  const faultDisputeGameGameStatus = await faultDisputeGameContract.status()
+  const faultDisputeGameInitialized = true
+  const faultDisputeGameL2BlockNumberChallenged = false
+  const faultDisputeGameL2BlockNumber =
+    await faultDisputeGameContract.l2BlockNumber()
+  const endBatchBlockHex = toQuantity(faultDisputeGameL2BlockNumber)
+  const endBatchBlockData = await s.optimismSepoliaProvider.send(
+    'eth_getBlockByNumber',
+    [endBatchBlockHex, false],
+  )
+  const rlpEncodedEndBatchBlockData =
+    await getRLPEncodedBlock(endBatchBlockData)
+
+  // Get the Message Parser State Root at the end block of the batch
+  const l2MesagePasserProof = await s.optimismSepoliaProvider.send(
+    'eth_getProof',
+    [
+      networks.optimismSepolia.proving.l2l1MessageParserAddress,
+      [],
+      endBatchBlockHex,
+    ],
+  )
+
+  // Get the DisputeGameFactory data GameId
+  const faultDisputeGameId = await s.baseSepoliaProverContract.pack(
+    faultDisputeGameData.gameType_,
+    faultDisputeGameCreatedAt,
+    faultDisputeGameAddress,
+  )
+
+  // disputeGameFactoryStorageSlot is where the gameId is stored
+  // In solidity
+  // uint256(keccak256(abi.encode(L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER)))
+  //                       + disputeGameFactoryProofData.gameIndex
+  const disputeGameFactorySlotNumber = 104
+  const disputeGameFactoryGameIndex = gameIndex
+  const arrayLengthSlot = zeroPadValue(
+    toBeArray(disputeGameFactorySlotNumber),
+    32,
+  )
+  const firstElementSlot = solidityPackedKeccak256(
+    ['bytes32'],
+    [arrayLengthSlot],
+  )
+  const disputeGameFactoryStorageSlot = toBeHex(
+    BigInt(firstElementSlot) + BigInt(Number(disputeGameFactoryGameIndex)),
+    32,
+  )
+  const disputeGameFactoryProof = await s.sepoliaProvider.send('eth_getProof', [
+    networks.sepolia.settlementContracts.optimismSepolia,
+    [disputeGameFactoryStorageSlot],
+    settlementBlockTag,
+  ])
+  const disputeGameFactoryContractData = [
+    toBeHex(disputeGameFactoryProof.nonce), // nonce
+    stripZerosLeft(toBeHex(disputeGameFactoryProof.balance)), // balance
+    disputeGameFactoryProof.storageHash, // storageHash
+    disputeGameFactoryProof.codeHash, // CodeHash
+  ]
+  const RLPEncodedDisputeGameFactoryData =
+    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+      disputeGameFactoryContractData,
+    )
+  // populate fields for the DisputeGameFactory proof
+  const disputeGameFactoryProofData = {
+    messagePasserStateRoot: l2MesagePasserProof.storageHash,
+    latestBlockHash: endBatchBlockData.hash,
+    gameIndex: disputeGameFactoryGameIndex,
+    gameId: faultDisputeGameId,
+    disputeFaultGameStorageProof: disputeGameFactoryProof.storageProof[0].proof,
+    rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
+    disputeGameFactoryAccountProof: disputeGameFactoryProof.accountProof,
+  }
+
+  // populate fields for the FaultDisputeGame rootclaim proof
+  // Storage proof for faultDisputeGame root claim
+  // rootClaimSlot - hardcooded value for the slot which is a keecak256 hash  the slot for rootClaim
+  const zeroSlot = solidityPackedKeccak256(
+    ['bytes32'],
+    [zeroPadValue(toBeArray(0), 32)],
+  )
+  console.log('zeroSlot: ', zeroSlot)
+
+  const faultDisputeGameRootClaimStorageSlot =
+    '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
+  console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
+  console.log('settlementBlockTag: ', settlementBlockTag)
+  const faultDisputeGameRootClaimProof = await s.sepoliaProvider.send(
+    'eth_getProof',
+    [
+      faultDisputeGameAddress,
+      [faultDisputeGameRootClaimStorageSlot],
+      settlementBlockTag,
+    ],
+  )
+  // Storage proof for faultDisputeGame resolved
+  // rootClaimSlot - hardcoded value for slot zero which is where the status is stored
+  const faultDisputeGameResolvedStorageSlot =
+    '0x0000000000000000000000000000000000000000000000000000000000000000'
+  // '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
+  const faultDisputeGameRootResolvedProof = await s.sepoliaProvider.send(
+    'eth_getProof',
+    [
+      faultDisputeGameAddress,
+      [faultDisputeGameResolvedStorageSlot],
+      settlementBlockTag,
+    ],
+  )
+  const faultDisputeGameContractData = [
+    toBeHex(faultDisputeGameRootClaimProof.nonce), // nonce
+    stripZerosLeft(toBeHex(faultDisputeGameRootClaimProof.balance)), // balance
+    faultDisputeGameRootClaimProof.storageHash, // storageHash
+    faultDisputeGameRootClaimProof.codeHash, // CodeHash
+  ]
+  const RLPEncodedFaultDisputeGameContractData =
+    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+      faultDisputeGameContractData,
+    )
+  const faultDisputeGameProofData = {
+    // faultDisputeGameStateRoot: endBatchBlockData.stateRoot,
+    faultDisputeGameStateRoot: faultDisputeGameRootClaimProof.storageHash,
+    faultDisputeGameRootClaimStorageProof:
+      faultDisputeGameRootClaimProof.storageProof[0].proof,
+    faultDisputeGameStatusSlotData: {
+      createdAt: faultDisputeGameCreatedAt,
+      resolvedAt: faultDisputeGameResolvedAt,
+      gameStatus: faultDisputeGameGameStatus,
+      initialized: faultDisputeGameInitialized,
+      l2BlockNumberChallenged: faultDisputeGameL2BlockNumberChallenged,
+    },
+    // populate fields for the FaultDisputeGame resolved proof
+    faultDisputeGameStatusStorageProof:
+      faultDisputeGameRootResolvedProof.storageProof[0].proof,
+    rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameContractData,
+    faultDisputeGameAccountProof: faultDisputeGameRootClaimProof.accountProof,
+  }
+
+  // try {
+  // Note: ProveStorage and ProveAccount are pure functions and included here just for unit testing
+  const { gameProxy_ } = await s.baseSepoliaProverContract.unpack(
+    disputeGameFactoryProofData.gameId,
+  )
+  // proveStorageDisputeGameFactory
+  await s.baseSepoliaProverContract.proveStorage(
+    disputeGameFactoryStorageSlot,
+    encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameId))),
+    // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
+    disputeGameFactoryProof.storageProof[0].proof,
+    disputeGameFactoryProof.storageHash,
+  )
+  // proveAccountDisputeGameFactory
+  await s.baseSepoliaProverContract.proveAccount(
+    networks.sepolia.settlementContracts.optimismSepolia,
+    disputeGameFactoryProofData.rlpEncodedDisputeGameFactoryData,
+    disputeGameFactoryProofData.disputeGameFactoryAccountProof,
+    settlementStateRoot,
+  )
+  // proveStorageFaultDisputeGameRootClaim
+  await s.baseSepoliaProverContract.proveStorage(
+    faultDisputeGameRootClaimStorageSlot,
+    encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
+    // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
+    faultDisputeGameRootClaimProof.storageProof[0].proof,
+    faultDisputeGameRootClaimProof.storageHash,
+  )
+  // proveStorageFaultDisputeGameResolved
+  console.log(
+    'faultDisputeGameResolvedStorageSlot: ',
+    faultDisputeGameResolvedStorageSlot,
+  )
+  await s.baseSepoliaProverContract.proveStorage(
+    faultDisputeGameResolvedStorageSlot,
+    await s.baseSepoliaProverContract.assembleGameStatusStorage(
+      faultDisputeGameCreatedAt,
+      faultDisputeGameResolvedAt,
+      faultDisputeGameGameStatus,
+      faultDisputeGameInitialized,
+      faultDisputeGameL2BlockNumberChallenged,
+    ),
+    faultDisputeGameRootResolvedProof.storageProof[0].proof,
+    faultDisputeGameRootResolvedProof.storageHash,
+  )
+  // proveAccountFaultDisputeGame
+  await s.baseSepoliaProverContract.proveAccount(
+    // faultDisputeGameAddress,
+    // '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
+    gameProxy_,
+    faultDisputeGameProofData.rlpEncodedFaultDisputeGameData,
+    faultDisputeGameProofData.faultDisputeGameAccountProof,
+    settlementStateRoot,
+  )
+  try {
+    // console.log('proveWorldStateCannon')
+    const proveWorldStateCannonTx =
+      await s.baseSepoliaProverContract.proveWorldStateCannon(
+        networkIds.optimismSepolia,
+        rlpEncodedEndBatchBlockData,
+        endBatchBlockData.stateRoot,
+        disputeGameFactoryProofData,
+        faultDisputeGameProofData,
+        settlementStateRoot,
+      )
+    await proveWorldStateCannonTx.wait()
+    console.log('ProveWorldStateCannon Base to Optimism')
+    return endBatchBlockData
+  } catch (e) {
+    if (e.data && s.baseSepoliaProverContract) {
+      const decodedError = s.baseSepoliaProverContract.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed: ${decodedError?.name}`)
+      console.log(`Error in ProveWorldStateCannon baseSepolia:`, e.shortMessage)
+    } else {
+      console.log(`Error in ProveWorldStateCannon baseSepolia:`, e)
+    }
+  }
+}
+
+async function proveWorldStatesOptimismSepoliaOnEcoTestNet(
+  faultDisputeGameAddress,
+  faultDisputeGameContract,
+  gameIndex,
+) {
+  console.log('In proveWorldStatesOptimismSepoliaOnEcoTestNet')
   const { settlementBlockTag, settlementWorldStateRoot } =
     await proveSepoliaSettlementLayerStateOnEcoTestNet() // Prove the Sepolia Settlement Layer State
 
   const endBatchBlockData = await proveWorldStateOptimismSepoliaOnEcoTestNet(
+    settlementBlockTag,
+    settlementWorldStateRoot,
+    faultDisputeGameAddress,
+    faultDisputeGameContract,
+    gameIndex,
+  )
+  return endBatchBlockData
+}
+
+async function proveWorldStatesOptimismSepoliaOnBaseSepolia(
+  faultDisputeGameAddress,
+  faultDisputeGameContract,
+  gameIndex,
+) {
+  console.log('In proveWorldStatesOptimismSepoliaOnBaseSepolia')
+  const { settlementBlockTag, settlementWorldStateRoot } =
+    await proveSepoliaSettlementLayerStateOnBaseSepolia() // Prove the Sepolia Settlement Layer State
+
+  const endBatchBlockData = await proveWorldStateOptimismSepoliaOnBaseSepolia(
     settlementBlockTag,
     settlementWorldStateRoot,
     faultDisputeGameAddress,
@@ -613,31 +876,35 @@ export async function proveOpSepoliaBatchSettled(
           // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
           switch (sourceChain.sourceChain) {
             case networkIds.baseSepolia: {
-              console.log('In baseSepolia')
-              await proveSepoliaSettlementLayerStateOnBaseSepolia()
-              //       proveWorldStateOptimismSepoliaOnBaseSepolia()
+              console.log('In baseSepolia proveOpSepoliaBatchSettled')
+              const endBatchBlockData =
+                await proveWorldStatesOptimismSepoliaOnBaseSepolia(
+                  faultDisputeGameAddress,
+                  faultDisputeGameContract,
+                  gameIndex,
+                )
+              console.log('baseSepolia endBatchBlockData: ', endBatchBlockData)
               break
             }
             case networkIds.optimismSepolia: {
-              console.log('In optimismSepolia')
+              console.log('In optimismSepolia proveOpSepoliaBatchSettled')
               break
             }
             case networkIds.ecoTestNet: {
               console.log('In ecoTestNet')
               const endBatchBlockData =
-                await proveWorldStatesOptimismOnEcoTestNet(
+                await proveWorldStatesOptimismSepoliaOnEcoTestNet(
                   faultDisputeGameAddress,
                   faultDisputeGameContract,
                   gameIndex,
                 )
-              console.log('endBatchBlockData: ', endBatchBlockData)
+              console.log('ecoTestnet endBatchBlockData: ', endBatchBlockData)
               break
             }
             default: {
               break
             }
           }
-          // Update the OptimismSepolia WorldState
         }
       },
     ),
