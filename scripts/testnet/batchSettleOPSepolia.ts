@@ -358,7 +358,6 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
   // Note: For all proofs we use two block numbers
   // For anything related to the settlement chain we use settlementBlockTag
   // For anything related to the destination chain we use endBatchBlockHex
-  const disputeGameFactoryContract = s.sepoliaSettlementContractOptimism
   // Get the faultDisputeGame game data
   const faultDisputeGameData = await faultDisputeGameContract.gameData()
   const faultDisputeGameCreatedAt = await faultDisputeGameContract.createdAt()
@@ -596,7 +595,6 @@ async function proveWorldStateOptimismSepoliaOnBaseSepolia(
   // Note: For all proofs we use two block numbers
   // For anything related to the settlement chain we use settlementBlockTag
   // For anything related to the destination chain we use endBatchBlockHex
-  const disputeGameFactoryContract = s.sepoliaSettlementContractOptimism
   // Get the faultDisputeGame game data
   const faultDisputeGameData = await faultDisputeGameContract.gameData()
   const faultDisputeGameCreatedAt = await faultDisputeGameContract.createdAt()
@@ -858,12 +856,10 @@ async function proveWorldStatesOptimismSepoliaOnBaseSepolia(
 }
 
 export async function proveOpSepoliaBatchSettled(
-  blockNumber,
   gameIndex,
   faultDisputeGameAddress,
   faultDisputeGameContract,
   sourceChains,
-  intentsToProve,
 ) {
   console.log('In proveOpSepoliaBatchSettled')
 
@@ -947,12 +943,10 @@ async function main() {
       await getIntentsToProve(blockNumber)
     // Prove the latest batch settled
     await proveOpSepoliaBatchSettled(
-      blockNumber,
       gameIndex,
       faultDisputeGameAddress,
       faultDisputeGameContract,
       sourceChains,
-      intentsToProve,
     )
     // Prove all the intents
     await proveIntents(sourceChains, intentsToProve)
