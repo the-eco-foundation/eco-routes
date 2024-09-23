@@ -28,6 +28,26 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
   const expiryTime: BigNumberish = latestBlock?.timestamp + intent.duration
   let intentHash
   try {
+    console.log('networkIds.ecoTestNet: ', networkIds.ecoTestNet)
+    console.log(
+      'networks.ecoTestNet.inbox.address: ',
+      networks.ecoTestNet.inbox.address,
+    )
+    console.log(
+      '[networks.ecoTestNet.usdcAddress][0]: ',
+      [networks.ecoTestNet.usdcAddress][0],
+    )
+    console.log('data: ', data)
+    console.log(
+      '[networks.baseSepolia.usdcAddress][0]: ',
+      [networks.baseSepolia.usdcAddress][0],
+    )
+    console.log('intent.rewardAmounts: ', intent.rewardAmounts)
+    console.log('expiryTime: ', expiryTime)
+    console.log(
+      'networks.baseSepolia.proverContract.address: ',
+      networks.baseSepolia.proverContract.address,
+    )
     const intentTx =
       await s.baseSepoliaIntentSourceContractIntentCreator.createIntent(
         networkIds.ecoTestNet, // desination chainId
