@@ -106,17 +106,20 @@ export async function getBatchSettled() {
     gameIndex -= 1n
   }
 }
-export async function getIntentsToProve(settlementBlockNumber: BigInt) {
+export async function getIntentsToProve(
+  settlementBlockNumber: BigInt,
+  proveAll: boolean,
+) {
   // get BaseSepolia Last OptimimsmSepolia BlockNumber from WorldState
 
   const sourceChainConfig = networks.optimismSepolia.sourceChains
   const sourceChains: Record<number, SourceChainInfo> = {}
   // get the starting block to scan for intents
   let optimismSepoliaProvenState
-  let startingBlockNumber = 0n
   let scanAllIntentsForInbox = false
   // TODO change to use contract factory for deploys then can use ethers deploymentTransaction to get the blockNumber
-  startingBlockNumber = networks.optimismSepolia.proverContract.deploymentBlock
+  let startingBlockNumber =
+    networks.optimismSepolia.proverContract.deploymentBlock || 0n
   const inboxDeploymentBlock = networks.optimismSepolia.inbox.deploymentBlock
   // TODO: Parmaeterize the calls to provenStates and remove switch
   for (const sourceChain of sourceChainConfig) {
@@ -132,14 +135,22 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
       console.log('sourceChain: ', sourceChain)
       console.log('networkIds.sourceChain: ', networkIds[sourceChain])
       sourceChainInfo.lastProvenBlock = optimismSepoliaProvenState.blockNumber
-      if (optimismSepoliaProvenState.blockNumber > inboxDeploymentBlock) {
-        sourceChainInfo.lastProvenBlock = optimismSepoliaProvenState.blockNumber
-        if (optimismSepoliaProvenState.blockNumber < startingBlockNumber) {
-          startingBlockNumber = optimismSepoliaProvenState.blockNumber
-        }
-      } else {
+      if (proveAll) {
         sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
+        sourceChainInfo.needNewProvenState = true
+        startingBlockNumber = inboxDeploymentBlock
         scanAllIntentsForInbox = true
+      } else {
+        if (optimismSepoliaProvenState.blockNumber > inboxDeploymentBlock) {
+          sourceChainInfo.lastProvenBlock =
+            optimismSepoliaProvenState.blockNumber
+          if (optimismSepoliaProvenState.blockNumber < startingBlockNumber) {
+            startingBlockNumber = optimismSepoliaProvenState.blockNumber
+          }
+        } else {
+          sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
+          scanAllIntentsForInbox = true
+        }
       }
       sourceChainInfo.needNewProvenState = false
       sourceChains[networkIds[sourceChain]] = sourceChainInfo
@@ -922,6 +933,7 @@ export async function withdrawFunds(sourceChains, intentsToProve) {
 }
 
 async function main() {
+  const proveAll: boolean = true
   // define the variables used for each state of the intent lifecycle
   // Point in time proving for latest batch
   // let intentHash, intentFulfillTransaction
@@ -948,8 +960,10 @@ async function main() {
     console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
 
     // Get all the intents that can be proven for the batch by destination chain
-    const { sourceChains, intentsToProve } =
-      await getIntentsToProve(blockNumber)
+    const { sourceChains, intentsToProve } = await getIntentsToProve(
+      blockNumber,
+      proveAll,
+    )
     // Prove the latest batch settled
     await proveDestinationChainBatchSettled(
       gameIndex,
