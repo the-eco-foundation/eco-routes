@@ -1,5 +1,3 @@
-import { bedrock, cannon } from '../../test/testData'
-
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0, // Destination is Self
@@ -22,9 +20,13 @@ const provingMechanisms: any = {
   20: 'bedrock',
   21: 'bedrockL2L3',
   22: 'bedrockL3L2',
+  23: 'bedrockL1Settlement',
+  24: 'bedrockL2Settlement',
   30: 'cannon',
   31: 'cannonL2L3',
   32: 'cannonL3L2',
+  33: 'cannonL1Settlement',
+  34: 'cannonL2Settlement',
   40: 'hyperProver',
 }
 
@@ -474,7 +476,6 @@ export {
   provingState,
   networkIds,
   intent,
-  // enshrined,
   actors,
   networks,
   routes,
