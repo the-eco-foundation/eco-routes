@@ -85,7 +85,9 @@ async function main() {
     optimismSepoliaChainConfiguration,
     ecoTestNetChainConfiguration,
   ])
-  let receipt = await singletonFactory.deploy(proverDeployTx.data, salt)
+  let receipt = await singletonFactory.deploy(proverDeployTx.data, salt, {
+    gasLimit: 5000000,
+  })
   console.log('Prover deployed in tx with hash: ', receipt.hash)
 
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
@@ -93,7 +95,9 @@ async function main() {
     minimumDuration,
     counter,
   )
-  receipt = await singletonFactory.deploy(intentSourceDeployTx.data, salt)
+  receipt = await singletonFactory.deploy(intentSourceDeployTx.data, salt, {
+    gasLimit: 1500000,
+  })
   console.log('intentSource deployed in tx with hash: ', receipt.hash)
 
   const inboxFactory = await ethers.getContractFactory('Inbox')
@@ -103,7 +107,9 @@ async function main() {
     false,
     [actors.solver],
   )
-  receipt = await singletonFactory.deploy(inboxDeployTx.data, salt)
+  receipt = await singletonFactory.deploy(inboxDeployTx.data, salt, {
+    gasLimit: 1000000,
+  })
   console.log('Inbox deployed in tx with hash: ', receipt.hash)
 
   // adding a try catch as if the contract has previously been deployed will get a
