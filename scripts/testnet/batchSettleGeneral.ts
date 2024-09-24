@@ -1,12 +1,12 @@
 import {
-  // AbiCoder,
+  AbiCoder,
   Block,
   Contract,
   encodeRlp,
   getAddress,
   getBytes,
   hexlify,
-  // keccak256,
+  keccak256,
   solidityPackedKeccak256,
   stripZerosLeft,
   toBeArray,
@@ -18,7 +18,7 @@ import {
 import {
   networkIds,
   networks,
-  // actors,
+  actors,
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
@@ -874,7 +874,7 @@ export async function proveDestinationChainBatchSettled(
   sourceChains,
 ) {
   console.log('In proveDestinationChainBatchSettled')
-
+  let endBatchBlockData
   await Promise.all(
     await Object.entries(sourceChains).map(
       async ([sourceChainkey, sourceChain]) => {
@@ -885,7 +885,7 @@ export async function proveDestinationChainBatchSettled(
           switch (sourceChain.sourceChain) {
             case networkIds.baseSepolia: {
               console.log('In baseSepolia proveDestinationChainBatchSettled')
-              const endBatchBlockData = await proveWorldStatesCannon(
+              endBatchBlockData = await proveWorldStatesCannon(
                 faultDisputeGameAddress,
                 faultDisputeGameContract,
                 gameIndex,
@@ -901,7 +901,7 @@ export async function proveDestinationChainBatchSettled(
             }
             case networkIds.ecoTestNet: {
               console.log('In ecoTestNet')
-              const endBatchBlockData = await proveWorldStatesCannonL2L3(
+              endBatchBlockData = await proveWorldStatesCannonL2L3(
                 faultDisputeGameAddress,
                 faultDisputeGameContract,
                 gameIndex,
@@ -917,19 +917,287 @@ export async function proveDestinationChainBatchSettled(
       },
     ),
   )
-}
-export async function proveIntents(sourceChains, intentsToProve) {
-  // loop through chainIds and intents
-  // On new chainId, update the chains Optimism WorldState (and Ethereum and Base if needed)
-  // prove each intent
-  console.log('In proveIntents')
+  return endBatchBlockData
 }
 
-export async function withdrawFunds(sourceChains, intentsToProve) {
+async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
+  console.log('In proveIntentBaseSepolia')
+  const inboxStorageSlot = solidityPackedKeccak256(
+    ['bytes'],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
+  )
+  console.log(
+    'networks.optimismSepolia.inbox.address: ',
+    networks.optimismSepolia.inbox.address,
+  )
+  console.log('inboxStorageSlot: ', inboxStorageSlot)
+  console.log('endBatchBlockData.number: ', endBatchBlockData.number)
+  const intentInboxProof = await s.optimismSepoliaProvider.send(
+    'eth_getProof',
+    [
+      networks.optimismSepolia.inbox.address,
+      [inboxStorageSlot],
+      endBatchBlockData.number,
+    ],
+  )
+
+  const intentInfo =
+    await s.baseSepoliaIntentSourceContractClaimant.getIntent(intentHash)
+
+  const abiCoder = AbiCoder.defaultAbiCoder()
+  const intermediateHash = keccak256(
+    abiCoder.encode(
+      ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+      [
+        networkIds.baseSepolia, // sourceChainID
+        intentInfo[1], // destinationChainID
+        intentInfo[2], // targetTokens
+        intentInfo[3], // callData
+        intentInfo[6], // expiryTime
+        getBytes(intentInfo[8]), // nonce),
+      ],
+    ),
+  )
+
+  try {
+    console.log('Proving Intent')
+    console.log('networkIds.optimismSepolia: ', networkIds.optimismSepolia)
+    console.log('actors.claimant: ', actors.claimant)
+    console.log(
+      'networks.optimismSepolia.inbox.address: ',
+      networks.optimismSepolia.inbox.address,
+    )
+    console.log('intermediateHash: ', intermediateHash)
+    console.log(
+      'intentInboxProof.storageProof[0].proof: ',
+      intentInboxProof.storageProof[0].proof,
+    )
+    console.log(
+      'baseProverContract.rlpEncodeDataLibList: ',
+      await s.baseSepoliaProverContract.rlpEncodeDataLibList([
+        toBeHex(intentInboxProof.nonce), // nonce
+        stripZerosLeft(toBeHex(intentInboxProof.balance)),
+        intentInboxProof.storageHash,
+        intentInboxProof.codeHash,
+      ]),
+    )
+    console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
+    const proveIntentTx = await s.baseSepoliaProverContract.proveIntent(
+      networkIds.optimismSepolia,
+      actors.claimant,
+      networks.optimismSepolia.inbox.address,
+      intermediateHash,
+      intentInboxProof.storageProof[0].proof,
+      await s.baseSepoliaProverContract.rlpEncodeDataLibList([
+        toBeHex(intentInboxProof.nonce), // nonce
+        stripZerosLeft(toBeHex(intentInboxProof.balance)),
+        intentInboxProof.storageHash,
+        intentInboxProof.codeHash,
+      ]),
+      intentInboxProof.accountProof,
+      endBatchBlockData.stateRoot,
+    )
+    await proveIntentTx.wait()
+    console.log('Prove Intent tx:', proveIntentTx.hash)
+    return proveIntentTx.hash
+  } catch (e) {
+    if (e.data && s.baseSepoliaProverContract) {
+      const decodedError = s.baseSepoliaProverContract.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed in proveIntent : ${decodedError?.name}`)
+      console.log('proveIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in proveIntent:`, e)
+    }
+  }
+}
+
+async function proveIntentEcoTestNet(intentHash, endBatchBlockData) {
+  console.log('In proveIntentEcoTestNet')
+  const inboxStorageSlot = solidityPackedKeccak256(
+    ['bytes'],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
+  )
+  console.log(
+    'networks.optimismSepolia.inbox.address: ',
+    networks.optimismSepolia.inbox.address,
+  )
+  console.log('inboxStorageSlot: ', inboxStorageSlot)
+  console.log('endBatchBlockData.number: ', endBatchBlockData.number)
+  const intentInboxProof = await s.optimismSepoliaProvider.send(
+    'eth_getProof',
+    [
+      networks.optimismSepolia.inbox.address,
+      [inboxStorageSlot],
+      endBatchBlockData.number,
+    ],
+  )
+
+  const intentInfo =
+    await s.ecoTestNetIntentSourceContractClaimant.getIntent(intentHash)
+
+  const abiCoder = AbiCoder.defaultAbiCoder()
+  const intermediateHash = keccak256(
+    abiCoder.encode(
+      ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+      [
+        networkIds.ecoTestNet, // sourceChainID
+        intentInfo[1], // destinationChainID
+        intentInfo[2], // targetTokens
+        intentInfo[3], // callData
+        intentInfo[6], // expiryTime
+        getBytes(intentInfo[8]), // nonce),
+      ],
+    ),
+  )
+
+  try {
+    console.log('Proving Intent')
+    console.log('networkIds.optimismSepolia: ', networkIds.optimismSepolia)
+    console.log('actors.claimant: ', actors.claimant)
+    console.log(
+      'networks.optimismSepolia.inbox.address: ',
+      networks.optimismSepolia.inbox.address,
+    )
+    console.log('intermediateHash: ', intermediateHash)
+    console.log(
+      'intentInboxProof.storageProof[0].proof: ',
+      intentInboxProof.storageProof[0].proof,
+    )
+    console.log(
+      'baseProverContract.rlpEncodeDataLibList: ',
+      await s.ecoTestNetProverContract.rlpEncodeDataLibList([
+        toBeHex(intentInboxProof.nonce), // nonce
+        stripZerosLeft(toBeHex(intentInboxProof.balance)),
+        intentInboxProof.storageHash,
+        intentInboxProof.codeHash,
+      ]),
+    )
+    console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
+    const proveIntentTx = await s.ecoTestNetProverContract.proveIntent(
+      networkIds.optimismSepolia,
+      actors.claimant,
+      networks.optimismSepolia.inbox.address,
+      intermediateHash,
+      intentInboxProof.storageProof[0].proof,
+      await s.ecoTestNetProverContract.rlpEncodeDataLibList([
+        toBeHex(intentInboxProof.nonce), // nonce
+        stripZerosLeft(toBeHex(intentInboxProof.balance)),
+        intentInboxProof.storageHash,
+        intentInboxProof.codeHash,
+      ]),
+      intentInboxProof.accountProof,
+      endBatchBlockData.stateRoot,
+    )
+    await proveIntentTx.wait()
+    console.log('Prove Intent tx:', proveIntentTx.hash)
+    return proveIntentTx.hash
+  } catch (e) {
+    if (e.data && s.ecoTestNetProverContract) {
+      const decodedError = s.ecoTestNetProverContract.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed in proveIntent : ${decodedError?.name}`)
+      console.log('proveIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in proveIntent:`, e)
+    }
+  }
+}
+
+export async function proveIntents(intentsToProve, endBatchBlockData) {
   // loop through chainIds and intents
-  // On new chainId, update the chains Optimism WorldState (and Ethereum and Base if needed)
   // prove each intent
+  console.log('In proveIntents')
+  console.log('intentsToProve: ', intentsToProve)
+  // await Promise.all(
+  for (const intent of intentsToProve) {
+    // await Object.entries(intentsToProve).map(async ([intentKey, intent]) => {
+    // console.log('intentKey: ', intentKey)
+    console.log('intent: ', intent)
+    switch (intent.sourceChain) {
+      case networkIds.baseSepolia: {
+        await proveIntentBaseSepolia(intent.intentHash, endBatchBlockData)
+        break
+      }
+      case networkIds.optimismSepolia: {
+        break
+      }
+      case networkIds.ecoTestNet: {
+        await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
+        break
+      }
+    }
+  }
+  // }),
+  // )
+}
+
+async function withdrawRewardBaseSepolia(intentHash) {
+  console.log('In withdrawReward')
+  try {
+    const withdrawTx =
+      await s.baseSepoliaIntentSourceContractClaimant.withdrawRewards(
+        intentHash,
+      )
+    await withdrawTx.wait()
+    console.log('Withdrawal tx: ', withdrawTx.hash)
+    return withdrawTx.hash
+  } catch (e) {
+    if (e.data && s.baseSepoliaIntentSourceContractClaimant) {
+      const decodedError =
+        s.baseSepoliaIntentSourceContractClaimant.interface.parseError(e.data)
+      console.log(
+        `Transaction failed in withdrawReward : ${decodedError?.name}`,
+      )
+    } else {
+      console.log(`Error in withdrawReward:`, e)
+    }
+  }
+}
+
+async function withdrawRewardEcoTestNet(intentHash) {
+  console.log('In withdrawReward')
+  try {
+    const withdrawTx =
+      await s.ecoTestNetIntentSourceContractClaimant.withdrawRewards(intentHash)
+    await withdrawTx.wait()
+    console.log('Withdrawal tx: ', withdrawTx.hash)
+    return withdrawTx.hash
+  } catch (e) {
+    if (e.data && s.ecoTestNetIntentSourceContractClaimant) {
+      const decodedError =
+        s.ecoTestNetIntentSourceContractClaimant.interface.parseError(e.data)
+      console.log(
+        `Transaction failed in withdrawReward : ${decodedError?.name}`,
+      )
+    } else {
+      console.log(`Error in withdrawReward:`, e)
+    }
+  }
+}
+
+export async function withdrawFunds(intentsToProve) {
   console.log('In withdrawFunds')
+  for (const intent of intentsToProve) {
+    // await Object.entries(intentsToProve).map(async ([intentKey, intent]) => {
+    // console.log('intentKey: ', intentKey)
+    console.log('intent: ', intent)
+    switch (intent.sourceChain) {
+      case networkIds.baseSepolia: {
+        await withdrawRewardBaseSepolia(intent.intentHash)
+        break
+      }
+      case networkIds.optimismSepolia: {
+        break
+      }
+      case networkIds.ecoTestNet: {
+        await withdrawRewardEcoTestNet(intent.intentHash)
+        break
+      }
+    }
+  }
 }
 
 async function main() {
@@ -965,15 +1233,16 @@ async function main() {
       proveAll,
     )
     // Prove the latest batch settled
-    await proveDestinationChainBatchSettled(
+    const endBatchBlockData = await proveDestinationChainBatchSettled(
       gameIndex,
       faultDisputeGameAddress,
       faultDisputeGameContract,
       sourceChains,
     )
     // Prove all the intents
-    await proveIntents(sourceChains, intentsToProve)
-    await withdrawFunds(sourceChains, intentsToProve)
+    console.log('endBatchBlockData: ', endBatchBlockData)
+    await proveIntents(intentsToProve, endBatchBlockData)
+    await withdrawFunds(intentsToProve)
   } catch (e) {
     console.log(e)
   }
