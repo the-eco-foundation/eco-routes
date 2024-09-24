@@ -1,16 +1,42 @@
+import { bedrock, cannon } from '../../test/testData'
+
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
-  self: 0,
-  bedrock: 1,
-  cannon: 2,
-  nitro: 3,
-  hyperProver: 4,
+  self: 0, // Destination is Self
+  settlement: 10, // Source Chain is an L2 Destination is Settlement Chain
+  settlementL3: 11, // Source Chain is an L3 Destination is Settlement Chain
+  bedrock: 20, // Source Chain is an L2 Destination Chain is an L2 using Bedrock
+  bedrockL2L3: 21, // Source Chain is an L2 Destination Chain is an L3 using Bedrock
+  bedrockL3L2: 22, // Source Chain is an L3 Destination Chain is an L2 using Bedrock
+  bedrockL1Settlement: 23, // Source Chain is an L1 settlement chain for the Destination Chain which is an L2 using Bedrock
+  bedrockL2Settlement: 24, // Source Chain is the L2 settlement chain for the Destination Chain which is an L3 using Bedrock
+  cannon: 30, // Source Chain is an L2 Destination Chain is an L2 using Cannon
+  cannonL2L3: 31, // Source Chain is an L2 Destination Chain is an L3 using Cannon
+  cannonL3L2: 32, // Source Chain is an L3 Destination Chain is an L2 using Cannon
+  cannonL1Settlement: 33, // Source Chain is an L1 settlement chain for the Destination Chain which is an L2 using Cannon
+  cannonL2Settlement: 34, // Source Chain is the L2 settlement chain for the Destination Chain which is an L3 using Cannon
+  hyperProver: 40, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
   0: 'self',
-  1: 'bedrock',
-  2: 'cannon',
-  3: 'nitro',
-  4: 'hyperProver',
+  10: 'settlement',
+  11: 'settlementL3',
+  20: 'bedrock',
+  21: 'bedrockL2L3',
+  22: 'bedrockL3L2',
+  30: 'cannon',
+  31: 'cannonL2L3',
+  32: 'cannonL3L2',
+  40: 'hyperProver',
 }
+
+const provingState: any = {
+  finalized: 0,
+  posted: 1,
+  confirmed: 2,
+  0: 'finalized', // Finalized on Settlement Chain
+  1: 'posted', // Posted to Settlement Chain
+  2: 'confirmed', // Confirmed Locally
+}
+
 const networkIds: any = {
   sepolia: 11155111,
   optimismSepolia: 11155420,
@@ -201,6 +227,8 @@ const routes: any = [
           address: networks.baseSepolia.inbox.address,
           variableName: 'baseSepoliaInboxContractSolver',
         },
+        provingMechanism: provingMechanisms.settlementL3,
+        provingState: provingState.finalized,
       },
     },
     intent: {
@@ -244,6 +272,8 @@ const routes: any = [
           variableName: 'optimismSepoliaInboxContractSolver',
         },
       },
+      provingMechanism: provingMechanisms.bedrockL3L2,
+      provingState: provingState.finalized,
     },
     intent: {
       contracts: {
@@ -285,6 +315,8 @@ const routes: any = [
           address: networks.optimismSepolia.inbox.address,
           variableName: 'optimismSepoliaInboxContractSolver',
         },
+        provingMechanism: provingMechanisms.cannon,
+        provingState: provingState.finalized,
       },
     },
     intent: {
@@ -327,6 +359,8 @@ const routes: any = [
           address: networks.ecoTestNet.inbox.address,
           variableName: 'ecoTestNetInboxContractSolver',
         },
+        provingMechanism: provingMechanisms.bedrockL2Settlement,
+        provingState: provingState.finalized,
       },
     },
     intent: {
@@ -369,6 +403,8 @@ const routes: any = [
           address: networks.ecoTestNet.inbox.address,
           variableName: 'ecoTestNetInboxContractSolver',
         },
+        provingMechanism: provingMechanisms.cannonL2L3,
+        provingState: provingState.finalized,
       },
     },
     intent: {
@@ -411,6 +447,8 @@ const routes: any = [
           address: networks.baseSepolia.inbox.address,
           variableName: 'baseSepoliaInboxContractSolver',
         },
+        provingMechanism: provingMechanisms.cannon,
+        provingState: provingState.finalized,
       },
     },
     intent: {
@@ -433,6 +471,7 @@ const routes: any = [
 
 export {
   provingMechanisms,
+  provingState,
   networkIds,
   intent,
   // enshrined,
