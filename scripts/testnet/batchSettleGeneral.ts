@@ -925,21 +925,6 @@ async function main() {
   // define the variables used for each state of the intent lifecycle
   // Point in time proving for latest batch
   // let intentHash, intentFulfillTransaction
-  console.log('In Main')
-  console.log('Batch Settle')
-  const destinations = await getDestinationChains()
-  await Promise.all(
-    await Object.entries(destinations).map(
-      async ([destinationKey, destinationInfo]) => {
-        await proveAndWithdrawIntentsForDestination(destinationInfo)
-      },
-    ),
-  )
-}
-async function main() {
-  // define the variables used for each state of the intent lifecycle
-  // Point in time proving for latest batch
-  // let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
     // const destinations = await getDestinationChains()
