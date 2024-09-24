@@ -1,32 +1,32 @@
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
-  self: 0, // Destination is Self
-  settlement: 10, // Source Chain is an L2 Destination is Settlement Chain
-  settlementL3: 11, // Source Chain is an L3 Destination is Settlement Chain
-  bedrock: 20, // Source Chain is an L2 Destination Chain is an L2 using Bedrock
-  bedrockL2L3: 21, // Source Chain is an L2 Destination Chain is an L3 using Bedrock
-  bedrockL3L2: 22, // Source Chain is an L3 Destination Chain is an L2 using Bedrock
-  bedrockL1Settlement: 23, // Source Chain is an L1 settlement chain for the Destination Chain which is an L2 using Bedrock
-  bedrockL2Settlement: 24, // Source Chain is the L2 settlement chain for the Destination Chain which is an L3 using Bedrock
-  cannon: 30, // Source Chain is an L2 Destination Chain is an L2 using Cannon
-  cannonL2L3: 31, // Source Chain is an L2 Destination Chain is an L3 using Cannon
-  cannonL3L2: 32, // Source Chain is an L3 Destination Chain is an L2 using Cannon
-  cannonL1Settlement: 33, // Source Chain is an L1 settlement chain for the Destination Chain which is an L2 using Cannon
-  cannonL2Settlement: 34, // Source Chain is the L2 settlement chain for the Destination Chain which is an L3 using Cannon
+  // self: 0, // Destination is Self
+  // settlement: 10, // Source Chain is an L2, Destination is A L1 Settlement Chain
+  settlementL3: 11, // Source Chain is an L3, Destination is a L2 Settlement Chain
+  // bedrock: 20, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
+  // bedrockL2L3: 21, // Source Chain is an L2, Destination Chain is an L3 using Bedrock
+  bedrockL3L2: 22, // Source Chain is an L3, Destination Chain is an L2 using Bedrock
+  // bedrockL1Settlement: 23, // Source Chain is an L1, settlement chain for the Destination Chain which is an L2 using Bedrock
+  bedrockL2Settlement: 24, // Source Chain is the L2, settlement chain for the Destination Chain which is an L3 using Bedrock
+  cannon: 30, // Source Chain is an L2, Destination Chain is an L2 using Cannon
+  cannonL2L3: 31, // Source Chain is an L2, Destination Chain is an L3 using Cannon
+  // cannonL3L2: 32, // Source Chain is an L3, Destination Chain is an L2 using Cannon
+  // cannonL1Settlement: 33, // Source Chain is an L1 settlement chain for the Destination Chain which is an L2 using Cannon
+  // cannonL2Settlement: 34, // Source Chain is the L2 settlement chain for the Destination Chain which is an L3 using Cannon
   hyperProver: 40, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
-  0: 'self',
-  10: 'settlement',
+  // 0: 'self',
+  // 10: 'settlement',
   11: 'settlementL3',
-  20: 'bedrock',
-  21: 'bedrockL2L3',
+  // 20: 'bedrock',
+  // 21: 'bedrockL2L3',
   22: 'bedrockL3L2',
-  23: 'bedrockL1Settlement',
+  // 23: 'bedrockL1Settlement',
   24: 'bedrockL2Settlement',
   30: 'cannon',
   31: 'cannonL2L3',
-  32: 'cannonL3L2',
-  33: 'cannonL1Settlement',
-  34: 'cannonL2Settlement',
+  // 32: 'cannonL3L2',
+  // 33: 'cannonL1Settlement',
+  // 34: 'cannonL2Settlement',
   40: 'hyperProver',
 }
 
@@ -44,12 +44,12 @@ const networkIds: any = {
   optimismSepolia: 11155420,
   baseSepolia: 84532,
   ecoTestNet: 471923,
-  arbitrumSepolia: 421614,
+  // arbitrumSepolia: 421614,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
   471923: 'ecoTestNet',
-  421614: 'arbitrumSepolia',
+  // 421614: 'arbitrumSepolia',
 }
 
 const actors: any = {
@@ -72,8 +72,9 @@ const intent: any = {
 
 const networks: any = {
   sepolia: {
-    network: 'sepolia',
+    network: networkIds[11155111],
     chainId: networkIds.sepolia,
+    alchemyNetwork: 'sepolia',
     // The following settlement contracts are useful for event listening
     settlementContracts: {
       optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
@@ -82,8 +83,9 @@ const networks: any = {
     },
   },
   optimismSepolia: {
-    network: 'optimism-sepolia',
+    network: networkIds[11155420],
     chainId: networkIds.optimismSepolia,
+    alchemyNetwork: 'optimism-sepolia',
     sourceChains: ['baseSepolia', 'ecoTestNet'],
     proverContract: {
       address: '0x2427852f965ec94aB49F2eC4a2C8Fa7dea22d58b',
@@ -113,8 +115,9 @@ const networks: any = {
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
   baseSepolia: {
-    network: 'base-sepolia',
+    network: networkIds[84532],
     chainId: networkIds.baseSepolia,
+    alchemyNetwork: 'base-sepolia',
     sourceChains: ['optimismSepolia', 'ecoTestNet'],
     proverContract: {
       address: '0x9262b3C1907917Cf6341AA8d993CaFCDD2c09491',
@@ -151,8 +154,9 @@ const networks: any = {
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
   ecoTestNet: {
-    network: 'eco-testnet',
+    network: networkIds[471923],
     chainId: networkIds.ecoTestNet,
+    alchemyNetwork: 'eco-testnet',
     sourceChains: ['baseSepolia', 'optimismSepolia'],
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
@@ -182,25 +186,26 @@ const networks: any = {
       },
     },
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
-    arbitrumSepolia: {
-      network: 'arbitrum-sepolia',
-      chainId: 421614,
-      settlementNetwork: 'sepolia',
-      intentSourceAddress: '',
-      proverContract: {
-        address: '',
-        deploymentBlock: '', // 0n
-      },
-      inboxAddress: '',
-      intentSource: {
-        minimumDuration: 1000,
-        counter: 0,
-      },
-      proving: {
-        mechanism: 3,
-      },
-      usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
+  },
+  arbitrumSepolia: {
+    network: networkIds[421614],
+    chainId: networkIds.arbitrumSepolia,
+    alchemyNetwork: 'arbitrum-sepolia',
+    settlementNetwork: 'sepolia',
+    intentSourceAddress: '',
+    proverContract: {
+      address: '',
+      deploymentBlock: '', // 0n
     },
+    inboxAddress: '',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
+    proving: {
+      mechanism: 3,
+    },
+    usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
   },
 }
 
@@ -274,7 +279,7 @@ const routes: any = [
           variableName: 'optimismSepoliaInboxContractSolver',
         },
       },
-      provingMechanism: provingMechanisms.bedrockL3L2,
+      provingMechanism: provingMechanisms.cannonL3L2,
       provingState: provingState.finalized,
     },
     intent: {
@@ -405,7 +410,7 @@ const routes: any = [
           address: networks.ecoTestNet.inbox.address,
           variableName: 'ecoTestNetInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.cannonL2L3,
+        provingMechanism: provingMechanisms.bedrockL2L3,
         provingState: provingState.finalized,
       },
     },

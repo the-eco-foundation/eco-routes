@@ -1,30 +1,6 @@
 import { encodeTransfer } from '../../utils/encode'
-import {
-  BigNumberish,
-  BytesLike,
-  toQuantity,
-  // AbiCoder,
-  Block,
-  Contract,
-  Provider,
-  encodeRlp,
-  getAddress,
-  getBytes,
-  hexlify,
-  // keccak256,
-  solidityPackedKeccak256,
-  stripZerosLeft,
-  toBeArray,
-  toNumber,
-  zeroPadValue,
-  toBeHex,
-} from 'ethers'
-import {
-  networkIds,
-  networks,
-  actors,
-  routes,
-} from '../../config/testnet/config'
+import { BigNumberish, BytesLike, toQuantity, Contract, Provider } from 'ethers'
+import { networkIds, actors, routes } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
 
 export async function intentSolve(route) {
@@ -80,27 +56,6 @@ export async function intentSolve(route) {
   const expiryTime: BigNumberish =
     latestBlock?.timestamp + route.intent.duration
   let intentHash
-  // console.log('About to create intent')
-  // console.log('route.destination.chainId: ', route.destination.chainId)
-  // console.log(
-  //   'route.destination.contracts.inboxContract.address: ',
-  //   route.destination.contracts.inboxContract.address,
-  // )
-  // console.log(
-  //   'route.intent.contracts.targetToken.address[0]: ',
-  //   [route.intent.contracts.targetToken.address][0],
-  // )
-  // console.log('data: ', data)
-  // console.log(
-  //   'route.intent.contracts.rewardToken.address[0]: ',
-  //   [route.intent.contracts.rewardToken.address][0],
-  // )
-  // console.log('route.intent.rewardAmounts[0]: ', route.intent.rewardAmounts[0])
-  // console.log('expiryTime: ', expiryTime)
-  // console.log(
-  //   'route.source.contracts.proverContract.address: ',
-  //   route.source.contracts.proverContract.address,
-  // )
   try {
     const intentTx = await intentSourceContract.createIntent(
       route.destination.chainId, // desination chainId
@@ -136,7 +91,6 @@ export async function intentSolve(route) {
       console.log(`Error in createIntent:`, e)
     }
   }
-  // console.log('In fulfillIntent')
   try {
     // get intent Information
     const thisIntent = await intentSourceContract.getIntent(intentHash)
@@ -170,7 +124,6 @@ export async function intentSolve(route) {
 async function main() {
   console.log('In Main')
   for (const route of routes) {
-    // console.log('Route: ', route)
     await intentSolve(route)
   }
 }

@@ -34,7 +34,7 @@ export namespace s {
   // Sepolia
   // Providers
   export const sepoliaProvider = new AlchemyProvider(
-    networks.sepolia.network,
+    networks.sepolia.alchemyNetwork,
     ALCHEMY_API_KEY,
   )
   // Signers
@@ -77,7 +77,7 @@ export namespace s {
   // OpstimismSepolia
   // Providers
   export const optimismSepoliaProvider = new AlchemyProvider(
-    networks.optimismSepolia.network,
+    networks.optimismSepolia.alchemyNetwork,
     ALCHEMY_API_KEY,
   )
   // Signers
@@ -149,7 +149,7 @@ export namespace s {
   // BaseSepolia
   // Providers
   export const baseSepoliaProvider = new AlchemyProvider(
-    networks.baseSepolia.network,
+    networks.baseSepolia.alchemyNetwork,
     ALCHEMY_API_KEY,
   )
   // Signers

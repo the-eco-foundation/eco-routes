@@ -56,6 +56,7 @@
     "proverDeployOptimismSepolia": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/proverDeploy.ts",
     "intentSolve": "hardhat run scripts/testnet/intentSolve.ts",
     "settleOpSepolia": "hardhat run scripts/testnet/batchSettleOpSepolia.ts",
+    "settleGeneral": "hardhat run scripts/testnet/batchSettleGeneral.ts",
     "intentWithdraw": "hardhat run scripts/testnet/intentWithdraw.ts",
     "TestnetBedrock": "-------- Bedrock scripts below --------",
     "TestnetCannon": "-------- Cannon scripts below --------",

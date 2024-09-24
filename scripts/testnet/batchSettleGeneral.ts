@@ -116,7 +116,7 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
   let startingBlockNumber = 0n
   let scanAllIntentsForInbox = false
   // TODO change to use contract factory for deploys then can use ethers deploymentTransaction to get the blockNumber
-  startingBlockNumber = networks.optimismSepolia.proverContractDeploymentBlock
+  startingBlockNumber = networks.optimismSepolia.proverContract.deploymentBlock
   const inboxDeploymentBlock = networks.optimismSepolia.inbox.deploymentBlock
   // TODO: Parmaeterize the calls to provenStates and remove switch
   for (const sourceChain of sourceChainConfig) {
@@ -156,7 +156,8 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
     startingBlockNumber = inboxDeploymentBlock
   }
   // console.log('sourceChains: ', sourceChains)
-  // console.log('startingBlockNumber: ', startingBlockNumber.toString())
+  console.log('startingBlockNumber: ', startingBlockNumber.toString())
+  console.log('settlementBlockNumber: ', settlementBlockNumber.toString())
 
   //   if (optimismSepoliaBlockNumber > settlementBlockNumber) {
   // Get the event from the latest Block checking transaction hash
@@ -817,12 +818,12 @@ async function proveWorldStateOptimismSepoliaOnBaseSepolia(
   }
 }
 
-async function proveWorldStatesOptimismSepoliaOnEcoTestNet(
+async function proveWorldStatesCannonL2L3(
   faultDisputeGameAddress,
   faultDisputeGameContract,
   gameIndex,
 ) {
-  console.log('In proveWorldStatesOptimismSepoliaOnEcoTestNet')
+  console.log('In proveWorldStatesCannonL2L3')
   const { settlementBlockTag, settlementWorldStateRoot } =
     await proveSepoliaSettlementLayerStateOnEcoTestNet() // Prove the Sepolia Settlement Layer State
 
@@ -836,12 +837,12 @@ async function proveWorldStatesOptimismSepoliaOnEcoTestNet(
   return endBatchBlockData
 }
 
-async function proveWorldStatesOptimismSepoliaOnBaseSepolia(
+async function proveWorldStatesCannon(
   faultDisputeGameAddress,
   faultDisputeGameContract,
   gameIndex,
 ) {
-  console.log('In proveWorldStatesOptimismSepoliaOnBaseSepolia')
+  console.log('In proveWorldStatesCannon')
   const { settlementBlockTag, settlementWorldStateRoot } =
     await proveSepoliaSettlementLayerStateOnBaseSepolia() // Prove the Sepolia Settlement Layer State
 
@@ -855,13 +856,13 @@ async function proveWorldStatesOptimismSepoliaOnBaseSepolia(
   return endBatchBlockData
 }
 
-export async function proveOpSepoliaBatchSettled(
+export async function proveDestinationChainBatchSettled(
   gameIndex,
   faultDisputeGameAddress,
   faultDisputeGameContract,
   sourceChains,
 ) {
-  console.log('In proveOpSepoliaBatchSettled')
+  console.log('In proveDestinationChainBatchSettled')
 
   await Promise.all(
     await Object.entries(sourceChains).map(
@@ -872,28 +873,28 @@ export async function proveOpSepoliaBatchSettled(
           // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
           switch (sourceChain.sourceChain) {
             case networkIds.baseSepolia: {
-              console.log('In baseSepolia proveOpSepoliaBatchSettled')
-              const endBatchBlockData =
-                await proveWorldStatesOptimismSepoliaOnBaseSepolia(
-                  faultDisputeGameAddress,
-                  faultDisputeGameContract,
-                  gameIndex,
-                )
+              console.log('In baseSepolia proveDestinationChainBatchSettled')
+              const endBatchBlockData = await proveWorldStatesCannon(
+                faultDisputeGameAddress,
+                faultDisputeGameContract,
+                gameIndex,
+              )
               console.log('baseSepolia endBatchBlockData: ', endBatchBlockData)
               break
             }
             case networkIds.optimismSepolia: {
-              console.log('In optimismSepolia proveOpSepoliaBatchSettled')
+              console.log(
+                'In optimismSepolia proveDestinationChainBatchSettled',
+              )
               break
             }
             case networkIds.ecoTestNet: {
               console.log('In ecoTestNet')
-              const endBatchBlockData =
-                await proveWorldStatesOptimismSepoliaOnEcoTestNet(
-                  faultDisputeGameAddress,
-                  faultDisputeGameContract,
-                  gameIndex,
-                )
+              const endBatchBlockData = await proveWorldStatesCannonL2L3(
+                faultDisputeGameAddress,
+                faultDisputeGameContract,
+                gameIndex,
+              )
               console.log('ecoTestnet endBatchBlockData: ', endBatchBlockData)
               break
             }
@@ -920,17 +921,6 @@ export async function withdrawFunds(sourceChains, intentsToProve) {
   console.log('In withdrawFunds')
 }
 
-export async function proveAndWithdrawIntentsForDestination(destinationInfo) {
-  console.log('In proveAndWithdrawIntentsForDestination')
-  // get the latest finalized/poseted block
-  // for each sourceChain
-  //   get the intents to prove
-  //   check if we need to prove the world state
-  //   prove the world state when needed
-  //  prove the intents
-  // withdraw the funds
-}
-
 async function main() {
   // define the variables used for each state of the intent lifecycle
   // Point in time proving for latest batch
@@ -945,6 +935,49 @@ async function main() {
       },
     ),
   )
+}
+async function main() {
+  // define the variables used for each state of the intent lifecycle
+  // Point in time proving for latest batch
+  // let intentHash, intentFulfillTransaction
+  try {
+    console.log('In Main')
+    // const destinations = await getDestinationChains()
+    // await Promise.all(
+    //   await Object.entries(destinations).map(
+    //     async ([destinationKey, destinationInfo]) => {
+    //       await proveAndWithdrawIntentsForDestination(destinationInfo)
+    //     },
+    //   ),
+    // )
+    console.log('Batch Settle of OP Sepolia')
+    // Get the latest Batch Settled for OP Sepolia
+    const {
+      blockNumber,
+      gameIndex,
+      faultDisputeGameAddress,
+      faultDisputeGameContract,
+    } = await getBatchSettled()
+    console.log('blockNumber: ', blockNumber)
+    console.log('gameIndex: ', gameIndex.toString())
+    console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
+
+    // Get all the intents that can be proven for the batch by destination chain
+    const { sourceChains, intentsToProve } =
+      await getIntentsToProve(blockNumber)
+    // Prove the latest batch settled
+    await proveDestinationChainBatchSettled(
+      gameIndex,
+      faultDisputeGameAddress,
+      faultDisputeGameContract,
+      sourceChains,
+    )
+    // Prove all the intents
+    await proveIntents(sourceChains, intentsToProve)
+    await withdrawFunds(sourceChains, intentsToProve)
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 main().catch((error) => {
