@@ -5,6 +5,7 @@ import "./interfaces/IInbox.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./types/HyperProverMessagePair.sol";
 
 /**
  * @title Inbox
@@ -28,11 +29,6 @@ contract Inbox is IInbox, Ownable {
 
     // Is solving public
     bool public isSolvingPublic;
-
-    struct hyperProverMessagePair {
-        bytes32 intentHash;
-        address claimant;
-    }
 
     // Check that the intent has not expired and that the sender is permitted to solve intents
     modifier validated(uint256 _expiryTime, address _solver) {

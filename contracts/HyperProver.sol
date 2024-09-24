@@ -4,10 +4,18 @@ pragma solidity ^0.8.26;
 import '@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol';
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import './interfaces/SimpleProver.sol';
+import './types/HyperProverMessagePair.sol';
 
 
 contract HyperProver is IMessageRecipient, SimpleProver {
     using TypeCasts for bytes32;
+
+    /**
+     * emitted on an attempt to register a claimant on an intent that has already been proven and has a claimant
+     * @dev this is an event rather than an error because the expected behavior is to ignore one intent but continue with the rest
+     * @param _intentHash the hash of the intent
+     */
+    event IntentAlreadyProven(bytes32 _intentHash);
 
     /**
      * emitted on an unauthorized call to the handle() method
@@ -20,12 +28,6 @@ contract HyperProver is IMessageRecipient, SimpleProver {
      * @param _sender the address that called the dispatch() method
      */
     error UnauthorizedDispatch(address _sender);
-
-    /**
-     * emitted on an attempt to register a claimant on an intent that has already been proven and has a claimant
-     * @param _intentHash the hash of the intent
-     */
-    error IntentAlreadyProven(bytes32 _intentHash);
         
     // local mailbox address
     address immutable MAILBOX;
@@ -54,18 +56,21 @@ contract HyperProver is IMessageRecipient, SimpleProver {
         if(MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);
         }
-        // message body is exactly what was sent into the mailbox on the inbox' chain
-        // encode(intentHash, claimant)
+
         address sender = _sender.bytes32ToAddress();
 
         if (INBOX != sender) {
             revert UnauthorizedDispatch(sender);
         }
-        (bytes32 intentHash, address claimant) = abi.decode(_messageBody, (bytes32, address));
-        if (provenIntents[intentHash] != address(0)) {
-            revert IntentAlreadyProven(intentHash);
+        HyperProverMessagePair[] memory pairs = abi.decode(_messageBody, (HyperProverMessagePair[]));
+        for (uint256 i = 0; i < pairs.length; i++) {
+            (bytes32 intentHash, address claimant) = (pairs[i].intentHash, pairs[i].claimant);
+            if (provenIntents[intentHash] != address(0)) {
+                emit IntentAlreadyProven(intentHash);
+            } else {
+                provenIntents[intentHash] = claimant;
+                emit IntentProven(intentHash, claimant);
+            }
         }
-        provenIntents[intentHash] = claimant;
-        emit IntentProven(intentHash, claimant);
     }
 }
