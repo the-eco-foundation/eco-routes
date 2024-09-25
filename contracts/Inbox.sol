@@ -113,13 +113,13 @@ contract Inbox is IInbox, Ownable {
         if (size > MAX_BATCH_SIZE) {
             revert BatchTooLarge();
         }
-        hyperProverMessagePair[] memory batch = new hyperProverMessagePair[](size);
+        HyperProverMessagePair[] memory batch = new HyperProverMessagePair[](size);
         for (uint256 i = 0; i < size; i++) {
             address claimant = fulfilled[_intentHashes[i]];
             if (claimant == address(0)) {
                 revert IntentNotFulfilled(_intentHashes[i]);
             }
-            batch[i]=hyperProverMessagePair(_intentHashes[i], claimant);
+            batch[i] = HyperProverMessagePair(_intentHashes[i], claimant);
         }
         IMailbox(MAILBOX).dispatch(
             uint32(_sourceChainID),
