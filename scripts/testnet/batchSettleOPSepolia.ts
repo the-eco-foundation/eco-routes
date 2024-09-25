@@ -1,12 +1,12 @@
 import {
-  // AbiCoder,
+  AbiCoder,
   Block,
   Contract,
   encodeRlp,
   getAddress,
   getBytes,
   hexlify,
-  // keccak256,
+  keccak256,
   solidityPackedKeccak256,
   stripZerosLeft,
   toBeArray,
@@ -18,7 +18,7 @@ import {
 import {
   networkIds,
   networks,
-  // actors,
+  actors,
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
@@ -81,7 +81,6 @@ export async function getBatchSettled() {
     1n -
     approximateUnsettledGames
   // lastGame = 1712n
-  console.log('Starting lastGame: ', gameIndex.toString())
   while (gameIndex > 0) {
     const gameData = await disputeGameFactoryContract.gameAtIndex(gameIndex)
     const faultDisputeGameAddress = gameData.proxy_
@@ -106,17 +105,20 @@ export async function getBatchSettled() {
     gameIndex -= 1n
   }
 }
-export async function getIntentsToProve(settlementBlockNumber: BigInt) {
+export async function getIntentsToProve(
+  settlementBlockNumber: BigInt,
+  proveAll: boolean,
+) {
   // get BaseSepolia Last OptimimsmSepolia BlockNumber from WorldState
 
   const sourceChainConfig = networks.optimismSepolia.sourceChains
   const sourceChains: Record<number, SourceChainInfo> = {}
   // get the starting block to scan for intents
   let optimismSepoliaProvenState
-  let startingBlockNumber = 0n
   let scanAllIntentsForInbox = false
   // TODO change to use contract factory for deploys then can use ethers deploymentTransaction to get the blockNumber
-  startingBlockNumber = networks.optimismSepolia.proverContractDeploymentBlock
+  let startingBlockNumber =
+    networks.optimismSepolia.proverContract.deploymentBlock || 0n
   const inboxDeploymentBlock = networks.optimismSepolia.inbox.deploymentBlock
   // TODO: Parmaeterize the calls to provenStates and remove switch
   for (const sourceChain of sourceChainConfig) {
@@ -129,17 +131,23 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
         // await s.[sourceChain]ProverContract.provenStates(
         networkIds.optimismSepolia,
       )
-      console.log('sourceChain: ', sourceChain)
-      console.log('networkIds.sourceChain: ', networkIds[sourceChain])
       sourceChainInfo.lastProvenBlock = optimismSepoliaProvenState.blockNumber
-      if (optimismSepoliaProvenState.blockNumber > inboxDeploymentBlock) {
-        sourceChainInfo.lastProvenBlock = optimismSepoliaProvenState.blockNumber
-        if (optimismSepoliaProvenState.blockNumber < startingBlockNumber) {
-          startingBlockNumber = optimismSepoliaProvenState.blockNumber
-        }
-      } else {
+      if (proveAll) {
         sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
+        sourceChainInfo.needNewProvenState = true
+        startingBlockNumber = inboxDeploymentBlock
         scanAllIntentsForInbox = true
+      } else {
+        if (optimismSepoliaProvenState.blockNumber > inboxDeploymentBlock) {
+          sourceChainInfo.lastProvenBlock =
+            optimismSepoliaProvenState.blockNumber
+          if (optimismSepoliaProvenState.blockNumber < startingBlockNumber) {
+            startingBlockNumber = optimismSepoliaProvenState.blockNumber
+          }
+        } else {
+          sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
+          scanAllIntentsForInbox = true
+        }
       }
       sourceChainInfo.needNewProvenState = false
       sourceChains[networkIds[sourceChain]] = sourceChainInfo
@@ -155,10 +163,6 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
   if (scanAllIntentsForInbox) {
     startingBlockNumber = inboxDeploymentBlock
   }
-  // console.log('sourceChains: ', sourceChains)
-  // console.log('startingBlockNumber: ', startingBlockNumber.toString())
-
-  //   if (optimismSepoliaBlockNumber > settlementBlockNumber) {
   // Get the event from the latest Block checking transaction hash
   const intentHashEvents =
     await s.optimismSepoliaInboxContractSolver.queryFilter(
@@ -166,7 +170,6 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
       toQuantity(startingBlockNumber),
       toQuantity(settlementBlockNumber),
     )
-  console.log('intentHashEvents.length: ', intentHashEvents.length)
   // Filter out intents that have already been proven
   // Note this can use the proventStates from the Prover Contract
   // but also need to cater for the case where the proven World state is updated but the intents not proven
@@ -197,8 +200,6 @@ export async function getIntentsToProve(settlementBlockNumber: BigInt) {
       )
     })
 
-  console.log('sourceChains: ', sourceChains)
-  console.log('intentsToProve: ', intentsToProve)
   return { sourceChains, intentsToProve }
   // return [chainId, intentHash, intentFulfillTransaction]
 }
@@ -214,11 +215,6 @@ async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
     settlementBlockTag,
     false,
   ])
-  // const block: Block = await s.layer2DestinationProvider.send(
-  //   'eth_getBlockByNumber',
-  //   [config.cannon.layer2.endBatchBlock, false],
-  // )
-  // console.log('block: ', block)
 
   let tx
   let settlementWorldStateRoot
@@ -245,7 +241,6 @@ async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
       stripZerosLeft(toBeHex(block.excessBlobGas)),
       block.parentBeaconBlockRoot,
     ])
-    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
     tx = await s.baseSepoliaProverContract.proveSettlementLayerState(
       getBytes(hexlify(rlpEncodedBlockData)),
     )
@@ -311,7 +306,6 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
       stripZerosLeft(toBeHex(block.excessBlobGas)),
       block.parentBeaconBlockRoot,
     ])
-    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
     tx = await s.ecoTestNetProverContract.proveSettlementLayerStatePriveleged(
       getBytes(hexlify(rlpEncodedBlockData)),
       networkIds.sepolia,
@@ -439,16 +433,9 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
   // populate fields for the FaultDisputeGame rootclaim proof
   // Storage proof for faultDisputeGame root claim
   // rootClaimSlot - hardcooded value for the slot which is a keecak256 hash  the slot for rootClaim
-  const zeroSlot = solidityPackedKeccak256(
-    ['bytes32'],
-    [zeroPadValue(toBeArray(0), 32)],
-  )
-  console.log('zeroSlot: ', zeroSlot)
 
   const faultDisputeGameRootClaimStorageSlot =
     '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
-  console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
-  console.log('settlementBlockTag: ', settlementBlockTag)
   const faultDisputeGameRootClaimProof = await s.sepoliaProvider.send(
     'eth_getProof',
     [
@@ -528,10 +515,6 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     faultDisputeGameRootClaimProof.storageHash,
   )
   // proveStorageFaultDisputeGameResolved
-  console.log(
-    'faultDisputeGameResolvedStorageSlot: ',
-    faultDisputeGameResolvedStorageSlot,
-  )
   await s.ecoTestNetProverContract.proveStorage(
     faultDisputeGameResolvedStorageSlot,
     await s.ecoTestNetProverContract.assembleGameStatusStorage(
@@ -554,7 +537,6 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     settlementStateRoot,
   )
   try {
-    // console.log('proveWorldStateCannon')
     const proveWorldStateCannonTx =
       await s.ecoTestNetProverContract.proveWorldStateCannon(
         networkIds.optimismSepolia,
@@ -676,16 +658,9 @@ async function proveWorldStateOptimismSepoliaOnBaseSepolia(
   // populate fields for the FaultDisputeGame rootclaim proof
   // Storage proof for faultDisputeGame root claim
   // rootClaimSlot - hardcooded value for the slot which is a keecak256 hash  the slot for rootClaim
-  const zeroSlot = solidityPackedKeccak256(
-    ['bytes32'],
-    [zeroPadValue(toBeArray(0), 32)],
-  )
-  console.log('zeroSlot: ', zeroSlot)
 
   const faultDisputeGameRootClaimStorageSlot =
     '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
-  console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
-  console.log('settlementBlockTag: ', settlementBlockTag)
   const faultDisputeGameRootClaimProof = await s.sepoliaProvider.send(
     'eth_getProof',
     [
@@ -765,10 +740,6 @@ async function proveWorldStateOptimismSepoliaOnBaseSepolia(
     faultDisputeGameRootClaimProof.storageHash,
   )
   // proveStorageFaultDisputeGameResolved
-  console.log(
-    'faultDisputeGameResolvedStorageSlot: ',
-    faultDisputeGameResolvedStorageSlot,
-  )
   await s.baseSepoliaProverContract.proveStorage(
     faultDisputeGameResolvedStorageSlot,
     await s.baseSepoliaProverContract.assembleGameStatusStorage(
@@ -791,7 +762,6 @@ async function proveWorldStateOptimismSepoliaOnBaseSepolia(
     settlementStateRoot,
   )
   try {
-    // console.log('proveWorldStateCannon')
     const proveWorldStateCannonTx =
       await s.baseSepoliaProverContract.proveWorldStateCannon(
         networkIds.optimismSepolia,
@@ -817,12 +787,12 @@ async function proveWorldStateOptimismSepoliaOnBaseSepolia(
   }
 }
 
-async function proveWorldStatesOptimismSepoliaOnEcoTestNet(
+async function proveWorldStatesCannonL2L3(
   faultDisputeGameAddress,
   faultDisputeGameContract,
   gameIndex,
 ) {
-  console.log('In proveWorldStatesOptimismSepoliaOnEcoTestNet')
+  console.log('In proveWorldStatesCannonL2L3')
   const { settlementBlockTag, settlementWorldStateRoot } =
     await proveSepoliaSettlementLayerStateOnEcoTestNet() // Prove the Sepolia Settlement Layer State
 
@@ -836,12 +806,12 @@ async function proveWorldStatesOptimismSepoliaOnEcoTestNet(
   return endBatchBlockData
 }
 
-async function proveWorldStatesOptimismSepoliaOnBaseSepolia(
+async function proveWorldStatesCannon(
   faultDisputeGameAddress,
   faultDisputeGameContract,
   gameIndex,
 ) {
-  console.log('In proveWorldStatesOptimismSepoliaOnBaseSepolia')
+  console.log('In proveWorldStatesCannon')
   const { settlementBlockTag, settlementWorldStateRoot } =
     await proveSepoliaSettlementLayerStateOnBaseSepolia() // Prove the Sepolia Settlement Layer State
 
@@ -855,46 +825,37 @@ async function proveWorldStatesOptimismSepoliaOnBaseSepolia(
   return endBatchBlockData
 }
 
-export async function proveOpSepoliaBatchSettled(
+export async function proveDestinationChainBatchSettled(
   gameIndex,
   faultDisputeGameAddress,
   faultDisputeGameContract,
   sourceChains,
 ) {
-  console.log('In proveOpSepoliaBatchSettled')
-
+  console.log('In proveDestinationChainBatchSettled')
+  let endBatchBlockData
   await Promise.all(
     await Object.entries(sourceChains).map(
       async ([sourceChainkey, sourceChain]) => {
-        console.log('key: ', sourceChainkey)
-        console.log('sourceChain: ', sourceChain)
         if (sourceChain.needNewProvenState) {
           // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
           switch (sourceChain.sourceChain) {
             case networkIds.baseSepolia: {
-              console.log('In baseSepolia proveOpSepoliaBatchSettled')
-              const endBatchBlockData =
-                await proveWorldStatesOptimismSepoliaOnBaseSepolia(
-                  faultDisputeGameAddress,
-                  faultDisputeGameContract,
-                  gameIndex,
-                )
-              console.log('baseSepolia endBatchBlockData: ', endBatchBlockData)
+              endBatchBlockData = await proveWorldStatesCannon(
+                faultDisputeGameAddress,
+                faultDisputeGameContract,
+                gameIndex,
+              )
               break
             }
             case networkIds.optimismSepolia: {
-              console.log('In optimismSepolia proveOpSepoliaBatchSettled')
               break
             }
             case networkIds.ecoTestNet: {
-              console.log('In ecoTestNet')
-              const endBatchBlockData =
-                await proveWorldStatesOptimismSepoliaOnEcoTestNet(
-                  faultDisputeGameAddress,
-                  faultDisputeGameContract,
-                  gameIndex,
-                )
-              console.log('ecoTestnet endBatchBlockData: ', endBatchBlockData)
+              endBatchBlockData = await proveWorldStatesCannonL2L3(
+                faultDisputeGameAddress,
+                faultDisputeGameContract,
+                gameIndex,
+              )
               break
             }
             default: {
@@ -905,22 +866,226 @@ export async function proveOpSepoliaBatchSettled(
       },
     ),
   )
-}
-export async function proveIntents(sourceChains, intentsToProve) {
-  // loop through chainIds and intents
-  // On new chainId, update the chains Optimism WorldState (and Ethereum and Base if needed)
-  // prove each intent
-  console.log('In proveIntents')
+  return endBatchBlockData
 }
 
-export async function withdrawFunds(sourceChains, intentsToProve) {
+async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
+  console.log('In proveIntentBaseSepolia')
+  const inboxStorageSlot = solidityPackedKeccak256(
+    ['bytes'],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
+  )
+  const intentInboxProof = await s.optimismSepoliaProvider.send(
+    'eth_getProof',
+    [
+      networks.optimismSepolia.inbox.address,
+      [inboxStorageSlot],
+      endBatchBlockData.number,
+    ],
+  )
+
+  const intentInfo =
+    await s.baseSepoliaIntentSourceContractClaimant.getIntent(intentHash)
+
+  const abiCoder = AbiCoder.defaultAbiCoder()
+  const intermediateHash = keccak256(
+    abiCoder.encode(
+      ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+      [
+        networkIds.baseSepolia, // sourceChainID
+        intentInfo[1], // destinationChainID
+        intentInfo[2], // targetTokens
+        intentInfo[3], // callData
+        intentInfo[6], // expiryTime
+        getBytes(intentInfo[8]), // nonce),
+      ],
+    ),
+  )
+
+  try {
+    const proveIntentTx = await s.baseSepoliaProverContract.proveIntent(
+      networkIds.optimismSepolia,
+      actors.claimant,
+      networks.optimismSepolia.inbox.address,
+      intermediateHash,
+      intentInboxProof.storageProof[0].proof,
+      await s.baseSepoliaProverContract.rlpEncodeDataLibList([
+        toBeHex(intentInboxProof.nonce), // nonce
+        stripZerosLeft(toBeHex(intentInboxProof.balance)),
+        intentInboxProof.storageHash,
+        intentInboxProof.codeHash,
+      ]),
+      intentInboxProof.accountProof,
+      endBatchBlockData.stateRoot,
+    )
+    await proveIntentTx.wait()
+    console.log('Prove Intent tx:', proveIntentTx.hash)
+    return proveIntentTx.hash
+  } catch (e) {
+    if (e.data && s.baseSepoliaProverContract) {
+      const decodedError = s.baseSepoliaProverContract.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed in proveIntent : ${decodedError?.name}`)
+      console.log('proveIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in proveIntent:`, e)
+    }
+  }
+}
+
+async function proveIntentEcoTestNet(intentHash, endBatchBlockData) {
+  console.log('In proveIntentEcoTestNet')
+  const inboxStorageSlot = solidityPackedKeccak256(
+    ['bytes'],
+    [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
+  )
+  const intentInboxProof = await s.optimismSepoliaProvider.send(
+    'eth_getProof',
+    [
+      networks.optimismSepolia.inbox.address,
+      [inboxStorageSlot],
+      endBatchBlockData.number,
+    ],
+  )
+
+  const intentInfo =
+    await s.ecoTestNetIntentSourceContractClaimant.getIntent(intentHash)
+
+  const abiCoder = AbiCoder.defaultAbiCoder()
+  const intermediateHash = keccak256(
+    abiCoder.encode(
+      ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+      [
+        networkIds.ecoTestNet, // sourceChainID
+        intentInfo[1], // destinationChainID
+        intentInfo[2], // targetTokens
+        intentInfo[3], // callData
+        intentInfo[6], // expiryTime
+        getBytes(intentInfo[8]), // nonce),
+      ],
+    ),
+  )
+
+  try {
+    const proveIntentTx = await s.ecoTestNetProverContract.proveIntent(
+      networkIds.optimismSepolia,
+      actors.claimant,
+      networks.optimismSepolia.inbox.address,
+      intermediateHash,
+      intentInboxProof.storageProof[0].proof,
+      await s.ecoTestNetProverContract.rlpEncodeDataLibList([
+        toBeHex(intentInboxProof.nonce), // nonce
+        stripZerosLeft(toBeHex(intentInboxProof.balance)),
+        intentInboxProof.storageHash,
+        intentInboxProof.codeHash,
+      ]),
+      intentInboxProof.accountProof,
+      endBatchBlockData.stateRoot,
+    )
+    await proveIntentTx.wait()
+    console.log('Prove Intent tx:', proveIntentTx.hash)
+    return proveIntentTx.hash
+  } catch (e) {
+    if (e.data && s.ecoTestNetProverContract) {
+      const decodedError = s.ecoTestNetProverContract.interface.parseError(
+        e.data,
+      )
+      console.log(`Transaction failed in proveIntent : ${decodedError?.name}`)
+      console.log('proveIntent decodedError: ', decodedError)
+    } else {
+      console.log(`Error in proveIntent:`, e)
+    }
+  }
+}
+
+export async function proveIntents(intentsToProve, endBatchBlockData) {
   // loop through chainIds and intents
-  // On new chainId, update the chains Optimism WorldState (and Ethereum and Base if needed)
   // prove each intent
+  console.log('In proveIntents')
+  for (const intent of intentsToProve) {
+    switch (intent.sourceChain) {
+      case networkIds.baseSepolia: {
+        await proveIntentBaseSepolia(intent.intentHash, endBatchBlockData)
+        break
+      }
+      case networkIds.optimismSepolia: {
+        break
+      }
+      case networkIds.ecoTestNet: {
+        await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
+        break
+      }
+    }
+  }
+}
+
+async function withdrawRewardBaseSepolia(intentHash) {
+  console.log('In withdrawReward')
+  try {
+    const withdrawTx =
+      await s.baseSepoliaIntentSourceContractClaimant.withdrawRewards(
+        intentHash,
+      )
+    await withdrawTx.wait()
+    console.log('Withdrawal tx: ', withdrawTx.hash)
+    return withdrawTx.hash
+  } catch (e) {
+    if (e.data && s.baseSepoliaIntentSourceContractClaimant) {
+      const decodedError =
+        s.baseSepoliaIntentSourceContractClaimant.interface.parseError(e.data)
+      console.log(
+        `Transaction failed in withdrawReward : ${decodedError?.name}`,
+      )
+    } else {
+      console.log(`Error in withdrawReward:`, e)
+    }
+  }
+}
+
+async function withdrawRewardEcoTestNet(intentHash) {
+  console.log('In withdrawReward')
+  try {
+    const withdrawTx =
+      await s.ecoTestNetIntentSourceContractClaimant.withdrawRewards(intentHash)
+    await withdrawTx.wait()
+    console.log('Withdrawal tx: ', withdrawTx.hash)
+    return withdrawTx.hash
+  } catch (e) {
+    if (e.data && s.ecoTestNetIntentSourceContractClaimant) {
+      const decodedError =
+        s.ecoTestNetIntentSourceContractClaimant.interface.parseError(e.data)
+      console.log(
+        `Transaction failed in withdrawReward : ${decodedError?.name}`,
+      )
+    } else {
+      console.log(`Error in withdrawReward:`, e)
+    }
+  }
+}
+
+export async function withdrawFunds(intentsToProve) {
   console.log('In withdrawFunds')
+  for (const intent of intentsToProve) {
+    console.log('intent: ', intent)
+    switch (intent.sourceChain) {
+      case networkIds.baseSepolia: {
+        await withdrawRewardBaseSepolia(intent.intentHash)
+        break
+      }
+      case networkIds.optimismSepolia: {
+        break
+      }
+      case networkIds.ecoTestNet: {
+        await withdrawRewardEcoTestNet(intent.intentHash)
+        break
+      }
+    }
+  }
 }
 
 async function main() {
+  const proveAll: boolean = true
   // define the variables used for each state of the intent lifecycle
   // Point in time proving for latest batch
   // let intentHash, intentFulfillTransaction
@@ -934,23 +1099,22 @@ async function main() {
       faultDisputeGameAddress,
       faultDisputeGameContract,
     } = await getBatchSettled()
-    console.log('blockNumber: ', blockNumber)
-    console.log('gameIndex: ', gameIndex.toString())
-    console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
 
     // Get all the intents that can be proven for the batch by destination chain
-    const { sourceChains, intentsToProve } =
-      await getIntentsToProve(blockNumber)
+    const { sourceChains, intentsToProve } = await getIntentsToProve(
+      blockNumber,
+      proveAll,
+    )
     // Prove the latest batch settled
-    await proveOpSepoliaBatchSettled(
+    const endBatchBlockData = await proveDestinationChainBatchSettled(
       gameIndex,
       faultDisputeGameAddress,
       faultDisputeGameContract,
       sourceChains,
     )
     // Prove all the intents
-    await proveIntents(sourceChains, intentsToProve)
-    await withdrawFunds(sourceChains, intentsToProve)
+    await proveIntents(intentsToProve, endBatchBlockData)
+    await withdrawFunds(intentsToProve)
   } catch (e) {
     console.log(e)
   }
