@@ -10,7 +10,7 @@ const provingMechanisms: any = {
   bedrockL2Settlement: 24, // Source Chain is the L2, settlement chain for the Destination Chain which is an L3 using Bedrock
   cannon: 30, // Source Chain is an L2, Destination Chain is an L2 using Cannon
   cannonL2L3: 31, // Source Chain is an L2, Destination Chain is an L3 using Cannon
-  // cannonL3L2: 32, // Source Chain is an L3, Destination Chain is an L2 using Cannon
+  cannonL3L2: 32, // Source Chain is an L3, Destination Chain is an L2 using Cannon
   // cannonL1Settlement: 33, // Source Chain is an L1 settlement chain for the Destination Chain which is an L2 using Cannon
   // cannonL2Settlement: 34, // Source Chain is the L2 settlement chain for the Destination Chain which is an L3 using Cannon
   hyperProver: 40, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
