@@ -72,11 +72,11 @@ const networks: any = {
   optimism: {
     network: 'optimism',
     chainId: networkIds.optimism,
-    intentSourceAddress: '0x8b0A7aEeC5D243d0a21b52Edcd943270c006a590',
+    intentSourceAddress: '0x13727384eB72Ee4DE1332634957f5473E5f1D52a',
     proverContractAddress: '0xFB35271eC603A55e0322f77F0C1F3f02804d9156',
     inboxAddress: '0xBAD17e5280eF02c82f6aa26eE3d5E77458e53538',
     intentSource: {
-      minimumDuration: 1000,
+      minimumDuration: 0,
       counter: 0,
     },
     proving: {
@@ -95,11 +95,11 @@ const networks: any = {
   base: {
     network: 'base',
     chainId: networkIds.base,
-    intentSourceAddress: '0x8b0A7aEeC5D243d0a21b52Edcd943270c006a590',
+    intentSourceAddress: '0x13727384eB72Ee4DE1332634957f5473E5f1D52a',
     proverContractAddress: '0xFB35271eC603A55e0322f77F0C1F3f02804d9156',
     inboxAddress: '0xBAD17e5280eF02c82f6aa26eE3d5E77458e53538',
     intentSource: {
-      minimumDuration: 1000,
+      minimumDuration: 0,
       counter: 0,
     },
     proving: {

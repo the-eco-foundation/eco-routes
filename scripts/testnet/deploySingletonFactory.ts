@@ -1,12 +1,15 @@
-import { ethers, run, network } from 'hardhat'
-import { IntentSource, Inbox } from '../../typechain-types'
-import { setTimeout } from 'timers/promises'
+import { ethers, network } from 'hardhat'
+import { SingletonFactory } from '../../typechain-types'
+// import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
 import { networks, actors } from '../../config/testnet/config'
 
 const networkName = network.name
+const singletonFactoryAddress = '0xce0042B868300000d44A59004Da54A005ffdcf9f'
+const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET'))
+
 console.log('Deploying to Network: ', network.name)
 const baseSepoliaChainConfiguration = {
   chainId: networks.baseSepolia.chainId, // chainId
@@ -70,83 +73,86 @@ console.log('Deploying to Network: ', network.name)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
+  const singletonFactory: SingletonFactory = await ethers.getContractAt(
+    'SingletonFactory',
+    singletonFactoryAddress,
+  )
   console.log('Deploying contracts with the account:', deployer.address)
+  console.log(`**************************************************`)
   const proverFactory = await ethers.getContractFactory('Prover')
-  const prover = await proverFactory.deploy([
+  const proverDeployTx = await proverFactory.getDeployTransaction([
     baseSepoliaChainConfiguration,
     optimismSepoliaChainConfiguration,
     ecoTestNetChainConfiguration,
   ])
-  console.log('prover implementation deployed to: ', await prover.getAddress())
-
-  // adding a try catch as if the contract has previously been deployed will get a
-  // verification error when deploying the same bytecode to a new address
-  try {
-    if (network.name !== 'hardhat') {
-      console.log('Waiting for 30 seconds for Bytecode to be on chain')
-      await setTimeout(30000)
-      await run('verify:verify', {
-        address: await prover.getAddress(),
-        // constructorArguments: [l1BlockAddressSepolia, deployer.address],
-        constructorArguments: [
-          [
-            baseSepoliaChainConfiguration,
-            optimismSepoliaChainConfiguration,
-            ecoTestNetChainConfiguration,
-          ],
-        ],
-      })
-      console.log('prover  verified at:', await prover.getAddress())
-    }
-  } catch (e) {
-    console.log(`Error verifying prover`, e)
-  }
+  let receipt = await singletonFactory.deploy(proverDeployTx.data, salt, {
+    gasLimit: 5000000,
+  })
+  console.log('Prover deployed in tx with hash: ', receipt.hash)
 
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
-  const intentSource: IntentSource = await intentSourceFactory.deploy(
+  const intentSourceDeployTx = await intentSourceFactory.getDeployTransaction(
     minimumDuration,
     counter,
   )
-  console.log('intentSource deployed to:', await intentSource.getAddress())
-
-  // adding a try catch as if the contract has previously been deployed will get a
-  // verification error when deploying the same bytecode to a new address
-  try {
-    if (network.name !== 'hardhat') {
-      console.log('Waiting for 30 seconds for Bytecode to be on chain')
-      await setTimeout(30000)
-      await run('verify:verify', {
-        address: await intentSource.getAddress(),
-        constructorArguments: [minimumDuration, counter],
-      })
-    }
-    console.log('intentSource verified at:', await intentSource.getAddress())
-  } catch (e) {
-    console.log(`Error verifying intentSource`, e)
-  }
+  receipt = await singletonFactory.deploy(intentSourceDeployTx.data, salt, {
+    gasLimit: 1500000,
+  })
+  console.log('intentSource deployed in tx with hash: ', receipt.hash)
 
   const inboxFactory = await ethers.getContractFactory('Inbox')
 
-  const inbox: Inbox = await inboxFactory.deploy(deployer.address, false, [
-    actors.solver,
-  ])
-  console.log('Inbox deployed to:', await inbox.getAddress())
+  const inboxDeployTx = await inboxFactory.getDeployTransaction(
+    deployer.address,
+    false,
+    [actors.solver],
+  )
+  receipt = await singletonFactory.deploy(inboxDeployTx.data, salt, {
+    gasLimit: 1000000,
+  })
+  console.log('Inbox deployed in tx with hash: ', receipt.hash)
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
-  try {
-    if (network.name !== 'hardhat') {
-      console.log('Waiting for 30 seconds for Bytecode to be on chain')
-      await setTimeout(30000)
-      await run('verify:verify', {
-        address: await inbox.getAddress(),
-        constructorArguments: [deployer.address, false, [actors.solver]],
-      })
-    }
-    console.log('Inbox verified at:', await inbox.getAddress())
-  } catch (e) {
-    console.log(`Error verifying inbox`, e)
-  }
+
+  // also having trouble with this since cant get contract addresses
+  //   if (network.name !== 'hardhat') {
+  //     console.log('Waiting for 30 seconds for Bytecode to be on chain')
+  //     await setTimeout(30000)
+  //     try {
+  //       await run('verify:verify', {
+  //         address: await prover.getAddress(),
+  //         // constructorArguments: [l1BlockAddressSepolia, deployer.address],
+  //         constructorArguments: [
+  //           [
+  //             baseSepoliaChainConfiguration,
+  //             optimismSepoliaChainConfiguration,
+  //             ecoTestNetChainConfiguration,
+  //           ],
+  //         ],
+  //       })
+  //     } catch (e) {
+  //       console.log(`Error verifying prover`, e)
+  //     }
+  //     try {
+  //       await run('verify:verify', {
+  //         address: await intentSource.getAddress(),
+  //         constructorArguments: [minimumDuration, counter],
+  //       })
+  //       console.log('intentSource verified at:', await intentSource.getAddress())
+  //     } catch (e) {
+  //       console.log(`Error verifying intentSource`, e)
+  //     }
+  //     try {
+  //       await run('verify:verify', {
+  //         address: await inbox.getAddress(),
+  //         constructorArguments: [deployer.address, false, [actors.solver]],
+  //       })
+  //       console.log('Inbox verified at:', await inbox.getAddress())
+  //     } catch (e) {
+  //       console.log(`Error verifying inbox`, e)
+  //     }
+  //   }
 }
 
 main().catch((error) => {
