@@ -23,6 +23,8 @@ import {
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
+import { version } from 'os'
+import { latestBlock } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
 // import { intent } from '../../test/testData'
 
 type SourceChainInfo = {
@@ -108,11 +110,21 @@ export async function getBatchSettled() {
   const l2OutputOracleEvents =
     await s.baseSepoliaSettlementContractEcoTestNet.queryFilter(
       s.baseSepoliaSettlementContractEcoTestNet.getEvent('OutputProposed'),
+      toQuantity(blockNumber - 200n),
       toQuantity(blockNumber),
       // toQuantity(settlementBlockNumber),
     )
-  const l3OutputIndex = toNumber(l2OutputOracleEvents[0].topics[2])
-  const l3BlockNumber = BigInt(l2OutputOracleEvents[0].topics[3])
+  // console.log('l2OutputOracleEvents.length: ', l2OutputOracleEvents.length)
+  // console.log(
+  //   'l2OutputOracleEvents length -1: ',
+  //   l2OutputOracleEvents[l2OutputOracleEvents.length - 1],
+  // )
+  const l3OutputIndex = toNumber(
+    l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[2],
+  )
+  const l3BlockNumber = BigInt(
+    l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[3],
+  )
 
   return {
     blockNumber,
@@ -637,6 +649,41 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
     layer1EcoTestNetOutputOracleProof.codeHash, // CodeHash
   ]
   try {
+    // console.log('===============================================')
+    // console.log('Proving Bedrock L3 World State baseSepolia')
+    // console.log(
+    //   'L2OutputOracleOutputRoot: ',
+    //   await s.baseSepoliaProverContract.generateOutputRoot(
+    //     0,
+    //     settlementWorldStateRoot,
+    //     l2MesagePasserProof.storageHash,
+    //     endBatchBlockData.hash,
+    //   ),
+    // )
+    // console.log('networkIds.ecoTestNet: ', networkIds.ecoTestNet)
+    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
+    // console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
+    // console.log(
+    //   'l2MesagePasserProof.storageHash: ',
+    //   l2MesagePasserProof.storageHash,
+    // )
+    // console.log('l1BatchIndex: ', l1BatchIndex)
+    // console.log(
+    //   'layer1EcoTestNetOutputOracleProof.storageProof[0].proof: ',
+    //   layer1EcoTestNetOutputOracleProof.storageProof[0].proof,
+    // )
+    // console.log(
+    //   'rlpEncodedOutputOracleData: ',
+    //   await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+    //     layer1EcoTestNetOutputOracleContractData,
+    //   ),
+    // )
+    // console.log(
+    //   'layer1EcoTestNetOutputOracleProof.accountProof: ',
+    //   layer1EcoTestNetOutputOracleProof.accountProof,
+    // )
+    // console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
+    // console.log('===============================================')
     const proveOutputTX =
       await s.baseSepoliaProverContract.proveWorldStateBedrock(
         networkIds.ecoTestNet,
@@ -657,9 +704,7 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
       'Prove Bedrock L3 World State baseSepolia tx: ',
       proveOutputTX.hash,
     )
-    return {
-      endBatchBlockData,
-    }
+    return endBatchBlockData
   } catch (e) {
     if (e.data && s.baseSepoliaProverContract) {
       const decodedError = s.baseSepoliaProverContract.interface.parseError(
@@ -978,9 +1023,7 @@ async function proveWorldStateBedrockOnOptimismSepoliaforEcoTestNet(
       'Prove Bedrock L3 World State optimismSepolia tx: ',
       proveOutputTX.hash,
     )
-    return {
-      endBatchBlockData,
-    }
+    return endBatchBlockData
   } catch (e) {
     if (e.data && s.optimismSepoliaProverContract) {
       const decodedError = s.optimismSepoliaProverContract.interface.parseError(
@@ -1012,7 +1055,7 @@ async function proveWorldStatesBedrockL3L2Base(
     await proveSepoliaSettlementLayerStateOnBaseSepolia() // Prove the Sepolia Settlement Layer State
 
   // Prove Base World State on Base Sepolia
-  let endBatchBlockData = await proveWorldStateBaseSepoliaOnBaseSepolia(
+  const endBatchBlockDataL2 = await proveWorldStateBaseSepoliaOnBaseSepolia(
     settlementBlockTag,
     settlementWorldStateRoot,
     faultDisputeGameAddress,
@@ -1020,14 +1063,18 @@ async function proveWorldStatesBedrockL3L2Base(
     gameIndex,
   )
   // Prove ECO TestNet World State on Base Sepolia
-  console.log('Base endBatchBlockData.number: ', endBatchBlockData.number)
-  console.log('Base endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
-  endBatchBlockData = await proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
-    l3OutputIndex,
-    l3BlockNumber,
-    endBatchBlockData.number,
-    endBatchBlockData.stateRoot,
+  console.log('Base endBatchBlockData.number: ', endBatchBlockDataL2.number)
+  console.log(
+    'Base endBatchBlockData.stateRoot: ',
+    endBatchBlockDataL2.stateRoot,
   )
+  const endBatchBlockData =
+    await proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
+      l3OutputIndex,
+      l3BlockNumber,
+      endBatchBlockDataL2.number,
+      endBatchBlockDataL2.stateRoot,
+    )
 
   return endBatchBlockData
 }
@@ -1044,7 +1091,7 @@ async function proveWorldStatesBedrockL3L2Op(
     await proveSepoliaSettlementLayerStateOnOptimismSepolia() // Prove the Sepolia Settlement Layer State
 
   // Prove Base World State on Optimism Sepolia
-  let endBatchBlockData = await proveWorldStateBaseSepoliaOnOptimismSepolia(
+  const endBatchBlockDataL2 = await proveWorldStateBaseSepoliaOnOptimismSepolia(
     settlementBlockTag,
     settlementWorldStateRoot,
     faultDisputeGameAddress,
@@ -1052,14 +1099,17 @@ async function proveWorldStatesBedrockL3L2Op(
     gameIndex,
   )
   // Prove ECO TestNet World State on Optimism Sepolia
-  console.log('Base endBatchBlockData.number: ', endBatchBlockData.number)
-  console.log('Base endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
-  endBatchBlockData =
+  console.log('Base endBatchBlockData.number: ', endBatchBlockDataL2.number)
+  console.log(
+    'Base endBatchBlockData.stateRoot: ',
+    endBatchBlockDataL2.stateRoot,
+  )
+  const endBatchBlockData =
     await proveWorldStateBedrockOnOptimismSepoliaforEcoTestNet(
       l3OutputIndex,
       l3BlockNumber,
-      endBatchBlockData.number,
-      endBatchBlockData.stateRoot,
+      endBatchBlockDataL2.number,
+      endBatchBlockDataL2.stateRoot,
     )
   return endBatchBlockData
 }
@@ -1116,18 +1166,25 @@ export async function proveDestinationChainBatchSettled(
 
 async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
   console.log('In proveIntentBaseSepolia')
+  console.log('intentHash: ', intentHash)
+  console.log('endBatchBlockData: ', endBatchBlockData)
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
-  const intentInboxProof = await s.optimismSepoliaProvider.send(
-    'eth_getProof',
-    [
-      networks.optimismSepolia.inbox.address,
-      [inboxStorageSlot],
-      endBatchBlockData.number,
-    ],
+  console.log('About to getProof from EcoTestNet for BaseSepolia')
+  console.log(
+    'networks.ecoTestNet.inbox.address: ',
+    networks.ecoTestNet.inbox.address,
   )
+  console.log('inboxStorageSlot: ', inboxStorageSlot)
+  console.log('endBatchBlockData.number: ', endBatchBlockData.number)
+  const intentInboxProof = await s.ecoTestNetProvider.send('eth_getProof', [
+    networks.ecoTestNet.inbox.address,
+    [inboxStorageSlot],
+    endBatchBlockData.number,
+  ])
+  console.log('intentInboxProof: ', intentInboxProof)
 
   const intentInfo =
     await s.baseSepoliaIntentSourceContractClaimant.getIntent(intentHash)
@@ -1146,12 +1203,12 @@ async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
       ],
     ),
   )
-
+  console.log('About to proveIntent BaseSepolia')
   try {
     const proveIntentTx = await s.baseSepoliaProverContract.proveIntent(
-      networkIds.optimismSepolia,
+      networkIds.ecoTestNet,
       actors.claimant,
-      networks.optimismSepolia.inbox.address,
+      networks.ecoTestNet.inbox.address,
       intermediateHash,
       intentInboxProof.storageProof[0].proof,
       await s.baseSepoliaProverContract.rlpEncodeDataLibList([
@@ -1181,12 +1238,14 @@ async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
 
 async function proveIntentOptimismSepolia(intentHash, endBatchBlockData) {
   console.log('In proveIntentOptimismSepolia')
+  console.log('intentHash: ', intentHash)
+  console.log('endBatchBlockData: ', endBatchBlockData)
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
-  const intentInboxProof = await s.baseSepoliaProvider.send('eth_getProof', [
-    networks.baseSepolia.inbox.address,
+  const intentInboxProof = await s.ecoTestNetProvider.send('eth_getProof', [
+    networks.ecoTestNet.inbox.address,
     [inboxStorageSlot],
     endBatchBlockData.number,
   ])
@@ -1211,9 +1270,9 @@ async function proveIntentOptimismSepolia(intentHash, endBatchBlockData) {
 
   try {
     const proveIntentTx = await s.optimismSepoliaProverContract.proveIntent(
-      networkIds.baseSepolia,
+      networkIds.ecoTestNet,
       actors.claimant,
-      networks.baseSepolia.inbox.address,
+      networks.ecoTestNet.inbox.address,
       intermediateHash,
       intentInboxProof.storageProof[0].proof,
       await s.optimismSepoliaProverContract.rlpEncodeDataLibList([
@@ -1416,6 +1475,31 @@ export async function withdrawFunds(intentsToProve) {
 }
 
 async function main() {
+  // console.log(
+  //   'L2OutputOracleOutputRoot: ',
+  //   await s.baseSepoliaProverContract.generateOutputRoot(
+  //     0,
+  //     settlementWorldStateRoot,
+  //     l2MesagePasserProof.storageHash,
+  //     endBatchBlockData.hash,
+  //   ),
+  // )
+  // console.log(
+  //   'Desired Output Root      : 0xec31cb931394f256cd839e87e45b44779d38de899f0227503d9935be4ca7d9b8',
+  // )
+  // console.log(
+  //   'Expected Output Root     : 0x1d19a15ddfc023241bd7a17adb8919789a2353b5e377261cdfff51d630adf542',
+  // )
+  // console.log(
+  //   'L2OutputOracleOutputRoot :',
+  //   await s.baseSepoliaProverContract.generateOutputRoot(
+  //     0, // L2_OUTPUT_ROOT_VERSION_NUMBER
+  //     '0xde1a745631c29087cd6a4110e79efc6ba216c3e5de4829199b8382a7629320c7', // l2WorldStateRoot = settlementWorldStateRoot,
+  //     '0x8ed4baae3a927be3dea54996b4d5899f8c01e7594bf50b17dc1e741388ce3d12', // l2MessagePasserStateRoot = l2MesagePasserProof.storageHash,
+  //     '0x9c35483ef6bfe81127819d9381b29101d7d846af8516159b854b073717748b02', // 5200320 block Hash = endBatchBlockData.hash,
+  //   ),
+  // )
+
   const proveAll: boolean = true
   // define the variables used for each state of the intent lifecycle
   // Point in time proving for latest batch
@@ -1452,9 +1536,9 @@ async function main() {
       l3OutputIndex,
       l3BlockNumber,
     )
-    // // Prove all the intents
-    // await proveIntents(intentsToProve, endBatchBlockData)
-    // await withdrawFunds(intentsToProve)
+    // Prove all the intents
+    await proveIntents(intentsToProve, endBatchBlockData)
+    await withdrawFunds(intentsToProve)
   } catch (e) {
     console.log(e)
   }
