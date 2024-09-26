@@ -421,8 +421,8 @@ describe('Inbox Test', (): void => {
       console.log(await mailbox.messageBody())
       expect(await mailbox.messageBody()).to.eq(
         ethers.AbiCoder.defaultAbiCoder().encode(
-          ['bytes32', 'address'],
-          [intentHash, dstAddr.address],
+          ['bytes32[]', 'address[]'],
+          [[intentHash], [dstAddr.address]],
         ),
       )
 

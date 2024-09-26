@@ -81,10 +81,15 @@ contract Inbox is IInbox, Ownable {
     ) external returns (bytes[] memory) {
         bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
         emit HyperInstantFulfillment(_expectedHash, _sourceChainID, _claimant);
+        bytes32[] memory hashes = new bytes32[](1);
+        address[] memory claimants = new address[](1);
+        hashes[0] = _expectedHash;
+        claimants[0] = _claimant;
+        
         IMailbox(MAILBOX).dispatch(
             uint32(_sourceChainID),
             _prover.addressToBytes32(),
-            abi.encode([_expectedHash], [_claimant])
+            abi.encode(hashes, claimants)
             );
         return results;
     }
