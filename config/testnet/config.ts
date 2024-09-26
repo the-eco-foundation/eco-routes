@@ -107,6 +107,7 @@ const networks: any = {
     //   421614, // arbitrumSepolia
     // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
+    hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
   },
   baseSepolia: {
     network: 'base-sepolia',
@@ -143,6 +144,7 @@ const networks: any = {
     //   421614, // arbitrumSepolia
     // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
   },
   ecoTestNet: {
     network: 'eco-testnet',
