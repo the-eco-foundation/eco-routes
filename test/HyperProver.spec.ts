@@ -7,6 +7,7 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { HyperProver, Inbox, TestERC20, TestMailbox } from '../typechain-types'
 import { encodeTransfer } from '../utils/encode'
+import { emit } from 'process'
 
 type HyperProverMessagePair = {
   _intentHash: string
@@ -80,8 +81,7 @@ describe('HyperProver Test', (): void => {
     })
   })
 
-  describe('valid', async () => {
-    // struggling with how to encode this correctly for the test, but e2e works so this is unnecessary?
+  describe('valid instant', async () => {
     it('should handle the message if it comes from the correct inbox and mailbox', async () => {
       hyperProver = await (
         await ethers.getContractFactory('HyperProver')
@@ -89,13 +89,6 @@ describe('HyperProver Test', (): void => {
 
       const intentHash = ethers.sha256('0x')
       const claimantAddress = await claimant.getAddress()
-
-      //   const msgStruct = abiCoder.encode(
-      //     ['bytes32', 'address'],
-      //     [intentHash, claimantAddress],
-      //   )
-      //   //   const structArr = [msgStruct]
-      //   //   console.log(structArr)
       const msgBody = abiCoder.encode(
         ['bytes32[]', 'address[]'],
         [[intentHash], [claimantAddress]],
@@ -162,7 +155,6 @@ describe('HyperProver Test', (): void => {
       expect(await hyperProver.provenIntents(intentHash)).to.eq(
         ethers.ZeroAddress,
       )
-      console.log('frist')
       await expect(
         dispatcher.dispatch(
           12345,
@@ -175,6 +167,188 @@ describe('HyperProver Test', (): void => {
         .to.emit(hyperProver, `IntentProven`)
         .withArgs(intentHash, await claimant.getAddress())
       expect(await hyperProver.provenIntents(intentHash)).to.eq(
+        await claimant.getAddress(),
+      )
+    })
+  })
+  describe('valid batched', async () => {
+    it('should emit if intent is already proven', async () => {
+      hyperProver = await (
+        await ethers.getContractFactory('HyperProver')
+      ).deploy(await owner.getAddress(), await inbox.getAddress())
+      const intentHash = ethers.sha256('0x')
+      const claimantAddress = await claimant.getAddress()
+      const msgBody = abiCoder.encode(
+        ['bytes32[]', 'address[]'],
+        [[intentHash], [claimantAddress]],
+      )
+      await hyperProver
+        .connect(owner)
+        .handle(
+          12345,
+          ethers.zeroPadValue(await inbox.getAddress(), 32),
+          msgBody,
+        )
+
+      await expect(
+        hyperProver
+          .connect(owner)
+          .handle(
+            12345,
+            ethers.zeroPadValue(await inbox.getAddress(), 32),
+            msgBody,
+          ),
+      )
+        .to.emit(hyperProver, 'IntentAlreadyProven')
+        .withArgs(intentHash)
+    })
+    it('should work with a batch', async () => {
+      hyperProver = await (
+        await ethers.getContractFactory('HyperProver')
+      ).deploy(await owner.getAddress(), await inbox.getAddress())
+      const intentHash = ethers.sha256('0x')
+      const otherHash = ethers.sha256('0x1337')
+      const claimantAddress = await claimant.getAddress()
+      const otherAddress = await solver.getAddress()
+      const msgBody = abiCoder.encode(
+        ['bytes32[]', 'address[]'],
+        [
+          [intentHash, otherHash],
+          [claimantAddress, otherAddress],
+        ],
+      )
+
+      await expect(
+        hyperProver
+          .connect(owner)
+          .handle(
+            12345,
+            ethers.zeroPadValue(await inbox.getAddress(), 32),
+            msgBody,
+          ),
+      )
+        .to.emit(hyperProver, 'IntentProven')
+        .withArgs(intentHash, claimantAddress)
+        .to.emit(hyperProver, 'IntentProven')
+        .withArgs(otherHash, otherAddress)
+    })
+    it('should work end to end', async () => {
+      hyperProver = await (
+        await ethers.getContractFactory('HyperProver')
+      ).deploy(await dispatcher.getAddress(), await inbox.getAddress())
+      await token.mint(solver.address, 2 * amount)
+      const sourceChainID = 12345
+      const calldata = await encodeTransfer(await claimant.getAddress(), amount)
+      const timeStamp = (await time.latest()) + 1000
+      let nonce = ethers.encodeBytes32String('0x987')
+      let intermediateHash = ethers.keccak256(
+        abiCoder.encode(
+          ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [
+            sourceChainID,
+            (await owner.provider.getNetwork()).chainId,
+            [await token.getAddress()],
+            [calldata],
+            timeStamp,
+            nonce,
+          ],
+        ),
+      )
+      const intentHash0 = ethers.keccak256(
+        abiCoder.encode(
+          ['address', 'bytes32'],
+          [await inbox.getAddress(), intermediateHash],
+        ),
+      )
+      const fulfillData0 = [
+        sourceChainID,
+        [await token.getAddress()],
+        [calldata],
+        timeStamp,
+        nonce,
+        await claimant.getAddress(),
+        intentHash0,
+        await hyperProver.getAddress(),
+      ]
+      await token.connect(solver).transfer(await inbox.getAddress(), amount)
+
+      expect(await hyperProver.provenIntents(intentHash0)).to.eq(
+        ethers.ZeroAddress,
+      )
+
+      await expect(inbox.connect(solver).fulfillHyperBatched(...fulfillData0))
+        .to.emit(inbox, `AddToBatch`)
+        .withArgs(
+          intentHash0,
+          sourceChainID,
+          await claimant.getAddress(),
+          await hyperProver.getAddress(),
+        )
+
+      nonce = ethers.encodeBytes32String('0x1234')
+      intermediateHash = ethers.keccak256(
+        abiCoder.encode(
+          ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [
+            sourceChainID,
+            (await owner.provider.getNetwork()).chainId,
+            [await token.getAddress()],
+            [calldata],
+            timeStamp,
+            nonce,
+          ],
+        ),
+      )
+
+      const intentHash1 = ethers.keccak256(
+        abiCoder.encode(
+          ['address', 'bytes32'],
+          [await inbox.getAddress(), intermediateHash],
+        ),
+      )
+
+      const fulfillData1 = [
+        sourceChainID,
+        [await token.getAddress()],
+        [calldata],
+        timeStamp,
+        nonce,
+        await claimant.getAddress(),
+        intentHash1,
+        await hyperProver.getAddress(),
+      ]
+
+      await token.connect(solver).transfer(await inbox.getAddress(), amount)
+
+      await expect(inbox.connect(solver).fulfillHyperBatched(...fulfillData1))
+        .to.emit(inbox, `AddToBatch`)
+        .withArgs(
+          intentHash1,
+          sourceChainID,
+          await claimant.getAddress(),
+          await hyperProver.getAddress(),
+        )
+      expect(await hyperProver.provenIntents(intentHash1)).to.eq(
+        ethers.ZeroAddress,
+      )
+
+      await expect(
+        inbox
+          .connect(solver)
+          .sendBatch(sourceChainID, await hyperProver.getAddress(), [
+            intentHash0,
+            intentHash1,
+          ]),
+      )
+        .to.emit(hyperProver, `IntentProven`)
+        .withArgs(intentHash0, await claimant.getAddress())
+        .to.emit(hyperProver, `IntentProven`)
+        .withArgs(intentHash1, await claimant.getAddress())
+
+      expect(await hyperProver.provenIntents(intentHash0)).to.eq(
+        await claimant.getAddress(),
+      )
+      expect(await hyperProver.provenIntents(intentHash1)).to.eq(
         await claimant.getAddress(),
       )
     })
