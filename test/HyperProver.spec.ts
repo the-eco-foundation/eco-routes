@@ -90,12 +90,12 @@ describe('HyperProver Test', (): void => {
       const intentHash = ethers.sha256('0x')
       const claimantAddress = await claimant.getAddress()
 
-    //   const msgStruct = abiCoder.encode(
-    //     ['bytes32', 'address'],
-    //     [intentHash, claimantAddress],
-    //   )
-    //   //   const structArr = [msgStruct]
-    //   //   console.log(structArr)
+      //   const msgStruct = abiCoder.encode(
+      //     ['bytes32', 'address'],
+      //     [intentHash, claimantAddress],
+      //   )
+      //   //   const structArr = [msgStruct]
+      //   //   console.log(structArr)
       const msgBody = abiCoder.encode(
         ['bytes32[]', 'address[]'],
         [[intentHash], [claimantAddress]],
@@ -170,7 +170,7 @@ describe('HyperProver Test', (): void => {
           calldata,
         ),
       ).to.be.revertedWithCustomError(hyperProver, 'UnauthorizedDispatch')
-      
+
       await expect(inbox.connect(solver).fulfillHyperInstant(...fulfillData))
         .to.emit(hyperProver, `IntentProven`)
         .withArgs(intentHash, await claimant.getAddress())
@@ -179,6 +179,4 @@ describe('HyperProver Test', (): void => {
       )
     })
   })
-
-  describe('e2e', async () => {})
 })

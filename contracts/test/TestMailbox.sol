@@ -4,8 +4,6 @@ pragma solidity ^0.8.26;
 import "@hyperlane-xyz/core/contracts/libs/Message.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
-import "hardhat/console.sol";
-
 
 contract TestMailbox {
 
@@ -43,7 +41,6 @@ contract TestMailbox {
     }
 
     function process(bytes calldata _msg) public {
-        console.log('felch');
         IMessageRecipient(recipientAddress.bytes32ToAddress()).handle(uint32(block.chainid), msg.sender.addressToBytes32(), _msg);
     }
 }
