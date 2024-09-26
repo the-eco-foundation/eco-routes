@@ -9,6 +9,7 @@ import {
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
 import { encodeTransfer } from '../utils/encode'
 import { keccak256 } from 'ethers'
+import { intent } from './testData'
 
 describe('Inbox Test', (): void => {
   let inbox: Inbox
@@ -18,8 +19,11 @@ describe('Inbox Test', (): void => {
   let solver: SignerWithAddress
   let dstAddr: SignerWithAddress
   let intentHash: string
+  let otherHash: string
   let calldata: DataHexString
+  let otherCallData: DataHexString
   let timeStamp: number
+  let otherTimeStamp: number
   let dummyHyperProver: TestProver
   const nonce = ethers.encodeBytes32String('0x987')
   let erc20Address: string
@@ -50,7 +54,7 @@ describe('Inbox Test', (): void => {
     // deploy ERC20 test
     const erc20Factory = await ethers.getContractFactory('TestERC20')
     const erc20 = await erc20Factory.deploy('eco', 'eco')
-    await erc20.mint(owner.address, mintAmount)
+    await erc20.mint(solver.address, mintAmount)
 
     return {
       inbox,
@@ -62,19 +66,17 @@ describe('Inbox Test', (): void => {
     }
   }
 
-  async function setBalances() {
-    await erc20.connect(owner).transfer(await solver.getAddress(), mintAmount)
-  }
-
-  beforeEach(async (): Promise<void> => {
-    ;({ inbox, mailbox, erc20, owner, solver, dstAddr } =
-      await loadFixture(deployInboxFixture))
-
-    // fund the solver
-    await setBalances()
+  async function createIntentData(
+    amount: number,
+    timeDelta: number,
+  ): Promise<{
+    intentHash: string
+    calldata: DataHexString
+    timeStamp: number
+  }> {
     erc20Address = await erc20.getAddress()
-    calldata = await encodeTransfer(dstAddr.address, mintAmount)
-    timeStamp = (await time.latest()) + timeDelta
+    const _calldata = await encodeTransfer(dstAddr.address, amount)
+    const _timestamp = (await time.latest()) + timeDelta
     const abiCoder = ethers.AbiCoder.defaultAbiCoder()
     const intermediateHash = keccak256(
       abiCoder.encode(
@@ -83,18 +85,32 @@ describe('Inbox Test', (): void => {
           sourceChainID,
           (await owner.provider.getNetwork()).chainId,
           [erc20Address],
-          [calldata],
-          timeStamp,
+          [_calldata],
+          _timestamp,
           nonce,
         ],
       ),
     )
-    intentHash = keccak256(
+    const _intentHash = keccak256(
       abiCoder.encode(
         ['address', 'bytes32'],
         [await inbox.getAddress(), intermediateHash],
       ),
     )
+    return {
+      intentHash: _intentHash,
+      calldata: _calldata,
+      timeStamp: _timestamp,
+    }
+  }
+
+  beforeEach(async (): Promise<void> => {
+    ;({ inbox, mailbox, erc20, owner, solver, dstAddr } =
+      await loadFixture(deployInboxFixture))
+    ;({ intentHash, calldata, timeStamp } = await createIntentData(
+      mintAmount,
+      timeDelta,
+    ))
   })
   it('initializes correctly', async () => {
     expect(await inbox.owner()).to.eq(owner.address)
@@ -460,6 +476,135 @@ describe('Inbox Test', (): void => {
 
       expect(await mailbox.dispatched()).to.be.false
     })
-    it('works with sendBatch', async () => {})
+    context('sendBatch', async () => {
+      it('should revert if number of intents exceeds MAX_BATCH_SIZE', async () => {
+        const i = intentHash
+        const hashes: string[] = [i, i, i, i, i, i, i, i, i, i, i, i, i, i]
+        expect(hashes.length).to.be.greaterThan(await inbox.MAX_BATCH_SIZE())
+        await expect(
+          inbox
+            .connect(solver)
+            .sendBatch(
+              sourceChainID,
+              await dummyHyperProver.getAddress(),
+              hashes,
+            ),
+        ).to.be.revertedWithCustomError(inbox, 'BatchTooLarge')
+        expect(await mailbox.dispatched()).to.be.false
+      })
+      it('should revert if sending a batch containing an intent that has not been fulfilled', async () => {
+        const hashes: string[] = [intentHash]
+        expect(hashes.length).to.be.lessThanOrEqual(
+          await inbox.MAX_BATCH_SIZE(),
+        )
+        await expect(
+          inbox
+            .connect(solver)
+            .sendBatch(
+              sourceChainID,
+              await dummyHyperProver.getAddress(),
+              hashes,
+            ),
+        )
+          .to.be.revertedWithCustomError(inbox, 'IntentNotFulfilled')
+          .withArgs(hashes[0])
+        expect(await mailbox.dispatched()).to.be.false
+      })
+      it('succeeds for a single intent', async () => {
+        expect(await mailbox.dispatched()).to.be.false
+        await inbox
+          .connect(solver)
+          .fulfillHyperBatched(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+            await dummyHyperProver.getAddress(),
+          )
+        expect(await mailbox.dispatched()).to.be.false
+        await expect(
+          inbox
+            .connect(solver)
+            .sendBatch(sourceChainID, await dummyHyperProver.getAddress(), [
+              intentHash,
+            ]),
+        ).to.not.be.reverted
+        expect(await mailbox.destinationDomain()).to.eq(sourceChainID)
+        expect(await mailbox.recipientAddress()).to.eq(
+          ethers.zeroPadValue(await dummyHyperProver.getAddress(), 32),
+        )
+        expect(await mailbox.messageBody()).to.eq(
+          ethers.AbiCoder.defaultAbiCoder().encode(
+            ['bytes32[]', 'address[]'],
+            [[intentHash], [dstAddr.address]],
+          ),
+        )
+        expect(await mailbox.dispatched()).to.be.true
+      })
+      it('succeeds for multiple intents', async () => {
+        expect(await mailbox.dispatched()).to.be.false
+        await inbox
+          .connect(solver)
+          .fulfillHyperBatched(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+            await dummyHyperProver.getAddress(),
+          )
+        const newTokenAmount = 12345
+        const newTimeDelta = 1123
+        ;({
+          intentHash: otherHash,
+          calldata: otherCallData,
+          timeStamp: otherTimeStamp,
+        } = await createIntentData(newTokenAmount, newTimeDelta))
+        await erc20.mint(solver.address, newTokenAmount)
+        await erc20
+          .connect(solver)
+          .transfer(await inbox.getAddress(), newTokenAmount)
+        await inbox
+          .connect(solver)
+          .fulfillHyperBatched(
+            sourceChainID,
+            [erc20Address],
+            [otherCallData],
+            otherTimeStamp,
+            nonce,
+            dstAddr.address,
+            otherHash,
+            await dummyHyperProver.getAddress(),
+          )
+        expect(await mailbox.dispatched()).to.be.false
+        await expect(
+          inbox
+            .connect(solver)
+            .sendBatch(sourceChainID, await dummyHyperProver.getAddress(), [
+              intentHash,
+              otherHash,
+            ]),
+        ).to.not.be.reverted
+        expect(await mailbox.destinationDomain()).to.eq(sourceChainID)
+        expect(await mailbox.recipientAddress()).to.eq(
+          ethers.zeroPadValue(await dummyHyperProver.getAddress(), 32),
+        )
+        expect(await mailbox.messageBody()).to.eq(
+          ethers.AbiCoder.defaultAbiCoder().encode(
+            ['bytes32[]', 'address[]'],
+            [
+              [intentHash, otherHash],
+              [dstAddr.address, dstAddr.address],
+            ],
+          ),
+        )
+        expect(await mailbox.dispatched()).to.be.true
+      })
+    })
   })
 })
