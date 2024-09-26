@@ -178,6 +178,7 @@ const networks: any = {
       mechanism: 1,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
       settlementChain: {
         network: 'baseSepolia',

@@ -73,18 +73,19 @@ export async function getBatchSettled() {
   // Get the GameId information for the fault dispute game
   // return faultDisputeGame address, gameId, blockNumber
   // Recommend making approximateUnsettledGames configurable and could go as high as 84 but safest is zero.
-  console.log('In getFaultDisputeGame')
+  console.log('In getBatchSettled')
   const disputeGameFactoryContract = s.sepoliaSettlementContractBase
   const approximateUnsettledGames = 70n // Initial Test on Sepolia gave 83 (1528 - 1445)
-  let gameIndex =
+  let blockNumber, gameIndex, faultDisputeGameAddress, faultDisputeGameContract
+  gameIndex =
     (await disputeGameFactoryContract.gameCount()) -
     1n -
     approximateUnsettledGames
   // lastGame = 1712n
   while (gameIndex > 0) {
     const gameData = await disputeGameFactoryContract.gameAtIndex(gameIndex)
-    const faultDisputeGameAddress = gameData.proxy_
-    const faultDisputeGameContract = new Contract(
+    faultDisputeGameAddress = gameData.proxy_
+    faultDisputeGameContract = new Contract(
       faultDisputeGameAddress,
       FaultDisputeGameArtifact.abi,
       s.sepoliaProvider,
@@ -94,16 +95,16 @@ export async function getBatchSettled() {
         faultDisputeGameContract.getEvent('Resolved'),
       )
     if (faultDisputeGameResolvedEvents.length !== 0) {
-      const blockNumber = await faultDisputeGameContract.l2BlockNumber()
-      console.log('gameIndex: ', gameIndex)
-      return {
-        blockNumber,
-        gameIndex,
-        faultDisputeGameAddress,
-        faultDisputeGameContract,
-      }
+      blockNumber = await faultDisputeGameContract.l2BlockNumber()
+      break
     }
     gameIndex -= 1n
+  }
+  return {
+    blockNumber,
+    gameIndex,
+    faultDisputeGameAddress,
+    faultDisputeGameContract,
   }
 }
 export async function getIntentsToProve(
@@ -118,8 +119,7 @@ export async function getIntentsToProve(
   let baseSepoliaProvenState
   let scanAllIntentsForInbox = false
   // TODO change to use contract factory for deploys then can use ethers deploymentTransaction to get the blockNumber
-  let startingBlockNumber =
-    networks.baseSepolia.proverContract.deploymentBlock || 0n
+  let startingBlockNumber = networks.baseSepolia.inbox.deploymentBlock || 0n
   const inboxDeploymentBlock = networks.baseSepolia.inbox.deploymentBlock
   // TODO: Parmaeterize the calls to provenStates and remove switch
   for (const sourceChain of sourceChainConfig) {
@@ -1177,6 +1177,9 @@ async function main() {
       faultDisputeGameAddress,
       faultDisputeGameContract,
     } = await getBatchSettled()
+    console.log('settlementBlockNumber: ', blockNumber)
+    console.log('settlementGameIndex: ', gameIndex)
+    console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
 
     // Get all the intents that can be proven for the batch by destination chain
     const { sourceChains, intentsToProve } = await getIntentsToProve(
