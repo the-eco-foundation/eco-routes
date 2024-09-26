@@ -4,7 +4,6 @@ pragma solidity ^0.8.26;
 import '@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol';
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import './interfaces/SimpleProver.sol';
-import './types/HyperProverMessagePair.sol';
 import "hardhat/console.sol";
 
 

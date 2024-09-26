@@ -5,7 +5,6 @@ import "./interfaces/IInbox.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./types/HyperProverMessagePair.sol";
 import "hardhat/console.sol";
 
 /**
@@ -85,7 +84,7 @@ contract Inbox is IInbox, Ownable {
         address[] memory claimants = new address[](1);
         hashes[0] = _expectedHash;
         claimants[0] = _claimant;
-        
+
         IMailbox(MAILBOX).dispatch(
             uint32(_sourceChainID),
             _prover.addressToBytes32(),
@@ -117,18 +116,20 @@ contract Inbox is IInbox, Ownable {
         if (size > MAX_BATCH_SIZE) {
             revert BatchTooLarge();
         }
-        HyperProverMessagePair[] memory batch = new HyperProverMessagePair[](size);
+        bytes32[] memory hashes = new bytes32[](size);
+        address[] memory claimants = new address[](size);
         for (uint256 i = 0; i < size; i++) {
             address claimant = fulfilled[_intentHashes[i]];
             if (claimant == address(0)) {
                 revert IntentNotFulfilled(_intentHashes[i]);
             }
-            batch[i] = HyperProverMessagePair(_intentHashes[i], claimant);
+            hashes[i] = _intentHashes[i];
+            claimants[i] = claimant;
         }
         IMailbox(MAILBOX).dispatch(
             uint32(_sourceChainID),
             _prover.addressToBytes32(),
-            abi.encode(batch)
+            abi.encode(hashes, claimants)
             );
     }
 
