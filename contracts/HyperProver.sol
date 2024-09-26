@@ -64,7 +64,7 @@ contract HyperProver is IMessageRecipient, SimpleProver {
         if (INBOX != sender) {
             revert UnauthorizedDispatch(sender);
         }
-        (bytes32[] memory hashes, address[] memory claimants) = abi.decode(_messageBody, (bytes32[], address[]));
+        (bytes32[] memory hashes, address[] memory claimants) = abi.decode(_messageBody, (bytes32, address));
         console.log('merm');
         for (uint256 i = 0; i < hashes.length; i++) {
             (bytes32 intentHash, address claimant) = (hashes[i], claimants[i]);
