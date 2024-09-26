@@ -3,8 +3,11 @@ pragma solidity ^0.8.26;
 
 interface IInbox {
 
-    // Event emitted when an intent is succesfully fulfilled with a non-hyperprover prover
+    // Event emitted when an intent is succesfully fulfilled
     event Fulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
+
+    // Event emitted when an intent is succesfully fulfilled and ready to be slow-path proven
+    event ToBeProven(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
     // Event emitted when an intent is successfully fulfilled with the instant hyperprover path
     event HyperInstantFulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
@@ -58,7 +61,7 @@ interface IInbox {
      * @dev this is a guardrail to make sure solves dont accidentally solve intents that cannot be proven.
      * @return results The results of the calls as an array of bytes
      */
-    function fulfill(
+    function fulfillSlowPath(
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,

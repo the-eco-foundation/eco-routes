@@ -134,7 +134,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(owner)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -150,7 +150,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -172,7 +172,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -216,7 +216,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -234,7 +234,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -269,7 +269,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [await mailbox.getAddress()],
             [calldata],
@@ -288,7 +288,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -309,7 +309,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(owner)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -333,7 +333,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -344,6 +344,8 @@ describe('Inbox Test', (): void => {
           ),
       )
         .to.emit(inbox, 'Fulfillment')
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
+        .to.emit(inbox, 'ToBeProven')
         .withArgs(intentHash, sourceChainID, dstAddr.address)
       // should update the fulfilled hash
       expect(await inbox.fulfilled(intentHash)).to.equal(dstAddr.address)
@@ -361,7 +363,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -371,13 +373,13 @@ describe('Inbox Test', (): void => {
             intentHash,
           ),
       )
-        .to.emit(inbox, 'Fulfillment')
+        .to.emit(inbox, 'ToBeProven')
         .withArgs(intentHash, sourceChainID, dstAddr.address)
       // should revert
       await expect(
         inbox
           .connect(solver)
-          .fulfill(
+          .fulfillSlowPath(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -399,7 +401,7 @@ describe('Inbox Test', (): void => {
 
       await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
     })
-    it('fulfill hyper instant', async () => {
+    it('fulfills hyper instant', async () => {
       await expect(
         inbox
           .connect(solver)
@@ -414,6 +416,8 @@ describe('Inbox Test', (): void => {
             await dummyHyperProver.getAddress(),
           ),
       )
+        .to.emit(inbox, 'Fulfillment')
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
         .to.emit(inbox, 'HyperInstantFulfillment')
         .withArgs(intentHash, sourceChainID, dstAddr.address)
 
@@ -429,7 +433,7 @@ describe('Inbox Test', (): void => {
       )
       expect(await mailbox.dispatched()).to.be.true
     })
-    it('fulfill hyper batch', async () => {
+    it('fulfills hyper batch', async () => {
       await expect(
         inbox
           .connect(solver)
@@ -444,6 +448,8 @@ describe('Inbox Test', (): void => {
             await dummyHyperProver.getAddress(),
           ),
       )
+        .to.emit(inbox, 'Fulfillment')
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
         .to.emit(inbox, 'AddToBatch')
         .withArgs(
           intentHash,
@@ -454,5 +460,6 @@ describe('Inbox Test', (): void => {
 
       expect(await mailbox.dispatched()).to.be.false
     })
+    it('works with sendBatch', async () => {})
   })
 })

@@ -50,7 +50,7 @@ contract Inbox is IInbox, Ownable {
         MAILBOX = _mailbox;
     }
 
-    function fulfill(
+    function fulfillSlowPath(
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
@@ -62,7 +62,7 @@ contract Inbox is IInbox, Ownable {
 
         bytes[] memory result = _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
 
-        emit Fulfillment(_expectedHash, _sourceChainID, _claimant);
+        emit ToBeProven(_expectedHash, _sourceChainID, _claimant);
 
         return result;
     }
@@ -189,6 +189,8 @@ contract Inbox is IInbox, Ownable {
 
         // Mark the intent as fulfilled
         fulfilled[intentHash] = _claimant;
+
+        emit Fulfillment(_expectedHash, _sourceChainID, _claimant);
 
         return results;
     }
