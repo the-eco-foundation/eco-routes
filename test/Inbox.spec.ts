@@ -1,7 +1,7 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
-import { TestERC20, Inbox, TestMailbox } from '../typechain-types'
+import { TestERC20, Inbox, TestMailbox, TestProver } from '../typechain-types'
 import {
   time,
   loadFixture,
@@ -20,6 +20,7 @@ describe('Inbox Test', (): void => {
   let intentHash: string
   let calldata: DataHexString
   let timeStamp: number
+  let dummyHyperProver: TestProver
   const nonce = ethers.encodeBytes32String('0x987')
   let erc20Address: string
   const timeDelta = 1000
@@ -126,7 +127,7 @@ describe('Inbox Test', (): void => {
     })
   })
 
-  describe('when the intent is invalid', () => {
+  describe('fulfill when the intent is invalid', () => {
     it('should revert if solved by someone who isnt whitelisted when solving isnt public', async () => {
       expect(await inbox.isSolvingPublic()).to.be.false
       expect(await inbox.solverWhitelist(owner.address)).to.be.false
@@ -228,7 +229,7 @@ describe('Inbox Test', (): void => {
     })
   })
 
-  describe('when the intent is valid', () => {
+  describe('fulfill when the intent is valid', () => {
     it('should revert if the call fails', async () => {
       await expect(
         inbox
@@ -387,16 +388,18 @@ describe('Inbox Test', (): void => {
           ),
       ).to.be.revertedWithCustomError(inbox, 'IntentAlreadyFulfilled')
     })
-
-    it('should work with hyperproving', async () => {
-      const dummyHyperProver = await (
+  })
+  describe('hyper proving', () => {
+    beforeEach(async () => {
+      dummyHyperProver = await (
         await ethers.getContractFactory('TestProver')
       ).deploy()
 
       expect(await mailbox.dispatched()).to.be.false
 
       await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
-
+    })
+    it('fulfill hyper instant', async () => {
       await expect(
         inbox
           .connect(solver)
@@ -418,15 +421,38 @@ describe('Inbox Test', (): void => {
       expect(await mailbox.recipientAddress()).to.eq(
         ethers.zeroPadValue(await dummyHyperProver.getAddress(), 32),
       )
-      console.log(await mailbox.messageBody())
       expect(await mailbox.messageBody()).to.eq(
         ethers.AbiCoder.defaultAbiCoder().encode(
           ['bytes32[]', 'address[]'],
           [[intentHash], [dstAddr.address]],
         ),
       )
-
       expect(await mailbox.dispatched()).to.be.true
+    })
+    it('fulfill hyper batch', async () => {
+      await expect(
+        inbox
+          .connect(solver)
+          .fulfillHyperBatched(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+            await dummyHyperProver.getAddress(),
+          ),
+      )
+        .to.emit(inbox, 'AddToBatch')
+        .withArgs(
+          intentHash,
+          sourceChainID,
+          dstAddr.address,
+          await dummyHyperProver.getAddress(),
+        )
+
+      expect(await mailbox.dispatched()).to.be.false
     })
   })
 })
