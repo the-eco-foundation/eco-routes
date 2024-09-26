@@ -1,4 +1,27 @@
 /* eslint-disable no-magic-numbers */
+
+const networkIds: any = {
+  sepolia: 11155111,
+  optimismSepolia: 11155420,
+  baseSepolia: 84532,
+  ecoTestNet: 471923,
+  // arbitrumSepolia: 421614,
+  11155111: 'sepolia',
+  11155420: 'optimismSepolia',
+  84532: 'baseSepolia',
+  471923: 'ecoTestNet',
+  // 421614: 'arbitrumSepolia',
+}
+
+const actors: any = {
+  deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
+  intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
+  solver: '0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E',
+  claimant: '0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58',
+  prover: '0x923d4fDfD0Fb231FDA7A71545953Acca41123652',
+  recipient: '0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9',
+}
+
 const provingMechanisms: any = {
   // self: 0, // Destination is Self
   // settlement: 10, // Source Chain is an L2, Destination is A L1 Settlement Chain
@@ -37,28 +60,6 @@ const provingState: any = {
   0: 'finalized', // Finalized on Settlement Chain
   1: 'posted', // Posted to Settlement Chain
   2: 'confirmed', // Confirmed Locally
-}
-
-const networkIds: any = {
-  sepolia: 11155111,
-  optimismSepolia: 11155420,
-  baseSepolia: 84532,
-  ecoTestNet: 471923,
-  // arbitrumSepolia: 421614,
-  11155111: 'sepolia',
-  11155420: 'optimismSepolia',
-  84532: 'baseSepolia',
-  471923: 'ecoTestNet',
-  // 421614: 'arbitrumSepolia',
-}
-
-const actors: any = {
-  deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
-  intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
-  solver: '0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E',
-  claimant: '0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58',
-  prover: '0x923d4fDfD0Fb231FDA7A71545953Acca41123652',
-  recipient: '0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9',
 }
 
 // Note intents currently being used are for USDC with a common set of actors
