@@ -112,13 +112,7 @@ export async function getBatchSettled() {
       s.baseSepoliaSettlementContractEcoTestNet.getEvent('OutputProposed'),
       toQuantity(blockNumber - 200n),
       toQuantity(blockNumber),
-      // toQuantity(settlementBlockNumber),
     )
-  // console.log('l2OutputOracleEvents.length: ', l2OutputOracleEvents.length)
-  // console.log(
-  //   'l2OutputOracleEvents length -1: ',
-  //   l2OutputOracleEvents[l2OutputOracleEvents.length - 1],
-  // )
   const l3OutputIndex = toNumber(
     l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[2],
   )
@@ -632,7 +626,6 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
     BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
     32,
   )
-  console.log('l1BatchSlot: ', l1BatchSlot)
 
   const layer1EcoTestNetOutputOracleProof = await s.baseSepoliaProvider.send(
     'eth_getProof',
@@ -649,41 +642,6 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
     layer1EcoTestNetOutputOracleProof.codeHash, // CodeHash
   ]
   try {
-    // console.log('===============================================')
-    // console.log('Proving Bedrock L3 World State baseSepolia')
-    // console.log(
-    //   'L2OutputOracleOutputRoot: ',
-    //   await s.baseSepoliaProverContract.generateOutputRoot(
-    //     0,
-    //     settlementWorldStateRoot,
-    //     l2MesagePasserProof.storageHash,
-    //     endBatchBlockData.hash,
-    //   ),
-    // )
-    // console.log('networkIds.ecoTestNet: ', networkIds.ecoTestNet)
-    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    // console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
-    // console.log(
-    //   'l2MesagePasserProof.storageHash: ',
-    //   l2MesagePasserProof.storageHash,
-    // )
-    // console.log('l1BatchIndex: ', l1BatchIndex)
-    // console.log(
-    //   'layer1EcoTestNetOutputOracleProof.storageProof[0].proof: ',
-    //   layer1EcoTestNetOutputOracleProof.storageProof[0].proof,
-    // )
-    // console.log(
-    //   'rlpEncodedOutputOracleData: ',
-    //   await s.baseSepoliaProverContract.rlpEncodeDataLibList(
-    //     layer1EcoTestNetOutputOracleContractData,
-    //   ),
-    // )
-    // console.log(
-    //   'layer1EcoTestNetOutputOracleProof.accountProof: ',
-    //   layer1EcoTestNetOutputOracleProof.accountProof,
-    // )
-    // console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
-    // console.log('===============================================')
     const proveOutputTX =
       await s.baseSepoliaProverContract.proveWorldStateBedrock(
         networkIds.ecoTestNet,
@@ -986,7 +944,6 @@ async function proveWorldStateBedrockOnOptimismSepoliaforEcoTestNet(
     BigInt(firstElementSlot) + BigInt(Number(l1BatchIndex) * 2),
     32,
   )
-  console.log('l1BatchSlot: ', l1BatchSlot)
 
   const layer1EcoTestNetOutputOracleProof = await s.baseSepoliaProvider.send(
     'eth_getProof',
@@ -1166,25 +1123,15 @@ export async function proveDestinationChainBatchSettled(
 
 async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
   console.log('In proveIntentBaseSepolia')
-  console.log('intentHash: ', intentHash)
-  console.log('endBatchBlockData: ', endBatchBlockData)
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
-  console.log('About to getProof from EcoTestNet for BaseSepolia')
-  console.log(
-    'networks.ecoTestNet.inbox.address: ',
-    networks.ecoTestNet.inbox.address,
-  )
-  console.log('inboxStorageSlot: ', inboxStorageSlot)
-  console.log('endBatchBlockData.number: ', endBatchBlockData.number)
   const intentInboxProof = await s.ecoTestNetProvider.send('eth_getProof', [
     networks.ecoTestNet.inbox.address,
     [inboxStorageSlot],
     endBatchBlockData.number,
   ])
-  console.log('intentInboxProof: ', intentInboxProof)
 
   const intentInfo =
     await s.baseSepoliaIntentSourceContractClaimant.getIntent(intentHash)
@@ -1203,7 +1150,6 @@ async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
       ],
     ),
   )
-  console.log('About to proveIntent BaseSepolia')
   try {
     const proveIntentTx = await s.baseSepoliaProverContract.proveIntent(
       networkIds.ecoTestNet,
@@ -1238,8 +1184,6 @@ async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
 
 async function proveIntentOptimismSepolia(intentHash, endBatchBlockData) {
   console.log('In proveIntentOptimismSepolia')
-  console.log('intentHash: ', intentHash)
-  console.log('endBatchBlockData: ', endBatchBlockData)
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
@@ -1456,7 +1400,6 @@ async function withdrawRewardEcoTestNet(intentHash) {
 export async function withdrawFunds(intentsToProve) {
   console.log('In withdrawFunds')
   for (const intent of intentsToProve) {
-    console.log('intent: ', intent)
     switch (intent.sourceChain) {
       case networkIds.baseSepolia: {
         await withdrawRewardBaseSepolia(intent.intentHash)
@@ -1475,31 +1418,6 @@ export async function withdrawFunds(intentsToProve) {
 }
 
 async function main() {
-  // console.log(
-  //   'L2OutputOracleOutputRoot: ',
-  //   await s.baseSepoliaProverContract.generateOutputRoot(
-  //     0,
-  //     settlementWorldStateRoot,
-  //     l2MesagePasserProof.storageHash,
-  //     endBatchBlockData.hash,
-  //   ),
-  // )
-  // console.log(
-  //   'Desired Output Root      : 0xec31cb931394f256cd839e87e45b44779d38de899f0227503d9935be4ca7d9b8',
-  // )
-  // console.log(
-  //   'Expected Output Root     : 0x1d19a15ddfc023241bd7a17adb8919789a2353b5e377261cdfff51d630adf542',
-  // )
-  // console.log(
-  //   'L2OutputOracleOutputRoot :',
-  //   await s.baseSepoliaProverContract.generateOutputRoot(
-  //     0, // L2_OUTPUT_ROOT_VERSION_NUMBER
-  //     '0xde1a745631c29087cd6a4110e79efc6ba216c3e5de4829199b8382a7629320c7', // l2WorldStateRoot = settlementWorldStateRoot,
-  //     '0x8ed4baae3a927be3dea54996b4d5899f8c01e7594bf50b17dc1e741388ce3d12', // l2MessagePasserStateRoot = l2MesagePasserProof.storageHash,
-  //     '0x9c35483ef6bfe81127819d9381b29101d7d846af8516159b854b073717748b02', // 5200320 block Hash = endBatchBlockData.hash,
-  //   ),
-  // )
-
   const proveAll: boolean = true
   // define the variables used for each state of the intent lifecycle
   // Point in time proving for latest batch
