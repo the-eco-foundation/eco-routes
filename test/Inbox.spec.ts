@@ -398,25 +398,27 @@ describe('Inbox Test', (): void => {
       await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
 
       await expect(
-        inbox.connect(solver).fulfill(
-          sourceChainID,
-          [erc20Address],
-          [calldata],
-          timeStamp,
-          nonce,
-          dstAddr.address,
-          intentHash,
-          await dummyHyperProver.getAddress(),
-          {}, // this is just a way to get around ethers' funky overloading
-        ),
+        inbox
+          .connect(solver)
+          .fulfillHyperInstant(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+            await dummyHyperProver.getAddress(),
+          ),
       )
-        .to.emit(inbox, 'FastFulfillment')
+        .to.emit(inbox, 'HyperInstantFulfillment')
         .withArgs(intentHash, sourceChainID, dstAddr.address)
 
       expect(await mailbox.destinationDomain()).to.eq(sourceChainID)
       expect(await mailbox.recipientAddress()).to.eq(
         ethers.zeroPadValue(await dummyHyperProver.getAddress(), 32),
       )
+      console.log(await mailbox.messageBody())
       expect(await mailbox.messageBody()).to.eq(
         ethers.AbiCoder.defaultAbiCoder().encode(
           ['bytes32', 'address'],

@@ -6,6 +6,7 @@ import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./types/HyperProverMessagePair.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Inbox
@@ -79,14 +80,12 @@ contract Inbox is IInbox, Ownable {
         address _prover
     ) external returns (bytes[] memory) {
         bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
-
         emit HyperInstantFulfillment(_expectedHash, _sourceChainID, _claimant);
         IMailbox(MAILBOX).dispatch(
             uint32(_sourceChainID),
             _prover.addressToBytes32(),
-            abi.encode(_expectedHash, _claimant)
+            abi.encode([_expectedHash], [_claimant])
             );
-        
         return results;
     }
 

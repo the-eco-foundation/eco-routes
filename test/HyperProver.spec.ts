@@ -8,6 +8,11 @@ import { ethers } from 'hardhat'
 import { HyperProver, Inbox, TestERC20, TestMailbox } from '../typechain-types'
 import { encodeTransfer } from '../utils/encode'
 
+type HyperProverMessagePair = {
+  _intentHash: string
+  _claimant: string
+}
+
 describe('HyperProver Test', (): void => {
   let inbox: Inbox
   let dispatcher: TestMailbox
@@ -76,16 +81,28 @@ describe('HyperProver Test', (): void => {
   })
 
   describe('valid', async () => {
+    // struggling with how to encode this correctly for the test, but e2e works so this is unnecessary?
     it('should handle the message if it comes from the correct inbox and mailbox', async () => {
       hyperProver = await (
         await ethers.getContractFactory('HyperProver')
       ).deploy(await owner.getAddress(), await inbox.getAddress())
+
       const intentHash = ethers.sha256('0x')
       const claimantAddress = await claimant.getAddress()
+
+    //   const msgStruct = abiCoder.encode(
+    //     ['bytes32', 'address'],
+    //     [intentHash, claimantAddress],
+    //   )
+    //   //   const structArr = [msgStruct]
+    //   //   console.log(structArr)
       const msgBody = abiCoder.encode(
-        ['bytes32', 'address'],
-        [intentHash, claimantAddress],
+        ['bytes32[]', 'address[]'],
+        [[intentHash], [claimantAddress]],
       )
+
+      console.log(msgBody)
+      console.log('a')
       expect(await hyperProver.provenIntents(intentHash)).to.eq(
         ethers.ZeroAddress,
       )
@@ -102,10 +119,7 @@ describe('HyperProver Test', (): void => {
         .withArgs(intentHash, claimantAddress)
       expect(await hyperProver.provenIntents(intentHash)).to.eq(claimantAddress)
     })
-  })
-
-  describe('e2e', async () => {
-    it('works', async () => {
+    it('works end to end', async () => {
       hyperProver = await (
         await ethers.getContractFactory('HyperProver')
       ).deploy(await dispatcher.getAddress(), await inbox.getAddress())
@@ -148,7 +162,7 @@ describe('HyperProver Test', (): void => {
       expect(await hyperProver.provenIntents(intentHash)).to.eq(
         ethers.ZeroAddress,
       )
-
+      console.log('frist')
       await expect(
         dispatcher.dispatch(
           12345,
@@ -156,7 +170,7 @@ describe('HyperProver Test', (): void => {
           calldata,
         ),
       ).to.be.revertedWithCustomError(hyperProver, 'UnauthorizedDispatch')
-
+      
       await expect(inbox.connect(solver).fulfillHyperInstant(...fulfillData))
         .to.emit(hyperProver, `IntentProven`)
         .withArgs(intentHash, await claimant.getAddress())
@@ -165,4 +179,6 @@ describe('HyperProver Test', (): void => {
       )
     })
   })
+
+  describe('e2e', async () => {})
 })

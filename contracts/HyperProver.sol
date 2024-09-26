@@ -5,6 +5,7 @@ import '@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol';
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import './interfaces/SimpleProver.sol';
 import './types/HyperProverMessagePair.sol';
+import "hardhat/console.sol";
 
 
 contract HyperProver is IMessageRecipient, SimpleProver {
@@ -30,11 +31,11 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     error UnauthorizedDispatch(address _sender);
         
     // local mailbox address
-    address immutable MAILBOX;
+    address public immutable MAILBOX;
     
     // address of the Inbox contract
     // assumes that all Inboxes are deployed via ERC-2470 and hence have the same address
-    address immutable INBOX;
+    address public immutable INBOX;
 
     /**
      * @notice constructor
@@ -53,6 +54,7 @@ contract HyperProver is IMessageRecipient, SimpleProver {
      * @param _messageBody the message body
      */
     function handle(uint32, bytes32 _sender, bytes calldata _messageBody) public payable{
+
         if(MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);
         }
@@ -62,9 +64,10 @@ contract HyperProver is IMessageRecipient, SimpleProver {
         if (INBOX != sender) {
             revert UnauthorizedDispatch(sender);
         }
-        HyperProverMessagePair[] memory pairs = abi.decode(_messageBody, (HyperProverMessagePair[]));
-        for (uint256 i = 0; i < pairs.length; i++) {
-            (bytes32 intentHash, address claimant) = (pairs[i].intentHash, pairs[i].claimant);
+        (bytes32[] memory hashes, address[] memory claimants) = abi.decode(_messageBody, (bytes32[], address[]));
+        console.log('merm');
+        for (uint256 i = 0; i < hashes.length; i++) {
+            (bytes32 intentHash, address claimant) = (hashes[i], claimants[i]);
             if (provenIntents[intentHash] != address(0)) {
                 emit IntentAlreadyProven(intentHash);
             } else {
