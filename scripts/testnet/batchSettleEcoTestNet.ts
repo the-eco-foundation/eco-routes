@@ -23,8 +23,8 @@ import {
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
-import { version } from 'os'
-import { latestBlock } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
+// import { version } from 'os'
+// import { latestBlock } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
 // import { intent } from '../../test/testData'
 
 type SourceChainInfo = {
