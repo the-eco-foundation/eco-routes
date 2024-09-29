@@ -22,11 +22,11 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     error UnauthorizedDispatch(address _sender);
         
     // local mailbox address
-    address immutable MAILBOX;
+    address immutable public MAILBOX;
     
     // address of the Inbox contract
     // assumes that all Inboxes are deployed via ERC-2470 and hence have the same address
-    address immutable INBOX;
+    address immutable public INBOX;
 
     /**
      * @notice constructor

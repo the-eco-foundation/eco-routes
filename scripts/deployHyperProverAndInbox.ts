@@ -1,10 +1,10 @@
 import { ethers, run, network } from 'hardhat'
-import { Inbox, SingletonFactory, Deployer } from '../../typechain-types'
+import { Inbox, SingletonFactory, Deployer } from '../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
-import { networks, actors } from '../../config/testnet/config'
+import { networks, actors } from '../config/testnet/config'
 
 const networkName = network.name
 const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET'))
@@ -30,9 +30,11 @@ if (network.name === 'optimismSepolia') {
 
 async function main() {
   const [deployer] = await ethers.getSigners()
-  const singletonDeployer: Deployer = (
-    await ethers.getContractFactory('deployer')
-  ).deploy()
+
+  const singletonDeployer = await ethers.getContractAt(
+    'Deployer',
+    '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
+  )
 
   console.log('Deploying contracts with the account:', deployer.address)
   console.log(`**************************************************`)
@@ -48,6 +50,7 @@ async function main() {
   let receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
     gaslimit: 1000000,
   })
+  console.log('inbox deployed')
 
   const inboxAddress = (
     await singletonDeployer.queryFilter(
@@ -56,7 +59,7 @@ async function main() {
     )
   )[0].args.addr
 
-  console.log(`intentSource deployed to: ${inboxAddress}`)
+  console.log(`inbox deployed to: ${inboxAddress}`)
 
   const hyperProverFactory = await ethers.getContractFactory('HyperProver')
 
@@ -68,6 +71,8 @@ async function main() {
   receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
     gasLimit: 1000000,
   })
+  console.log('hyperProver deployed')
+
   const hyperProverAddress = (
     await singletonDeployer.queryFilter(
       singletonDeployer.filters.Deployed,
@@ -75,7 +80,7 @@ async function main() {
     )
   )[0].args.addr
 
-  console.log(`hyperProver deployed to: ${inboxAddress}`)
+  console.log(`hyperProver deployed to: ${hyperProverAddress}`)
 
   try {
     await run('verify:verify', {
