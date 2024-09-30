@@ -150,7 +150,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(owner)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -166,7 +166,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -188,7 +188,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -232,7 +232,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -250,7 +250,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -285,7 +285,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [await mailbox.getAddress()],
             [calldata],
@@ -304,7 +304,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -325,7 +325,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(owner)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -349,7 +349,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -379,7 +379,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],
@@ -395,7 +395,7 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .fulfillSlowPath(
+          .fulfillStorage(
             sourceChainID,
             [erc20Address],
             [calldata],

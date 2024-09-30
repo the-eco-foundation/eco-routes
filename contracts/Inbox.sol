@@ -50,7 +50,7 @@ contract Inbox is IInbox, Ownable {
         MAILBOX = _mailbox;
     }
 
-    function fulfillSlowPath(
+    function fulfillStorage(
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,

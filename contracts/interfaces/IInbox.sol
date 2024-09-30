@@ -61,7 +61,7 @@ interface IInbox {
      * @dev this is a guardrail to make sure solves dont accidentally solve intents that cannot be proven.
      * @return results The results of the calls as an array of bytes
      */
-    function fulfillSlowPath(
+    function fulfillStorage(
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
