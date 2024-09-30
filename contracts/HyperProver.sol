@@ -4,10 +4,18 @@ pragma solidity ^0.8.26;
 import '@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol';
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import './interfaces/SimpleProver.sol';
+import "hardhat/console.sol";
 
 
 contract HyperProver is IMessageRecipient, SimpleProver {
     using TypeCasts for bytes32;
+
+    /**
+     * emitted on an attempt to register a claimant on an intent that has already been proven and has a claimant
+     * @dev this is an event rather than an error because the expected behavior is to ignore one intent but continue with the rest
+     * @param _intentHash the hash of the intent
+     */
+    event IntentAlreadyProven(bytes32 _intentHash);
 
     /**
      * emitted on an unauthorized call to the handle() method
@@ -45,18 +53,25 @@ contract HyperProver is IMessageRecipient, SimpleProver {
      * @param _messageBody the message body
      */
     function handle(uint32, bytes32 _sender, bytes calldata _messageBody) public payable{
+
         if(MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);
         }
-        // message body is exactly what was sent into the mailbox on the inbox' chain
-        // encode(intentHash, claimant)
+
         address sender = _sender.bytes32ToAddress();
 
         if (INBOX != sender) {
             revert UnauthorizedDispatch(sender);
         }
-        (bytes32 intentHash, address claimant) = abi.decode(_messageBody, (bytes32, address));
-        provenIntents[intentHash] = claimant;
-        emit IntentProven(intentHash, claimant);
+        (bytes32[] memory hashes, address[] memory claimants) = abi.decode(_messageBody, (bytes32[], address[]));
+        for (uint256 i = 0; i < hashes.length; i++) {
+            (bytes32 intentHash, address claimant) = (hashes[i], claimants[i]);
+            if (provenIntents[intentHash] != address(0)) {
+                emit IntentAlreadyProven(intentHash);
+            } else {
+                provenIntents[intentHash] = claimant;
+                emit IntentProven(intentHash, claimant);
+            }
+        }
     }
 }

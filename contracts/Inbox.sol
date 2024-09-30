@@ -5,6 +5,7 @@ import "./interfaces/IInbox.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Inbox
@@ -13,6 +14,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
 contract Inbox is IInbox, Ownable {
+
+    uint256 public constant MAX_BATCH_SIZE = 10;
 
     using TypeCasts for address;
 
@@ -47,7 +50,7 @@ contract Inbox is IInbox, Ownable {
         MAILBOX = _mailbox;
     }
 
-    function fulfill(
+    function fulfillStorage(
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
@@ -59,13 +62,13 @@ contract Inbox is IInbox, Ownable {
 
         bytes[] memory result = _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
 
-        emit Fulfillment(_expectedHash, _sourceChainID, _claimant);
+        emit ToBeProven(_expectedHash, _sourceChainID, _claimant);
 
         return result;
     }
     
     // hyperprover fast path
-    function fulfill(
+    function fulfillHyperInstant(
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
@@ -76,15 +79,58 @@ contract Inbox is IInbox, Ownable {
         address _prover
     ) external returns (bytes[] memory) {
         bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+        emit HyperInstantFulfillment(_expectedHash, _sourceChainID, _claimant);
+        bytes32[] memory hashes = new bytes32[](1);
+        address[] memory claimants = new address[](1);
+        hashes[0] = _expectedHash;
+        claimants[0] = _claimant;
 
-        emit FastFulfillment(_expectedHash, _sourceChainID, _claimant);
         IMailbox(MAILBOX).dispatch(
             uint32(_sourceChainID),
             _prover.addressToBytes32(),
-            abi.encode(_expectedHash, _claimant)
+            abi.encode(hashes, claimants)
             );
-        
         return results;
+    }
+
+    // hyperprover batched
+    function fulfillHyperBatched(
+        uint256 _sourceChainID,
+        address[] calldata _targets,
+        bytes[] calldata _data,
+        uint256 _expiryTime,
+        bytes32 _nonce,
+        address _claimant,
+        bytes32 _expectedHash,
+        address _prover
+    ) external returns (bytes[] memory){
+        bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+
+        emit AddToBatch(_expectedHash, _sourceChainID, _claimant, _prover);
+
+        return results;
+    }
+
+    function sendBatch(uint256 _sourceChainID, address _prover, bytes32[] calldata _intentHashes) public{
+        uint256 size = _intentHashes.length;
+        if (size > MAX_BATCH_SIZE) {
+            revert BatchTooLarge();
+        }
+        bytes32[] memory hashes = new bytes32[](size);
+        address[] memory claimants = new address[](size);
+        for (uint256 i = 0; i < size; i++) {
+            address claimant = fulfilled[_intentHashes[i]];
+            if (claimant == address(0)) {
+                revert IntentNotFulfilled(_intentHashes[i]);
+            }
+            hashes[i] = _intentHashes[i];
+            claimants[i] = claimant;
+        }
+        IMailbox(MAILBOX).dispatch(
+            uint32(_sourceChainID),
+            _prover.addressToBytes32(),
+            abi.encode(hashes, claimants)
+            );
     }
 
     // allows the owner to make solving public
@@ -143,6 +189,8 @@ contract Inbox is IInbox, Ownable {
 
         // Mark the intent as fulfilled
         fulfilled[intentHash] = _claimant;
+
+        emit Fulfillment(_expectedHash, _sourceChainID, _claimant);
 
         return results;
     }
