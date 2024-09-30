@@ -58,6 +58,7 @@
     "settleOpSepolia": "hardhat run scripts/testnet/batchSettleOpSepolia.ts",
     "settleBaseSepolia": "hardhat run scripts/testnet/batchSettleBaseSepolia.ts",
     "settleEcoTestNet": "hardhat run scripts/testnet/batchSettleEcoTestNet.ts",
+    "instantSettleBaseSepoliaEcoTestNet": "hardhat run scripts/testnet/instantSettleBaseSepoliaEcoTestNet.ts",
     "settleGeneral": "hardhat run scripts/testnet/batchSettleGeneral.ts",
     "intentWithdraw": "hardhat run scripts/testnet/intentWithdraw.ts",
     "TestnetBedrock": "-------- Bedrock scripts below --------",

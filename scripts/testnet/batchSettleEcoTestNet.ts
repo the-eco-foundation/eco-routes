@@ -142,7 +142,7 @@ export async function getIntentsToProve(
   let scanAllIntentsForInbox = false
   // TODO change to use contract factory for deploys then can use ethers deploymentTransaction to get the blockNumber
   let startingBlockNumber = networks.ecoTestNet.inbox.deploymentBlock || 0n
-  const inboxDeploymentBlock = networks.ecoTestNet.inbox.deploymentBlock
+  const inboxDeploymentBlock = networks.ecoTestNet.inbox.deploymentBlock || 0n
   // TODO: Parmaeterize the calls to provenStates and remove switch
   for (const sourceChain of sourceChainConfig) {
     const sourceChainInfo: SourceChainInfo = {} as SourceChainInfo
