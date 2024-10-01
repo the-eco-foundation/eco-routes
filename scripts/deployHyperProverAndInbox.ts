@@ -17,15 +17,21 @@ const baseSepoliaChainConfiguration = {
 
 const optimismSepoliaChainConfiguration = {
   chainId: networks.optimismSepolia.chainId, // chainId
-  mailboxAddress:
-    networks.optimismSepolia.hyperlaneMailboxAddressmailboxAddress,
+  mailboxAddress: networks.optimismSepolia.hyperlaneMailboxAddress,
+}
+
+const ecoTestnetChainConfiguration = {
+  chainId: networks.ecoTestNet.chainId, // chainId
+  mailboxAddress: networks.ecoTestNet.hyperlaneMailboxAddress,
 }
 
 let config
-if (network.name === 'optimismSepolia') {
+if (network.name === 'optimismSepoliaBlockscout') {
   config = optimismSepoliaChainConfiguration
-} else {
+} else if (network.name === 'baseSepolia') {
   config = baseSepoliaChainConfiguration
+} else if (network.name === 'ecoTestNet') {
+  config = ecoTestnetChainConfiguration
 }
 
 async function main() {

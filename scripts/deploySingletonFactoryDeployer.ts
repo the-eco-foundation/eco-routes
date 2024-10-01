@@ -51,4 +51,4 @@ async function deploySingletonFactory() {
   console.log('EIP-2470 deployed! Transaction hash: ', txHash)
 }
 
-deploySingletonFactory()
+deployDeployer()
