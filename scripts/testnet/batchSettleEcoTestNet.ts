@@ -230,138 +230,126 @@ export async function getIntentsToProve(
 
 async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
   console.log('In proveSettlementLayerState on BaseSepolia')
-  const setlementBlock = await s.baseSepolial1Block.number()
-  const settlementBlockTag = toQuantity(setlementBlock)
+  let provedSettlementState = false
+  let errorCount = 0
+  while (!provedSettlementState) {
+    const setlementBlock = await s.baseSepolial1Block.number()
+    const settlementBlockTag = toQuantity(setlementBlock)
 
-  const block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
-    settlementBlockTag,
-    false,
-  ])
-
-  let tx
-  let settlementWorldStateRoot
-  try {
-    const rlpEncodedBlockData = encodeRlp([
-      block.parentHash,
-      block.sha3Uncles,
-      block.miner,
-      block.stateRoot,
-      block.transactionsRoot,
-      block.receiptsRoot,
-      block.logsBloom,
-      stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
-      toBeHex(block.number),
-      toBeHex(block.gasLimit),
-      toBeHex(block.gasUsed),
-      block.timestamp,
-      block.extraData,
-      block.mixHash,
-      block.nonce,
-      toBeHex(block.baseFeePerGas),
-      block.withdrawalsRoot,
-      stripZerosLeft(toBeHex(block.blobGasUsed)),
-      stripZerosLeft(toBeHex(block.excessBlobGas)),
-      block.parentBeaconBlockRoot,
-    ])
-    tx = await s.baseSepoliaProverContract.proveSettlementLayerState(
-      getBytes(hexlify(rlpEncodedBlockData)),
-    )
-    await tx.wait()
-    console.log('Prove Settlement world state tx: ', tx.hash)
-    settlementWorldStateRoot = block.stateRoot
-    console.log(
-      'Proven L1 world state block: ',
-      setlementBlock,
+    const block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
       settlementBlockTag,
-    )
-    console.log(
-      'Proven Settlement world state root baseSepolia:',
-      settlementWorldStateRoot,
-    )
-    return { settlementBlockTag, settlementWorldStateRoot }
-  } catch (e) {
-    if (e.data && s.optimismSepoliaProverContract) {
-      const decodedError = s.optimismSepoliaProverContract.interface.parseError(
-        e.data,
+      false,
+    ])
+
+    let tx
+    let settlementWorldStateRoot
+    try {
+      const rlpEncodedBlockData = encodeRlp([
+        block.parentHash,
+        block.sha3Uncles,
+        block.miner,
+        block.stateRoot,
+        block.transactionsRoot,
+        block.receiptsRoot,
+        block.logsBloom,
+        stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+        toBeHex(block.number),
+        toBeHex(block.gasLimit),
+        toBeHex(block.gasUsed),
+        block.timestamp,
+        block.extraData,
+        block.mixHash,
+        block.nonce,
+        toBeHex(block.baseFeePerGas),
+        block.withdrawalsRoot,
+        stripZerosLeft(toBeHex(block.blobGasUsed)),
+        stripZerosLeft(toBeHex(block.excessBlobGas)),
+        block.parentBeaconBlockRoot,
+      ])
+      tx = await s.baseSepoliaProverContract.proveSettlementLayerState(
+        getBytes(hexlify(rlpEncodedBlockData)),
       )
-      console.log(`Transaction failed: ${decodedError?.name}`)
+      await tx.wait()
+      console.log('Prove Settlement world state tx: ', tx.hash)
+      settlementWorldStateRoot = block.stateRoot
       console.log(
-        `Error in proveSettlementLayerState OptimismSepolia:`,
-        e.shortMessage,
+        'Proven L1 world state block: ',
+        setlementBlock,
+        settlementBlockTag,
       )
-    } else {
-      console.log(`Error in proveSettlementLayerState OptimismSepolia:`, e)
+      console.log(
+        'Proven Settlement world state root baseSepolia:',
+        settlementWorldStateRoot,
+      )
+      provedSettlementState = true
+      return { settlementBlockTag, settlementWorldStateRoot }
+    } catch (e) {
+      errorCount += 1
+      console.log('ProveSettlementState errorCount: ', errorCount)
     }
   }
-  //   have successfully proven L1 state
 }
 
 async function proveSepoliaSettlementLayerStateOnOptimismSepolia() {
   console.log('In proveSettlementLayerState on OptimismSepolia')
-  const setlementBlock = await s.optimismSepolial1Block.number()
-  const settlementBlockTag = toQuantity(setlementBlock)
+  let provedSettlementState = false
+  let errorCount = 0
+  while (!provedSettlementState) {
+    const setlementBlock = await s.optimismSepolial1Block.number()
+    const settlementBlockTag = toQuantity(setlementBlock)
 
-  const block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
-    settlementBlockTag,
-    false,
-  ])
-
-  let tx
-  let settlementWorldStateRoot
-  try {
-    const rlpEncodedBlockData = encodeRlp([
-      block.parentHash,
-      block.sha3Uncles,
-      block.miner,
-      block.stateRoot,
-      block.transactionsRoot,
-      block.receiptsRoot,
-      block.logsBloom,
-      stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
-      toBeHex(block.number),
-      toBeHex(block.gasLimit),
-      toBeHex(block.gasUsed),
-      block.timestamp,
-      block.extraData,
-      block.mixHash,
-      block.nonce,
-      toBeHex(block.baseFeePerGas),
-      block.withdrawalsRoot,
-      stripZerosLeft(toBeHex(block.blobGasUsed)),
-      stripZerosLeft(toBeHex(block.excessBlobGas)),
-      block.parentBeaconBlockRoot,
-    ])
-    tx = await s.optimismSepoliaProverContract.proveSettlementLayerState(
-      getBytes(hexlify(rlpEncodedBlockData)),
-    )
-    await tx.wait()
-    console.log('Prove Settlement world state tx: ', tx.hash)
-    settlementWorldStateRoot = block.stateRoot
-    console.log(
-      'Proven L1 world state block: ',
-      setlementBlock,
+    const block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
       settlementBlockTag,
-    )
-    console.log(
-      'Proven Settlement world state root optimismSepolia:',
-      settlementWorldStateRoot,
-    )
-    return { settlementBlockTag, settlementWorldStateRoot }
-  } catch (e) {
-    if (e.data && s.optimismSepoliaProverContract) {
-      const decodedError = s.optimismSepoliaProverContract.interface.parseError(
-        e.data,
+      false,
+    ])
+
+    let tx
+    let settlementWorldStateRoot
+    try {
+      const rlpEncodedBlockData = encodeRlp([
+        block.parentHash,
+        block.sha3Uncles,
+        block.miner,
+        block.stateRoot,
+        block.transactionsRoot,
+        block.receiptsRoot,
+        block.logsBloom,
+        stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+        toBeHex(block.number),
+        toBeHex(block.gasLimit),
+        toBeHex(block.gasUsed),
+        block.timestamp,
+        block.extraData,
+        block.mixHash,
+        block.nonce,
+        toBeHex(block.baseFeePerGas),
+        block.withdrawalsRoot,
+        stripZerosLeft(toBeHex(block.blobGasUsed)),
+        stripZerosLeft(toBeHex(block.excessBlobGas)),
+        block.parentBeaconBlockRoot,
+      ])
+      tx = await s.optimismSepoliaProverContract.proveSettlementLayerState(
+        getBytes(hexlify(rlpEncodedBlockData)),
       )
-      console.log(`Transaction failed: ${decodedError?.name}`)
+      await tx.wait()
+      console.log('Prove Settlement world state tx: ', tx.hash)
+      settlementWorldStateRoot = block.stateRoot
       console.log(
-        `Error in proveSettlementLayerState OptimismSepolia:`,
-        e.shortMessage,
+        'Proven L1 world state block: ',
+        setlementBlock,
+        settlementBlockTag,
       )
-    } else {
-      console.log(`Error in proveSettlementLayerState OptimismSepolia:`, e)
+      console.log(
+        'Proven Settlement world state root optimismSepolia:',
+        settlementWorldStateRoot,
+      )
+      provedSettlementState = true
+      return { settlementBlockTag, settlementWorldStateRoot }
+    } catch (e) {
+      errorCount += 1
+      console.log('ProveSettlementState errorCount: ', errorCount)
     }
   }
-  //   have successfully proven L1 state
 }
 
 async function proveWorldStateBaseSepoliaOnBaseSepolia(
