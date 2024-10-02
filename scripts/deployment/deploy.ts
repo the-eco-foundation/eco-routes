@@ -4,7 +4,7 @@ import { networks } from '../../config/testnet/config'
 // TODO: remove the await tx.wait() and update queries for deployed contracts
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET2'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET'))
 
 console.log('Deploying to Network: ', network.name)
 const baseSepoliaChainConfiguration = {
