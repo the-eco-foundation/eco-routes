@@ -77,7 +77,7 @@ contract Inbox is IInbox, Ownable {
         address _claimant,
         bytes32 _expectedHash,
         address _prover
-    ) external returns (bytes[] memory) {
+    ) external payable returns (bytes[] memory) {
         bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
         emit HyperInstantFulfillment(_expectedHash, _sourceChainID, _claimant);
         bytes32[] memory hashes = new bytes32[](1);
@@ -85,11 +85,17 @@ contract Inbox is IInbox, Ownable {
         hashes[0] = _expectedHash;
         claimants[0] = _claimant;
 
-        IMailbox(MAILBOX).dispatch(
+        uint256 fee = IMailbox(MAILBOX).quoteDispatch(
             uint32(_sourceChainID),
             _prover.addressToBytes32(),
             abi.encode(hashes, claimants)
-            );
+        );
+
+        IMailbox(MAILBOX).dispatch{value: msg.value < fee ? msg.value : fee}(
+            uint32(_sourceChainID),
+            _prover.addressToBytes32(),
+            abi.encode(hashes, claimants))
+            ;
         return results;
     }
 
@@ -111,7 +117,7 @@ contract Inbox is IInbox, Ownable {
         return results;
     }
 
-    function sendBatch(uint256 _sourceChainID, address _prover, bytes32[] calldata _intentHashes) public{
+    function sendBatch(uint256 _sourceChainID, address _prover, bytes32[] calldata _intentHashes) external payable {
         uint256 size = _intentHashes.length;
         if (size > MAX_BATCH_SIZE) {
             revert BatchTooLarge();
@@ -126,11 +132,17 @@ contract Inbox is IInbox, Ownable {
             hashes[i] = _intentHashes[i];
             claimants[i] = claimant;
         }
-        IMailbox(MAILBOX).dispatch(
+        uint256 fee = IMailbox(MAILBOX).quoteDispatch(
             uint32(_sourceChainID),
             _prover.addressToBytes32(),
             abi.encode(hashes, claimants)
-            );
+        );
+
+         IMailbox(MAILBOX).dispatch{value: msg.value < fee ? msg.value : fee}(
+            uint32(_sourceChainID),
+            _prover.addressToBytes32(),
+            abi.encode(hashes, claimants))
+            ;
     }
 
     // allows the owner to make solving public

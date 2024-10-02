@@ -93,7 +93,7 @@ interface IInbox {
         address _claimant,
         bytes32 _expectedHash,
         address _prover
-    ) external returns (bytes[] memory);
+    ) external payable returns (bytes[] memory);
 
     /**
      * Same as above but with the added _prover parameter. This fulfill method is used to fulfill an intent that is proving with the HyperProver, but defers proving to lower cost.
@@ -127,5 +127,5 @@ interface IInbox {
      * @param _prover The prover against which these intents will be proven. Should be the same for all intents in a given batch
      * @param _intentHashes The array of intent hashes to be proven
      */
-    function sendBatch(uint256 _sourceChainID, address _prover, bytes32[] calldata _intentHashes) external;
+    function sendBatch(uint256 _sourceChainID, address _prover, bytes32[] calldata _intentHashes) external payable;
 }
