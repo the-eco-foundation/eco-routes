@@ -73,6 +73,7 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
   try {
     // get intent Information
     const thisIntent =
+      await s.baseSepoliaIntentSourceContractIntentCreator.getIntent(intentHash)
 
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.ecoTestNetUSDCContractSolver
@@ -858,7 +859,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolveHyperproveBatched() {
     const targetToken = s.optimismSepoliaUSDCContractSolver
     const fundTx = await targetToken.transfer(
       networks.optimismSepolia.inboxAddress,
-      intent.targetAmounts[0],
+      intent.targetAmounts[0] * 2,
     )
     await fundTx.wait()
 
@@ -894,7 +895,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolveHyperproveBatched() {
     await fulfillTx2.wait()
     console.log('Fulfillment tx2: ', fulfillTx2.hash)
 
-    //send batch
+    // send batch
 
     const sendBatchTx = await s.optimismSepoliaInboxContractSolver.sendBatch(
       networkIds.baseSepolia, // source chainId
@@ -904,7 +905,6 @@ export async function baseSepoliaOptimismSepoliaIntentSolveHyperproveBatched() {
     await sendBatchTx.wait()
     console.log('SendBatch tx: ', sendBatchTx.hash)
     return sendBatchTx.hash
-
   } catch (e) {
     console.log(e)
   }
@@ -1010,12 +1010,12 @@ async function main() {
   // define the variables used for each state of the intent lifecycle
   try {
     console.log('In Main')
-    await baseSepoliaEcoTestNetIntentSolve()
-    await ecoTestNetBaseSepoliaIntentSolve()
-    await baseSepoliaOptimismSepoliaIntentSolve()
-    await optimismSepoliaBaseSepoliaIntentSolve()
-    await optimismSepoliaEcoTestNetIntentSolve()
-    await ecoTestNetOptimismSepoliaIntentSolve()
+    // await baseSepoliaEcoTestNetIntentSolve()
+    // await ecoTestNetBaseSepoliaIntentSolve()
+    // await baseSepoliaOptimismSepoliaIntentSolve()
+    // await optimismSepoliaBaseSepoliaIntentSolve()
+    // await optimismSepoliaEcoTestNetIntentSolve()
+    // await ecoTestNetOptimismSepoliaIntentSolve()
     await baseSepoliaOptimismSepoliaIntentSolveHyperproveInstant()
     // await optimismSepoliaBaseSepoliaIntentSolveHyperproveInstant()
     await baseSepoliaOptimismSepoliaIntentSolveHyperproveBatched()

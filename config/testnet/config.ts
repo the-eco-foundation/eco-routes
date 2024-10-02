@@ -154,7 +154,7 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContractAddress: '0xC5Dd68f473854C4D305dDe12C74eDFC92eBfbFdF',
-    hyperProverContractAddress: '0x99Fc2CB6ff066e56832DfC84B678E197530a3625',
+    hyperproverContractAddress: '0x99Fc2CB6ff066e56832DfC84B678E197530a3625',
     intentSourceAddress: '0x9356EE52c1ED51bFA8b5340768938ECc61a40795',
     inboxAddress: '0x7758819486f7846de3F473d080E63C6487162930',
     intentSource: {
