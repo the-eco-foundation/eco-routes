@@ -73,7 +73,7 @@ async function main() {
   console.log('Deploying contracts with the account:', deployer.address)
   console.log(`**************************************************`)
   let prover
-  if (network.name === 'ecoTestnet') {
+  if (network.name === 'ecoTestNet') {
     prover = await (
       await ethers.getContractFactory('ProverL3')
     ).deploy(deployer.address, [
@@ -118,7 +118,7 @@ async function main() {
         ecoTestNetChainConfiguration,
       ],
     ]
-    if (network.name === 'ecoTestnet') {
+    if (network.name === 'ecoTestNet') {
       constructorArgs = [
         deployer.address,
         [

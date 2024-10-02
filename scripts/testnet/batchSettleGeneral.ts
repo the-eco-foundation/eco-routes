@@ -906,7 +906,7 @@ export async function proveDestinationChainBatchSettled(
                 faultDisputeGameContract,
                 gameIndex,
               )
-              console.log('ecoTestnet endBatchBlockData: ', endBatchBlockData)
+              console.log('ecoTestNet endBatchBlockData: ', endBatchBlockData)
               break
             }
             default: {
