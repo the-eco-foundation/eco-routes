@@ -62,9 +62,9 @@ interface IIntentSource {
         bytes[] _data,
         address[] _rewardTokens,
         uint256[] _rewardAmounts,
-        uint256 indexed _expiryTime,
+        uint256 _expiryTime,
         bytes32 nonce,
-        address _prover
+        address indexed _prover
     );
 
     /**
