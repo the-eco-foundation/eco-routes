@@ -85,7 +85,7 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.ecoTestNetInboxContractSolver.fulfill(
+    const fulfillTx = await s.ecoTestNetInboxContractSolver.fulfillStorage(
       networkIds.baseSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
@@ -177,7 +177,7 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfill(
+    const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfillStorage(
       networkIds.ecoTestNet, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
@@ -271,7 +271,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfill(
+    const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfillStorage(
       networkIds.baseSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
@@ -367,7 +367,7 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfill(
+    const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfillStorage(
       networkIds.optimismSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
@@ -463,7 +463,7 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.ecoTestNetInboxContractSolver.fulfill(
+    const fulfillTx = await s.ecoTestNetInboxContractSolver.fulfillStorage(
       networkIds.optimismSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
@@ -555,7 +555,7 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfill(
+    const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfillStorage(
       networkIds.ecoTestNet, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
