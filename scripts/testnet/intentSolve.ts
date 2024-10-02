@@ -1,5 +1,5 @@
 import { encodeTransfer } from '../../utils/encode'
-import { BigNumberish, BytesLike, toQuantity } from 'ethers'
+import { AbiCoder, BigNumberish, BytesLike, toQuantity } from 'ethers'
 import {
   networkIds,
   networks,
@@ -7,6 +7,7 @@ import {
   intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
+import { network } from 'hardhat'
 
 export async function baseSepoliaEcoTestNetIntentSolve() {
   console.log('In createIntent BaseSepoliaEcoTestNet')
@@ -648,6 +649,18 @@ export async function baseSepoliaOptimismSepoliaIntentSolveHyperproveInstant() {
     await fundTx.wait()
 
     // fulfill the intent
+
+    const messageBody = AbiCoder.defaultAbiCoder().encode(
+      ['bytes[]', 'address[]'],
+      [thisIntent.data.toArray(), thisIntent.targets.toArray()],
+    )
+
+    const fee = await s.optimismSepoliaInboxContractSolver.fetchFee(
+      networkIds.baseSepolia,
+      messageBody,
+      networks.baseSepolia.hyperproverContractAddress,
+    )
+    console.log(fee)
 
     const fulfillTx =
       await s.optimismSepoliaInboxContractSolver.fulfillHyperInstant(

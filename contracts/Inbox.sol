@@ -85,16 +85,14 @@ contract Inbox is IInbox, Ownable {
         hashes[0] = _expectedHash;
         claimants[0] = _claimant;
 
-        uint256 fee = IMailbox(MAILBOX).quoteDispatch(
-            uint32(_sourceChainID),
-            _prover.addressToBytes32(),
-            abi.encode(hashes, claimants)
-        );
+        bytes memory messageBody = abi.encode(hashes, claimants);
+        bytes32 _prover32 = _prover.addressToBytes32();
+        uint256 fee = fetchFee(_sourceChainID, messageBody, _prover32);
 
         IMailbox(MAILBOX).dispatch{value: msg.value < fee ? msg.value : fee}(
             uint32(_sourceChainID),
-            _prover.addressToBytes32(),
-            abi.encode(hashes, claimants))
+            _prover32,
+            messageBody)
             ;
         return results;
     }
@@ -132,17 +130,23 @@ contract Inbox is IInbox, Ownable {
             hashes[i] = _intentHashes[i];
             claimants[i] = claimant;
         }
-        uint256 fee = IMailbox(MAILBOX).quoteDispatch(
-            uint32(_sourceChainID),
-            _prover.addressToBytes32(),
-            abi.encode(hashes, claimants)
-        );
+        bytes memory messageBody = abi.encode(hashes, claimants);
+        bytes32 _prover32 = _prover.addressToBytes32();
+        uint256 fee = fetchFee(_sourceChainID, messageBody, _prover32);
 
-         IMailbox(MAILBOX).dispatch{value: msg.value < fee ? msg.value : fee}(
+        IMailbox(MAILBOX).dispatch{value: msg.value < fee ? msg.value : fee}(
             uint32(_sourceChainID),
-            _prover.addressToBytes32(),
-            abi.encode(hashes, claimants))
+            _prover32,
+            messageBody)
             ;
+    }
+
+    function fetchFee(uint256 _sourceChainID, bytes memory _messageBody, bytes32 _prover) public view returns (uint256 fee) {
+        return IMailbox(MAILBOX).quoteDispatch(
+            uint32(_sourceChainID),
+            _prover,
+            _messageBody
+        );
     }
 
     // allows the owner to make solving public
@@ -233,4 +237,6 @@ contract Inbox is IInbox, Ownable {
             )
         );
     }
+
+    // may want to add a drain function to allow owner to withdraw any leftover eth? unsure
 }
