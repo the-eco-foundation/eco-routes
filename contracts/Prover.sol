@@ -98,7 +98,14 @@ contract Prover is SimpleProver {
     }
 
     /**
-     * @notice emitted when L1 world state is proven for a given intent
+     * @notice emitted when Self state is proven
+     * @param _blockNumber  the block number corresponding to this chains world state
+     * @param _SelfStateRoot the world state root at _blockNumber
+     */
+    event SelfStateProven(uint256 indexed _blockNumber, bytes32 _SelfStateRoot);
+
+    /**
+     * @notice emitted when L1 world state is proven
      * @param _blockNumber  the block number corresponding to this L1 world state
      * @param _L1WorldStateRoot the world state root at _blockNumber
      */
@@ -110,7 +117,9 @@ contract Prover is SimpleProver {
      * @param _blockNumber the blocknumber corresponding to the world state
      * @param _L2WorldStateRoot the world state root at _blockNumber
      */
-    event L2WorldStateProven(uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot);
+    event L2WorldStateProven(
+        uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot
+    );
 
     /**
      * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
@@ -251,6 +260,34 @@ contract Prover is SimpleProver {
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[settlementChainId] = blockProof;
             emit L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
+        } else {
+            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+        }
+    }
+
+    // To see block information available on chain see
+    // https://docs.soliditylang.org/en/latest/units-and-global-variables.html#block-and-transaction-properties
+    /**
+     * @notice validates input block state against the last 256 blocks on chain
+     * @param rlpEncodedBlockData properly encoded block data
+     * @dev inputting the correct block's data encoded as expected will result in its hash matching
+     * the blockhash found on the last 256 blocks on chain. This means that the world state root found
+     * in that block represents a valid state.
+     */
+    function proveSelfState(bytes calldata rlpEncodedBlockData) public {
+        BlockProof memory blockProof = BlockProof({
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
+            blockHash: keccak256(rlpEncodedBlockData),
+            stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
+        });
+        require(
+            blockhash(blockProof.blockNumber) == blockProof.blockHash,
+            "blockhash is not in last 256 blocks for this chain"
+        );
+        BlockProof memory existingBlockProof = provenStates[block.chainid];
+        if (existingBlockProof.blockNumber < blockProof.blockNumber) {
+            provenStates[block.chainid] = blockProof;
+            emit SelfStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
             revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }

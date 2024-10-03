@@ -22,6 +22,9 @@ import {
   cannon,
 } from './testData'
 
+import { utils } from '../scripts/common/utils'
+// import { s } from '../config/mainnet/setup'
+
 // Unit Tests
 describe('Prover Unit Tests', () => {
   let deployerSigner: SignerWithAddress
@@ -164,6 +167,157 @@ describe('Prover Unit Tests', () => {
       cannon.destinationChain.faultDisputeGame.accountProof,
       cannon.settlementChain.worldStateRoot,
     )
+  })
+})
+
+// Prove Self State test checks that proving self state works
+describe('Prove Self State Tests', () => {
+  let deployerSigner: SignerWithAddress
+  let intentCreatorSigner: SignerWithAddress
+  let solverSigner: SignerWithAddress
+  let claimantSigner: SignerWithAddress
+  let proverSigner: SignerWithAddress
+  let recipientSigner: SignerWithAddress
+  let prover: Prover
+  let blockhashOracle
+
+  before(async () => {
+    ;[
+      deployerSigner,
+      intentCreatorSigner,
+      solverSigner,
+      claimantSigner,
+      proverSigner,
+      recipientSigner,
+    ] = await ethers.getSigners()
+  })
+
+  beforeEach(async () => {
+    blockhashOracle = await deploy(deployerSigner, MockL1Block__factory)
+    // only the number and hash matters here
+    await blockhashOracle.setL1BlockValues(
+      bedrock.settlementChain.blockNumber,
+      0,
+      0,
+      bedrock.settlementChain.blockHash,
+      0,
+      '0x' + '00'.repeat(32),
+      0,
+      0,
+    )
+    const hardhatChainConfiguration = {
+      chainId: networkIds.hardhat,
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      },
+    }
+
+    const baseSepoliaChainConfiguration = {
+      chainId: networks.baseSepolia.chainId, // chainId
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      },
+    }
+
+    const optimismSepoliaChainConfiguration = {
+      chainId: networks.optimismSepolia.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.optimismSepolia.proving.mechanism,
+        settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
+        settlementContract:
+          networks.optimismSepolia.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.optimismSepolia.proving.outputRootVersionNumber,
+      },
+    }
+
+    const ecoTestNetChainConfiguration = {
+      chainId: networks.ecoTestNet.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.ecoTestNet.proving.mechanism,
+        settlementChainId: networks.ecoTestNet.proving.settlementChain.id,
+        settlementContract:
+          networks.ecoTestNet.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.ecoTestNet.proving.outputRootVersionNumber,
+      },
+    }
+    const proverContract = await ethers.getContractFactory('Prover')
+    prover = await proverContract.deploy([
+      hardhatChainConfiguration,
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+      ecoTestNetChainConfiguration,
+    ])
+  })
+  it('test proveSelfState fails with invalid block', async () => {
+    // test it is valid for a block in the last 256 blocks
+    // get the block from hardhat
+    // prove the block
+    const blockNumber = await ethers.provider.getBlockNumber()
+    const blockData = await ethers.provider.getBlock(blockNumber)
+    await expect(
+      prover.proveSelfState(bedrock.settlementChain.rlpEncodedBlockData),
+    ).to.be.revertedWith('blockhash is not in last 256 blocks for this chain')
+  })
+
+  it('test proveSelfState fails with block older than 256 blocks', async () => {
+    // TODO add in logic for getting the block data and calculating the hash
+    const blockNumber = await ethers.provider.getBlockNumber()
+    const blockData = await ethers.provider.getBlock(blockNumber)
+    const rlpEncodedBlockData = await utils.getRLPEncodedBlockHardhat(blockData)
+    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
+    // console.log('blockData.hash         : ', blockData.hash)
+    // console.log('rlpEncodedBlockDataHash: ', keccak256(rlpEncodedBlockData))
+    await expect(
+      prover.proveSelfState(bedrock.settlementChain.rlpEncodedBlockData),
+    ).to.be.revertedWith('blockhash is not in last 256 blocks for this chain')
+  })
+
+  it('test proveSelfState works for a valid block', async () => {
+    // TODO: need to work out hashing logic for block data for hardhat
+    // const blockNumber = await ethers.provider.getBlockNumber()
+    // const blockData = await ethers.provider.getBlock(blockNumber, true)
+    // // console.log('blockData: ', blockData)
+    // const rlpEncodedBlockData = await utils.getRLPEncodedBlockHardhat(blockData)
+    // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
+    // console.log('blockData.hash         : ', blockData.hash)
+    // console.log('rlpEncodedBlockDataHash: ', keccak256(rlpEncodedBlockData))
+    // await expect(
+    //   prover.proveSelfState(bedrock.settlementChain.rlpEncodedBlockData),
+    // )
+    //   .to.emit(prover, 'SelfStateProven')
+    //   .withArgs(
+    //     bedrock.settlementChain.blockNumber,
+    //     bedrock.settlementChain.worldStateRoot,
+    //   )
+  })
+
+  it('test proveSelfState fails if using an older block than current state', async () => {
+    // const blockNumber = await ethers.provider.getBlockNumber()
+    // const blockData = await ethers.provider.getBlock(blockNumber)
+    // await expect(
+    //   prover.proveSelfState(bedrock.settlementChain.rlpEncodedBlockData),
+    // )
+    //   .to.emit(prover, 'SelfStateProven')
+    //   .withArgs(
+    //     bedrock.settlementChain.blockNumber,
+    //     bedrock.settlementChain.worldStateRoot,
+    //   )
   })
 })
 

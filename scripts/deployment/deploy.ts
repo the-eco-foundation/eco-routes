@@ -2,6 +2,8 @@ import { ethers, run, network } from 'hardhat'
 import { networks } from '../../config/testnet/config'
 
 // TODO: remove the await tx.wait() and update queries for deployed contracts
+// Notes: Singleton Factory address (all chains): 0xce0042B868300000d44A59004Da54A005ffdcf9f
+// Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
 const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET'))
