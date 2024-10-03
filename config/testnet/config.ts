@@ -85,7 +85,7 @@ const networks: any = {
     proverContractAddress: '0x2427852f965ec94aB49F2eC4a2C8Fa7dea22d58b',
     hyperproverContractAddress: '0x99Fc2CB6ff066e56832DfC84B678E197530a3625',
     intentSourceAddress: '0x9Cd45DF0422e2dEE7D3D9D1bDF99F68072203d38',
-    inboxAddress: '0x7758819486f7846de3F473d080E63C6487162930',
+    inboxAddress: '0x8738B91592C7b4003D678574083f34185D5b4634',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -116,7 +116,7 @@ const networks: any = {
     proverContractAddress: '0x9262b3C1907917Cf6341AA8d993CaFCDD2c09491',
     hyperproverContractAddress: '0x99Fc2CB6ff066e56832DfC84B678E197530a3625',
     intentSourceAddress: '0x102071ad4D7aa2bb2D08a096955A213A46D95A68',
-    inboxAddress: '0x7758819486f7846de3F473d080E63C6487162930',
+    inboxAddress: '0x8738B91592C7b4003D678574083f34185D5b4634',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,

@@ -1,5 +1,11 @@
 import { encodeTransfer } from '../../utils/encode'
-import { AbiCoder, BigNumberish, BytesLike, toQuantity } from 'ethers'
+import {
+  AbiCoder,
+  BigNumberish,
+  BytesLike,
+  toQuantity,
+  zeroPadValue,
+} from 'ethers'
 import {
   networkIds,
   networks,
@@ -655,12 +661,12 @@ export async function baseSepoliaOptimismSepoliaIntentSolveHyperproveInstant() {
       [thisIntent.data.toArray(), thisIntent.targets.toArray()],
     )
 
+    console.log('fetching fee')
     const fee = await s.optimismSepoliaInboxContractSolver.fetchFee(
       networkIds.baseSepolia,
       messageBody,
-      networks.baseSepolia.hyperproverContractAddress,
+      zeroPadValue(networks.baseSepolia.hyperproverContractAddress, 32),
     )
-    console.log(fee)
 
     const fulfillTx =
       await s.optimismSepoliaInboxContractSolver.fulfillHyperInstant(
@@ -672,6 +678,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolveHyperproveInstant() {
         actors.claimant, // claimant
         intentHash, // expected intent hash
         networks.baseSepolia.hyperproverContractAddress, // hyperprover contract address
+        { value: fee },
       )
     await fulfillTx.wait()
     console.log('Fulfillment tx: ', fulfillTx.hash)
@@ -1031,7 +1038,7 @@ async function main() {
     // await ecoTestNetOptimismSepoliaIntentSolve()
     await baseSepoliaOptimismSepoliaIntentSolveHyperproveInstant()
     // await optimismSepoliaBaseSepoliaIntentSolveHyperproveInstant()
-    await baseSepoliaOptimismSepoliaIntentSolveHyperproveBatched()
+    // await baseSepoliaOptimismSepoliaIntentSolveHyperproveBatched()
     // await optimismSepoliaBaseSepoliaIntentSolveHyperproveBatched()
   } catch (e) {
     console.log(e)

@@ -53,7 +53,7 @@ async function main() {
     [],
     config.mailboxAddress,
   )
-  let receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
+  const receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
     gaslimit: 1000000,
   })
   console.log('inbox deployed')
@@ -67,26 +67,29 @@ async function main() {
 
   console.log(`inbox deployed to: ${inboxAddress}`)
 
-  const hyperProverFactory = await ethers.getContractFactory('HyperProver')
+  //   const hyperProverFactory = await ethers.getContractFactory('HyperProver')
 
-  const hyperProverTx = await hyperProverFactory.getDeployTransaction(
-    config.mailboxAddress,
-    inboxAddress,
-  )
+  //   const hyperProverTx = await hyperProverFactory.getDeployTransaction(
+  //     config.mailboxAddress,
+  //     inboxAddress,
+  //   )
 
-  receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
-    gasLimit: 1000000,
-  })
-  console.log('hyperProver deployed')
+  //   receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
+  //     gasLimit: 1000000,
+  //   })
+  //   console.log('hyperProver deployed')
 
-  const hyperProverAddress = (
-    await singletonDeployer.queryFilter(
-      singletonDeployer.filters.Deployed,
-      receipt.blockNumber,
-    )
-  )[0].args.addr
+  //   const hyperProverAddress = (
+  //     await singletonDeployer.queryFilter(
+  //       singletonDeployer.filters.Deployed,
+  //       receipt.blockNumber,
+  //     )
+  //   )[0].args.addr
 
-  console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+  //   console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+
+  console.log('Waiting for 15 seconds for Bytecode to be on chain')
+  await setTimeout(15000)
 
   try {
     await run('verify:verify', {
@@ -98,15 +101,15 @@ async function main() {
     console.log(`Error verifying inbox`, e)
   }
 
-  try {
-    await run('verify:verify', {
-      address: hyperProverAddress,
-      constructorArguments: [config.mailboxAddress, inboxAddress],
-    })
-    console.log('hyperProver verified at:', hyperProverAddress)
-  } catch (e) {
-    console.log(`Error verifying hyperProver`, e)
-  }
+  //   try {
+  //     await run('verify:verify', {
+  //       address: hyperProverAddress,
+  //       constructorArguments: [config.mailboxAddress, inboxAddress],
+  //     })
+  //     console.log('hyperProver verified at:', hyperProverAddress)
+  //   } catch (e) {
+  //     console.log(`Error verifying hyperProver`, e)
+  //   }
 }
 
 main().catch((error) => {
