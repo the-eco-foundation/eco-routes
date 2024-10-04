@@ -9,10 +9,8 @@ import {
   keccak256,
   solidityPackedKeccak256,
   stripZerosLeft,
-  toBeArray,
   toQuantity,
   toNumber,
-  zeroPadValue,
   toBeHex,
 } from 'ethers'
 import {
@@ -22,8 +20,6 @@ import {
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
-import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
-import { intent } from '../../test/testData'
 // import { intent } from '../../test/testData'
 
 type SourceChainInfo = {
@@ -38,35 +34,6 @@ type Intent = {
   intentHash: string
   claimant: string
   blockNumber: BigInt
-}
-// type Intents = Intent[]
-
-async function getRLPEncodedBlock(block) {
-  console.log('In getRLPEncodedBlock')
-
-  const rlpEncodedBlockData = encodeRlp([
-    block.parentHash,
-    block.sha3Uncles,
-    block.miner,
-    block.stateRoot,
-    block.transactionsRoot,
-    block.receiptsRoot,
-    block.logsBloom,
-    stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
-    toBeHex(block.number),
-    toBeHex(block.gasLimit),
-    toBeHex(block.gasUsed),
-    block.timestamp,
-    block.extraData,
-    block.mixHash,
-    block.nonce,
-    toBeHex(block.baseFeePerGas),
-    block.withdrawalsRoot,
-    stripZerosLeft(toBeHex(block.blobGasUsed)),
-    stripZerosLeft(toBeHex(block.excessBlobGas)),
-    block.parentBeaconBlockRoot,
-  ])
-  return rlpEncodedBlockData
 }
 
 export async function getIntentsToProve(
@@ -159,7 +126,7 @@ export async function getIntentsToProve(
       console.log('intentToProve: ', intentToProve)
       console.log('intentToProve.sourceChain: ', intentToProve.sourceChain)
       console.log('networkIds.ecoTestNet: ', networkIds.ecoTestNet)
-      if (intentToProve.sourceChain != networkIds.ecoTestNet) {
+      if (intentToProve.sourceChain !== networkIds.ecoTestNet) {
         return false
       } else {
         if (
@@ -182,7 +149,7 @@ export async function getIntentsToProve(
 }
 
 async function proveSettlementChainInstantBaseSepoliaEcoTestNet() {
-  console.log('In proveSettlementChainInstant')
+  console.log('In proveSettlementChainInstantBaseSepoliaEcoTestNet')
   let provedSettlementState = false
   let errorCount = 0
   while (!provedSettlementState) {
@@ -258,51 +225,6 @@ async function proveSettlementChainInstantBaseSepoliaEcoTestNet() {
       // }
     }
   }
-}
-
-export async function proveSettlementChainInstant() {
-  // gameIndex,
-  // faultDisputeGameAddress,
-  // faultDisputeGameContract,
-  // sourceChains,
-  console.log('In proveSettlementChainInstant')
-
-  let seetlementBlockData
-  const settlementBlockNumber = await s.ecoTestNetl1Block.number()
-  // await Promise.all(
-  //   await Object.entries(sourceChains).map(
-  //     async ([sourceChainkey, sourceChain]) => {
-  //       if (sourceChain.needNewProvenState) {
-  //         // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
-  //         switch (sourceChain.sourceChain) {
-  //           case networkIds.baseSepolia: {
-  //             break
-  //           }
-  //           case networkIds.optimismSepolia: {
-  //             endBatchBlockData = await proveWorldStatesCannon(
-  //               faultDisputeGameAddress,
-  //               faultDisputeGameContract,
-  //               gameIndex,
-  //             )
-  //             break
-  //           }
-  //           case networkIds.ecoTestNet: {
-  //             endBatchBlockData = await proveWorldStatesCannonL2L3(
-  //               faultDisputeGameAddress,
-  //               faultDisputeGameContract,
-  //               gameIndex,
-  //             )
-  //             break
-  //           }
-  //           default: {
-  //             break
-  //           }
-  //         }
-  //       }
-  //     },
-  //   ),
-  // )
-  return endBatchBlockData
 }
 
 async function proveIntentEcoTestNet(
@@ -430,11 +352,9 @@ export async function withdrawFunds(intentsToProve) {
     console.log('intent: ', intent)
     switch (intent.sourceChain) {
       case networkIds.baseSepolia: {
-        await withdrawRewardBaseSepolia(intent.intentHash)
         break
       }
       case networkIds.optimismSepolia: {
-        await withdrawRewardOptimismSepolia(intent.intentHash)
         break
       }
       case networkIds.ecoTestNet: {
