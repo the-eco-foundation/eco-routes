@@ -89,17 +89,17 @@ const networks: any = {
     alchemyNetwork: 'optimism-sepolia',
     sourceChains: ['baseSepolia', 'ecoTestNet'],
     proverContract: {
-      address: '0x06D8B8536D911FB9BF5c0Deb9c503DF3c447E028',
+      address: '0x143B2dB5EbfA2Cb6bcF002335f59c0BdB21600c1',
       deploymentBlock: 16795390n, // '0x10046Fe'
     },
     intentSource: {
-      address: '0x95bE635B37e1cfb0d5A496fc96696054a83b82f6',
+      address: '0x4dd1C7b5491dd01200C7ea5c002b8F1897e6cB85',
       deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x421948998e24870De9E27F781E834bA10CD0df48',
+      address: '0x33ADEd6c456076f0E421A925C4F58272a8730066',
       deploymentBlock: 16795397n, // '0x1004705
     },
     hyperproverContractAddress: '0x6A7448E7Bd6DE7a321e7e9E8bB871355c6AE7Afd',
@@ -123,17 +123,17 @@ const networks: any = {
     alchemyNetwork: 'base-sepolia',
     sourceChains: ['optimismSepolia', 'ecoTestNet'],
     proverContract: {
-      address: '0x06D8B8536D911FB9BF5c0Deb9c503DF3c447E028',
+      address: '0x143B2dB5EbfA2Cb6bcF002335f59c0BdB21600c1',
       deploymentBlock: 14812482n, // '0xe20542',
     },
     intentSource: {
-      address: '0x95bE635B37e1cfb0d5A496fc96696054a83b82f6',
+      address: '0x4dd1C7b5491dd01200C7ea5c002b8F1897e6cB85',
       deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x421948998e24870De9E27F781E834bA10CD0df48',
+      address: '0x33ADEd6c456076f0E421A925C4F58272a8730066',
       deploymentBlock: 14812488n, // '0xe20548',
     },
     hyperproverContractAddress: '0x6A7448E7Bd6DE7a321e7e9E8bB871355c6AE7Afd',
@@ -166,17 +166,17 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContract: {
-      address: '0x06D8B8536D911FB9BF5c0Deb9c503DF3c447E028',
+      address: '0x143B2dB5EbfA2Cb6bcF002335f59c0BdB21600c1',
       deploymentBlock: '0x35dc32', // 3529778n
     },
     intentSource: {
-      address: '0x95bE635B37e1cfb0d5A496fc96696054a83b82f6',
+      address: '0x4dd1C7b5491dd01200C7ea5c002b8F1897e6cB85',
       deploymentBlock: 3529780n, // '0x35dc34',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x421948998e24870De9E27F781E834bA10CD0df48',
+      address: '0x33ADEd6c456076f0E421A925C4F58272a8730066',
       deploymentBlock: 3529786n, // '0x35dc3a',
     },
     hyperproverContractAddress: '0x6A7448E7Bd6DE7a321e7e9E8bB871355c6AE7Afd',

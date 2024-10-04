@@ -24,7 +24,7 @@ import {
 import { s } from '../../config/testnet/setup'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
 // import { version } from 'os'
-// import { latestBlock } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
+// import { baseBlock } from '@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time'
 // import { intent } from '../../test/testData'
 
 type SourceChainInfo = {
@@ -369,7 +369,7 @@ async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
 //   //   have successfully proven L1 state
 // }
 
-async function proveWorldStateBaseSepoliaOnBaseSepolia(
+async function proveSelfStateBaseSepolia(
   settlementBlockTag,
   settlementStateRoot,
   endBatchBlockDataL2,
@@ -378,230 +378,77 @@ async function proveWorldStateBaseSepoliaOnBaseSepolia(
   // gameIndex,
 ) {
   console.log('In proveWorldStateBaseSepoliaOnBaseSepolia')
-  // TODO : write logic to use the blockData Provided and prove that world state on it's self chain
-  // For more information on how DisputeGameFactory utility functions, see the following code
-  // https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L82
-  // get the endBatchBlockData
+  let provedSelfState = false
+  let errorCount = 0
+  while (!provedSelfState) {
+    const baseBlockNumber = await s.baseSepoliaProvider.getBlockNumber()
+    const baseBlockTag = toQuantity(baseBlockNumber)
+    // const block = await s.baseSepoliaProvider.provider.getBlock(baseBlock)
+    // const baseBlock = await s.baseSepolial1Block.number()
 
-  // Note: For all proofs we use two block numbers
-  // For anything related to the settlement chain we use settlementBlockTag
-  // For anything related to the destination chain we use endBatchBlockHex
-  // Get the faultDisputeGame game data
-  // const faultDisputeGameData = await faultDisputeGameContract.gameData()
-  // const faultDisputeGameCreatedAt = await faultDisputeGameContract.createdAt()
-  // const faultDisputeGameResolvedAt = await faultDisputeGameContract.resolvedAt()
-  // const faultDisputeGameGameStatus = await faultDisputeGameContract.status()
-  // const faultDisputeGameInitialized = true
-  // const faultDisputeGameL2BlockNumberChallenged = false
-  // const faultDisputeGameL2BlockNumber =
-  //   await faultDisputeGameContract.l2BlockNumber()
-  // const endBatchBlockHex = toQuantity(faultDisputeGameL2BlockNumber)
-  // const endBatchBlockData = await s.baseSepoliaProvider.send(
-  //   'eth_getBlockByNumber',
-  //   [endBatchBlockHex, false],
-  // )
-  // const rlpEncodedEndBatchBlockData =
-  //   await getRLPEncodedBlock(endBatchBlockData)
+    const block: Block = await s.baseSepoliaProvider.send(
+      'eth_getBlockByNumber',
+      [baseBlockTag, false],
+    )
+    console.log('baseBlockNumber: ', baseBlockNumber)
+    console.log('baseBlockTag: ', baseBlockTag)
+    console.log('block: ', block)
 
-  // // Get the Message Parser State Root at the end block of the batch
-  // const l2MesagePasserProof = await s.baseSepoliaProvider.send('eth_getProof', [
-  //   networks.baseSepolia.proving.l2l1MessageParserAddress,
-  //   [],
-  //   endBatchBlockHex,
-  // ])
-
-  // // Get the DisputeGameFactory data GameId
-  // const faultDisputeGameId = await s.baseSepoliaProverContract.pack(
-  //   faultDisputeGameData.gameType_,
-  //   faultDisputeGameCreatedAt,
-  //   faultDisputeGameAddress,
-  // )
-
-  // // disputeGameFactoryStorageSlot is where the gameId is stored
-  // // In solidity
-  // // uint256(keccak256(abi.encode(L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER)))
-  // //                       + disputeGameFactoryProofData.gameIndex
-  // const disputeGameFactorySlotNumber = 104
-  // const disputeGameFactoryGameIndex = gameIndex
-  // const arrayLengthSlot = zeroPadValue(
-  //   toBeArray(disputeGameFactorySlotNumber),
-  //   32,
-  // )
-  // const firstElementSlot = solidityPackedKeccak256(
-  //   ['bytes32'],
-  //   [arrayLengthSlot],
-  // )
-  // const disputeGameFactoryStorageSlot = toBeHex(
-  //   BigInt(firstElementSlot) + BigInt(Number(disputeGameFactoryGameIndex)),
-  //   32,
-  // )
-  // const disputeGameFactoryProof = await s.sepoliaProvider.send('eth_getProof', [
-  //   networks.sepolia.settlementContracts.baseSepolia,
-  //   [disputeGameFactoryStorageSlot],
-  //   settlementBlockTag,
-  // ])
-  // const disputeGameFactoryContractData = [
-  //   toBeHex(disputeGameFactoryProof.nonce), // nonce
-  //   stripZerosLeft(toBeHex(disputeGameFactoryProof.balance)), // balance
-  //   disputeGameFactoryProof.storageHash, // storageHash
-  //   disputeGameFactoryProof.codeHash, // CodeHash
-  // ]
-  // const RLPEncodedDisputeGameFactoryData =
-  //   await s.baseSepoliaProverContract.rlpEncodeDataLibList(
-  //     disputeGameFactoryContractData,
-  //   )
-  // // populate fields for the DisputeGameFactory proof
-  // const disputeGameFactoryProofData = {
-  //   messagePasserStateRoot: l2MesagePasserProof.storageHash,
-  //   latestBlockHash: endBatchBlockData.hash,
-  //   gameIndex: disputeGameFactoryGameIndex,
-  //   gameId: faultDisputeGameId,
-  //   disputeFaultGameStorageProof: disputeGameFactoryProof.storageProof[0].proof,
-  //   rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
-  //   disputeGameFactoryAccountProof: disputeGameFactoryProof.accountProof,
-  // }
-
-  // // populate fields for the FaultDisputeGame rootclaim proof
-  // // Storage proof for faultDisputeGame root claim
-  // // rootClaimSlot - hardcooded value for the slot which is a keecak256 hash  the slot for rootClaim
-
-  // const faultDisputeGameRootClaimStorageSlot =
-  //   '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
-  // const faultDisputeGameRootClaimProof = await s.sepoliaProvider.send(
-  //   'eth_getProof',
-  //   [
-  //     faultDisputeGameAddress,
-  //     [faultDisputeGameRootClaimStorageSlot],
-  //     settlementBlockTag,
-  //   ],
-  // )
-  // // Storage proof for faultDisputeGame resolved
-  // // rootClaimSlot - hardcoded value for slot zero which is where the status is stored
-  // const faultDisputeGameResolvedStorageSlot =
-  //   '0x0000000000000000000000000000000000000000000000000000000000000000'
-  // // '0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1'
-  // const faultDisputeGameRootResolvedProof = await s.sepoliaProvider.send(
-  //   'eth_getProof',
-  //   [
-  //     faultDisputeGameAddress,
-  //     [faultDisputeGameResolvedStorageSlot],
-  //     settlementBlockTag,
-  //   ],
-  // )
-  // const faultDisputeGameContractData = [
-  //   toBeHex(faultDisputeGameRootClaimProof.nonce), // nonce
-  //   stripZerosLeft(toBeHex(faultDisputeGameRootClaimProof.balance)), // balance
-  //   faultDisputeGameRootClaimProof.storageHash, // storageHash
-  //   faultDisputeGameRootClaimProof.codeHash, // CodeHash
-  // ]
-  // const RLPEncodedFaultDisputeGameContractData =
-  //   await s.baseSepoliaProverContract.rlpEncodeDataLibList(
-  //     faultDisputeGameContractData,
-  //   )
-  // const faultDisputeGameProofData = {
-  //   // faultDisputeGameStateRoot: endBatchBlockData.stateRoot,
-  //   faultDisputeGameStateRoot: faultDisputeGameRootClaimProof.storageHash,
-  //   faultDisputeGameRootClaimStorageProof:
-  //     faultDisputeGameRootClaimProof.storageProof[0].proof,
-  //   faultDisputeGameStatusSlotData: {
-  //     createdAt: faultDisputeGameCreatedAt,
-  //     resolvedAt: faultDisputeGameResolvedAt,
-  //     gameStatus: faultDisputeGameGameStatus,
-  //     initialized: faultDisputeGameInitialized,
-  //     l2BlockNumberChallenged: faultDisputeGameL2BlockNumberChallenged,
-  //   },
-  //   // populate fields for the FaultDisputeGame resolved proof
-  //   faultDisputeGameStatusStorageProof:
-  //     faultDisputeGameRootResolvedProof.storageProof[0].proof,
-  //   rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameContractData,
-  //   faultDisputeGameAccountProof: faultDisputeGameRootClaimProof.accountProof,
-  // }
-
-  // // try {
-  // // Note: ProveStorage and ProveAccount are pure functions and included here just for unit testing
-  // const { gameProxy_ } = await s.baseSepoliaProverContract.unpack(
-  //   disputeGameFactoryProofData.gameId,
-  // )
-  // // proveStorageDisputeGameFactory
-  // await s.baseSepoliaProverContract.proveStorage(
-  //   disputeGameFactoryStorageSlot,
-  //   encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameId))),
-  //   // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
-  //   disputeGameFactoryProof.storageProof[0].proof,
-  //   disputeGameFactoryProof.storageHash,
-  // )
-  // // proveAccountDisputeGameFactory
-  // await s.baseSepoliaProverContract.proveAccount(
-  //   networks.sepolia.settlementContracts.baseSepolia,
-  //   disputeGameFactoryProofData.rlpEncodedDisputeGameFactoryData,
-  //   disputeGameFactoryProofData.disputeGameFactoryAccountProof,
-  //   settlementStateRoot,
-  // )
-  // // proveStorageFaultDisputeGameRootClaim
-  // await s.baseSepoliaProverContract.proveStorage(
-  //   faultDisputeGameRootClaimStorageSlot,
-  //   encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
-  //   // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
-  //   faultDisputeGameRootClaimProof.storageProof[0].proof,
-  //   faultDisputeGameRootClaimProof.storageHash,
-  // )
-  // // proveStorageFaultDisputeGameResolved
-  // await s.baseSepoliaProverContract.proveStorage(
-  //   faultDisputeGameResolvedStorageSlot,
-  //   await s.baseSepoliaProverContract.assembleGameStatusStorage(
-  //     faultDisputeGameCreatedAt,
-  //     faultDisputeGameResolvedAt,
-  //     faultDisputeGameGameStatus,
-  //     faultDisputeGameInitialized,
-  //     faultDisputeGameL2BlockNumberChallenged,
-  //   ),
-  //   faultDisputeGameRootResolvedProof.storageProof[0].proof,
-  //   faultDisputeGameRootResolvedProof.storageHash,
-  // )
-  // // proveAccountFaultDisputeGame
-  // await s.baseSepoliaProverContract.proveAccount(
-  //   // faultDisputeGameAddress,
-  //   // '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
-  //   gameProxy_,
-  //   faultDisputeGameProofData.rlpEncodedFaultDisputeGameData,
-  //   faultDisputeGameProofData.faultDisputeGameAccountProof,
-  //   settlementStateRoot,
-  // )
-  // try {
-  //   const proveWorldStateCannonTx =
-  //     await s.baseSepoliaProverContract.proveWorldStateCannon(
-  //       networkIds.baseSepolia,
-  //       rlpEncodedEndBatchBlockData,
-  //       endBatchBlockData.stateRoot,
-  //       disputeGameFactoryProofData,
-  //       faultDisputeGameProofData,
-  //       settlementStateRoot,
-  //     )
-  //   await proveWorldStateCannonTx.wait()
-  //   console.log('ProveWorldStateCannon Base to Base')
-  //   return endBatchBlockData
-  // } catch (e) {
-  //   if (e.data && s.baseSepoliaProverContract) {
-  //     const decodedError = s.baseSepoliaProverContract.interface.parseError(
-  //       e.data,
-  //     )
-  //     console.log(`Transaction failed: ${decodedError?.name}`)
-  //     console.log(`Error in ProveWorldStateCannon baseSepolia:`, e.shortMessage)
-  //   } else {
-  //     console.log(`Error in ProveWorldStateCannon baseSepolia:`, e)
-  //   }
-  // }
+    let tx
+    let baseWorldStateRoot
+    try {
+      const rlpEncodedBlockData = encodeRlp([
+        block.parentHash,
+        block.sha3Uncles,
+        block.miner,
+        block.stateRoot,
+        block.transactionsRoot,
+        block.receiptsRoot,
+        block.logsBloom,
+        stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
+        toBeHex(block.number),
+        toBeHex(block.gasLimit),
+        toBeHex(block.gasUsed),
+        block.timestamp,
+        block.extraData,
+        block.mixHash,
+        block.nonce,
+        toBeHex(block.baseFeePerGas),
+        block.withdrawalsRoot,
+        stripZerosLeft(toBeHex(block.blobGasUsed)),
+        stripZerosLeft(toBeHex(block.excessBlobGas)),
+        block.parentBeaconBlockRoot,
+      ])
+      tx = await s.baseSepoliaProverContract.proveSelfState(
+        getBytes(hexlify(rlpEncodedBlockData)),
+      )
+      await tx.wait()
+      console.log('Base Self world state tx: ', tx.hash)
+      baseWorldStateRoot = block.stateRoot
+      console.log('Base Self state block: ', baseBlockNumber, baseBlockTag)
+      console.log('Proven Self state root baseSepolia:', baseWorldStateRoot)
+      provedSelfState = true
+      return { baseBlockTag, baseWorldStateRoot }
+    } catch (e) {
+      errorCount += 1
+      console.log(
+        'ProveWorldStateBaseSepoliaOnBaseSepolia errorCount: ',
+        errorCount,
+      )
+      console.log(`Error in ProveWorldStateBaseSepoliaOnBaseSepolia:`, e)
+    }
+  }
 }
 
 async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
   l3OutputIndex,
   l3BlockNumber,
-  settlementBlockTag,
-  settlementWorldStateRoot,
+  baseBlockTag,
+  baseWorldStateRoot,
 ) {
   console.log('In proveWorldStateBedrockOnBaseSepoliaforEcoTestNet')
-  console.log('settlementBlockTag: ', settlementBlockTag)
-  console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
+  console.log('baseBlockTag: ', baseBlockTag)
+  console.log('baseWorldStateRoot: ', baseWorldStateRoot)
   const endBatchBlockHex = toQuantity(l3BlockNumber)
   // const endBatchBlockHex = l3BlockNumber
   console.log('End Batch Block Number: ', endBatchBlockHex)
@@ -641,7 +488,7 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
     [
       networks.baseSepolia.settlementContracts.ecoTestNet,
       [l1BatchSlot],
-      settlementBlockTag,
+      baseBlockTag,
     ],
   )
   const layer1EcoTestNetOutputOracleContractData = [
@@ -664,7 +511,7 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
           layer1EcoTestNetOutputOracleContractData,
         ),
         layer1EcoTestNetOutputOracleProof.accountProof,
-        settlementWorldStateRoot,
+        baseWorldStateRoot,
       )
     await proveOutputTX.wait()
     console.log(
@@ -773,7 +620,7 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
 //   // populate fields for the DisputeGameFactory proof
 //   const disputeGameFactoryProofData = {
 //     messagePasserStateRoot: l2MesagePasserProof.storageHash,
-//     latestBlockHash: endBatchBlockData.hash,
+//     baseBlockHash: endBatchBlockData.hash,
 //     gameIndex: disputeGameFactoryGameIndex,
 //     gameId: faultDisputeGameId,
 //     disputeFaultGameStorageProof: disputeGameFactoryProof.storageProof[0].proof,
@@ -1018,8 +865,8 @@ async function proveWorldStatesBedrockL3L2Base(
   const { settlementBlockTag, settlementWorldStateRoot } =
     await proveSepoliaSettlementLayerStateOnBaseSepolia() // Prove the Sepolia Settlement Layer State
 
-  // Prove Base World State on Base Sepolia
-  await proveWorldStateBaseSepoliaOnBaseSepolia(
+  // Prove Selt State on Base Sepolia
+  const { baseBlockTag, baseWorldStateRoot } = await proveSelfStateBaseSepolia(
     settlementBlockTag,
     settlementWorldStateRoot,
     endBatchBlockDataL2,
@@ -1035,8 +882,8 @@ async function proveWorldStatesBedrockL3L2Base(
     await proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
       l3OutputIndex,
       l3BlockNumber,
-      toQuantity(endBatchBlockDataL2.number),
-      endBatchBlockDataL2.stateRoot,
+      baseBlockTag,
+      baseWorldStateRoot,
     )
 
   return endBatchBlockData
@@ -1122,16 +969,32 @@ export async function proveDestinationChainBatchSettled(
   )
 }
 
-async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
+async function proveIntentBaseSepolia(intentHash, l3BlockNumber) {
   console.log('In proveIntentBaseSepolia')
+  console.log('intentHash: ', intentHash)
+  const endBatchBlockData: Block = await s.ecoTestNetProvider.send(
+    'eth_getBlockByNumber',
+    [toQuantity(l3BlockNumber), false],
+  )
+  console.log('endBatchBlockData: ', endBatchBlockData)
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
+  console.log('About to getProof')
+  console.log(
+    'networks.ecoTestNet.inbox.address: ',
+    networks.ecoTestNet.inbox.address,
+  )
+  console.log('inboxStorageSlot: ', inboxStorageSlot)
+  console.log(
+    'toQuantity(endBatchBlockData.number): ',
+    toQuantity(endBatchBlockData.number),
+  )
   const intentInboxProof = await s.ecoTestNetProvider.send('eth_getProof', [
     networks.ecoTestNet.inbox.address,
     [inboxStorageSlot],
-    endBatchBlockData.number,
+    toQuantity(endBatchBlockData.number),
   ])
 
   const intentInfo =
@@ -1307,14 +1170,14 @@ async function proveIntentEcoTestNet(intentHash, endBatchBlockData) {
   }
 }
 
-export async function proveIntents(intentsToProve, endBatchBlockData) {
+export async function proveIntents(intentsToProve, l3BlockNumber) {
   // loop through chainIds and intents
   // prove each intent
   console.log('In proveIntents')
   for (const intent of intentsToProve) {
     switch (intent.sourceChain) {
       case networkIds.baseSepolia: {
-        await proveIntentBaseSepolia(intent.intentHash, endBatchBlockData)
+        await proveIntentBaseSepolia(intent.intentHash, l3BlockNumber)
         break
       }
       case networkIds.optimismSepolia: {
@@ -1322,7 +1185,7 @@ export async function proveIntents(intentsToProve, endBatchBlockData) {
         break
       }
       case networkIds.ecoTestNet: {
-        await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
+        await proveIntentEcoTestNet(intent.intentHash, l3BlockNumber)
         break
       }
     }
@@ -1446,7 +1309,7 @@ async function main() {
       l3BlockNumber,
     )
     // Prove all the intents
-    await proveIntents(intentsToProve, endBatchBlockDataL2)
+    await proveIntents(intentsToProve, l3BlockNumber)
     await withdrawFunds(intentsToProve)
   } catch (e) {
     console.log(e)

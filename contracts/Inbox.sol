@@ -13,13 +13,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
 contract Inbox is IInbox, Ownable {
-
     using TypeCasts for address;
-
-    address public immutable MAILBOX;
 
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
+
+    address public immutable MAILBOX;
 
     // Mapping of solvers to if they are whitelisted
     mapping(address => bool) public solverWhitelist;
@@ -39,7 +38,7 @@ contract Inbox is IInbox, Ownable {
         }
     }
 
-    constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers, address _mailbox) Ownable(_owner){
+    constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers, address _mailbox) Ownable(_owner) {
         isSolvingPublic = _isSolvingPublic;
         for (uint256 i = 0; i < _solvers.length; i++) {
             solverWhitelist[_solvers[i]] = true;
@@ -56,14 +55,13 @@ contract Inbox is IInbox, Ownable {
         address _claimant,
         bytes32 _expectedHash
     ) external returns (bytes[] memory) {
-
         bytes[] memory result = _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
 
         emit Fulfillment(_expectedHash, _sourceChainID, _claimant);
 
         return result;
     }
-    
+
     // hyperprover fast path
     function fulfill(
         uint256 _sourceChainID,
@@ -75,15 +73,14 @@ contract Inbox is IInbox, Ownable {
         bytes32 _expectedHash,
         address _prover
     ) external returns (bytes[] memory) {
-        bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+        bytes[] memory results =
+            _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
 
         emit FastFulfillment(_expectedHash, _sourceChainID, _claimant);
         IMailbox(MAILBOX).dispatch(
-            uint32(_sourceChainID),
-            _prover.addressToBytes32(),
-            abi.encode(_expectedHash, _claimant)
-            );
-        
+            uint32(_sourceChainID), _prover.addressToBytes32(), abi.encode(_expectedHash, _claimant)
+        );
+
         return results;
     }
 
