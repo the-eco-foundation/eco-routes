@@ -2,6 +2,14 @@
 pragma solidity ^0.8.13;
 
 interface IProver {
+    enum ProofType {
+        Self, // Used for Ethereum and Sepolia (any chain that settles to itself)
+        Bedrock,
+        Cannon,
+        Arbitrum,
+        HyperLane
+    }
+
     struct ChainConfiguration {
         uint8 provingMechanism;
         uint256 settlementChainId;
@@ -42,6 +50,8 @@ interface IProver {
         bytes rlpEncodedFaultDisputeGameData;
         bytes[] faultDisputeGameAccountProof;
     }
+
+    function getProofType() external view returns (ProofType);
 
     function L2_OUTPUT_SLOT_NUMBER() external view returns (uint256);
 
