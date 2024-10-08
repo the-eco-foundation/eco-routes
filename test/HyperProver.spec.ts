@@ -53,6 +53,14 @@ describe('HyperProver Test', (): void => {
       deployHyperproverFixture,
     ))
   })
+  describe('on prover implements interface', () => {
+    it('should return the correct proof type', async () => {
+      hyperProver = await (
+        await ethers.getContractFactory('HyperProver')
+      ).deploy(await owner.getAddress(), await inbox.getAddress())
+      expect(await hyperProver.getProofType()).to.equal(1)
+    })
+  })
   describe('invalid', async () => {
     beforeEach(async () => {
       hyperProver = await (
