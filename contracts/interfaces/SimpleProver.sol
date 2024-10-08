@@ -10,8 +10,4 @@ abstract contract SimpleProver {
     event IntentProven(bytes32 indexed _hash, address indexed _claimant);
     
     mapping(bytes32 => address) public provenIntents;
-
-    public function proverType() virtual external pure returns (string memory) {
-        return "SimpleProver";
-    }
 }
