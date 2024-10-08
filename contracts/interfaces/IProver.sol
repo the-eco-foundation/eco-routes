@@ -4,8 +4,8 @@ pragma solidity ^0.8.26;
 interface IProver {
     // The types of proof that provers can be
     enum ProofType {
-        L2,
-        HyperLane
+        Storage,
+        Hyperlane
     }
 
     // returns the proof type of the prover

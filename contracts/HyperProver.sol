@@ -10,6 +10,8 @@ import "hardhat/console.sol";
 contract HyperProver is IMessageRecipient, SimpleProver {
     using TypeCasts for bytes32;
 
+    ProofType public constant PROOF_TYPE = ProofType.Hyperlane;
+
     /**
      * emitted on an attempt to register a claimant on an intent that has already been proven and has a claimant
      * @dev this is an event rather than an error because the expected behavior is to ignore one intent but continue with the rest
@@ -73,5 +75,9 @@ contract HyperProver is IMessageRecipient, SimpleProver {
                 emit IntentProven(intentHash, claimant);
             }
         }
+    }
+
+    function getProofType() external pure override returns (ProofType) {
+        return PROOF_TYPE;
     }
 }

@@ -10,6 +10,6 @@ contract TestProver is SimpleProver {
     }
 
     function getProofType() external pure override returns (ProofType) {
-        return ProofType.L2;
+        return ProofType.Storage;
     }
 }
