@@ -9,7 +9,7 @@ import {SimpleProver} from "./interfaces/SimpleProver.sol";
 
 contract Prover is SimpleProver {
     // uint16 public constant NONCE_PACKING = 1;
-    ProofType public constant PROOF_TYPE = ProofType.HyperLane;
+    ProofType public constant PROOF_TYPE = ProofType.L2;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
     uint256 public constant L2_OUTPUT_SLOT_NUMBER = 3;
