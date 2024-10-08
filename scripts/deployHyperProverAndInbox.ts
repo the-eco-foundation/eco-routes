@@ -1,12 +1,10 @@
 import { ethers, run, network } from 'hardhat'
-import { Inbox, SingletonFactory, Deployer } from '../typechain-types'
 import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
-import { networks, actors } from '../config/testnet/config'
+import { networks } from '../config/testnet/config'
 
-const networkName = network.name
 const salt = ethers.keccak256(ethers.toUtf8Bytes('MAINNET'))
 
 let inboxAddress = ''
