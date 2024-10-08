@@ -7,12 +7,6 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { HyperProver, Inbox, TestERC20, TestMailbox } from '../typechain-types'
 import { encodeTransfer } from '../utils/encode'
-import { emit } from 'process'
-
-type HyperProverMessagePair = {
-  _intentHash: string
-  _claimant: string
-}
 
 describe('HyperProver Test', (): void => {
   let inbox: Inbox
@@ -58,6 +52,14 @@ describe('HyperProver Test', (): void => {
     ;({ inbox, token, owner, solver, claimant } = await loadFixture(
       deployHyperproverFixture,
     ))
+  })
+  describe('on prover implements interface', () => {
+    it('should return the correct proof type', async () => {
+      hyperProver = await (
+        await ethers.getContractFactory('HyperProver')
+      ).deploy(await owner.getAddress(), await inbox.getAddress())
+      expect(await hyperProver.getProofType()).to.equal(1)
+    })
   })
   describe('invalid', async () => {
     beforeEach(async () => {

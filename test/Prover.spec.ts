@@ -90,7 +90,7 @@ describe('Prover Unit Tests', () => {
   })
 
   describe('on prover implements interface', () => {
-    it('should return the correct type', async () => {
+    it('should return the correct proof type', async () => {
       expect(await prover.getProofType()).to.equal(0)
     })
   })
