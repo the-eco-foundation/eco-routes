@@ -295,6 +295,19 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
     let tx
     let settlementWorldStateRoot
     try {
+      console.log('Proving L1L3SettlementLayerState')
+      console.log(
+        'l2l1BlockProof.storageProof[0].proof: ',
+        l2l1BlockProof.storageProof[0].proof,
+      )
+      console.log(
+        'rlpEncodedL2L1BlockData: ',
+        await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+          l2l1BlockContractData,
+        ),
+      )
+      console.log('l2l1BlockProof.accountProof: ', l2l1BlockProof.accountProof)
+      console.log('l1block.stateRoot: ', l1block.stateRoot)
       tx = await s.ecoTestNetProverContract.proveL1L3SettlementLayerState(
         getBytes(hexlify(l1RlpEncodedBlockData)),
         getBytes(hexlify(l2RlpEncodedBlockData)),
@@ -1076,39 +1089,43 @@ export async function withdrawFunds(intentsToProve) {
 }
 
 async function main() {
-  const proveAll: boolean = true
-  // define the variables used for each state of the intent lifecycle
-  // Point in time proving for latest batch
-  // let intentHash, intentFulfillTransaction
-  try {
-    console.log('In Main')
-    console.log('Batch Settle of OP Sepolia')
-    // Get the latest Batch Settled for OP Sepolia
-    const {
-      blockNumber,
-      gameIndex,
-      faultDisputeGameAddress,
-      faultDisputeGameContract,
-    } = await getBatchSettled()
+  const { l1SettlementBlockTag, settlementWorldStateRoot } =
+    await proveSepoliaSettlementLayerStateOnEcoTestNet()
+  console.log('l1SettlementBlockTag: ', l1SettlementBlockTag)
+  console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
+  // const proveAll: boolean = true
+  // // define the variables used for each state of the intent lifecycle
+  // // Point in time proving for latest batch
+  // // let intentHash, intentFulfillTransaction
+  // try {
+  //   console.log('In Main')
+  //   console.log('Batch Settle of OP Sepolia')
+  //   // Get the latest Batch Settled for OP Sepolia
+  //   const {
+  //     blockNumber,
+  //     gameIndex,
+  //     faultDisputeGameAddress,
+  //     faultDisputeGameContract,
+  //   } = await getBatchSettled()
 
-    // Get all the intents that can be proven for the batch by destination chain
-    const { sourceChains, intentsToProve } = await getIntentsToProve(
-      blockNumber,
-      proveAll,
-    )
-    // Prove the latest batch settled
-    const endBatchBlockData = await proveDestinationChainBatchSettled(
-      gameIndex,
-      faultDisputeGameAddress,
-      faultDisputeGameContract,
-      sourceChains,
-    )
-    // Prove all the intents
-    await proveIntents(intentsToProve, endBatchBlockData)
-    await withdrawFunds(intentsToProve)
-  } catch (e) {
-    console.log(e)
-  }
+  //   // Get all the intents that can be proven for the batch by destination chain
+  //   const { sourceChains, intentsToProve } = await getIntentsToProve(
+  //     blockNumber,
+  //     proveAll,
+  //   )
+  //   // Prove the latest batch settled
+  //   const endBatchBlockData = await proveDestinationChainBatchSettled(
+  //     gameIndex,
+  //     faultDisputeGameAddress,
+  //     faultDisputeGameContract,
+  //     sourceChains,
+  //   )
+  //   // Prove all the intents
+  //   await proveIntents(intentsToProve, endBatchBlockData)
+  //   await withdrawFunds(intentsToProve)
+  // } catch (e) {
+  //   console.log(e)
+  // }
 }
 
 main().catch((error) => {

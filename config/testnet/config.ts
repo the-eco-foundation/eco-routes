@@ -108,6 +108,7 @@ const networks: any = {
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
+      l1BlockSlotNumber: 2,
       settlementChain: {
         network: 'sepolia',
         id: networkIds.sepolia,
@@ -187,6 +188,7 @@ const networks: any = {
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
+      l1BlockSlotNumber: 2,
       settlementChain: {
         network: 'baseSepolia',
         id: 84532,

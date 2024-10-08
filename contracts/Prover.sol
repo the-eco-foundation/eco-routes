@@ -292,7 +292,8 @@ contract Prover is SimpleProver {
         // Check that the L2 block data hashes to the L1 block hash on L3
         require(keccak256(l2RlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
-        uint256 settlementChainId = chainConfigurations[block.chainid].settlementChainId;
+        uint256 l2settlementChainId = chainConfigurations[block.chainid].settlementChainId;
+        uint256 settlementChainId = chainConfigurations[l2settlementChainId].settlementChainId;
         BlockProof memory existingBlockProof = provenStates[settlementChainId];
 
         BlockProof memory l2blockProof = BlockProof({

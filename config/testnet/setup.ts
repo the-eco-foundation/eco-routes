@@ -278,7 +278,7 @@ export namespace s {
   )
   export const ecoTestNetProverContract = new Contract(
     networks.ecoTestNet.proverContract.address,
-    ProverL3__factory.abi,
+    Prover__factory.abi,
     ecoTestNetDeployer, // Use deployer as prover as we need to do privileged operations
   )
   export const ecoTestNetInboxContractSolver = new Contract(
