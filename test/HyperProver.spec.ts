@@ -335,10 +335,12 @@ describe('HyperProver Test', (): void => {
       await expect(
         inbox
           .connect(solver)
-          .sendBatch(sourceChainID, await hyperProver.getAddress(), [
-            intentHash0,
-            intentHash1,
-          ]),
+          .sendBatch(
+            sourceChainID,
+            await hyperProver.getAddress(),
+            [intentHash0, intentHash1],
+            { value: 100000 },
+          ),
       )
         .to.emit(hyperProver, `IntentProven`)
         .withArgs(intentHash0, await claimant.getAddress())

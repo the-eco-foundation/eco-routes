@@ -8,7 +8,7 @@ import {
 } from '@nomicfoundation/hardhat-toolbox/network-helpers'
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
 import { encodeTransfer } from '../utils/encode'
-import { keccak256 } from 'ethers'
+import { keccak256, toBeHex } from 'ethers'
 import { intent } from './testData'
 
 describe('Inbox Test', (): void => {
@@ -416,6 +416,15 @@ describe('Inbox Test', (): void => {
       expect(await mailbox.dispatched()).to.be.false
 
       await erc20.connect(solver).transfer(await inbox.getAddress(), mintAmount)
+    })
+    it('fetches the fee', async () => {
+      expect(
+        await inbox.fetchFee(
+          0,
+          calldata,
+          ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+        ),
+      ).to.eq(toBeHex(`100000`, 32))
     })
     it('fulfills hyper instant', async () => {
       await expect(
