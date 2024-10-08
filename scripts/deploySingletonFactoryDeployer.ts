@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { ethers, network } from 'hardhat'
 import { SingletonFactory } from '../typechain-types'
 
@@ -15,6 +16,7 @@ async function deployDeployer() {
   ).getDeployTransaction(ethers.ZeroAddress)
 
   const receipt = await singletonFactory.deploy(deployerTx.data, deployerSalt)
+  await receipt.wait()
 }
 
 async function deploySingletonFactory() {
