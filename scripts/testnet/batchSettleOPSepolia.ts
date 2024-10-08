@@ -24,6 +24,7 @@ import {
 import { s } from '../../config/testnet/setup'
 import * as FaultDisputeGameArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/FaultDisputeGame.sol/FaultDisputeGame.json'
 // import { intent } from '../../test/testData'
+import { utils } from '../common/utils'
 
 type SourceChainInfo = {
   sourceChain: number
@@ -37,35 +38,6 @@ type Intent = {
   intentHash: string
   claimant: string
   blockNumber: BigInt
-}
-// type Intents = Intent[]
-
-async function getRLPEncodedBlock(block) {
-  console.log('In getRLPEncodedBlock')
-
-  const rlpEncodedBlockData = encodeRlp([
-    block.parentHash,
-    block.sha3Uncles,
-    block.miner,
-    block.stateRoot,
-    block.transactionsRoot,
-    block.receiptsRoot,
-    block.logsBloom,
-    stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
-    toBeHex(block.number),
-    toBeHex(block.gasLimit),
-    toBeHex(block.gasUsed),
-    block.timestamp,
-    block.extraData,
-    block.mixHash,
-    block.nonce,
-    toBeHex(block.baseFeePerGas),
-    block.withdrawalsRoot,
-    stripZerosLeft(toBeHex(block.blobGasUsed)),
-    stripZerosLeft(toBeHex(block.excessBlobGas)),
-    block.parentBeaconBlockRoot,
-  ])
-  return rlpEncodedBlockData
 }
 
 export async function getBatchSettled() {
@@ -274,60 +246,84 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
   let provedSettlementState = false
   let errorCount = 0
   while (!provedSettlementState) {
-    const setlementBlock = await s.baseSepolial1Block.number()
-    const settlementBlockTag = toQuantity(setlementBlock)
-
-    const block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
-      settlementBlockTag,
-      false,
+    // Get L2 Settlement Block
+    const l2SettlementBlock = await s.ecoTestNetl1Block.number()
+    const l2SettlementBlockTag = toQuantity(l2SettlementBlock)
+    const l2block: Block = await s.baseSepoliaProvider.send(
+      'eth_getBlockByNumber',
+      [l2SettlementBlockTag, false],
+    )
+    const l2RlpEncodedBlockData = await utils.getRLPEncodedBlock(l2block)
+    console.log('l2SettlementBlock: ', l2SettlementBlock)
+    console.log('l2SettlementBlockTag: ', l2SettlementBlockTag)
+    console.log('L2 RLP Encoded Block Data: ', l2RlpEncodedBlockData)
+    // Get L1 Settlement Block
+    const l1SettlementBlock = await s.baseSepolial1Block.number()
+    const l1SettlementBlockTag = toQuantity(l1SettlementBlock)
+    const l1block: Block = await s.sepoliaProvider.send(
+      'eth_getBlockByNumber',
+      [l1SettlementBlockTag, false],
+    )
+    console.log('l1SettlementBlock: ', l1SettlementBlock)
+    console.log('l1SettlementBlockTag: ', l1SettlementBlockTag)
+    const l1RlpEncodedBlockData = await utils.getRLPEncodedBlock(l1block)
+    console.log('L1 RLP Encoded Block Data: ', l1RlpEncodedBlockData)
+    // Get the Message Parser State Root at the l2 current block
+    // const l2MesagePasserProof = await s.baseSepoliaProvider.send(
+    //   'eth_getProof',
+    //   [
+    //     networks.baseSepolia.proving.l2l1MessageParserAddress,
+    //     [],
+    //     l2SettlementBlockTag,
+    //   ],
+    // )
+    const l2BlockHashSlot = zeroPadValue(
+      toBeArray(networks.baseSepolia.proving.l1BlockSlotNumber),
+      32,
+    )
+    const l2l1BlockProof = await s.baseSepoliaProvider.send('eth_getProof', [
+      networks.baseSepolia.proving.l1BlockAddress,
+      [l2BlockHashSlot],
+      l2SettlementBlockTag,
     ])
-
+    const l2l1BlockContractData = [
+      toBeHex(l2l1BlockProof.nonce), // nonce
+      stripZerosLeft(toBeHex(l2l1BlockProof.balance)), // balance
+      l2l1BlockProof.storageHash, // storageHash
+      l2l1BlockProof.codeHash, // CodeHash
+    ]
     let tx
     let settlementWorldStateRoot
     try {
-      const rlpEncodedBlockData = encodeRlp([
-        block.parentHash,
-        block.sha3Uncles,
-        block.miner,
-        block.stateRoot,
-        block.transactionsRoot,
-        block.receiptsRoot,
-        block.logsBloom,
-        stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
-        toBeHex(block.number),
-        toBeHex(block.gasLimit),
-        toBeHex(block.gasUsed),
-        block.timestamp,
-        block.extraData,
-        block.mixHash,
-        block.nonce,
-        toBeHex(block.baseFeePerGas),
-        block.withdrawalsRoot,
-        stripZerosLeft(toBeHex(block.blobGasUsed)),
-        stripZerosLeft(toBeHex(block.excessBlobGas)),
-        block.parentBeaconBlockRoot,
-      ])
-      tx = await s.ecoTestNetProverContract.proveSettlementLayerStatePriveleged(
-        getBytes(hexlify(rlpEncodedBlockData)),
-        networkIds.sepolia,
+      tx = await s.ecoTestNetProverContract.proveL1L3SettlementLayerState(
+        getBytes(hexlify(l1RlpEncodedBlockData)),
+        getBytes(hexlify(l2RlpEncodedBlockData)),
+        l2l1BlockProof.storageProof[0].proof, // bytes[] calldata l2l1StorageProof,
+        await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+          l2l1BlockContractData,
+        ), // bytes calldata rlpEncodedL2L1BlockData,
+        l2l1BlockProof.accountProof, // bytes[] calldata l2AccountProof,
+        l1block.stateRoot, // bytes32 l2WorldStateRoot
       )
       await tx.wait()
-      console.log('Prove Settlement world state tx: ', tx.hash)
-      settlementWorldStateRoot = block.stateRoot
+      console.log('Prove L1L3SettlementLayerState tx: ', tx.hash)
+      settlementWorldStateRoot = l1block.stateRoot
       console.log(
-        'Proven L1 world state block: ',
-        setlementBlock,
-        settlementBlockTag,
+        'Proven L1L3SettlementLayerState block: ',
+        l1SettlementBlock,
+        l1SettlementBlockTag,
       )
       console.log(
-        'Proven Settlement world state root:',
+        'Proven L1L3SettlementLayerState world state root:',
         settlementWorldStateRoot,
       )
       provedSettlementState = true
-      return { settlementBlockTag, settlementWorldStateRoot }
+      return { l1SettlementBlockTag, settlementWorldStateRoot }
     } catch (e) {
       errorCount += 1
-      console.log('ProveSettlementState errorCount: ', errorCount)
+      console.log('L1L3SettlementLayerState errorCount: ', errorCount)
+      console.log('Error: ', e)
+      console.log(`Error in L1L3SettlementLayerState:`, e.shortMessage)
     }
   }
 }
@@ -362,7 +358,7 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     [endBatchBlockHex, false],
   )
   const rlpEncodedEndBatchBlockData =
-    await getRLPEncodedBlock(endBatchBlockData)
+    await utils.getRLPEncodedBlock(endBatchBlockData)
 
   // Get the Message Parser State Root at the end block of the batch
   const l2MesagePasserProof = await s.optimismSepoliaProvider.send(
@@ -587,7 +583,7 @@ async function proveWorldStateOptimismSepoliaOnBaseSepolia(
     [endBatchBlockHex, false],
   )
   const rlpEncodedEndBatchBlockData =
-    await getRLPEncodedBlock(endBatchBlockData)
+    await utils.getRLPEncodedBlock(endBatchBlockData)
 
   // Get the Message Parser State Root at the end block of the batch
   const l2MesagePasserProof = await s.optimismSepoliaProvider.send(

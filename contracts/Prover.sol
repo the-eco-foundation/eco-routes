@@ -15,6 +15,10 @@ contract Prover is SimpleProver {
 
     uint256 public constant L2_OUTPUT_ROOT_VERSION_NUMBER = 0;
 
+    uint256 public constant L1_BLOCK_ORACLE_BLOCK_HASH_SLOT_NUMBER = 2;
+
+    address public constant L1_BLOCK_ADDRESS = 0x4200000000000000000000000000000000000015;
+
     // L2OutputOracle on Ethereum used for Bedrock (Base) Proving
     // address public immutable l1OutputOracleAddress;
 
@@ -262,6 +266,69 @@ contract Prover is SimpleProver {
             emit L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
             revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+        }
+    }
+
+    /**
+     * @notice gets valid L1 State for an L3 chain by validating rlpEncoded L2 and L1 blocks against the corresponding L1 and L2 L1Block.sol contracts
+     * @param l1RlpEncodedBlockData rlp encoded L1 block data
+     * @param l2RlpEncodedBlockData rlp encoded L2 block data
+     * @dev inputting the correct block's data encoded as expected will result in its hash matching
+     * the blockhash found on the L2 oracle contract. This means that the world state root found
+     * in that block corresponds to the block on the oracle contract, and that it represents a valid
+     * state. We need to prove this by doing a storage proof of the L1BlockOracle on the L3 (destination chain)
+     * of the L2's L1BLlockOracle.
+     * L3 L1BlockOracle (gives L2Block)-> L2 L1BlockOracle(gives L1Block) -> RlpEncodedBlockData for L1 Block
+     */
+    function proveL1L3SettlementLayerState(
+        bytes calldata l1RlpEncodedBlockData,
+        bytes calldata l2RlpEncodedBlockData,
+        // bytes32 l2MessagePasserStateRoot,
+        bytes[] calldata l2l1StorageProof,
+        bytes calldata rlpEncodedL2L1BlockData,
+        bytes[] calldata l2AccountProof,
+        bytes32 l2WorldStateRoot
+    ) public {
+        // Check that the L2 block data hashes to the L1 block hash on L3
+        require(keccak256(l2RlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
+
+        uint256 settlementChainId = chainConfigurations[block.chainid].settlementChainId;
+        BlockProof memory existingBlockProof = provenStates[settlementChainId];
+
+        BlockProof memory l2blockProof = BlockProof({
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[8])),
+            blockHash: keccak256(l2RlpEncodedBlockData),
+            stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[3]))
+        });
+        BlockProof memory l1blockProof = BlockProof({
+            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[8])),
+            blockHash: keccak256(l1RlpEncodedBlockData),
+            stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[3]))
+        });
+        // Have valid L2 Block Hash, now prove the L1 block data
+        // Need to do a storageProof of the L1BlockOracle on the L2 chain
+        // showing that the L1Block passed is a valid block according to the L2 chains L1BlockOracle
+        bytes32 blockHashStorageSlot =
+            bytes32(abi.encode(uint256(keccak256(abi.encode(L1_BLOCK_ORACLE_BLOCK_HASH_SLOT_NUMBER)))));
+        // L2BlockProof memory existingBlockProof = provenStates[settlementChainId];
+        proveStorage(
+            abi.encodePacked(blockHashStorageSlot), // storage slot 2 of the L1BlockOracle
+            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(l1blockProof.blockHash)),
+            l2l1StorageProof,
+            bytes32(l2blockProof.stateRoot)
+        );
+
+        proveAccount(
+            abi.encodePacked(L1_BLOCK_ADDRESS), // L1BlockOracle Address
+            rlpEncodedL2L1BlockData, // RLP Encoded L1BlockData
+            l2AccountProof, // Account Proof
+            l2WorldStateRoot // L2WorldStateRoot
+        );
+        if (existingBlockProof.blockNumber < l1blockProof.blockNumber) {
+            provenStates[settlementChainId] = l1blockProof;
+            emit L1WorldStateProven(l1blockProof.blockNumber, l1blockProof.stateRoot);
+        } else {
+            revert OutdatedBlock(l1blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
 

@@ -26,7 +26,7 @@ export namespace utils {
       stripZerosLeft(toBeHex(block.excessBlobGas)),
       block.parentBeaconBlockRoot,
     ])
-    console.log('About to return RLP Encoded Block Data: ', rlpEncodedBlockData)
+    // console.log('About to return RLP Encoded Block Data: ', rlpEncodedBlockData)
     return rlpEncodedBlockData
   }
   export async function getRLPEncodedBlockHardhat(block) {
@@ -54,7 +54,7 @@ export namespace utils {
       //   stripZerosLeft(toBeHex(block.excessBlobGas)),
       //   block.parentBeaconBlockRoot,
     ])
-    console.log('About to return RLP Encoded Block Data: ', rlpEncodedBlockData)
+    // console.log('About to return RLP Encoded Block Data: ', rlpEncodedBlockData)
     return rlpEncodedBlockData
   }
 }
