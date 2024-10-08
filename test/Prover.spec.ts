@@ -89,6 +89,12 @@ describe('Prover Unit Tests', () => {
     ])
   })
 
+  describe('on prover implements interface', () => {
+    it('should return the correct type', async () => {
+      expect(await prover.getProofType()).to.equal(0)
+    })
+  })
+
   it('test ethers functions', async () => {
     expect('0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254').to.equal(
       getAddress('0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254'),
