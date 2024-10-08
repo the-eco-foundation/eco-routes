@@ -686,6 +686,17 @@ export async function baseSepoliaOptimismSepoliaIntentSolveHyperproveInstant() {
   } catch (e) {
     console.log(e)
   }
+
+  console.log('Waiting for 30 seconds for the dust to settle')
+  await setTimeout(15000)
+
+  console.log('show me da money')
+  await s.baseSepoliaClaimant.hyperproverContractAddress.queryFilter(
+    s.optimismSepoliaIntentSourceContractIntentCreator.getEvent(
+      'IntentCreated',
+    ),
+    latestBlockNumberHex,
+  )
 }
 
 // export async function optimismSepoliaBaseSepoliaIntentSolveHyperproveInstant() {
