@@ -83,9 +83,9 @@ const networks: any = {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
     proverContractAddress: '0x2427852f965ec94aB49F2eC4a2C8Fa7dea22d58b',
-    hyperproverContractAddress: '0x99Fc2CB6ff066e56832DfC84B678E197530a3625',
+    hyperproverContractAddress: '0x641f9cdd36F2980CD74B6F15b7743DF37A507D11',
     intentSourceAddress: '0x9Cd45DF0422e2dEE7D3D9D1bDF99F68072203d38',
-    inboxAddress: '0x7758819486f7846de3F473d080E63C6487162930',
+    inboxAddress: '0x8738B91592C7b4003D678574083f34185D5b4634',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -108,14 +108,15 @@ const networks: any = {
     //   421614, // arbitrumSepolia
     // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
+    hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
   },
   baseSepolia: {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
     proverContractAddress: '0x9262b3C1907917Cf6341AA8d993CaFCDD2c09491',
-    hyperproverContractAddress: '0x99Fc2CB6ff066e56832DfC84B678E197530a3625',
+    hyperproverContractAddress: '0x641f9cdd36F2980CD74B6F15b7743DF37A507D11',
     intentSourceAddress: '0x102071ad4D7aa2bb2D08a096955A213A46D95A68',
-    inboxAddress: '0x7758819486f7846de3F473d080E63C6487162930',
+    inboxAddress: '0x8738B91592C7b4003D678574083f34185D5b4634',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -145,6 +146,7 @@ const networks: any = {
     //   421614, // arbitrumSepolia
     // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
   },
   ecoTestNet: {
     network: 'eco-testnet',
@@ -152,7 +154,7 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContractAddress: '0xC5Dd68f473854C4D305dDe12C74eDFC92eBfbFdF',
-    hyperproverContractaddress: '0x99Fc2CB6ff066e56832DfC84B678E197530a3625',
+    hyperproverContractAddress: '0x99Fc2CB6ff066e56832DfC84B678E197530a3625',
     intentSourceAddress: '0x9356EE52c1ED51bFA8b5340768938ECc61a40795',
     inboxAddress: '0x7758819486f7846de3F473d080E63C6487162930',
     intentSource: {
@@ -177,6 +179,7 @@ const networks: any = {
     //   421614, // arbitrumSepolia
     // ],
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
+    hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
     arbitrumSepolia: {
       network: 'arbitrum-sepolia',
       chainId: 421614,

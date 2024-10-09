@@ -66,6 +66,8 @@
     "deployBaseOpen": "hardhat run --network base scripts/mainnet/deployOpen.ts",
     "deployOptimism": "hardhat run --network optimism scripts/mainnet/deploy.ts",
     "deployOptimismOpen": "hardhat run --network optimism scripts/mainnet/deployOpen.ts",
+    "deployHyperProverBase": "hardhat run --network base scripts/deployHyperProver.ts",
+    "deployHyperProverOptimism": "hardhat run --network optimism scripts/deployHyperProver.ts",
     "MainnetBedrock": "-------- Bedrock scripts below --------",
     "intentSolveMainnet": "hardhat run scripts/mainnet/intentSolve.ts",
     "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdrawOpBase.ts",
@@ -126,6 +128,7 @@
     "viem": "^2.0.0"
   },
   "dependencies": {
+    "@hyperlane-xyz/registry": "^4.2.0",
     "@hyperlane-xyz/sdk": "^5.1.0",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2"
