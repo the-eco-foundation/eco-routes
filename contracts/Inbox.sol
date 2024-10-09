@@ -14,18 +14,18 @@ import "hardhat/console.sol";
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
 contract Inbox is IInbox, Ownable {
-
-    uint256 public constant MAX_BATCH_SIZE = 10;
-
     using TypeCasts for address;
 
-    address public immutable MAILBOX;
+    uint256 public constant MAX_BATCH_SIZE = 10;
 
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
 
     // Mapping of solvers to if they are whitelisted
     mapping(address => bool) public solverWhitelist;
+
+    // address of local hyperlane mailbox
+    address public MAILBOX;
 
     // Is solving public
     bool public isSolvingPublic;
