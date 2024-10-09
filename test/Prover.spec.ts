@@ -20,6 +20,7 @@ import {
   networks,
   bedrock,
   cannon,
+  l1l3SettlementLayerState,
 } from './testData'
 
 import { utils } from '../scripts/common/utils'
@@ -579,5 +580,103 @@ describe('Prover End to End Tests', () => {
       bedrock.intent.accountProof,
       bedrock.intent.endBatchBlockStateRoot,
     )
+  })
+
+  // proveL1L3SettlementLayerState
+  describe('Prover L3 Settlement Layer Tests', () => {
+    let deployerSigner: SignerWithAddress
+    let intentCreatorSigner: SignerWithAddress
+    let solverSigner: SignerWithAddress
+    let claimantSigner: SignerWithAddress
+    let proverSigner: SignerWithAddress
+    let recipientSigner: SignerWithAddress
+    let prover: Prover
+    let blockhashOracle
+
+    before(async () => {
+      ;[
+        deployerSigner,
+        intentCreatorSigner,
+        solverSigner,
+        claimantSigner,
+        proverSigner,
+        recipientSigner,
+      ] = await ethers.getSigners()
+    })
+
+    beforeEach(async () => {
+      blockhashOracle = await deploy(deployerSigner, MockL1Block__factory)
+      // only the number and hash matters here
+      await blockhashOracle.setL1BlockValues(
+        l1l3SettlementLayerState.l1BlockTag,
+        0,
+        0,
+        l1l3SettlementLayerState.l1BlockHash,
+        0,
+        '0x' + '00'.repeat(32),
+        0,
+        0,
+      )
+      const hardhatChainConfiguration = {
+        chainId: networkIds.hardhat,
+        chainConfiguration: {
+          provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+          settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+          settlementContract:
+            networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+          blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+          outputRootVersionNumber:
+            networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        },
+      }
+
+      const baseSepoliaChainConfiguration = {
+        chainId: networks.baseSepolia.chainId, // chainId
+        chainConfiguration: {
+          provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+          settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+          settlementContract:
+            networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+          blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+          outputRootVersionNumber:
+            networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        },
+      }
+
+      const optimismSepoliaChainConfiguration = {
+        chainId: networks.optimismSepolia.chainId,
+        chainConfiguration: {
+          provingMechanism: networks.optimismSepolia.proving.mechanism,
+          settlementChainId:
+            networks.optimismSepolia.proving.settlementChain.id,
+          settlementContract:
+            networks.optimismSepolia.proving.settlementChain.contract,
+          blockhashOracle: await blockhashOracle.getAddress(),
+          outputRootVersionNumber:
+            networks.optimismSepolia.proving.outputRootVersionNumber,
+        },
+      }
+
+      const ecoTestNetChainConfiguration = {
+        chainId: networks.ecoTestNet.chainId,
+        chainConfiguration: {
+          provingMechanism: networks.ecoTestNet.proving.mechanism,
+          settlementChainId: networks.ecoTestNet.proving.settlementChain.id,
+          settlementContract:
+            networks.ecoTestNet.proving.settlementChain.contract,
+          blockhashOracle: await blockhashOracle.getAddress(),
+          outputRootVersionNumber:
+            networks.ecoTestNet.proving.outputRootVersionNumber,
+        },
+      }
+      const proverContract = await ethers.getContractFactory('Prover')
+      prover = await proverContract.deploy([
+        hardhatChainConfiguration,
+        baseSepoliaChainConfiguration,
+        optimismSepoliaChainConfiguration,
+        ecoTestNetChainConfiguration,
+      ])
+    })
+    it('test l1l3 StorageProof', async () => {})
   })
 })

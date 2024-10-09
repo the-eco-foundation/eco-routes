@@ -296,27 +296,27 @@ contract Prover is SimpleProver {
         uint256 settlementChainId = chainConfigurations[l2settlementChainId].settlementChainId;
         BlockProof memory existingBlockProof = provenStates[settlementChainId];
 
-        BlockProof memory l2blockProof = BlockProof({
-            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[8])),
-            blockHash: keccak256(l2RlpEncodedBlockData),
-            stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[3]))
-        });
+        // BlockProof memory l2blockProof = BlockProof({
+        //     blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[8])),
+        //     blockHash: keccak256(l2RlpEncodedBlockData),
+        //     stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[3]))
+        // });
         BlockProof memory l1blockProof = BlockProof({
             blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[8])),
             blockHash: keccak256(l1RlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[3]))
         });
+        // bytes memory l2l1SlotNumber = abi.encodePacked(uint256(L1_BLOCK_ORACLE_BLOCK_HASH_SLOT_NUMBER));
+        bytes memory l2l1StorageStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedL2L1BlockData)[2]);
         // Have valid L2 Block Hash, now prove the L1 block data
         // Need to do a storageProof of the L1BlockOracle on the L2 chain
         // showing that the L1Block passed is a valid block according to the L2 chains L1BlockOracle
-        bytes32 blockHashStorageSlot =
-            bytes32(abi.encode(uint256(keccak256(abi.encode(L1_BLOCK_ORACLE_BLOCK_HASH_SLOT_NUMBER)))));
-        // L2BlockProof memory existingBlockProof = provenStates[settlementChainId];
         proveStorage(
-            abi.encodePacked(blockHashStorageSlot), // storage slot 2 of the L1BlockOracle
+            abi.encodePacked(uint256(L1_BLOCK_ORACLE_BLOCK_HASH_SLOT_NUMBER)),
+            // l2l1SlotNumber,
             bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(l1blockProof.blockHash)),
             l2l1StorageProof,
-            bytes32(l2blockProof.stateRoot)
+            bytes32(l2l1StorageStateRoot)
         );
 
         proveAccount(

@@ -168,20 +168,20 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContract: {
-      address: '0x992d4Bc028c623606031E6BEa670ff7c0c31000b',
+      address: '0xB1e5d0a8E7476acc49A6997C7866b43925CA99c9',
       deploymentBlock: '0x35dc32', // 3529778n
     },
     intentSource: {
-      address: '0x12D5583f6c7C237A9C1A42d7D02DB45c87759D89',
+      address: '0xaa5b06ec10daDB52F6c85cbc5E69c8508909e2D3',
       deploymentBlock: 3529780n, // '0x35dc34',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x0Eb5a399E077aA9bC4F4b6b9AC772AD2C1962896',
+      address: '0xcF412B3f1F8B7235dA55D42255cc9149e13d4126',
       deploymentBlock: 3529786n, // '0x35dc3a',
     },
-    hyperproverContractAddress: '0x95Bd42d6360337Ba368d75d8b67f812093CB3924',
+    hyperproverContractAddress: '0xC6C2D908CeF74940f02142Cc1719eCdA3C6073fD',
     proving: {
       mechanism: 1,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
