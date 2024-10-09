@@ -244,209 +244,217 @@ async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
 async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
   console.log('In proveSepoliaSettlementLayerStateOnEcoTestNet')
 
-  // let tx
-  // let settlementWorldStateRoot
-  // try {
-  // Get L2 Settlement Block from L3
-  // const l2SettlementBlock = await s.ecoTestNetl1Block.number()
-  // const l2SettlementBlockTag = toQuantity(l2SettlementBlock)
-  // const l2block: Block = await s.baseSepoliaProvider.send(
-  //   'eth_getBlockByNumber',
-  //   [l2SettlementBlockTag, false],
-  // )
-  // Get L2 Settlement Block from lastest L2 Bloc
-  const l2block: Block = await s.baseSepoliaProvider.send(
-    'eth_getBlockByNumber',
-    ['latest', false],
-  )
-  const l2SettlementBlock = BigInt(l2block.number)
-  const l2SettlementBlockTag = toQuantity(l2SettlementBlock)
-  const l2RlpEncodedBlockData = await utils.getRLPEncodedBlock(l2block)
-
-  console.log('l2SettlementBlock: ', l2SettlementBlock)
-  console.log('l2SettlementBlockTag: ', l2SettlementBlockTag)
-  // console.log('L2 RLP Encoded Block Data: ', l2RlpEncodedBlockData)
-  // Get L1 Settlement Block
-  // const l1SettlementBlock = 6839170n // Debug
-  const l1SettlementBlock = await s.baseSepolial1Block.number()
-  const l1SettlementBlockTag = toQuantity(l1SettlementBlock)
-  const l1block: Block = await s.sepoliaProvider.send('eth_getBlockByNumber', [
-    l1SettlementBlockTag,
-    false,
-  ])
-  console.log('l1SettlementBlock: ', l1SettlementBlock)
-  console.log('l1SettlementBlockTag: ', l1SettlementBlockTag)
-  const l1RlpEncodedBlockData = await utils.getRLPEncodedBlock(l1block)
-  // console.log('L1 RLP Encoded Block Data: ', l1RlpEncodedBlockData)
-  // Get the Message Parser State Root at the l2 current block
-  // const l2MesagePasserProof = await s.baseSepoliaProvider.send(
-  //   'eth_getProof',
-  //   [
-  //     networks.baseSepolia.proving.l2l1MessageParserAddress,
-  //     [],
-  //     l2SettlementBlockTag,
-  //   ],
-  // )
-  // const l2BlockHashSlot = zeroPadValue(
-  //   toBeArray(networks.baseSepolia.proving.l1BlockSlotNumber),
-  //   32,
-  // )
-  const l2BlockHashSlot = toBeHex(
-    BigInt(networks.baseSepolia.proving.l1BlockSlotNumber),
-    32,
-  )
-  console.log(
-    'networks.baseSepolia.proving.l1BlockAddress: ',
-    networks.baseSepolia.proving.l1BlockAddress,
-  )
-  const l2l1BlockProof = await s.baseSepoliaProvider.send('eth_getProof', [
-    networks.baseSepolia.proving.l1BlockAddress,
-    [l2BlockHashSlot],
-    l2SettlementBlockTag,
-  ])
-  const l2l1BlockContractData = [
-    // toBeHex(l2l1BlockProof.nonce), // nonce
-    // toBeHex(l2l1BlockProof.balance), // balance
-    stripZerosLeft(toBeHex(l2l1BlockProof.nonce)), // nonce
-    stripZerosLeft(toBeHex(l2l1BlockProof.balance)), // balance
-    l2l1BlockProof.storageHash, // storageHash
-    l2l1BlockProof.codeHash, // CodeHash
-  ]
-  const RLPEncodedl2l1BlockContractData =
-    await s.baseSepoliaProverContract.rlpEncodeDataLibList(
-      l2l1BlockContractData,
-    )
-  // Call proveStorage and proveAccount functions for debugging
-  console.log('Proving Storage')
-  console.log('l2BlockHashSlot: ', l2BlockHashSlot)
-  // const blockHashPrefix = 0xa0
-  const blockHash = keccak256(l1RlpEncodedBlockData)
-  console.log('blockHash      : ', blockHash)
-  // const rlpL1BlockHash =
-  //   toBeHex(blockHashPrefix) + toBeHex(blockHash).substring(2)
-  const rlpL1BlockHash = encodeRlp(toBeHex(stripZerosLeft(blockHash)))
-  // toBeHex(blockHashPrefix) + toBeHex(blockHash).substring(2)
-
-  // const rlpL1BlockHash = keccak256(l1RlpEncodedBlockData)
-  // console.log('rlpL1BlockHash : ', rlpL1BlockHash)
-  // console.log(
-  //   'l2l1BlockProof.storageProof[0].proof: ',
-  //   l2l1BlockProof.storageProof[0].proof,
-  // )
-  // console.log('l2l1BlockProof.stateRoot: ', l2block.stateRoot)
-  await s.ecoTestNetProverContract.proveStorage(
-    l2BlockHashSlot, // abi.encodePacked(blockHashStorageSlot) // bytes memory _address,
-    rlpL1BlockHash, // bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(l1blockProof.blockHash)) // bytes memory _data,
-    l2l1BlockProof.storageProof[0].proof, // l2l1StorageProof, // bytes[] memory _proof,
-    // l2block.stateRoot, // bytes32(l2blockProof.stateRoot)// bytes32 _root
-    l2l1BlockProof.storageHash, // bytes32(l2blockProof.stateRoot)// bytes32 _root
-  )
-  // console.log('AccountProof Input')
-  // console.log(
-  //   'networks.baseSepolia.proving.l1BlockAddress: ',
-  //   networks.baseSepolia.proving.l1BlockAddress,
-  // )
-  // console.log(
-  //   'RLPEncodedl2l1BlockContractData: ',
-  //   RLPEncodedl2l1BlockContractData,
-  // )
-  // console.log('l2l1BlockProof.accountProof: ', l2l1BlockProof.accountProof)
-  // console.log('l2block.stateRoot: ', l2block.stateRoot)
-  await s.ecoTestNetProverContract.proveAccount(
-    networks.baseSepolia.proving.l1BlockAddress, // abi.encodePacked(L1_BLOCK_ADDRESS),  L1BlockOracle Address
-    RLPEncodedl2l1BlockContractData, // rlpEncodedL2L1BlockData,  RLP Encoded L1BlockData
-    l2l1BlockProof.accountProof, // l2AccountProof, // Account Proof
-    l2block.stateRoot, // l2WorldStateRoot // L2WorldStateRoot
-  )
-  console.log('Account Proved')
-  // end debugging
   let provedSettlementState = false
   let errorCount = 0
   while (!provedSettlementState) {
-    let tx
-    let settlementWorldStateRoot
-    try {
-      console.log('Proving L1L3SettlementLayerState')
-      const l2SettlementBlockNow = await s.ecoTestNetl1Block.number()
-      console.log('l2SettlementBlock: ', l2SettlementBlock)
-      console.log('l2SettlementBlockNow: ', l2SettlementBlockNow)
-      console.log(
-        'l2l1BlockProof.storageProof[0].proof: ',
-        l2l1BlockProof.storageProof[0].proof,
-      )
+    // let tx
+    // let settlementWorldStateRoot
+    // try {
+    // Get L2 Settlement Block from L3
+    // const l2SettlementBlock = await s.ecoTestNetl1Block.number()
+    // const l2SettlementBlockTag = toQuantity(l2SettlementBlock)
+    // const l2block: Block = await s.baseSepoliaProvider.send(
+    //   'eth_getBlockByNumber',
+    //   [l2SettlementBlockTag, false],
+    // )
+    // Get L2 Settlement Block from lastest L2 Bloc
+    const l2block: Block = await s.baseSepoliaProvider.send(
+      'eth_getBlockByNumber',
+      ['latest', false],
+    )
+    const l2SettlementBlock = BigInt(l2block.number)
+    const l2SettlementBlockTag = toQuantity(l2SettlementBlock)
+    const l2RlpEncodedBlockData = await utils.getRLPEncodedBlock(l2block)
 
-      tx = await s.ecoTestNetProverContract.proveL1L3SettlementLayerState(
-        l1RlpEncodedBlockData,
-        l2RlpEncodedBlockData,
-        l2l1BlockProof.storageProof[0].proof, // bytes[] calldata l2l1StorageProof,
-        RLPEncodedl2l1BlockContractData, // bytes calldata rlpEncodedL2L1BlockData,
-        l2l1BlockProof.accountProof, // bytes[] calldata l2AccountProof,
-        l2block.stateRoot, // bytes32 l2WorldStateRoot
+    console.log('l2SettlementBlock: ', l2SettlementBlock)
+    console.log('l2SettlementBlockTag: ', l2SettlementBlockTag)
+    // console.log('L2 RLP Encoded Block Data: ', l2RlpEncodedBlockData)
+    // Get L1 Settlement Block
+    // const l1SettlementBlock = 6839170n // Debug
+    const l1SettlementBlock = await s.baseSepolial1Block.number()
+    const l1SettlementBlockTag = toQuantity(l1SettlementBlock)
+    const l1block: Block = await s.sepoliaProvider.send(
+      'eth_getBlockByNumber',
+      [l1SettlementBlockTag, false],
+    )
+    console.log('l1SettlementBlock: ', l1SettlementBlock)
+    console.log('l1SettlementBlockTag: ', l1SettlementBlockTag)
+    const l1RlpEncodedBlockData = await utils.getRLPEncodedBlock(l1block)
+    // console.log('L1 RLP Encoded Block Data: ', l1RlpEncodedBlockData)
+    // Get the Message Parser State Root at the l2 current block
+    // const l2MesagePasserProof = await s.baseSepoliaProvider.send(
+    //   'eth_getProof',
+    //   [
+    //     networks.baseSepolia.proving.l2l1MessageParserAddress,
+    //     [],
+    //     l2SettlementBlockTag,
+    //   ],
+    // )
+    // const l2BlockHashSlot = zeroPadValue(
+    //   toBeArray(networks.baseSepolia.proving.l1BlockSlotNumber),
+    //   32,
+    // )
+    const l2BlockHashSlot = toBeHex(
+      BigInt(networks.baseSepolia.proving.l1BlockSlotNumber),
+      32,
+    )
+    console.log(
+      'networks.baseSepolia.proving.l1BlockAddress: ',
+      networks.baseSepolia.proving.l1BlockAddress,
+    )
+    const l2l1BlockProof = await s.baseSepoliaProvider.send('eth_getProof', [
+      networks.baseSepolia.proving.l1BlockAddress,
+      [l2BlockHashSlot],
+      l2SettlementBlockTag,
+    ])
+    const l2l1BlockContractData = [
+      // toBeHex(l2l1BlockProof.nonce), // nonce
+      // toBeHex(l2l1BlockProof.balance), // balance
+      stripZerosLeft(toBeHex(l2l1BlockProof.nonce)), // nonce
+      stripZerosLeft(toBeHex(l2l1BlockProof.balance)), // balance
+      l2l1BlockProof.storageHash, // storageHash
+      l2l1BlockProof.codeHash, // CodeHash
+    ]
+    const RLPEncodedl2l1BlockContractData =
+      await s.baseSepoliaProverContract.rlpEncodeDataLibList(
+        l2l1BlockContractData,
       )
-      await tx.wait()
-      console.log('Prove L1L3SettlementLayerState tx: ', tx.hash)
-      settlementWorldStateRoot = l1block.stateRoot
-      console.log(
-        'Proven L1L3SettlementLayerState block: ',
-        l1SettlementBlock,
-        l1SettlementBlockTag,
-      )
-      console.log(
-        'Proven L1L3SettlementLayerState world state root:',
-        settlementWorldStateRoot,
-      )
-      provedSettlementState = true
-      return { l1SettlementBlockTag, settlementWorldStateRoot }
-    } catch (e) {
-      errorCount += 1
-      console.log('L1L3SettlementLayerState errorCount: ', errorCount)
-      console.log(`Error in L1L3SettlementLayerState:`, e.shortMessage)
+    // Call proveStorage and proveAccount functions for debugging
+    console.log('Proving Storage')
+    console.log('l2BlockHashSlot: ', l2BlockHashSlot)
+    // const blockHashPrefix = 0xa0
+    const blockHash = keccak256(l1RlpEncodedBlockData)
+    console.log('blockHash      : ', blockHash)
+    // const rlpL1BlockHash =
+    //   toBeHex(blockHashPrefix) + toBeHex(blockHash).substring(2)
+    const rlpL1BlockHash = encodeRlp(toBeHex(stripZerosLeft(blockHash)))
+    // toBeHex(blockHashPrefix) + toBeHex(blockHash).substring(2)
 
-      if (e.shortMessage === 'transaction execution reverted') {
-        console.log('Error: ', e)
-        console.log('=============================')
-        console.log('Proving Storage')
-        console.log('l2BlockHashSlot: ', l2BlockHashSlot)
-        const rlpL1BlockHash = encodeRlp(toBeHex(stripZerosLeft(blockHash)))
-        console.log('rlpL1BlockHash : ', rlpL1BlockHash)
+    // const rlpL1BlockHash = keccak256(l1RlpEncodedBlockData)
+    // console.log('rlpL1BlockHash : ', rlpL1BlockHash)
+    // console.log(
+    //   'l2l1BlockProof.storageProof[0].proof: ',
+    //   l2l1BlockProof.storageProof[0].proof,
+    // )
+    // console.log('l2l1BlockProof.stateRoot: ', l2block.stateRoot)
+    await s.ecoTestNetProverContract.proveStorage(
+      l2BlockHashSlot, // abi.encodePacked(blockHashStorageSlot) // bytes memory _address,
+      rlpL1BlockHash, // bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(l1blockProof.blockHash)) // bytes memory _data,
+      l2l1BlockProof.storageProof[0].proof, // l2l1StorageProof, // bytes[] memory _proof,
+      // l2block.stateRoot, // bytes32(l2blockProof.stateRoot)// bytes32 _root
+      l2l1BlockProof.storageHash, // bytes32(l2blockProof.stateRoot)// bytes32 _root
+    )
+    // console.log('AccountProof Input')
+    // console.log(
+    //   'networks.baseSepolia.proving.l1BlockAddress: ',
+    //   networks.baseSepolia.proving.l1BlockAddress,
+    // )
+    // console.log(
+    //   'RLPEncodedl2l1BlockContractData: ',
+    //   RLPEncodedl2l1BlockContractData,
+    // )
+    // console.log('l2l1BlockProof.accountProof: ', l2l1BlockProof.accountProof)
+    // console.log('l2block.stateRoot: ', l2block.stateRoot)
+    await s.ecoTestNetProverContract.proveAccount(
+      networks.baseSepolia.proving.l1BlockAddress, // abi.encodePacked(L1_BLOCK_ADDRESS),  L1BlockOracle Address
+      RLPEncodedl2l1BlockContractData, // rlpEncodedL2L1BlockData,  RLP Encoded L1BlockData
+      l2l1BlockProof.accountProof, // l2AccountProof, // Account Proof
+      l2block.stateRoot, // l2WorldStateRoot // L2WorldStateRoot
+    )
+    console.log('Account Proved')
+    // end debugging
+
+    let finishedThisRound = false
+    while (!finishedThisRound) {
+      let tx
+      let settlementWorldStateRoot
+      try {
+        console.log('Proving L1L3SettlementLayerState')
+        const l2SettlementBlockNow = await s.ecoTestNetl1Block.number()
+        console.log('l2SettlementBlock: ', l2SettlementBlock)
+        console.log('l2SettlementBlockNow: ', l2SettlementBlockNow)
         console.log(
           'l2l1BlockProof.storageProof[0].proof: ',
           l2l1BlockProof.storageProof[0].proof,
         )
-        console.log('l2l1BlockProof.storageHash: ', l2l1BlockProof.storageHash)
-        console.log('=============================')
-        console.log('AccountProof Input')
+
+        tx = await s.ecoTestNetProverContract.proveL1L3SettlementLayerState(
+          l1RlpEncodedBlockData,
+          l2RlpEncodedBlockData,
+          l2l1BlockProof.storageProof[0].proof, // bytes[] calldata l2l1StorageProof,
+          RLPEncodedl2l1BlockContractData, // bytes calldata rlpEncodedL2L1BlockData,
+          l2l1BlockProof.accountProof, // bytes[] calldata l2AccountProof,
+          l2block.stateRoot, // bytes32 l2WorldStateRoot
+        )
+        await tx.wait()
+        console.log('Prove L1L3SettlementLayerState tx: ', tx.hash)
+        settlementWorldStateRoot = l1block.stateRoot
         console.log(
-          'networks.baseSepolia.proving.l1BlockAddress: ',
-          networks.baseSepolia.proving.l1BlockAddress,
+          'Proven L1L3SettlementLayerState block: ',
+          l1SettlementBlock,
+          l1SettlementBlockTag,
         )
         console.log(
-          'RLPEncodedl2l1BlockContractData: ',
-          RLPEncodedl2l1BlockContractData,
+          'Proven L1L3SettlementLayerState world state root:',
+          settlementWorldStateRoot,
         )
-        console.log(
-          'l2l1BlockProof.accountProof: ',
-          l2l1BlockProof.accountProof,
-        )
-        console.log('l2block.stateRoot: ', l2block.stateRoot)
-        console.log('=============================')
-        console.log('l1RlpEncodedBlockData: ', l1RlpEncodedBlockData)
-        console.log('l2RlpEncodedBlockData: ', l2RlpEncodedBlockData)
-        console.log(
-          'l2l1BlockProof.storageProof[0].proof: ',
-          l2l1BlockProof.storageProof[0].proof,
-        )
-        console.log(
-          'RLPEncodedl2l1BlockContractData: ',
-          RLPEncodedl2l1BlockContractData,
-        )
-        console.log(
-          'l2l1BlockProof.accountProof: ',
-          l2l1BlockProof.accountProof,
-        )
-        console.log('l2block.stateRoot: ', l2block.stateRoot)
-        console.log('=============================')
+        finishedThisRound = true
         provedSettlementState = true
+        return { l1SettlementBlockTag, settlementWorldStateRoot }
+      } catch (e) {
+        errorCount += 1
+        console.log('L1L3SettlementLayerState errorCount: ', errorCount)
+        console.log(`Error in L1L3SettlementLayerState:`, e.shortMessage)
+
+        if (e.shortMessage === 'transaction execution reverted') {
+          console.log('Error: ', e)
+          console.log('=============================')
+          console.log('Proving Storage')
+          console.log('l2BlockHashSlot: ', l2BlockHashSlot)
+          const rlpL1BlockHash = encodeRlp(toBeHex(stripZerosLeft(blockHash)))
+          console.log('rlpL1BlockHash : ', rlpL1BlockHash)
+          console.log(
+            'l2l1BlockProof.storageProof[0].proof: ',
+            l2l1BlockProof.storageProof[0].proof,
+          )
+          console.log(
+            'l2l1BlockProof.storageHash: ',
+            l2l1BlockProof.storageHash,
+          )
+          console.log('=============================')
+          console.log('AccountProof Input')
+          console.log(
+            'networks.baseSepolia.proving.l1BlockAddress: ',
+            networks.baseSepolia.proving.l1BlockAddress,
+          )
+          console.log(
+            'RLPEncodedl2l1BlockContractData: ',
+            RLPEncodedl2l1BlockContractData,
+          )
+          console.log(
+            'l2l1BlockProof.accountProof: ',
+            l2l1BlockProof.accountProof,
+          )
+          console.log('l2block.stateRoot: ', l2block.stateRoot)
+          console.log('=============================')
+          console.log('l1RlpEncodedBlockData: ', l1RlpEncodedBlockData)
+          console.log('l2RlpEncodedBlockData: ', l2RlpEncodedBlockData)
+          console.log(
+            'l2l1BlockProof.storageProof[0].proof: ',
+            l2l1BlockProof.storageProof[0].proof,
+          )
+          console.log(
+            'RLPEncodedl2l1BlockContractData: ',
+            RLPEncodedl2l1BlockContractData,
+          )
+          console.log(
+            'l2l1BlockProof.accountProof: ',
+            l2l1BlockProof.accountProof,
+          )
+          console.log('l2block.stateRoot: ', l2block.stateRoot)
+          console.log('=============================')
+          finishedThisRound = true
+        }
       }
     }
   }

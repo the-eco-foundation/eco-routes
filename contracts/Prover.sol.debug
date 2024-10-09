@@ -321,49 +321,49 @@ contract Prover is SimpleProver {
 
         require(keccak256(l2RlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
-        uint256 l2settlementChainId = chainConfigurations[block.chainid].settlementChainId;
-        uint256 settlementChainId = chainConfigurations[l2settlementChainId].settlementChainId;
-        BlockProof memory existingBlockProof = provenStates[settlementChainId];
+        // uint256 l2settlementChainId = chainConfigurations[block.chainid].settlementChainId;
+        // uint256 settlementChainId = chainConfigurations[l2settlementChainId].settlementChainId;
+        // BlockProof memory existingBlockProof = provenStates[settlementChainId];
 
-        // BlockProof memory l2blockProof = BlockProof({
-        //     blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[8])),
-        //     blockHash: keccak256(l2RlpEncodedBlockData),
-        //     stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[3]))
+        // // BlockProof memory l2blockProof = BlockProof({
+        // //     blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[8])),
+        // //     blockHash: keccak256(l2RlpEncodedBlockData),
+        // //     stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[3]))
+        // // });
+        // BlockProof memory l1blockProof = BlockProof({
+        //     blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[8])),
+        //     blockHash: keccak256(l1RlpEncodedBlockData),
+        //     stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[3]))
         // });
-        BlockProof memory l1blockProof = BlockProof({
-            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[8])),
-            blockHash: keccak256(l1RlpEncodedBlockData),
-            stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[3]))
-        });
-        // bytes memory l2l1SlotNumber = abi.encodePacked(uint256(L1_BLOCK_ORACLE_BLOCK_HASH_SLOT_NUMBER));
-        bytes memory l2l1StorageStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedL2L1BlockData)[2]);
+        // // bytes memory l2l1SlotNumber = abi.encodePacked(uint256(L1_BLOCK_ORACLE_BLOCK_HASH_SLOT_NUMBER));
+        // bytes memory l2l1StorageStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedL2L1BlockData)[2]);
         // Have valid L2 Block Hash, now prove the L1 block data
         // Need to do a storageProof of the L1BlockOracle on the L2 chain
         // showing that the L1Block passed is a valid block according to the L2 chains L1BlockOracle
-        proveStorage(
-            abi.encodePacked(uint256(L1_BLOCK_ORACLE_BLOCK_HASH_SLOT_NUMBER)),
-            // l2l1SlotNumber,
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(l1blockProof.blockHash)),
-            l2l1StorageProof,
-            bytes32(l2l1StorageStateRoot)
-        );
+        // proveStorage(
+        //     abi.encodePacked(uint256(L1_BLOCK_ORACLE_BLOCK_HASH_SLOT_NUMBER)),
+        //     // l2l1SlotNumber,
+        //     bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(l1blockProof.blockHash)),
+        //     l2l1StorageProof,
+        //     bytes32(l2l1StorageStateRoot)
+        // );
 
-        proveAccount(
-            abi.encodePacked(L1_BLOCK_ADDRESS), // L1BlockOracle Address
-            rlpEncodedL2L1BlockData, // RLP Encoded L1BlockData
-            l2AccountProof, // Account Proof
-            l2WorldStateRoot // L2WorldStateRoot
-        );
-        console.log("existingBlockProof.blockNumber: ", existingBlockProof.blockNumber);
-        console.log("1blockProof.blockNumber: ", l1blockProof.blockNumber);
-        if (existingBlockProof.blockNumber < l1blockProof.blockNumber) {
-            provenStates[settlementChainId] = l1blockProof;
-            console.log("Good");
-            emit L1WorldStateProven(l1blockProof.blockNumber, l1blockProof.stateRoot);
-        } else {
-            console.log("Bad");
-            revert OutdatedBlock(l1blockProof.blockNumber, existingBlockProof.blockNumber);
-        }
+        // proveAccount(
+        //     abi.encodePacked(L1_BLOCK_ADDRESS), // L1BlockOracle Address
+        //     rlpEncodedL2L1BlockData, // RLP Encoded L1BlockData
+        //     l2AccountProof, // Account Proof
+        //     l2WorldStateRoot // L2WorldStateRoot
+        // );
+        // console.log("existingBlockProof.blockNumber: ", existingBlockProof.blockNumber);
+        // console.log("1blockProof.blockNumber: ", l1blockProof.blockNumber);
+        // if (existingBlockProof.blockNumber < l1blockProof.blockNumber) {
+        //     provenStates[settlementChainId] = l1blockProof;
+        //     console.log("Good");
+        //     emit L1WorldStateProven(l1blockProof.blockNumber, l1blockProof.stateRoot);
+        // } else {
+        //     console.log("Bad");
+        //     revert OutdatedBlock(l1blockProof.blockNumber, existingBlockProof.blockNumber);
+        // }
     }
 
     // To see block information available on chain see

@@ -606,6 +606,8 @@ const cannon: any = {
 const l1l3SettlementLayerState = {
   l2BlockNumber: 16333934n,
   l2BlockTag: '0xf936ce',
+  l2BlockHash:
+    '0xd2789d07e9101e9949091d4fa4699dd68b346df1b66ee9959df295322fb1a9fd',
   l1BlockNumber: 6841152n,
   l1BlockTag: '0x686340',
   l1BlockHash:
@@ -623,7 +625,7 @@ const l1l3SettlementLayerState = {
       '0xd2e64ad472c48e0dc50c93b655ce35ad7a82e91f23727dfc8505b3905b31809c',
   },
   accountProof: {
-    l1BlockAddres: '0x4200000000000000000000000000000000000015',
+    l1BlockAddress: '0x4200000000000000000000000000000000000015',
     RLPEncodedl2l1BlockContractData:
       '0xf8448080a0d2e64ad472c48e0dc50c93b655ce35ad7a82e91f23727dfc8505b3905b31809ca0fa8c9db6c6cab7108dea276f4cd09d575674eb0852c0fa3187e59e98ef977998',
     accountProof: [
