@@ -6,7 +6,6 @@ import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPRe
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
 import {SimpleProver} from "./interfaces/SimpleProver.sol";
-import "hardhat/console.sol";
 
 contract Prover is SimpleProver {
     // uint16 public constant NONCE_PACKING = 1;
@@ -145,35 +144,14 @@ contract Prover is SimpleProver {
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
-        console.log("In prove storage");
-        console.log("Key: ");
-        console.logBytes(_key);
-        console.log("Value: ");
-        console.logBytes(_val);
-        console.log("Proof: ");
-        // bytes storage proof = _proof;
-        // console.logBytes(_proof);
-        console.log("Root: ");
-        console.logBytes32(_root);
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
-        console.log("Storage proof successful");
     }
 
     function proveAccount(bytes memory _address, bytes memory _data, bytes[] memory _proof, bytes32 _root)
         public
         pure
     {
-        console.log("In prove account");
-        console.log("Address: ");
-        console.logBytes(_address);
-        console.log("Data: ");
-        console.logBytes(_data);
-        console.log("Proof: ");
-        // console.logBytes(_proof);
-        console.log("Root: ");
-        console.logBytes32(_root);
         require(SecureMerkleTrie.verifyInclusionProof(_address, _data, _proof, _root), "failed to prove account");
-        console.log("Prove Account successful");
     }
 
     function generateOutputRoot(
@@ -314,10 +292,6 @@ contract Prover is SimpleProver {
         // Check that the L2 block data hashes to the L1 block hash on L3
         bytes32 l2RlpBlockHash = keccak256(l2RlpEncodedBlockData);
         bytes32 l2l1BlockHash = l1BlockhashOracle.hash();
-        console.log("l2RlpBlockHash: ");
-        console.logBytes32(l2RlpBlockHash);
-        console.log("l2l1BlockHash: ");
-        console.logBytes32(l2l1BlockHash);
 
         require(keccak256(l2RlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
@@ -354,14 +328,10 @@ contract Prover is SimpleProver {
             l2AccountProof, // Account Proof
             l2WorldStateRoot // L2WorldStateRoot
         );
-        console.log("existingBlockProof.blockNumber: ", existingBlockProof.blockNumber);
-        console.log("1blockProof.blockNumber: ", l1blockProof.blockNumber);
         if (existingBlockProof.blockNumber < l1blockProof.blockNumber) {
             provenStates[settlementChainId] = l1blockProof;
-            console.log("Good");
             emit L1WorldStateProven(l1blockProof.blockNumber, l1blockProof.stateRoot);
         } else {
-            console.log("Bad");
             revert OutdatedBlock(l1blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }

@@ -89,20 +89,20 @@ const networks: any = {
     alchemyNetwork: 'optimism-sepolia',
     sourceChains: ['baseSepolia', 'ecoTestNet'],
     proverContract: {
-      address: '0x992d4Bc028c623606031E6BEa670ff7c0c31000b',
+      address: '0xa32c040aafD794e6b53144738b275282C3d236d9',
       deploymentBlock: 16795390n, // '0x10046Fe'
     },
     intentSource: {
-      address: '0x12D5583f6c7C237A9C1A42d7D02DB45c87759D89',
+      address: '0x3303A6F5720133E45C54D007D80A55FC5c6a91AF',
       deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x0Eb5a399E077aA9bC4F4b6b9AC772AD2C1962896',
+      address: '0xf883F21d23d9bA5b02c48c2c700fc497a3821433',
       deploymentBlock: 16795397n, // '0x1004705
     },
-    hyperproverContractAddress: '0x95Bd42d6360337Ba368d75d8b67f812093CB3924',
+    hyperproverContractAddress: '0x762Db5D3F9A5B52D3C3d527BbcaEbE67e094F633',
     proving: {
       mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -124,20 +124,20 @@ const networks: any = {
     alchemyNetwork: 'base-sepolia',
     sourceChains: ['optimismSepolia', 'ecoTestNet'],
     proverContract: {
-      address: '0x992d4Bc028c623606031E6BEa670ff7c0c31000b',
+      address: '0xa32c040aafD794e6b53144738b275282C3d236d9',
       deploymentBlock: 14812482n, // '0xe20542',
     },
     intentSource: {
-      address: '0x12D5583f6c7C237A9C1A42d7D02DB45c87759D89',
+      address: '0x3303A6F5720133E45C54D007D80A55FC5c6a91AF',
       deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x0Eb5a399E077aA9bC4F4b6b9AC772AD2C1962896',
+      address: '0xf883F21d23d9bA5b02c48c2c700fc497a3821433',
       deploymentBlock: 14812488n, // '0xe20548',
     },
-    hyperproverContractAddress: '0x5736424f0D2091b8613C601cDc5617CfE2Fd28e8',
+    hyperproverContractAddress: '0x762Db5D3F9A5B52D3C3d527BbcaEbE67e094F633',
     proving: {
       mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -168,20 +168,20 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContract: {
-      address: '0x2c6f1fB4E9eFB68574DD9d246c18d394Cda4CA7C',
+      address: '0xa32c040aafD794e6b53144738b275282C3d236d9',
       deploymentBlock: '0x35dc32', // 3529778n
     },
     intentSource: {
-      address: '0x94f5AABaF0ec954a3254d52bdE8DaD149e1ef4B8',
+      address: '0x3303A6F5720133E45C54D007D80A55FC5c6a91AF',
       deploymentBlock: 3529780n, // '0x35dc34',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x4532e00e61D6198E63933606dA47834581340ADF',
+      address: '0xf883F21d23d9bA5b02c48c2c700fc497a3821433',
       deploymentBlock: 3529786n, // '0x35dc3a',
     },
-    hyperproverContractAddress: '0xe3C261393f69bF1472Cd73656C4adE129d112B72',
+    hyperproverContractAddress: '0x762Db5D3F9A5B52D3C3d527BbcaEbE67e094F633',
     proving: {
       mechanism: 1,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
