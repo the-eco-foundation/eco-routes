@@ -8,4 +8,8 @@ contract TestProver is SimpleProver {
     function addProvenIntent(bytes32 _hash, address _claimant) public {
         provenIntents[_hash] = _claimant;
     }
+
+    function getProofType() external pure override returns (ProofType) {
+        return ProofType.Storage;
+    }
 }
