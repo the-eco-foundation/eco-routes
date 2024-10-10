@@ -677,7 +677,7 @@ describe('Prover L3 Settlement Layer Tests', () => {
       ecoTestNetChainConfiguration,
     ])
   })
-  it.only('test l1l3 StorageProof', async () => {
+  it('test l1l3 StorageProof', async () => {
     await prover.proveStorage(
       l1l3SettlementLayerState.storageProof.l2BlockHashSlot,
       l1l3SettlementLayerState.storageProof.rlpL1BlockHash,
@@ -685,7 +685,7 @@ describe('Prover L3 Settlement Layer Tests', () => {
       l1l3SettlementLayerState.storageProof.storageHash,
     )
   })
-  it.only('test l1l3 AccountProof', async () => {
+  it('test l1l3 AccountProof', async () => {
     await prover.proveAccount(
       l1l3SettlementLayerState.accountProof.l1BlockAddress,
       l1l3SettlementLayerState.accountProof.RLPEncodedl2l1BlockContractData,
@@ -693,7 +693,7 @@ describe('Prover L3 Settlement Layer Tests', () => {
       l1l3SettlementLayerState.accountProof.stateRoot,
     )
   })
-  it.only('test l1l3SettlementState', async () => {
+  it('test l1l3SettlementState', async () => {
     await prover.proveL1L3SettlementLayerState(
       l1l3SettlementLayerState.parameters.l1RlpEncodedBlockData,
       l1l3SettlementLayerState.parameters.l2RlpEncodedBlockData,
