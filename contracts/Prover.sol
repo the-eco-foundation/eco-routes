@@ -84,11 +84,6 @@ contract Prover is SimpleProver, AbstractProver {
     uint256 public constant L2_DISPUTE_GAME_FACTORY_LIST_SLOT_NUMBER = 104;
 
     // Output slot for the root claim (used as the block number settled is part of the root claim)
-    uint256 public constant L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT =
-        0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1;
-
-    // Output slot for the game status (fixed)
-    uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
@@ -127,33 +122,6 @@ contract Prover is SimpleProver, AbstractProver {
 
     // Store the last BlockProof for each ChainId
     mapping(uint256 => BlockProof) public provenStates;
-
-    struct DisputeGameFactoryProofData {
-        bytes32 messagePasserStateRoot;
-        bytes32 latestBlockHash;
-        uint256 gameIndex;
-        bytes32 gameId;
-        bytes[] disputeFaultGameStorageProof;
-        bytes rlpEncodedDisputeGameFactoryData;
-        bytes[] disputeGameFactoryAccountProof;
-    }
-
-    struct FaultDisputeGameStatusSlotData {
-        uint64 createdAt;
-        uint64 resolvedAt;
-        uint8 gameStatus;
-        bool initialized;
-        bool l2BlockNumberChallenged;
-    }
-
-    struct FaultDisputeGameProofData {
-        bytes32 faultDisputeGameStateRoot;
-        bytes[] faultDisputeGameRootClaimStorageProof;
-        FaultDisputeGameStatusSlotData faultDisputeGameStatusSlotData;
-        bytes[] faultDisputeGameStatusStorageProof;
-        bytes rlpEncodedFaultDisputeGameData;
-        bytes[] faultDisputeGameAccountProof;
-    }
 
     /**
      * @notice emitted when Self state is proven
@@ -455,49 +423,6 @@ contract Prover is SimpleProver, AbstractProver {
         (,, address _faultDisputeGameProxyAddress) = unpack(disputeGameFactoryProofData.gameId);
 
         return (_faultDisputeGameProxyAddress, _rootClaim);
-    }
-
-    function faultDisputeGameIsResolved(
-        bytes32 rootClaim,
-        address faultDisputeGameProxyAddress,
-        FaultDisputeGameProofData memory faultDisputeGameProofData,
-        bytes32 l1WorldStateRoot
-    ) public pure {
-        require(
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
-        ); // ensure faultDisputeGame is resolved
-        // Prove that the FaultDispute game has been settled
-        // storage proof for FaultDisputeGame rootClaim (means block is valid)
-        proveStorage(
-            abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT)),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(rootClaim)),
-            faultDisputeGameProofData.faultDisputeGameRootClaimStorageProof,
-            bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
-        );
-
-        bytes memory faultDisputeGameStatusStorage = assembleGameStatusStorage(
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.createdAt,
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.resolvedAt,
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus,
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.initialized,
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.l2BlockNumberChallenged
-        );
-        // faultDisputeGameProofData.faultDisputeGameStatusSlotData.filler
-        // storage proof for FaultDisputeGame status (showing defender won)
-        proveStorage(
-            abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
-            faultDisputeGameStatusStorage,
-            faultDisputeGameProofData.faultDisputeGameStatusStorageProof,
-            bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
-        );
-
-        // The Account Proof for FaultDisputeGameFactory
-        proveAccount(
-            abi.encodePacked(faultDisputeGameProxyAddress),
-            faultDisputeGameProofData.rlpEncodedFaultDisputeGameData,
-            faultDisputeGameProofData.faultDisputeGameAccountProof,
-            l1WorldStateRoot
-        );
     }
 
     /**
