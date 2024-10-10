@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "../interfaces/SimpleProver.sol";
+import "../libs/SimpleProver.sol";
 
 contract TestProver is SimpleProver {
     function addProvenIntent(bytes32 _hash, address _claimant) public {

@@ -3,7 +3,7 @@ pragma solidity ^0.8.26;
 
 import "@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
-import "./interfaces/SimpleProver.sol";
+import "./libs/SimpleProver.sol";
 import {ISemver} from "./interfaces/ISemVer.sol";
 
 contract HyperProver is IMessageRecipient, SimpleProver {

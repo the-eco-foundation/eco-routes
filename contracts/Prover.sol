@@ -57,9 +57,9 @@ import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/tr
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
-import {SimpleProver} from "./interfaces/SimpleProver.sol";
-import {ISemver} from "./interfaces/ISemVer.sol";
 import {AbstractProver} from "./libs/AbstractProver.sol";
+import {SimpleProver} from "./libs/SimpleProver.sol";
+import {ISemver} from "./interfaces/ISemVer.sol";
 
 contract Prover is SimpleProver, AbstractProver {
     // uint16 public constant NONCE_PACKING = 1;

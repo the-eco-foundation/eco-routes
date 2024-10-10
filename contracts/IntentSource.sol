@@ -3,7 +3,7 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IIntentSource.sol";
-import "./interfaces/SimpleProver.sol";
+import "./libs/SimpleProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISemver} from "./interfaces/ISemVer.sol";

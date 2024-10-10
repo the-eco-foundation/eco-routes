@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {IProver} from "./interfaces/IProver.sol";
+import {IProver} from "../interfaces/IProver.sol";
 
 contract StorageProver is IProver {
     IProver public prover;
