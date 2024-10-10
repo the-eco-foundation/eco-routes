@@ -5,6 +5,7 @@ import "./interfaces/IInbox.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import {ISemver} from "./interfaces/ISemVer.sol";
 
 /**
  * @title Inbox
@@ -37,6 +38,8 @@ contract Inbox is IInbox, Ownable {
             revert IntentExpired();
         }
     }
+
+    string public constant version = "0.3.0-beta.0";
 
     constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers, address _mailbox) Ownable(_owner) {
         isSolvingPublic = _isSolvingPublic;

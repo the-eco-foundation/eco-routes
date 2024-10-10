@@ -1,13 +1,67 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
+/**
+ * _____                    _____                   _______
+ *          /\    \                  /\    \                 /::\    \
+ *         /::\    \                /::\    \               /::::\    \
+ *        /::::\    \              /::::\    \             /::::::\    \
+ *       /::::::\    \            /::::::\    \           /::::::::\    \
+ *      /:::/\:::\    \          /:::/\:::\    \         /:::/~~\:::\    \
+ *     /:::/__\:::\    \        /:::/  \:::\    \       /:::/    \:::\    \
+ *    /::::\   \:::\    \      /:::/    \:::\    \     /:::/    / \:::\    \
+ *   /::::::\   \:::\    \    /:::/    / \:::\    \   /:::/____/   \:::\____\
+ *  /:::/\:::\   \:::\    \  /:::/    /   \:::\    \ |:::|    |     |:::|    |
+ * /:::/__\:::\   \:::\____\/:::/____/     \:::\____\|:::|____|     |:::|    |
+ * \:::\   \:::\   \::/    /\:::\    \      \::/    / \:::\    \   /:::/    /
+ *  \:::\   \:::\   \/____/  \:::\    \      \/____/   \:::\    \ /:::/    /
+ *   \:::\   \:::\    \       \:::\    \                \:::\    /:::/    /
+ *    \:::\   \:::\____\       \:::\    \                \:::\__/:::/    /
+ *     \:::\   \::/    /        \:::\    \                \::::::::/    /
+ *      \:::\   \/____/          \:::\    \                \::::::/    /
+ *       \:::\    \               \:::\    \                \::::/    /
+ *        \:::\____\               \:::\____\                \::/____/
+ *         \::/    /                \::/    /                 ~~
+ *          \/____/                  \/____/
+ *
+ *
+ * ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄
+ * ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+ * ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀█░▌
+ * ▐░▌          ▐░▌          ▐░▌       ▐░▌
+ * ▐░█▄▄▄▄▄▄▄▄▄ ▐░▌          ▐░▌       ▐░▌
+ * ▐░░░░░░░░░░░▌▐░▌          ▐░▌       ▐░▌
+ * ▐░█▀▀▀▀▀▀▀▀▀ ▐░▌          ▐░▌       ▐░▌
+ * ▐░▌          ▐░▌          ▐░▌       ▐░▌
+ * ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄█░▌
+ * ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+ *  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀
+ *
+ *
+ *  $$$$$$\   $$$$$$$\  $$$$$$\
+ * $$  __$$\ $$  _____|$$  __$$\
+ * $$$$$$$$ |$$ /      $$ /  $$ |
+ * $$   ____|$$ |      $$ |  $$ |
+ * \$$$$$$$\ \$$$$$$$\ \$$$$$$  |
+ *  \_______| \_______| \______/
+ *
+ *  ░▒▓████████▓▒░▒▓██████▓▒░ ░▒▓██████▓▒░
+ * ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
+ * ░▒▓█▓▒░     ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░
+ * ░▒▓██████▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░
+ * ░▒▓█▓▒░     ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░
+ * ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
+ * ░▒▓████████▓▒░▒▓██████▓▒░ ░▒▓██████▓▒░
+ */
 
 import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
 import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPReader.sol";
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
 import {SimpleProver} from "./interfaces/SimpleProver.sol";
+import {ISemver} from "./interfaces/ISemVer.sol";
+import {AbstractProver} from "./libs/AbstractProver.sol";
 
-contract Prover is SimpleProver {
+contract Prover is SimpleProver, AbstractProver {
     // uint16 public constant NONCE_PACKING = 1;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
@@ -132,6 +186,8 @@ contract Prover is SimpleProver {
      */
     error OutdatedBlock(uint256 _inputBlockNumber, uint256 _latestBlockNumber);
 
+    string public constant version = "0.3.0-beta.0";
+
     constructor(ChainConfigurationConstructor[] memory _chainConfigurations) {
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
             _setChainConfiguration(_chainConfigurations[i].chainId, _chainConfigurations[i].chainConfiguration);
@@ -141,103 +197,6 @@ contract Prover is SimpleProver {
     function _setChainConfiguration(uint256 chainId, ChainConfiguration memory chainConfiguration) internal {
         chainConfigurations[chainId] = chainConfiguration;
         l1BlockhashOracle = IL1Block(chainConfiguration.blockhashOracle);
-    }
-
-    function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
-        require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
-    }
-
-    function proveAccount(bytes memory _address, bytes memory _data, bytes[] memory _proof, bytes32 _root)
-        public
-        pure
-    {
-        require(SecureMerkleTrie.verifyInclusionProof(_address, _data, _proof, _root), "failed to prove account");
-    }
-
-    function generateOutputRoot(
-        uint256 version,
-        bytes32 worldStateRoot,
-        bytes32 messagePasserStateRoot,
-        bytes32 latestBlockHash
-    ) public pure returns (bytes32) {
-        return keccak256(abi.encode(version, worldStateRoot, messagePasserStateRoot, latestBlockHash));
-    }
-
-    // helper function for getting all rlp data encoded
-    function rlpEncodeDataLibList(bytes[] memory dataList) public pure returns (bytes memory) {
-        for (uint256 i = 0; i < dataList.length; ++i) {
-            dataList[i] = RLPWriter.writeBytes(dataList[i]);
-        }
-
-        return RLPWriter.writeList(dataList);
-    }
-    /// @notice Packs values into a 32 byte GameId type.
-    /// @param _gameType The game type.
-    /// @param _timestamp The timestamp of the game's creation.
-    /// @param _gameProxy The game proxy address.
-    /// @return gameId_ The packed GameId.
-
-    function pack(uint32 _gameType, uint64 _timestamp, address _gameProxy) public pure returns (bytes32 gameId_) {
-        assembly {
-            gameId_ := or(or(shl(224, _gameType), shl(160, _timestamp)), _gameProxy)
-        }
-    }
-
-    /// @notice Unpacks values from a 32 byte GameId type.
-    /// @param _gameId The packed GameId.
-    /// @return gameType_ The game type.
-    /// @return timestamp_ The timestamp of the game's creation.
-    /// @return gameProxy_ The game proxy address.
-    function unpack(bytes32 _gameId) public pure returns (uint32 gameType_, uint64 timestamp_, address gameProxy_) {
-        assembly {
-            gameType_ := shr(224, _gameId)
-            timestamp_ := and(shr(160, _gameId), 0xFFFFFFFFFFFFFFFF)
-            gameProxy_ := and(_gameId, 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)
-        }
-    }
-
-    function _bytesToUint(bytes memory b) internal pure returns (uint256) {
-        uint256 number;
-        for (uint256 i = 0; i < b.length; i++) {
-            number = number + uint256(uint8(b[i])) * (2 ** (8 * (b.length - (i + 1))));
-        }
-        return number;
-    }
-
-    function assembleGameStatusStorage(
-        uint64 createdAt,
-        uint64 resolvedAt,
-        uint8 gameStatus,
-        bool initialized,
-        bool l2BlockNumberChallenged
-    ) public pure returns (bytes memory gameStatusStorageSlotRLP) {
-        // The if test is to remove leaing zeroes from the bytes
-        // Assumption is that initialized is always true
-        if (l2BlockNumberChallenged) {
-            gameStatusStorageSlotRLP = bytes.concat(
-                RLPWriter.writeBytes(
-                    abi.encodePacked(
-                        abi.encodePacked(l2BlockNumberChallenged),
-                        abi.encodePacked(initialized),
-                        abi.encodePacked(gameStatus),
-                        abi.encodePacked(resolvedAt),
-                        abi.encodePacked(createdAt)
-                    )
-                )
-            );
-        } else {
-            gameStatusStorageSlotRLP = bytes.concat(
-                RLPWriter.writeBytes(
-                    abi.encodePacked(
-                        // abi.encodePacked(l2BlockNumberChallenged),
-                        abi.encodePacked(initialized),
-                        abi.encodePacked(gameStatus),
-                        abi.encodePacked(resolvedAt),
-                        abi.encodePacked(createdAt)
-                    )
-                )
-            );
-        }
     }
 
     /**
@@ -256,7 +215,7 @@ contract Prover is SimpleProver {
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
         BlockProof memory blockProof = BlockProof({
-            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
+            blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
@@ -290,8 +249,6 @@ contract Prover is SimpleProver {
         bytes32 l2WorldStateRoot
     ) public {
         // Check that the L2 block data hashes to the L1 block hash on L3
-        bytes32 l2RlpBlockHash = keccak256(l2RlpEncodedBlockData);
-        bytes32 l2l1BlockHash = l1BlockhashOracle.hash();
 
         require(keccak256(l2RlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
@@ -300,12 +257,12 @@ contract Prover is SimpleProver {
         BlockProof memory existingBlockProof = provenStates[settlementChainId];
 
         // BlockProof memory l2blockProof = BlockProof({
-        //     blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[8])),
+        //     blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[8])),
         //     blockHash: keccak256(l2RlpEncodedBlockData),
         //     stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[3]))
         // });
         BlockProof memory l1blockProof = BlockProof({
-            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[8])),
+            blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[8])),
             blockHash: keccak256(l1RlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[3]))
         });
@@ -347,7 +304,7 @@ contract Prover is SimpleProver {
      */
     function proveSelfState(bytes calldata rlpEncodedBlockData) public {
         BlockProof memory blockProof = BlockProof({
-            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
+            blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
@@ -424,7 +381,7 @@ contract Prover is SimpleProver {
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
-            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
+            blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
@@ -580,7 +537,7 @@ contract Prover is SimpleProver {
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
-            blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
+            blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
