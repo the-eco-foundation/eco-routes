@@ -69,7 +69,7 @@ async function getBlockRLPEncodedData() {
 async function getBlockRLPEncodedDataOnBaseSepoliaForEcoTestNet() {
   const blockTag = bedrock.destinationChain.endBatchBlock
 
-  const block: Block = await s.ecoTestNetProvider.send('eth_getBlockByNumber', [
+  const block: Block = await s.ecoTestnetProvider.send('eth_getBlockByNumber', [
     blockTag,
     false,
   ])
@@ -153,7 +153,7 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
       block.parentBeaconBlockRoot,
     ])
     console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    tx = await s.ecoTestNetProverContract.proveSettlementLayerStatePriveleged(
+    tx = await s.ecoTestnetProverContract.proveSettlementLayerStatePriveleged(
       getBytes(hexlify(rlpEncodedBlockData)),
     )
     await tx.wait()
@@ -253,7 +253,7 @@ async function destinationStateProvingTestsEcoTestNet() {
   // Test RootClaim for Prover
   console.log('Testing rootClaim from Prover')
   const cannonRootClaimFromProver =
-    await s.ecoTestNetProverContract.generateOutputRoot(
+    await s.ecoTestnetProverContract.generateOutputRoot(
       0,
       cannon.destinationChain.endBatchBlockStateRoot,
       cannon.destinationChain.messagePasserStateRoot,
@@ -318,7 +318,7 @@ async function destinationStateProvingTestsEcoTestNet() {
       ),
     ),
   )
-  await s.ecoTestNetProverContract.proveStorage(
+  await s.ecoTestnetProverContract.proveStorage(
     cannon.destinationChain.disputeGameFactory.faultDisputeGame
       .gameIDStorageSlot,
     encodeRlp(
@@ -337,9 +337,9 @@ async function destinationStateProvingTestsEcoTestNet() {
   console.log(
     'Prove account showing that the above ProveStorage is for a valid WorldState',
   )
-  await s.ecoTestNetProverContract.proveAccount(
+  await s.ecoTestnetProverContract.proveAccount(
     cannon.destinationChain.disputeGameFactory.address,
-    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+    await s.ecoTestnetProverContract.rlpEncodeDataLibList(
       cannon.destinationChain.disputeGameFactory.contractData,
     ),
     cannon.destinationChain.disputeGameFactory.accountProof,
@@ -350,7 +350,7 @@ async function destinationStateProvingTestsEcoTestNet() {
   console.log(
     'Prove storage showing the FaultDisputeGame has a status which shows the Defender Won',
   )
-  await s.ecoTestNetProverContract.proveStorage(
+  await s.ecoTestnetProverContract.proveStorage(
     cannon.destinationChain.faultDisputeGame.status.storageSlot,
     encodeRlp(
       toBeHex(
@@ -377,7 +377,7 @@ async function destinationStateProvingTestsEcoTestNet() {
       ),
     ),
   )
-  await s.ecoTestNetProverContract.proveStorage(
+  await s.ecoTestnetProverContract.proveStorage(
     cannon.destinationChain.faultDisputeGame.rootClaim.storageSlot,
     encodeRlp(
       toBeHex(
@@ -395,9 +395,9 @@ async function destinationStateProvingTestsEcoTestNet() {
   console.log(
     'Prove account showing that the above ProveStorages are for a valid WorldState',
   )
-  await s.ecoTestNetProverContract.proveAccount(
+  await s.ecoTestnetProverContract.proveAccount(
     cannon.destinationChain.faultDisputeGame.address,
-    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+    await s.ecoTestnetProverContract.rlpEncodeDataLibList(
       cannon.destinationChain.faultDisputeGame.contractData,
     ),
     cannon.destinationChain.faultDisputeGame.accountProof,
@@ -414,7 +414,7 @@ async function proveWorldStateBaseSepoliaOnEcoTestNet() {
     RLPEncodedBaseSepoliaEndBatchBlock,
   )
   const RLPEncodedDisputeGameFactoryData =
-    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+    await s.ecoTestnetProverContract.rlpEncodeDataLibList(
       cannon.destinationChain.disputeGameFactory.contractData,
     )
   // Prove the L2 World State for Cannon
@@ -435,7 +435,7 @@ async function proveWorldStateBaseSepoliaOnEcoTestNet() {
   }
 
   const RLPEncodedFaultDisputeGameData =
-    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+    await s.ecoTestnetProverContract.rlpEncodeDataLibList(
       cannon.destinationChain.faultDisputeGame.contractData,
     )
   const faultDisputeGameProofData = {
@@ -466,7 +466,7 @@ async function proveWorldStateBaseSepoliaOnEcoTestNet() {
       cannon.destinationChain.faultDisputeGame.accountProof,
   }
   console.log('about to proveWorldStateCannon')
-  await s.ecoTestNetProverContract.proveWorldStateCannon(
+  await s.ecoTestnetProverContract.proveWorldStateCannon(
     cannon.intent.destinationChainId,
     RLPEncodedBaseSepoliaEndBatchBlock,
     // cannon.intent.rlpEncodedBlockData,
@@ -590,7 +590,7 @@ async function destinationStateProvingTestsBaseSepolia() {
   )
 
   s.baseSepoliaProverContract.proveAccount(
-    networks.baseSepolia.settlementContracts.ecoTestNet,
+    networks.baseSepolia.settlementContracts.ecoTestnet,
     val,
     bedrock.baseSepolia.accountProof,
     bedrock.baseSepolia.worldStateRoot,
@@ -622,9 +622,9 @@ async function proveIntentOnEcoTestNet(intentHash) {
   console.log('In proveIntent')
   console.log('about to proveIntent')
   const intentInfo =
-    await s.ecoTestNetIntentSourceContractClaimant.getIntent(intentHash)
+    await s.ecoTestnetIntentSourceContractClaimant.getIntent(intentHash)
 
-  console.log(networkIds.ecoTestNet)
+  console.log(networkIds.ecoTestnet)
   console.log(cannon.intent.destinationChainId)
   console.log(cannon.intent.targetTokens)
   console.log(getBytes(hexlify(cannon.intent.callData)))
@@ -637,7 +637,7 @@ async function proveIntentOnEcoTestNet(intentHash) {
     abiCoder.encode(
       ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
       [
-        networkIds.ecoTestNet, // sourceChainID
+        networkIds.ecoTestnet, // sourceChainID
         intentInfo[1], // destinationChainID
         intentInfo[2], // targetTokens
         // getBytes(hexlify(cannon.intent.callData)),
@@ -683,14 +683,14 @@ async function proveIntentOnEcoTestNet(intentHash) {
   console.log(intermediateHash)
   console.log(cannon.intent.storageProof)
   console.log(
-    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+    await s.ecoTestnetProverContract.rlpEncodeDataLibList(
       cannon.intent.inboxContractData,
     ),
   )
   console.log(cannon.intent.accountProof)
   console.log(cannon.destinationChain.endBatchBlockStateRoot)
   // Prove the Intent
-  await s.ecoTestNetProverContract.proveIntent(
+  await s.ecoTestnetProverContract.proveIntent(
     cannon.intent.destinationChainId,
     getAddress(actors.claimant),
     // t.intents.optimismSepolia.rlpEncodedBlockData,
@@ -698,7 +698,7 @@ async function proveIntentOnEcoTestNet(intentHash) {
     intermediateHash,
     // 1, // no need to be specific about output indexes yet
     cannon.intent.storageProof,
-    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+    await s.ecoTestnetProverContract.rlpEncodeDataLibList(
       cannon.intent.inboxContractData,
     ),
     cannon.intent.accountProof,
@@ -734,7 +734,7 @@ async function proveIntentOnBaseSepoliaFromEcoTestNet(intentHash) {
   const calcintentHash = keccak256(
     abiCoder.encode(
       ['address', 'bytes32'],
-      [networks.ecoTestNet.inboxAddress, intermediateHash],
+      [networks.ecoTestnet.inboxAddress, intermediateHash],
     ),
   )
   console.log('calcintentHash: ', calcintentHash)
@@ -749,7 +749,7 @@ async function proveIntentOnBaseSepoliaFromEcoTestNet(intentHash) {
 
   console.log(bedrock.intent.destinationChainId)
   console.log(getAddress(actors.claimant))
-  console.log(networks.ecoTestNet.inboxAddress)
+  console.log(networks.ecoTestnet.inboxAddress)
   console.log(intermediateHash)
   console.log(bedrock.intent.storageProof)
   console.log(
@@ -764,7 +764,7 @@ async function proveIntentOnBaseSepoliaFromEcoTestNet(intentHash) {
     bedrock.intent.destinationChainId,
     getAddress(actors.claimant),
     // t.intents.optimismSepolia.rlpEncodedBlockData,
-    networks.ecoTestNet.inboxAddress,
+    networks.ecoTestnet.inboxAddress,
     intermediateHash,
     // 1, // no need to be specific about output indexes yet
     bedrock.intent.storageProof,
@@ -781,14 +781,14 @@ async function withdrawRewardOnEcoTestNet(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
-      await s.ecoTestNetIntentSourceContractClaimant.withdrawRewards(intentHash)
+      await s.ecoTestnetIntentSourceContractClaimant.withdrawRewards(intentHash)
     await withdrawTx.wait()
     console.log('Withdrawal tx: ', withdrawTx.hash)
     return withdrawTx.hash
   } catch (e) {
-    if (e.data && s.ecoTestNetIntentSourceContractClaimant) {
+    if (e.data && s.ecoTestnetIntentSourceContractClaimant) {
       const decodedError =
-        s.ecoTestNetIntentSourceContractClaimant.interface.parseError(e.data)
+        s.ecoTestnetIntentSourceContractClaimant.interface.parseError(e.data)
       console.log(
         `Transaction failed in withdrawReward : ${decodedError?.name}`,
       )
@@ -811,7 +811,7 @@ async function withdrawRewardOnBaseSepoliaFromEcoTestNet(intentHash) {
   } catch (e) {
     if (e.data && s.baseSepoliaIntentSourceContractClaimant) {
       const decodedError =
-        s.ecoTestNetIntentSourceContractClaimant.interface.parseError(e.data)
+        s.ecoTestnetIntentSourceContractClaimant.interface.parseError(e.data)
       console.log(
         `Transaction failed in withdrawReward : ${decodedError?.name}`,
       )

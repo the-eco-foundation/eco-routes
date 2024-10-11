@@ -9,7 +9,7 @@ import { networks as mainnetNetworks } from '../config/mainnet/config'
 let salt: string
 if (
   network.name.toLowerCase().includes('sepolia') ||
-  network.name === 'ecoTestNet'
+  network.name === 'ecoTestnet'
 ) {
   salt = 'TESTNET'
 } else {
@@ -28,8 +28,8 @@ if (network.name === 'optimismSepoliaBlockscout') {
   deployNetwork = testnetNetworks.optimismSepolia
 } else if (network.name === 'baseSepolia') {
   deployNetwork = testnetNetworks.baseSepolia
-} else if (network.name === 'ecoTestNet') {
-  deployNetwork = testnetNetworks.ecoTestNet
+} else if (network.name === 'ecoTestnet') {
+  deployNetwork = testnetNetworks.ecoTestnet
 } else if (network.name === 'optimism') {
   deployNetwork = mainnetNetworks.optimism
 } else if (network.name === 'base') {

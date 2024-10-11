@@ -176,7 +176,7 @@ export namespace s {
   // Contracts
   // Settlement Contracts for other Chains
   export const baseSepoliaSettlementContractEcoTestNet = new Contract(
-    networks.baseSepolia.settlementContracts.ecoTestNet,
+    networks.baseSepolia.settlementContracts.ecoTestnet,
     L2OutputArtifact.abi,
     baseSepoliaProvider,
   )
@@ -226,74 +226,74 @@ export namespace s {
 
   // EcoTestNet
   // Providers
-  export const ecoTestNetProvider = getDefaultProvider(
-    networks.ecoTestNet.rpcUrl,
+  export const ecoTestnetProvider = getDefaultProvider(
+    networks.ecoTestnet.rpcUrl,
   )
   // Signers
-  export const ecoTestNetDeployer: Signer = new Wallet(
+  export const ecoTestnetDeployer: Signer = new Wallet(
     DEPLOYER_PRIVATE_KEY,
-    ecoTestNetProvider,
+    ecoTestnetProvider,
   )
-  export const ecoTestNetIntentCreator: Signer = new Wallet(
+  export const ecoTestnetIntentCreator: Signer = new Wallet(
     INTENT_CREATOR_PRIVATE_KEY,
-    ecoTestNetProvider,
+    ecoTestnetProvider,
   )
-  export const ecoTestNetSolver: Signer = new Wallet(
+  export const ecoTestnetSolver: Signer = new Wallet(
     SOLVER_PRIVATE_KEY,
-    ecoTestNetProvider,
+    ecoTestnetProvider,
   )
-  export const ecoTestNetIntentProver: Signer = new Wallet(
+  export const ecoTestnetIntentProver: Signer = new Wallet(
     PROVER_PRIVATE_KEY,
-    ecoTestNetProvider,
+    ecoTestnetProvider,
   )
-  export const ecoTestNetClaimant: Signer = new Wallet(
+  export const ecoTestnetClaimant: Signer = new Wallet(
     CLAIMANT_PRIVATE_KEY,
-    ecoTestNetProvider,
+    ecoTestnetProvider,
   )
   // Contracts
   // Settlement Contracts for other Chains
 
   // System Proving Contracts
-  export const ecoTestNetl1Block = new Contract(
-    networks.ecoTestNet.proving.l1BlockAddress,
+  export const ecoTestnetl1Block = new Contract(
+    networks.ecoTestnet.proving.l1BlockAddress,
     IL1Block__factory.abi,
-    ecoTestNetProvider,
+    ecoTestnetProvider,
   )
-  export const ecoTestNetL2L1MessageParserContract = new Contract(
-    networks.ecoTestNet.proving.l2l1MessageParserAddress,
+  export const ecoTestnetL2L1MessageParserContract = new Contract(
+    networks.ecoTestnet.proving.l2l1MessageParserAddress,
     L2ToL1MessagePasserArtifact.abi,
-    ecoTestNetProvider,
+    ecoTestnetProvider,
   )
   // ECO PROTOCOL Contracts
-  export const ecoTestNetIntentSourceContractIntentCreator = new Contract(
-    networks.ecoTestNet.intentSourceAddress,
+  export const ecoTestnetIntentSourceContractIntentCreator = new Contract(
+    networks.ecoTestnet.intentSourceAddress,
     IntentSource__factory.abi,
-    ecoTestNetIntentCreator,
+    ecoTestnetIntentCreator,
   )
 
-  export const ecoTestNetIntentSourceContractClaimant = new Contract(
-    networks.ecoTestNet.intentSourceAddress,
+  export const ecoTestnetIntentSourceContractClaimant = new Contract(
+    networks.ecoTestnet.intentSourceAddress,
     IntentSource__factory.abi,
-    ecoTestNetClaimant,
+    ecoTestnetClaimant,
   )
-  export const ecoTestNetProverContract = new Contract(
-    networks.ecoTestNet.proverContractAddress,
+  export const ecoTestnetProverContract = new Contract(
+    networks.ecoTestnet.proverContractAddress,
     ProverL3__factory.abi,
-    ecoTestNetDeployer, // Use deployer as prover as we need to do privileged operations
+    ecoTestnetDeployer, // Use deployer as prover as we need to do privileged operations
   )
-  export const ecoTestNetInboxContractSolver = new Contract(
-    networks.ecoTestNet.inboxAddress,
+  export const ecoTestnetInboxContractSolver = new Contract(
+    networks.ecoTestnet.inboxAddress,
     Inbox__factory.abi,
-    ecoTestNetSolver,
+    ecoTestnetSolver,
   )
-  export const ecoTestNetUSDCContractIntentCreator = new Contract(
-    networks.ecoTestNet.usdcAddress,
+  export const ecoTestnetUSDCContractIntentCreator = new Contract(
+    networks.ecoTestnet.usdcAddress,
     ERC20__factory.abi,
-    ecoTestNetIntentCreator,
+    ecoTestnetIntentCreator,
   )
-  export const ecoTestNetUSDCContractSolver = new Contract(
-    networks.ecoTestNet.usdcAddress,
+  export const ecoTestnetUSDCContractSolver = new Contract(
+    networks.ecoTestnet.usdcAddress,
     ERC20__factory.abi,
-    ecoTestNetSolver,
+    ecoTestnetSolver,
   )
 }

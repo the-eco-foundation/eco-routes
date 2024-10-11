@@ -15,12 +15,12 @@ const networkIds: any = {
   sepolia: 11155111,
   optimismSepolia: 11155420,
   baseSepolia: 84532,
-  ecoTestNet: 471923,
+  ecoTestnet: 471923,
   arbitrumSepolia: 421614,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
-  471923: 'ecoTestNet',
+  471923: 'ecoTestnet',
   421614: 'arbitrumSepolia',
 }
 
@@ -104,7 +104,7 @@ const networks: any = {
     // The following destination chains are useful for proving
     // destinationChains: [
     //   84532, // baseSepolia
-    //   471923, // ecoTestNet
+    //   471923, // ecoTestnet
     //   421614, // arbitrumSepolia
     // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
@@ -137,20 +137,20 @@ const networks: any = {
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      ecoTestNet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet L2 Output Oracle
+      ecoTestnet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestnet L2 Output Oracle
     },
     // The following destination chains are useful for proving
     // destinationChains: [
     //   11155420, // optimismSepolia
-    //   471923, // ecoTestNet
+    //   471923, // ecoTestnet
     //   421614, // arbitrumSepolia
     // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
   },
-  ecoTestNet: {
+  ecoTestnet: {
     network: 'eco-testnet',
-    chainId: networkIds.ecoTestNet,
+    chainId: networkIds.ecoTestnet,
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContractAddress: '0xC5Dd68f473854C4D305dDe12C74eDFC92eBfbFdF',
@@ -198,7 +198,7 @@ const networks: any = {
       // destinationChains: [
       //   84532, // baseSepolia
       //   11155420, // optimismSepolia
-      //   471923, // ecoTestNet
+      //   471923, // ecoTestnet
       // ],
       usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
     },
@@ -410,7 +410,7 @@ const bedrock: any = {
   },
   intent: {
     creator: actors.intentCreator,
-    destinationChainId: networkIds.ecoTestNet,
+    destinationChainId: networkIds.ecoTestnet,
     intentHash:
       '0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24',
     intermediateHash:
@@ -443,7 +443,7 @@ const bedrock: any = {
     // recipient: actors.recipient,
     // targetTokens: [networks.baseSepolia.usdcAddress],
     // targetAmounts: intent.targetAmounts,
-    // rewardTokens: [networks.ecoTestNet.usdcAddress],
+    // rewardTokens: [networks.ecoTestnet.usdcAddress],
     // rewardAmounts: intent.rewardAmounts,
     // duration: intent.duration,
     // expiryTime: 1722568357,
@@ -621,7 +621,7 @@ const cannon: any = {
     recipient: actors.recipient,
     targetTokens: [networks.baseSepolia.usdcAddress],
     targetAmounts: intent.targetAmounts,
-    rewardTokens: [networks.ecoTestNet.usdcAddress],
+    rewardTokens: [networks.ecoTestnet.usdcAddress],
     rewardAmounts: intent.rewardAmounts,
     duration: intent.duration,
     expiryTime: 1722568357,
