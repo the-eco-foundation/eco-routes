@@ -91,6 +91,7 @@ const networks: any = {
       },
     },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+    mailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D',
   },
   base: {
     network: 'base',
@@ -116,6 +117,7 @@ const networks: any = {
       },
     },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    mailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
   },
 }
 

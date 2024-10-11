@@ -8,16 +8,19 @@ import { networks, actors } from '../../config/mainnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
+let deployNetwork: any
 let counter: number = 0
 let minimumDuration: number = 0
 switch (networkName) {
   case 'base':
     counter = networks.base.intentSource.counter
     minimumDuration = networks.base.intentSource.minimumDuration
+    deployNetwork = networks.base
     break
   case 'optimism':
     counter = networks.optimism.intentSource.counter
     minimumDuration = networks.optimism.intentSource.minimumDuration
+    deployNetwork = networks.optimism
     break
   default:
     counter = 0
@@ -85,6 +88,10 @@ async function main() {
     .changeSolverWhitelist(actors.solver, true)
   await setSolverTx.wait()
   console.log('Solver added to whitelist:', actors.solver)
+
+  inbox
+    .connect(inboxOwnerSigner)
+    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address

@@ -52,7 +52,6 @@ async function main() {
       deployer.address,
       true,
       [],
-      config.mailboxAddress,
     )
     receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
       gaslimit: 1000000,
@@ -67,6 +66,15 @@ async function main() {
     )[0].args.addr
 
     console.log(`inbox deployed to: ${inboxAddress}`)
+
+    const inbox = await ethers.getContractAt('Inbox', inboxAddress)
+
+    const receipt = await inbox
+      .connect(deployer)
+      .setMailbox(config.mailboxAddress)
+    await receipt.wait()
+
+    console.log(`Mailbox set to ${config.mailboxAddress}`)
   }
 
   if (hyperProverAddress === '' && inboxAddress !== '') {
@@ -79,6 +87,7 @@ async function main() {
 
     receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
       gasLimit: 1000000,
+      hyperlaneMailboxAddress,
     })
     console.log('hyperProver deployed')
 
@@ -98,7 +107,7 @@ async function main() {
   try {
     await run('verify:verify', {
       address: inboxAddress,
-      constructorArguments: [deployer.address, true, [], config.mailboxAddress],
+      constructorArguments: [deployer.address, true, []],
     })
     console.log('inbox verified at:', inboxAddress)
   } catch (e) {
