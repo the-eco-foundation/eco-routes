@@ -13,7 +13,8 @@ if (
 ) {
   salt = 'TESTNET'
 } else {
-  salt = 'MAINNET'
+//   salt = 'PROD'
+  salt = 'PREPROD'
 }
 
 let inboxAddress = ''

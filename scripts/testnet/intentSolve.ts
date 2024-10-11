@@ -657,7 +657,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolveHyperproveInstant() {
 
     const messageBody = AbiCoder.defaultAbiCoder().encode(
       ['bytes[]', 'address[]'],
-      [thisIntent.data.toArray(), thisIntent.targets.toArray()],
+      [thisIntent.data.toArray(), actors.claimant.toArray()],
     )
 
     console.log('fetching fee')
