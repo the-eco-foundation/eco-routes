@@ -69,9 +69,7 @@ async function main() {
 
     const inbox = await ethers.getContractAt('Inbox', inboxAddress)
 
-    const receipt = await inbox
-      .connect(deployer)
-      .setMailbox(config.mailboxAddress)
+    receipt = await inbox.setMailbox(config.mailboxAddress)
     await receipt.wait()
 
     console.log(`Mailbox set to ${config.mailboxAddress}`)
@@ -87,7 +85,6 @@ async function main() {
 
     receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
       gasLimit: 1000000,
-      hyperlaneMailboxAddress,
     })
     console.log('hyperProver deployed')
 
