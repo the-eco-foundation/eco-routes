@@ -5,20 +5,23 @@ import { setTimeout } from 'timers/promises'
 // import networks from '../config/testnet/config';
 import { networks as testnetNetworks } from '../config/testnet/config'
 import { networks as mainnetNetworks } from '../config/mainnet/config'
-import { deploy } from '../test/utils'
 
 let salt: string
-if (network.name.toLowerCase().includes('sepolia')) {
-  salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET'))
+if (
+  network.name.toLowerCase().includes('sepolia') ||
+  network.name === 'ecoTestNet'
+) {
+  salt = 'TESTNET'
 } else {
-  salt = ethers.keccak256(ethers.toUtf8Bytes('MAINNET'))
+  salt = 'MAINNET'
 }
 
 let inboxAddress = ''
 let hyperProverAddress = ''
 
 console.log('Deploying to Network: ', network.name)
-console.log(`Deploying with salt: ${salt}`)
+console.log(`Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${salt})`)
+salt = ethers.keccak256(ethers.toUtf8Bytes(salt))
 
 let deployNetwork: any
 if (network.name === 'optimismSepoliaBlockscout') {
