@@ -14,18 +14,18 @@ import "hardhat/console.sol";
  * A prover can then claim the reward on the src chain by looking at the fulfilled mapping.
  */
 contract Inbox is IInbox, Ownable {
-
-    uint256 public constant MAX_BATCH_SIZE = 10;
-
     using TypeCasts for address;
 
-    address public immutable MAILBOX;
+    uint256 public constant MAX_BATCH_SIZE = 10;
 
     // Mapping of intent hash on the src chain to its fulfillment
     mapping(bytes32 => address) public fulfilled;
 
     // Mapping of solvers to if they are whitelisted
     mapping(address => bool) public solverWhitelist;
+
+    // address of local hyperlane mailbox
+    address public mailbox;
 
     // Is solving public
     bool public isSolvingPublic;
@@ -42,12 +42,11 @@ contract Inbox is IInbox, Ownable {
         }
     }
 
-    constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers, address _mailbox) Ownable(_owner){
+    constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers) Ownable(_owner){
         isSolvingPublic = _isSolvingPublic;
         for (uint256 i = 0; i < _solvers.length; i++) {
             solverWhitelist[_solvers[i]] = true;
         }
-        MAILBOX = _mailbox;
     }
 
     function fulfillStorage(
@@ -89,7 +88,11 @@ contract Inbox is IInbox, Ownable {
         bytes32 _prover32 = _prover.addressToBytes32();
         uint256 fee = fetchFee(_sourceChainID, messageBody, _prover32);
 
+<<<<<<< HEAD
         IMailbox(MAILBOX).dispatch{value: msg.value < fee ? msg.value : fee}(
+=======
+        IMailbox(mailbox).dispatch{value: msg.value < fee ? msg.value : fee}(
+>>>>>>> ED-4155
             uint32(_sourceChainID),
             _prover32,
             messageBody)
@@ -134,7 +137,7 @@ contract Inbox is IInbox, Ownable {
         bytes32 _prover32 = _prover.addressToBytes32();
         uint256 fee = fetchFee(_sourceChainID, messageBody, _prover32);
 
-        IMailbox(MAILBOX).dispatch{value: msg.value < fee ? msg.value : fee}(
+        IMailbox(mailbox).dispatch{value: msg.value < fee ? msg.value : fee}(
             uint32(_sourceChainID),
             _prover32,
             messageBody)
@@ -142,11 +145,19 @@ contract Inbox is IInbox, Ownable {
     }
 
     function fetchFee(uint256 _sourceChainID, bytes memory _messageBody, bytes32 _prover) public view returns (uint256 fee) {
-        return IMailbox(MAILBOX).quoteDispatch(
+        return IMailbox(mailbox).quoteDispatch(
             uint32(_sourceChainID),
             _prover,
             _messageBody
         );
+    }
+
+    // allows the owner to set the mailbox
+    // this should be set at time of deployment, otherwise any method invoking the mailbox will revert
+    function setMailbox(address _mailbox) public onlyOwner {
+        if(mailbox == address(0)) {
+            mailbox = _mailbox;
+        }
     }
 
     // allows the owner to make solving public
@@ -192,7 +203,7 @@ contract Inbox is IInbox, Ownable {
 
         for (uint256 i = 0; i < _data.length; i++) {
             address target = _targets[i];
-            if (target == MAILBOX) {
+            if (target == mailbox) {
                 // no executing calls on the mailbox
                 revert CallToMailbox();
             }

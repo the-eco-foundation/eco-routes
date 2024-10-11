@@ -46,12 +46,9 @@ describe('Intent Source Test', (): void => {
 
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
     const intentSource = await intentSourceFactory.deploy(minimumDuration, 0)
-    const mailbox = await (
-      await ethers.getContractFactory('TestMailbox')
-    ).deploy(ethers.ZeroAddress)
     inbox = await (
       await ethers.getContractFactory('Inbox')
-    ).deploy(owner.address, false, [owner.address], await mailbox.getAddress())
+    ).deploy(owner.address, false, [owner.address])
 
     // deploy ERC20 test
     const erc20Factory = await ethers.getContractFactory('TestERC20')

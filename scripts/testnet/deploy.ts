@@ -8,6 +8,7 @@ import { networks, actors } from '../../config/testnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
+let deployNetwork: any
 const baseSepoliaChainConfiguration = {
   chainId: networks.baseSepolia.chainId, // chainId
   chainConfiguration: {
@@ -50,14 +51,17 @@ switch (networkName) {
   case 'baseSepolia':
     counter = networks.baseSepolia.intentSource.counter
     minimumDuration = networks.baseSepolia.intentSource.minimumDuration
+    deployNetwork = networks.baseSepolia
     break
   case 'optimismSepolia':
     counter = networks.optimismSepolia.intentSource.counter
     minimumDuration = networks.optimismSepolia.intentSource.counter
+    deployNetwork = networks.optimismSepolia
     break
   case 'ecoTestNet':
     counter = networks.ecoTestNet.intentSource.counter
     minimumDuration = networks.ecoTestNet.intentSource.counter
+    deployNetwork = networks.ecoTestNet
     break
   default:
     counter = 0
@@ -104,6 +108,10 @@ async function main() {
 
   const inbox: Inbox = await inboxFactory.deploy(deployer.address, true, [])
   console.log('Inbox deployed to:', await inbox.getAddress())
+
+  await inbox
+    .connect(deployer)
+    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
