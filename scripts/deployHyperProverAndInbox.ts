@@ -3,36 +3,34 @@ import { setTimeout } from 'timers/promises'
 // import { getAddress } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
-import { networks } from '../config/testnet/config'
+import { networks as testnetNetworks } from '../config/testnet/config'
+import { networks as mainnetNetworks } from '../config/mainnet/config'
+import { deploy } from '../test/utils'
 
-const salt = ethers.keccak256(ethers.toUtf8Bytes('MAINNET'))
+let salt: string
+if (network.name.toLowerCase().includes('sepolia')) {
+  salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET'))
+} else {
+  salt = ethers.keccak256(ethers.toUtf8Bytes('MAINNET'))
+}
 
 let inboxAddress = ''
 let hyperProverAddress = ''
 
 console.log('Deploying to Network: ', network.name)
-const baseSepoliaChainConfiguration = {
-  chainId: networks.baseSepolia.chainId, // chainId
-  mailboxAddress: networks.baseSepolia.hyperlaneMailboxAddress,
-}
+console.log(`Deploying with salt: ${salt}`)
 
-const optimismSepoliaChainConfiguration = {
-  chainId: networks.optimismSepolia.chainId, // chainId
-  mailboxAddress: networks.optimismSepolia.hyperlaneMailboxAddress,
-}
-
-const ecoTestnetChainConfiguration = {
-  chainId: networks.ecoTestNet.chainId, // chainId
-  mailboxAddress: networks.ecoTestNet.hyperlaneMailboxAddress,
-}
-
-let config
+let deployNetwork: any
 if (network.name === 'optimismSepoliaBlockscout') {
-  config = optimismSepoliaChainConfiguration
+  deployNetwork = testnetNetworks.optimismSepolia
 } else if (network.name === 'baseSepolia') {
-  config = baseSepoliaChainConfiguration
+  deployNetwork = testnetNetworks.baseSepolia
 } else if (network.name === 'ecoTestNet') {
-  config = ecoTestnetChainConfiguration
+  deployNetwork = testnetNetworks.ecoTestNet
+} else if (network.name === 'optimism') {
+  deployNetwork = mainnetNetworks.optimism
+} else if (network.name === 'base') {
+  deployNetwork = mainnetNetworks.base
 }
 
 async function main() {
@@ -69,17 +67,17 @@ async function main() {
 
     const inbox = await ethers.getContractAt('Inbox', inboxAddress)
 
-    receipt = await inbox.setMailbox(config.mailboxAddress)
+    receipt = await inbox.setMailbox(deployNetwork.hyperlaneMailboxAddress)
     await receipt.wait()
 
-    console.log(`Mailbox set to ${config.mailboxAddress}`)
+    console.log(`Mailbox set to ${deployNetwork.hyperlaneMailboxAddress}`)
   }
 
   if (hyperProverAddress === '' && inboxAddress !== '') {
     const hyperProverFactory = await ethers.getContractFactory('HyperProver')
 
     const hyperProverTx = await hyperProverFactory.getDeployTransaction(
-      config.mailboxAddress,
+      deployNetwork.hyperlaneMailboxAddress,
       inboxAddress,
     )
 
@@ -114,7 +112,10 @@ async function main() {
   try {
     await run('verify:verify', {
       address: hyperProverAddress,
-      constructorArguments: [config.mailboxAddress, inboxAddress],
+      constructorArguments: [
+        deployNetwork.hyperlaneMailboxAddress,
+        inboxAddress,
+      ],
     })
     console.log('hyperProver verified at:', hyperProverAddress)
   } catch (e) {
