@@ -88,11 +88,7 @@ contract Inbox is IInbox, Ownable {
         bytes32 _prover32 = _prover.addressToBytes32();
         uint256 fee = fetchFee(_sourceChainID, messageBody, _prover32);
 
-<<<<<<< HEAD
-        IMailbox(MAILBOX).dispatch{value: msg.value < fee ? msg.value : fee}(
-=======
         IMailbox(mailbox).dispatch{value: msg.value < fee ? msg.value : fee}(
->>>>>>> ED-4155
             uint32(_sourceChainID),
             _prover32,
             messageBody)
