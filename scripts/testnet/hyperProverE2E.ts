@@ -28,17 +28,21 @@ const optimismSepoliaProvider = new AlchemyProvider(
 console.log('Testing hyperproving across base and optimism testnets')
 
 async function main() {
-  ;[sourceNetwork, destinationNetwork] =
-    (networks.baseSepolia, networks.optimismSepolia)
+  ;[sourceNetwork, destinationNetwork] = [
+    networks.baseSepolia,
+    networks.optimismSepolia,
+  ]
   sourceProvider = baseSepoliaProvider
   console.log(`From ${sourceNetwork.network} to ${destinationNetwork.network}:`)
-  hyperproveInstant()
+  await hyperproveInstant()
   // switch networks
-  ;[sourceNetwork, destinationNetwork] =
-    (networks.optimismSepolia, networks.baseSepolia)
+  ;[sourceNetwork, destinationNetwork] = [
+    networks.optimismSepolia,
+    networks.baseSepolia,
+  ]
   sourceProvider = optimismSepoliaProvider
   console.log(`From ${sourceNetwork.network} to ${destinationNetwork.network}:`)
-  hyperproveInstant()
+  await hyperproveInstant()
 }
 
 export async function hyperproveInstant() {
