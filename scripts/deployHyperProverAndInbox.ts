@@ -13,7 +13,7 @@ if (
 ) {
   salt = 'TESTNET'
 } else {
-//   salt = 'PROD'
+  //   salt = 'PROD'
   salt = 'PREPROD'
 }
 

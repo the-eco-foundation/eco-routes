@@ -1,4 +1,4 @@
-import { ethers, run, network } from 'hardhat'
+import { ethers } from 'hardhat'
 import { setTimeout } from 'timers/promises'
 import {
   AlchemyProvider,
@@ -9,9 +9,6 @@ import {
   zeroPadValue,
 } from 'ethers'
 import { encodeTransfer } from '../../utils/encode'
-// import { getAddress } from 'ethers'
-// import c from '../config/testnet/config'
-// import networks from '../config/testnet/config';
 import { networks, intent, actors } from '../../config/testnet/config'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
@@ -119,11 +116,10 @@ export async function hyperproveInstant() {
     const thisIntent = await intentSource.getIntent(intentHash)
 
     // transfer the intent tokens to the Inbox Contract
-    const targetToken = s.optimismSepoliaUSDCContractSolver
-    const fundTx = await targetToken.transfer(
-      networks.optimismSepolia.inboxAddress,
-      intent.targetAmounts[0],
-    )
+
+    const fundTx = await rewardToken
+      .connect(actors.solver)
+      .transfer(networks.optimismSepolia.inboxAddress, intent.targetAmounts[0])
     await fundTx.wait()
 
     // fulfill the intent
@@ -179,7 +175,7 @@ export async function hyperproveInstant() {
   const initialBalance = await rewardToken.balanceOf(actors.recipient)
   const tx = await intentSource.withdrawRewards(intentHash)
   await tx.wait()
-  if (await rewardToken.balanceOf(actors.recipient) > initialBalance) {
+  if ((await rewardToken.balanceOf(actors.recipient)) > initialBalance) {
     console.log('great success')
   }
 }
