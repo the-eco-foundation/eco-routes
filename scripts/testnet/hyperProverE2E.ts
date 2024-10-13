@@ -131,7 +131,7 @@ export async function hyperproveInstant() {
     const messageBody = AbiCoder.defaultAbiCoder().encode(
       ['bytes[]', 'address[]'],
       //   [thisIntent.data.toArray(), thisIntent.targets.toArray()],
-      [thisIntent.data, actors.claimant.toArray()],
+      [thisIntent.data, actors.recipient.toArray()],
     )
 
     console.log('fetching fee')
@@ -149,7 +149,7 @@ export async function hyperproveInstant() {
       thisIntent.data, // calldata
       thisIntent.expiryTime, // expiry time
       thisIntent.nonce, // nonce
-      actors.claimant, // claimant
+      actors.recipient, // recipient
       intentHash, // expected intent hash
       networks.baseSepolia.hyperproverContractAddress, // hyperprover contract address
       { value: fee },
@@ -171,8 +171,16 @@ export async function hyperproveInstant() {
   )
   for (const event of intentProvenEvents) {
     if ((intentHash = event.topics[1])) {
+      console.log('it hath been proven')
       break
     }
+  }
+
+  const initialBalance = await rewardToken.balanceOf(actors.recipient)
+  const tx = await intentSource.withdrawRewards(intentHash)
+  await tx.wait()
+  if (await rewardToken.balanceOf(actors.recipient) > initialBalance) {
+    console.log('great success')
   }
 }
 
