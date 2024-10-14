@@ -11,7 +11,7 @@ import {
   IntentSource__factory,
   IL1Block__factory,
   Prover__factory,
-  ProverL3__factory,
+  //   ProverL3__factory,
   ERC20__factory,
 } from '../../typechain-types'
 import { networks } from '../../config/testnet/config'
@@ -276,11 +276,11 @@ export namespace s {
     IntentSource__factory.abi,
     ecoTestnetClaimant,
   )
-  export const ecoTestnetProverContract = new Contract(
-    networks.ecoTestnet.proverContractAddress,
-    ProverL3__factory.abi,
-    ecoTestnetDeployer, // Use deployer as prover as we need to do privileged operations
-  )
+  //   export const ecoTestnetProverContract = new Contract(
+  //     networks.ecoTestnet.proverContractAddress,
+  //     ProverL3__factory.abi,
+  //     ecoTestnetDeployer, // Use deployer as prover as we need to do privileged operations
+  //   )
   export const ecoTestnetInboxContractSolver = new Contract(
     networks.ecoTestnet.inboxAddress,
     Inbox__factory.abi,

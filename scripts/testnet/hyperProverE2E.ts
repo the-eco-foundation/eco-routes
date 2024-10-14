@@ -7,13 +7,17 @@ import {
   BytesLike,
   toQuantity,
   zeroPadValue,
+  Signer,
 } from 'ethers'
 import { encodeTransfer } from '../../utils/encode'
 import { networks, intent, actors } from '../../config/testnet/config'
+import { s } from '../../config/testnet/setup'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 let sourceNetwork: any, destinationNetwork: any
 let sourceProvider: any
+let intentCreator: Signer
+let solver: Signer
 
 const baseSepoliaProvider = new AlchemyProvider(
   networks.baseSepolia.network,
@@ -33,6 +37,8 @@ async function main() {
     networks.optimismSepolia,
   ]
   sourceProvider = baseSepoliaProvider
+  intentCreator = s.baseSepoliaIntentCreator
+  solver = s.baseSepoliaSolver
   console.log(`From ${sourceNetwork.network} to ${destinationNetwork.network}:`)
   await hyperproveInstant()
   // switch networks
@@ -41,6 +47,8 @@ async function main() {
     networks.baseSepolia,
   ]
   sourceProvider = optimismSepoliaProvider
+  intentCreator = s.optimismSepoliaIntentCreator
+  solver = s.optimismSepoliaSolver
   console.log(`From ${sourceNetwork.network} to ${destinationNetwork.network}:`)
   await hyperproveInstant()
 }
@@ -64,7 +72,7 @@ export async function hyperproveInstant() {
   )
 
   const approvalTx = await rewardToken
-    .connect(actors.intentCreator)
+    .connect(intentCreator)
     .approve(await intentSource.getAddress(), intent.rewardAmounts[0])
   await approvalTx.wait()
 
@@ -78,18 +86,16 @@ export async function hyperproveInstant() {
   const expiryTime: BigNumberish = latestBlock?.timestamp + intent.duration
   let intentHash: string = ''
   try {
-    const intentTx = await intentSource
-      .connect(actors.intentCreator)
-      .createIntent(
-        sourceNetwork.chainId, // desination chainId
-        destinationNetwork.inboxAddress, // destination inbox address
-        [destinationNetwork.usdcAddress], // target Tokens
-        data, // calldata for destination chain
-        [sourceNetwork.usdcAddress], // reward Tokens on source chain
-        intent.rewardAmounts, // reward amounts on source chain
-        expiryTime, // intent expiry time
-        sourceNetwork.hyperproverContractAddress, // prover contract address on the sourceChain
-      )
+    const intentTx = await intentSource.connect(intentCreator).createIntent(
+      sourceNetwork.chainId, // desination chainId
+      destinationNetwork.inboxAddress, // destination inbox address
+      [destinationNetwork.usdcAddress], // target Tokens
+      data, // calldata for destination chain
+      [sourceNetwork.usdcAddress], // reward Tokens on source chain
+      intent.rewardAmounts, // reward amounts on source chain
+      expiryTime, // intent expiry time
+      sourceNetwork.hyperproverContractAddress, // prover contract address on the sourceChain
+    )
     await intentTx.wait()
 
     // Get the event from the latest Block checking transaction hash
@@ -122,7 +128,7 @@ export async function hyperproveInstant() {
     // transfer the intent tokens to the Inbox Contract
 
     const fundTx = await rewardToken
-      .connect(actors.solver)
+      .connect(solver)
       .transfer(networks.optimismSepolia.inboxAddress, intent.targetAmounts[0])
     await fundTx.wait()
 
@@ -136,14 +142,14 @@ export async function hyperproveInstant() {
 
     console.log('fetching fee')
     const fee = await inbox
-      .connect(actors.solver)
+      .connect(solver)
       .fetchFee(
         sourceNetwork.chainId,
         messageBody,
         zeroPadValue(networks.baseSepolia.hyperproverContractAddress, 32),
       )
 
-    const fulfillTx = await inbox.connect(actors.solver).fulfillHyperInstant(
+    const fulfillTx = await inbox.connect(solver).fulfillHyperInstant(
       sourceNetwork.chainId, // source chainId
       thisIntent.targets, // target  token addresses
       thisIntent.data, // calldata
