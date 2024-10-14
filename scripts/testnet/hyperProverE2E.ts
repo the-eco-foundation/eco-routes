@@ -57,23 +57,27 @@ export async function hyperproveInstant() {
   const rewardToken = await ethers.getContractAt(
     'ERC20',
     sourceNetwork.usdcAddress,
+    intentCreator,
   )
   const intentSource = await ethers.getContractAt(
     'IntentSource',
     sourceNetwork.intentSourceAddress,
+    intentCreator,
   )
   const inbox = await ethers.getContractAt(
     'Inbox',
     destinationNetwork.inboxAddress,
+    solver,
   )
   const hyperprover = await ethers.getContractAt(
     'HyperProver',
     destinationNetwork.hyperProverContractAddress,
   )
 
-  const approvalTx = await rewardToken
-    .connect(intentCreator)
-    .approve(await intentSource.getAddress(), intent.rewardAmounts[0])
+  const approvalTx = await rewardToken.approve(
+    await intentSource.getAddress(),
+    intent.rewardAmounts[0],
+  )
   await approvalTx.wait()
 
   // get the block before creating the intent
@@ -86,7 +90,7 @@ export async function hyperproveInstant() {
   const expiryTime: BigNumberish = latestBlock?.timestamp + intent.duration
   let intentHash: string = ''
   try {
-    const intentTx = await intentSource.connect(intentCreator).createIntent(
+    const intentTx = await intentSource.createIntent(
       sourceNetwork.chainId, // desination chainId
       destinationNetwork.inboxAddress, // destination inbox address
       [destinationNetwork.usdcAddress], // target Tokens
@@ -94,16 +98,16 @@ export async function hyperproveInstant() {
       [sourceNetwork.usdcAddress], // reward Tokens on source chain
       intent.rewardAmounts, // reward amounts on source chain
       expiryTime, // intent expiry time
-      sourceNetwork.hyperproverContractAddress, // prover contract address on the sourceChain
+      sourceNetwork.hyperProverContractAddress, // prover contract address on the sourceChain
     )
     await intentTx.wait()
-
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents = await intentSource.queryFilter(
-      intentSource.getEvent('IntentCreated'),
+      intentSource.filters.IntentCreated(),
       latestBlockNumberHex,
     )
     for (const intentHashEvent of intentHashEvents) {
+      //   console.log(intentHashEvent.topics[1])
       if (intentHashEvent.transactionHash === intentTx.hash) {
         intentHash = intentHashEvent.topics[1]
         break
@@ -146,7 +150,7 @@ export async function hyperproveInstant() {
       .fetchFee(
         sourceNetwork.chainId,
         messageBody,
-        zeroPadValue(networks.baseSepolia.hyperproverContractAddress, 32),
+        zeroPadValue(networks.baseSepolia.hyperProverContractAddress, 32),
       )
 
     const fulfillTx = await inbox.connect(solver).fulfillHyperInstant(
@@ -157,7 +161,7 @@ export async function hyperproveInstant() {
       thisIntent.nonce, // nonce
       actors.recipient, // recipient
       intentHash, // expected intent hash
-      networks.baseSepolia.hyperproverContractAddress, // hyperprover contract address
+      networks.baseSepolia.hyperProverContractAddress, // hyperprover contract address
       { value: fee },
     )
     await fulfillTx.wait()
