@@ -38,7 +38,7 @@ async function main() {
   ]
   sourceProvider = baseSepoliaProvider
   intentCreator = s.baseSepoliaIntentCreator
-  solver = s.baseSepoliaSolver
+  solver = s.optimismSepoliaSolver
   console.log(`From ${sourceNetwork.network} to ${destinationNetwork.network}:`)
   await hyperproveInstant()
   // switch networks
@@ -48,7 +48,7 @@ async function main() {
   ]
   sourceProvider = optimismSepoliaProvider
   intentCreator = s.optimismSepoliaIntentCreator
-  solver = s.optimismSepoliaSolver
+  solver = s.baseSepoliaSolver
   console.log(`From ${sourceNetwork.network} to ${destinationNetwork.network}:`)
   await hyperproveInstant()
 }
@@ -64,6 +64,11 @@ export async function hyperproveInstant() {
     sourceNetwork.intentSourceAddress,
     intentCreator,
   )
+  const targetToken = await ethers.getContractAt(
+    'ERC20',
+    destinationNetwork.usdcAddress,
+    solver,
+  )
   const inbox = await ethers.getContractAt(
     'Inbox',
     destinationNetwork.inboxAddress,
@@ -71,7 +76,8 @@ export async function hyperproveInstant() {
   )
   const hyperprover = await ethers.getContractAt(
     'HyperProver',
-    destinationNetwork.hyperProverContractAddress,
+    sourceNetwork.hyperProverContractAddress,
+    intentCreator, // have to do this so the hyperprover is looking for intents on the source chain
   )
 
   const approvalTx = await rewardToken.approve(
@@ -91,11 +97,11 @@ export async function hyperproveInstant() {
   let intentHash: string = ''
   try {
     const intentTx = await intentSource.createIntent(
-      sourceNetwork.chainId, // desination chainId
+      destinationNetwork.chainId, // desination chainId
       destinationNetwork.inboxAddress, // destination inbox address
-      [destinationNetwork.usdcAddress], // target Tokens
+      [await targetToken.getAddress()], // target Tokens
       data, // calldata for destination chain
-      [sourceNetwork.usdcAddress], // reward Tokens on source chain
+      [await rewardToken.getAddress()], // reward Tokens on source chain
       intent.rewardAmounts, // reward amounts on source chain
       expiryTime, // intent expiry time
       sourceNetwork.hyperProverContractAddress, // prover contract address on the sourceChain
@@ -131,9 +137,10 @@ export async function hyperproveInstant() {
 
     // transfer the intent tokens to the Inbox Contract
 
-    const fundTx = await rewardToken
-      .connect(solver)
-      .transfer(networks.optimismSepolia.inboxAddress, intent.targetAmounts[0])
+    const fundTx = await targetToken.transfer(
+      destinationNetwork.inboxAddress,
+      intent.targetAmounts[0],
+    )
     await fundTx.wait()
 
     // fulfill the intent
@@ -141,44 +148,42 @@ export async function hyperproveInstant() {
     const messageBody = AbiCoder.defaultAbiCoder().encode(
       ['bytes[]', 'address[]'],
       //   [thisIntent.data.toArray(), thisIntent.targets.toArray()],
-      [thisIntent.data, actors.recipient.toArray()],
+      [thisIntent.data, [actors.recipient]],
     )
 
     console.log('fetching fee')
-    const fee = await inbox
-      .connect(solver)
-      .fetchFee(
-        sourceNetwork.chainId,
-        messageBody,
-        zeroPadValue(networks.baseSepolia.hyperProverContractAddress, 32),
-      )
+    const fee = await inbox.fetchFee(
+      sourceNetwork.chainId,
+      messageBody,
+      zeroPadValue(sourceNetwork.hyperProverContractAddress, 32),
+    )
 
-    const fulfillTx = await inbox.connect(solver).fulfillHyperInstant(
+    console.log(`got the fee: ${fee}`)
+
+    const fulfillTx = await inbox.fulfillHyperInstant(
       sourceNetwork.chainId, // source chainId
-      thisIntent.targets, // target  token addresses
-      thisIntent.data, // calldata
-      thisIntent.expiryTime, // expiry time
+      [await targetToken.getAddress()], // target  token addresses
+      data, // calldata
+      expiryTime, // expiry time
       thisIntent.nonce, // nonce
       actors.recipient, // recipient
       intentHash, // expected intent hash
-      networks.baseSepolia.hyperProverContractAddress, // hyperprover contract address
+      sourceNetwork.hyperProverContractAddress, // hyperprover contract address
       { value: fee },
     )
-    await fulfillTx.wait()
     console.log('Fulfillment tx: ', fulfillTx.hash)
-    return fulfillTx.hash
   } catch (e) {
-    console.log(e)
+    console.log(inbox.interface.parseError(e.data))
   }
 
-  console.log('Waiting for 30 seconds for the dust to settle')
-  await setTimeout(15000)
+  console.log('Waiting for a minute for the dust to settle')
+  await setTimeout(60000)
 
   console.log('show me da money')
-  const intentProvenEvents = await hyperprover.queryFilter(
-    hyperprover.getEvent('IntentProven'),
-    latestBlockNumberHex,
-  )
+  const intentProvenEvents = await hyperprover
+    .connect(intentCreator)
+    .queryFilter(hyperprover.getEvent('IntentProven'), latestBlockNumberHex)
+  console.log(intentProvenEvents.length)
   for (const event of intentProvenEvents) {
     if ((intentHash = event.topics[1])) {
       console.log('it hath been proven')
