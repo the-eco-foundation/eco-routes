@@ -176,14 +176,13 @@ export async function hyperproveInstant() {
     console.log(inbox.interface.parseError(e.data))
   }
 
-  console.log('Waiting for a minute for the dust to settle')
-  await setTimeout(60000)
+  console.log('Waiting for the dust to settle')
+  await setTimeout(45000)
 
   console.log('show me da money')
   const intentProvenEvents = await hyperprover
     .connect(intentCreator)
     .queryFilter(hyperprover.getEvent('IntentProven'), latestBlockNumberHex)
-  console.log(intentProvenEvents.length)
   for (const event of intentProvenEvents) {
     if ((intentHash = event.topics[1])) {
       console.log('it hath been proven')
