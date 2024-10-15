@@ -25,7 +25,7 @@ const baseSepoliaProvider = new AlchemyProvider(
 )
 
 const optimismSepoliaProvider = new AlchemyProvider(
-  networks.baseSepolia.network,
+  networks.optimismSepolia.network,
   ALCHEMY_API_KEY,
 )
 
