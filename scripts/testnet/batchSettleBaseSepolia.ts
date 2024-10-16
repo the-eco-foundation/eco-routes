@@ -836,11 +836,12 @@ export async function proveDestinationChainBatchSettled(
               break
             }
             case networkIds.ecoTestNet: {
-              endBatchBlockData = await proveWorldStatesCannonL2L3(
-                faultDisputeGameAddress,
-                faultDisputeGameContract,
-                gameIndex,
-              )
+              // will use instantSettle for this
+              // endBatchBlockData = await proveWorldStatesCannonL2L3(
+              //   faultDisputeGameAddress,
+              //   faultDisputeGameContract,
+              //   gameIndex,
+              // )
               break
             }
             default: {
@@ -1058,7 +1059,8 @@ export async function proveIntents(intentsToProve, endBatchBlockData) {
         break
       }
       case networkIds.ecoTestNet: {
-        await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
+        // will use instantSettle for this
+        // await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
         break
       }
     }
@@ -1148,7 +1150,8 @@ export async function withdrawFunds(intentsToProve) {
         break
       }
       case networkIds.ecoTestNet: {
-        await withdrawRewardEcoTestNet(intent.intentHash)
+        // will use instantSettle for this
+        // await withdrawRewardEcoTestNet(intent.intentHash)
         break
       }
     }

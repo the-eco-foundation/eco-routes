@@ -88,7 +88,7 @@ export async function getIntentsToProve(
   const sourceChains: Record<number, SourceChainInfo> = {}
   // get the starting block to scan for intents
   let optimismSepoliaProvenState
-  let scanAllIntentsForInbox = false
+  let scanAllIntentsForInbox = true
   // TODO change to use contract factory for deploys then can use ethers deploymentTransaction to get the blockNumber
   let startingBlockNumber = networks.optimismSepolia.inbox.deploymentBlock || 0n
   const inboxDeploymentBlock = networks.optimismSepolia.inbox.deploymentBlock
@@ -171,7 +171,9 @@ export async function getIntentsToProve(
         sourceChains[intentToProve.sourceChain].lastProvenBlock
       )
     })
-
+  console.log('Source Chains: ', sourceChains)
+  console.log('Intents to Prove: ', intentsToProve)
+  // throw new Error('Just wanted the logs')
   return { sourceChains, intentsToProve }
   // return [chainId, intentHash, intentFulfillTransaction]
 }
@@ -467,7 +469,12 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
   faultDisputeGameContract,
   gameIndex,
 ) {
-  console.log('In proveWorldStateCannonBaseToEcoTestNet')
+  console.log('In proveWorldStateOptimismSepoliaOnEcoTestNet')
+  // console.log('settlementBlockTag: ', settlementBlockTag)
+  // console.log('settlementStateRoot: ', settlementStateRoot)
+  // console.log('faultDisputeGameAddress: ', faultDisputeGameAddress)
+  // console.log('faultDisputeGameContract: ', faultDisputeGameContract)
+  // console.log('gameIndex: ', gameIndex)
   // For more information on how DisputeGameFactory utility functions, see the following code
   // https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L82
   // get the endBatchBlockData
@@ -489,10 +496,14 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     'eth_getBlockByNumber',
     [endBatchBlockHex, false],
   )
+  // console.log('faultDisputeGameL2BlockNumber: ', faultDisputeGameL2BlockNumber)
+  // console.log('endBatchBlockHex: ', endBatchBlockHex)
+  // console.log('endBatchBlockData: ', endBatchBlockData)
   const rlpEncodedEndBatchBlockData =
     await utils.getRLPEncodedBlock(endBatchBlockData)
 
   // Get the Message Parser State Root at the end block of the batch
+  // console.log('getting Proof for L2L1MessageParser')
   const l2MesagePasserProof = await s.optimismSepoliaProvider.send(
     'eth_getProof',
     [
@@ -501,6 +512,7 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
       endBatchBlockHex,
     ],
   )
+  // console.log('l2MesagePasserProof retrieved')
 
   // Get the DisputeGameFactory data GameId
   const faultDisputeGameId = await s.ecoTestNetProverContract.pack(
@@ -527,11 +539,13 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     BigInt(firstElementSlot) + BigInt(Number(disputeGameFactoryGameIndex)),
     32,
   )
+  // console.log('About to get disputeGameFactoryProof')
   const disputeGameFactoryProof = await s.sepoliaProvider.send('eth_getProof', [
     networks.sepolia.settlementContracts.optimismSepolia,
     [disputeGameFactoryStorageSlot],
     settlementBlockTag,
   ])
+  // console.log('Got disputeGameFactoryProof')
   const disputeGameFactoryContractData = [
     toBeHex(disputeGameFactoryProof.nonce), // nonce
     stripZerosLeft(toBeHex(disputeGameFactoryProof.balance)), // balance
@@ -567,6 +581,7 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
       settlementBlockTag,
     ],
   )
+
   // Storage proof for faultDisputeGame resolved
   // rootClaimSlot - hardcoded value for slot zero which is where the status is stored
   const faultDisputeGameResolvedStorageSlot =
@@ -608,12 +623,14 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameContractData,
     faultDisputeGameAccountProof: faultDisputeGameRootClaimProof.accountProof,
   }
+  // console.log('Proving have all faultDisputeGameProofData')
 
   // try {
   // Note: ProveStorage and ProveAccount are pure functions and included here just for unit testing
   const { gameProxy_ } = await s.ecoTestNetProverContract.unpack(
     disputeGameFactoryProofData.gameId,
   )
+  console.log('Doing storage and account proofs')
   // proveStorageDisputeGameFactory
   await s.ecoTestNetProverContract.proveStorage(
     disputeGameFactoryStorageSlot,
@@ -659,6 +676,7 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     faultDisputeGameProofData.faultDisputeGameAccountProof,
     settlementStateRoot,
   )
+  console.log('Completed storage and account proofs')
   try {
     const proveWorldStateCannonTx =
       await s.ecoTestNetProverContract.proveWorldStateCannon(
@@ -916,11 +934,11 @@ async function proveWorldStatesCannonL2L3(
   gameIndex,
 ) {
   console.log('In proveWorldStatesCannonL2L3')
-  const { settlementBlockTag, settlementWorldStateRoot } =
+  const { l1SettlementBlockTag, settlementWorldStateRoot } =
     await proveSepoliaSettlementLayerStateOnEcoTestNet() // Prove the Sepolia Settlement Layer State
 
   const endBatchBlockData = await proveWorldStateOptimismSepoliaOnEcoTestNet(
-    settlementBlockTag,
+    l1SettlementBlockTag,
     settlementWorldStateRoot,
     faultDisputeGameAddress,
     faultDisputeGameContract,

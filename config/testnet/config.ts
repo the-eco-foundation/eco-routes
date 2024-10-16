@@ -100,7 +100,7 @@ const networks: any = {
     },
     inbox: {
       address: '0xf883F21d23d9bA5b02c48c2c700fc497a3821433',
-      deploymentBlock: 16795397n, // '0x1004705
+      deploymentBlock: 18354796n, // '0x118126c
     },
     hyperproverContractAddress: '0x762Db5D3F9A5B52D3C3d527BbcaEbE67e094F633',
     proving: {

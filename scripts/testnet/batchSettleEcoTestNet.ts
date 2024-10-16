@@ -1088,13 +1088,13 @@ export async function proveDestinationChainBatchSettled(
           // TODO: remove switch statement and use the sourceChain Layer to get the correct proving mechanism
           switch (sourceChain.sourceChain) {
             case networkIds.baseSepolia: {
-              endBatchBlockData = await proveWorldStatesBedrockL3L2Base(
-                faultDisputeGameAddress,
-                faultDisputeGameContract,
-                gameIndex,
-                l3OutputIndex,
-                l3BlockNumber,
-              )
+              // endBatchBlockData = await proveWorldStatesBedrockL3L2Base(
+              //   faultDisputeGameAddress,
+              //   faultDisputeGameContract,
+              //   gameIndex,
+              //   l3OutputIndex,
+              //   l3BlockNumber,
+              // )
               break
             }
             case networkIds.optimismSepolia: {
@@ -1313,7 +1313,7 @@ export async function proveIntents(intentsToProve, endBatchBlockData) {
   for (const intent of intentsToProve) {
     switch (intent.sourceChain) {
       case networkIds.baseSepolia: {
-        await proveIntentBaseSepolia(intent.intentHash, endBatchBlockData)
+        // await proveIntentBaseSepolia(intent.intentHash, endBatchBlockData)
         break
       }
       case networkIds.optimismSepolia: {
@@ -1321,7 +1321,7 @@ export async function proveIntents(intentsToProve, endBatchBlockData) {
         break
       }
       case networkIds.ecoTestNet: {
-        await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
+        // await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
         break
       }
     }
@@ -1402,7 +1402,7 @@ export async function withdrawFunds(intentsToProve) {
   for (const intent of intentsToProve) {
     switch (intent.sourceChain) {
       case networkIds.baseSepolia: {
-        await withdrawRewardBaseSepolia(intent.intentHash)
+        // await withdrawRewardBaseSepolia(intent.intentHash)
         break
       }
       case networkIds.optimismSepolia: {
@@ -1410,7 +1410,7 @@ export async function withdrawFunds(intentsToProve) {
         break
       }
       case networkIds.ecoTestNet: {
-        await withdrawRewardEcoTestNet(intent.intentHash)
+        // await withdrawRewardEcoTestNet(intent.intentHash)
         break
       }
     }
