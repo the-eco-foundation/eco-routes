@@ -1,9 +1,6 @@
 import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
-// import { getAddress } from 'ethers'
-// import c from '../config/testnet/config'
-// import networks from '../config/testnet/config';
 import { networks, actors } from '../../config/mainnet/config'
 
 const networkName = network.name
@@ -142,21 +139,11 @@ async function main() {
       inboxOwnerSigner,
     )
 
-    //   const setSolverTx = await inbox
-    //     .connect(inboxOwnerSigner)
-    //     .changeSolverWhitelist(actors.solver, true)
-    //   await setSolverTx.wait()
-    //   console.log('Solver added to whitelist:', actors.solver)
-
     inbox
       .connect(inboxOwnerSigner)
       .setMailbox(deployNetwork.hyperlaneMailboxAddress)
   }
   console.log('Inbox deployed to:', inboxAddress)
-
-  inbox
-    .connect(inboxOwnerSigner)
-    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
