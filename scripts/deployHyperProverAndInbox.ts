@@ -25,16 +25,22 @@ console.log(`Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${salt})`)
 salt = ethers.keccak256(ethers.toUtf8Bytes(salt))
 
 let deployNetwork: any
-if (network.name === 'optimismSepoliaBlockscout') {
-  deployNetwork = testnetNetworks.optimismSepolia
-} else if (network.name === 'baseSepolia') {
-  deployNetwork = testnetNetworks.baseSepolia
-} else if (network.name === 'ecoTestnet') {
-  deployNetwork = testnetNetworks.ecoTestnet
-} else if (network.name === 'optimism') {
-  deployNetwork = mainnetNetworks.optimism
-} else if (network.name === 'base') {
-  deployNetwork = mainnetNetworks.base
+switch (network.name) {
+  case 'optimismSepoliaBlockscout':
+    deployNetwork = testnetNetworks.optimismSepolia
+    break
+  case 'baseSepolia':
+    deployNetwork = testnetNetworks.baseSepolia
+    break
+  case 'ecoTestnet':
+    deployNetwork = testnetNetworks.ecoTestnet
+    break
+  case 'optimism':
+    deployNetwork = mainnetNetworks.optimism
+    break
+  case 'base':
+    deployNetwork = mainnetNetworks.base
+    break
 }
 
 async function main() {
