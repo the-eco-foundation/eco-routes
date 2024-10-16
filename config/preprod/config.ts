@@ -25,7 +25,7 @@ const provingMechanisms: any = {
   // self: 0, // Destination is Self
   // settlement: 10, // Source Chain is an L2, Destination is A L1 Settlement Chain
   settlementL3: 11, // Source Chain is an L3, Destination is a L2 Settlement Chain
-  // bedrock: 20, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
+  bedrock: 20, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
   // bedrockL2L3: 21, // Source Chain is an L2, Destination Chain is an L3 using Bedrock
   bedrockL3L2: 22, // Source Chain is an L3, Destination Chain is an L2 using Bedrock
   // bedrockL1Settlement: 23, // Source Chain is an L1, settlement chain for the Destination Chain which is an L2 using Bedrock
@@ -122,7 +122,7 @@ const networks: any = {
     alchemyNetwork: 'base',
     sourceChains: ['optimism', 'helix'],
     proverContract: {
-      address: '',
+      address: '0xae244905861643c87a59a70ae70f2Ea66f4ecB1b',
       deploymentBlock: 14812482n, // '0xe20542',
     },
     intentSource: {
@@ -165,20 +165,20 @@ const networks: any = {
     rpcUrl: 'https://helix-test.calderachain.xyz/http',
     settlementNetwork: 'base',
     proverContract: {
-      address: '',
-      deploymentBlock: '0x35dc32', // 3529778n
+      address: '0xae244905861643c87a59a70ae70f2Ea66f4ecB1b',
+      deploymentBlock: 2828800n, // 0x2b2a00
     },
     intentSource: {
-      address: '',
-      deploymentBlock: 3529780n, // '0x35dc34',
+      address: '0x78AD03b2a9c76FF4448F9F1CCD5b547082C976C9',
+      deploymentBlock: 2828800n, // 0x2b2a00
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '',
-      deploymentBlock: 3529786n, // '0x35dc3a',
+      address: '0x63c667951c7DC4015990c77913A21c03B3F08140',
+      deploymentBlock: 2828800n, // 0x2b2a00
     },
-    hyperproverContractAddress: '',
+    hyperproverContractAddress: '0x1581AB9369DE7c48Fe51d28d803b773f79dd05ef',
     proving: {
       mechanism: 1,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -193,7 +193,7 @@ const networks: any = {
       },
     },
     usdcAddress: '0x44D5B1DacCB7E8a7341c1AE0b17Dc65a659B1aCA',
-    hyperlaneMailboxAddress: '',
+    hyperlaneMailboxAddress: '0x4B216a3012DD7a2fD4bd3D05908b98C668c63a8d',
   },
 }
 

@@ -150,7 +150,7 @@ const config: HardhatUserConfig = {
         network: 'helix',
         chainId: 8921733,
         urls: {
-          apiURL: 'https://helix-test.calderachain.xyz/http',
+          apiURL: 'https://helix-test.calderaexplorer.xyz/api',
           browserURL: 'https://helix-test.calderaexplorer.xyz/',
         },
       },

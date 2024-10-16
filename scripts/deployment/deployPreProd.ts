@@ -6,7 +6,7 @@ import { networks } from '../../config/preprod/config'
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD5'))
 
 console.log('Deploying to Network: ', network.name)
 const baseChainConfiguration = {
@@ -62,12 +62,19 @@ async function main() {
   const [deployer] = await ethers.getSigners()
 
   // Get the singleton deployer
-  const singletonDeployer = await ethers.getContractAt(
-    'Deployer',
-    // '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
-    '0xd31797A946098a0316596986c6C31Da64E6AEA3B',
-  )
-
+  let singletonDeployer
+  if (networkName === 'helix') {
+    singletonDeployer = await ethers.getContractAt(
+      'Deployer',
+      '0xd31797A946098a0316596986c6C31Da64E6AEA3B',
+    )
+  } else {
+    singletonDeployer = await ethers.getContractAt(
+      'Deployer',
+      // '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
+      '0xd31797A946098a0316596986c6C31Da64E6AEA3B',
+    )
+  }
   console.log('Deploying contracts with the account:', deployer.address)
   console.log(
     'Deploying contracts with the singleton deployer:',
@@ -81,6 +88,9 @@ async function main() {
   const hyperProverFactory = await ethers.getContractFactory('HyperProver')
 
   console.log('Have factories')
+  console.log('baseChainConfiguration', baseChainConfiguration)
+  console.log('optimismChainConfiguration', optimismChainConfiguration)
+  console.log('helixChainConfiguration', helixChainConfiguration)
   // Deploy the prover
   const proverTx = await proverFactory.getDeployTransaction([
     baseChainConfiguration,
