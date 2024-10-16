@@ -6,7 +6,7 @@ import { networks } from '../../config/preprod/config'
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD5'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD7'))
 
 console.log('Deploying to Network: ', network.name)
 const baseChainConfiguration = {
@@ -71,8 +71,7 @@ async function main() {
   } else {
     singletonDeployer = await ethers.getContractAt(
       'Deployer',
-      // '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
-      '0xd31797A946098a0316596986c6C31Da64E6AEA3B',
+      '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
     )
   }
   console.log('Deploying contracts with the account:', deployer.address)
