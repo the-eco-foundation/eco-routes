@@ -87,20 +87,20 @@ const networks: any = {
     alchemyNetwork: 'optimism',
     sourceChains: ['base', 'helix'],
     proverContract: {
-      address: '',
+      address: '0xa7411320887c5a4C8BD9ED7c54fDbeDEb93bFee4',
       deploymentBlock: 16795390n, // '0x10046Fe'
     },
     intentSource: {
-      address: '',
+      address: '0xB78Edd10Bf8Dc630cEEBE77aE0e32B6cAAdE3Fbe',
       deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '',
+      address: '0x811D3CFE659f653A27581a9C22D8e08A1112cb0e',
       deploymentBlock: 18354796n, // '0x118126c
     },
-    hyperproverContractAddress: '',
+    hyperproverContractAddress: '0x9bFceD7B2bbE10Bcc85e4bF16dB7272dc0c2fc16',
     proving: {
       mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -122,20 +122,20 @@ const networks: any = {
     alchemyNetwork: 'base',
     sourceChains: ['optimism', 'helix'],
     proverContract: {
-      address: '0xae244905861643c87a59a70ae70f2Ea66f4ecB1b',
-      deploymentBlock: 14812482n, // '0xe20542',
+      address: '0xa7411320887c5a4C8BD9ED7c54fDbeDEb93bFee4',
+      deploymentBlock: 21159000n, // '0x142dc58',
     },
     intentSource: {
-      address: '',
-      deploymentBlock: 14812485n, // '0xe20545',
+      address: '0xB78Edd10Bf8Dc630cEEBE77aE0e32B6cAAdE3Fbe',
+      deploymentBlock: 21159000n, // '0x142dc58',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '',
-      deploymentBlock: 14812488n, // '0xe20548',
+      address: '0x3886f2550364C9A59F4b329984745f346Da38990',
+      deploymentBlock: 21159000n, // '0x142dc58',
     },
-    hyperproverContractAddress: '',
+    hyperproverContractAddress: '0x9d532072e79D578Ea7C83F340b86E7148333CAaA',
     proving: {
       mechanism: provingMechanisms.bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -165,20 +165,20 @@ const networks: any = {
     rpcUrl: 'https://helix-test.calderachain.xyz/http',
     settlementNetwork: 'base',
     proverContract: {
-      address: '0xae244905861643c87a59a70ae70f2Ea66f4ecB1b',
+      address: '0xa7411320887c5a4C8BD9ED7c54fDbeDEb93bFee4',
       deploymentBlock: 2828800n, // 0x2b2a00
     },
     intentSource: {
-      address: '0x78AD03b2a9c76FF4448F9F1CCD5b547082C976C9',
+      address: '0xB78Edd10Bf8Dc630cEEBE77aE0e32B6cAAdE3Fbe',
       deploymentBlock: 2828800n, // 0x2b2a00
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x63c667951c7DC4015990c77913A21c03B3F08140',
+      address: '0x2c71758fC4D224E5426C5700c6e599E515254D05',
       deploymentBlock: 2828800n, // 0x2b2a00
     },
-    hyperproverContractAddress: '0x1581AB9369DE7c48Fe51d28d803b773f79dd05ef',
+    hyperproverContractAddress: '0x6A9901b8Ecf763FC6A0Dd9ced9C7D597A0f68394',
     proving: {
       mechanism: 1,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',

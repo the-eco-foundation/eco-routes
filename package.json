@@ -68,6 +68,7 @@
     "deployHelixPreProd": "hardhat run --network helix scripts/deployment/deployPreProd.ts",
     "deployBasePreProd": "hardhat run --network base scripts/deployment/deployPreProd.ts",
     "deployOptimismPreProd": "hardhat run --network optimism scripts/deployment/deployPreProd.ts",
+    "intentSolvePreProd": "hardhat run scripts/preprod/intentSolve.ts",
     "Mainnet": "-------- Mainnet scripts below",
     "proverDeployBase": "hardhat run --network base scripts/mainnet/proverDeploy.ts",
     "proverDeployOptimism": "hardhat run --network optimism scripts/mainnet/proverDeploy.ts",

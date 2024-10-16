@@ -1,4 +1,11 @@
-import { AbiCoder, AlchemyProvider, Contract, Wallet, Signer } from 'ethers'
+import {
+  getDefaultProvider,
+  AbiCoder,
+  AlchemyProvider,
+  Contract,
+  Wallet,
+  Signer,
+} from 'ethers'
 import {
   Inbox__factory,
   IntentSource__factory,
@@ -6,7 +13,7 @@ import {
   Prover__factory,
   ERC20__factory,
 } from '../../typechain-types'
-import { networks } from '../mainnet/config'
+import { networks } from '../preprod/config'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
 import * as DisputeGameFactoryArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/DisputeGameFactory.sol/DisputeGameFactory.json'
 import * as L2ToL1MessagePasserArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
