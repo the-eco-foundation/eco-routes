@@ -8,6 +8,7 @@ import { networks, actors } from '../../config/testnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
+let deployNetwork: any
 const baseSepoliaChainConfiguration = {
   chainId: networks.baseSepolia.chainId, // chainId
   chainConfiguration: {
@@ -33,15 +34,15 @@ const optimismSepoliaChainConfiguration = {
   },
 }
 
-const ecoTestNetChainConfiguration = {
-  chainId: networks.ecoTestNet.chainId, // chainId
+const ecoTestnetChainConfiguration = {
+  chainId: networks.ecoTestnet.chainId, // chainId
   chainConfiguration: {
-    provingMechanism: networks.ecoTestNet.proving.mechanism, // provingMechanism
-    settlementChainId: networks.ecoTestNet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestNet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestNet.proving.l1BlockAddress, // blockhashOracle
+    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
-      networks.ecoTestNet.proving.outputRootVersionNumber, // outputRootVersionNumber
+      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
 let counter: number = 0
@@ -50,14 +51,17 @@ switch (networkName) {
   case 'baseSepolia':
     counter = networks.baseSepolia.intentSource.counter
     minimumDuration = networks.baseSepolia.intentSource.minimumDuration
+    deployNetwork = networks.baseSepolia
     break
   case 'optimismSepolia':
     counter = networks.optimismSepolia.intentSource.counter
     minimumDuration = networks.optimismSepolia.intentSource.counter
+    deployNetwork = networks.optimismSepolia
     break
-  case 'ecoTestNet':
-    counter = networks.ecoTestNet.intentSource.counter
-    minimumDuration = networks.ecoTestNet.intentSource.counter
+  case 'ecoTestnet':
+    counter = networks.ecoTestnet.intentSource.counter
+    minimumDuration = networks.ecoTestnet.intentSource.counter
+    deployNetwork = networks.ecoTestnet
     break
   default:
     counter = 0
@@ -79,7 +83,7 @@ async function main() {
     ).deploy(deployer.address, [
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-      ecoTestNetChainConfiguration,
+      ecoTestnetChainConfiguration,
     ])
   } else {
     prover = await (
@@ -87,7 +91,7 @@ async function main() {
     ).deploy([
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-      ecoTestNetChainConfiguration,
+      ecoTestnetChainConfiguration,
     ])
   }
 
@@ -105,6 +109,10 @@ async function main() {
   const inbox: Inbox = await inboxFactory.deploy(deployer.address, true, [])
   console.log('Inbox deployed to:', await inbox.getAddress())
 
+  await inbox
+    .connect(deployer)
+    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   if (network.name !== 'hardhat') {
@@ -115,7 +123,7 @@ async function main() {
       [
         baseSepoliaChainConfiguration,
         optimismSepoliaChainConfiguration,
-        ecoTestNetChainConfiguration,
+        ecoTestnetChainConfiguration,
       ],
     ]
     if (network.name === 'ecoTestnet') {
@@ -124,7 +132,7 @@ async function main() {
         [
           baseSepoliaChainConfiguration,
           optimismSepoliaChainConfiguration,
-          ecoTestNetChainConfiguration,
+          ecoTestnetChainConfiguration,
         ],
       ]
     }

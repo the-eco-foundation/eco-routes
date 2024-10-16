@@ -73,8 +73,9 @@ const networks: any = {
     network: 'optimism',
     chainId: networkIds.optimism,
     proverContractAddress: '0xDb2CF52d39Cdd2116bc66711cFc43cB16ce17A2b',
+    hyperProverContractAddress: '0xe9E6e517d9d901b3fD338b6b81aB439D4D2692bE',
     intentSourceAddress: '0x755e48140807D290916F2a2777d0eCD905Ce5a73',
-    inboxAddress: '0x4fFf766A3E4A77584AaE21EaB8B2C2241619D983',
+    inboxAddress: '0x456417D34A4284958cCE46d0237b28fE6D8eC858',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -91,13 +92,15 @@ const networks: any = {
       },
     },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+    hyperlaneMailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D',
   },
   base: {
     network: 'base',
     chainId: networkIds.base,
     proverContractAddress: '0x62fd344CE4E0e4c3d9C98D64390cA2739aF9021f',
+    hyperProverContractAddress: '0x3874Bd25B82Ed0594faF2ad5e77deca5b9e93e4f',
     intentSourceAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
-    inboxAddress: '0xc06CA8866586cF19bf22E102a3083673C4246629',
+    inboxAddress: '0x456417D34A4284958cCE46d0237b28fE6D8eC858',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -116,6 +119,7 @@ const networks: any = {
       },
     },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    hyperlaneMailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
   },
 }
 

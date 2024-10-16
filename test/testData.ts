@@ -15,13 +15,13 @@ const networkIds: any = {
   sepolia: 11155111,
   optimismSepolia: 11155420,
   baseSepolia: 84532,
-  ecoTestNet: 471923,
+  ecoTestnet: 471923,
   arbitrumSepolia: 421614,
   hardhat: 31337,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
-  471923: 'ecoTestNet',
+  471923: 'ecoTestnet',
   421614: 'arbitrumSepolia',
   31337: 'hardhat',
 }
@@ -102,13 +102,13 @@ const networks: any = {
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      ecoTestNet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet L2 Output Oracle
+      ecoTestnet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestnet L2 Output Oracle
     },
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
   },
-  ecoTestNet: {
+  ecoTestnet: {
     network: 'eco-testnet',
-    chainId: networkIds.ecoTestNet,
+    chainId: networkIds.ecoTestnet,
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     intentSourceAddress: '0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8',
@@ -355,7 +355,7 @@ const bedrock: any = {
   },
   intent: {
     creator: actors.intentCreator,
-    destinationChainId: networkIds.ecoTestNet,
+    destinationChainId: networkIds.ecoTestnet,
     intentHash:
       '0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24',
     intermediateHash:
@@ -388,7 +388,7 @@ const bedrock: any = {
     // recipient: actors.recipient,
     // targetTokens: [networks.baseSepolia.usdcAddress],
     // targetAmounts: intent.targetAmounts,
-    // rewardTokens: [networks.ecoTestNet.usdcAddress],
+    // rewardTokens: [networks.ecoTestnet.usdcAddress],
     // rewardAmounts: intent.rewardAmounts,
     // duration: intent.duration,
     // expiryTime: 1722568357,
@@ -566,7 +566,7 @@ const cannon: any = {
     recipient: actors.recipient,
     targetTokens: [networks.baseSepolia.usdcAddress],
     targetAmounts: intent.targetAmounts,
-    rewardTokens: [networks.ecoTestNet.usdcAddress],
+    rewardTokens: [networks.ecoTestnet.usdcAddress],
     rewardAmounts: intent.rewardAmounts,
     duration: intent.duration,
     expiryTime: 1722568357,
