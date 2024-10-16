@@ -89,6 +89,11 @@ const config: HardhatUserConfig = {
       url: `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
+    helix: {
+      chainId: 8921733,
+      url: `https://helix-test.calderachain.xyz/http`,
+      accounts: [DEPLOYER_PRIVATE_KEY],
+    },
     arbitrum: {
       chainId: 42161,
       url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
@@ -106,6 +111,7 @@ const config: HardhatUserConfig = {
       optimisticEthereum: process.env.OPTIMISM_SCAN_API_KEY || '',
       base: process.env.BASE_SCAN_API_KEY || '',
       ecoTestNet: process.env.CALDERA_SCAN_API_KEY || '',
+      helix: process.env.CALDERA_SCAN_API_KEY || '',
     },
     customChains: [
       {
@@ -138,6 +144,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://optimism.blockscout.com/api',
           browserURL: 'https://optimism.blockscout.com/',
+        },
+      },
+      {
+        network: 'helix',
+        chainId: 8921733,
+        urls: {
+          apiURL: 'https://helix-test.calderachain.xyz/http',
+          browserURL: 'https://helix-test.calderaexplorer.xyz/',
         },
       },
     ],
