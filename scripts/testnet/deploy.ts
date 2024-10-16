@@ -34,15 +34,15 @@ const optimismSepoliaChainConfiguration = {
   },
 }
 
-const ecoTestNetChainConfiguration = {
-  chainId: networks.ecoTestNet.chainId, // chainId
+const ecoTestnetChainConfiguration = {
+  chainId: networks.ecoTestnet.chainId, // chainId
   chainConfiguration: {
-    provingMechanism: networks.ecoTestNet.proving.mechanism, // provingMechanism
-    settlementChainId: networks.ecoTestNet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestNet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestNet.proving.l1BlockAddress, // blockhashOracle
+    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
-      networks.ecoTestNet.proving.outputRootVersionNumber, // outputRootVersionNumber
+      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
 let counter: number = 0
@@ -58,10 +58,10 @@ switch (networkName) {
     minimumDuration = networks.optimismSepolia.intentSource.counter
     deployNetwork = networks.optimismSepolia
     break
-  case 'ecoTestNet':
-    counter = networks.ecoTestNet.intentSource.counter
-    minimumDuration = networks.ecoTestNet.intentSource.counter
-    deployNetwork = networks.ecoTestNet
+  case 'ecoTestnet':
+    counter = networks.ecoTestnet.intentSource.counter
+    minimumDuration = networks.ecoTestnet.intentSource.counter
+    deployNetwork = networks.ecoTestnet
     break
   default:
     counter = 0
@@ -83,7 +83,7 @@ async function main() {
     ).deploy(deployer.address, [
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-      ecoTestNetChainConfiguration,
+      ecoTestnetChainConfiguration,
     ])
   } else {
     prover = await (
@@ -91,7 +91,7 @@ async function main() {
     ).deploy([
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-      ecoTestNetChainConfiguration,
+      ecoTestnetChainConfiguration,
     ])
   }
 
@@ -123,7 +123,7 @@ async function main() {
       [
         baseSepoliaChainConfiguration,
         optimismSepoliaChainConfiguration,
-        ecoTestNetChainConfiguration,
+        ecoTestnetChainConfiguration,
       ],
     ]
     if (network.name === 'ecoTestnet') {
@@ -132,7 +132,7 @@ async function main() {
         [
           baseSepoliaChainConfiguration,
           optimismSepoliaChainConfiguration,
-          ecoTestNetChainConfiguration,
+          ecoTestnetChainConfiguration,
         ],
       ]
     }

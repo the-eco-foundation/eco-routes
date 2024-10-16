@@ -62,6 +62,11 @@ const config: HardhatUserConfig = {
       url: `https://eco-testnet.rpc.caldera.xyz/http`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
+    helix: {
+      chainId: 8921733,
+      url: `https://helix-test.calderachain.xyz/http`,
+      accounts: [DEPLOYER_PRIVATE_KEY],
+    },
     arbitrumSepolia: {
       chainId: 421614,
       url: `https://arb-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
