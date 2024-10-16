@@ -31,14 +31,14 @@ const optimismChainConfiguration = {
   },
 }
 
-const ecoChainConfiguration = {
-  chainId: networks.eco.chainId, // chainId
+const helixChainConfiguration = {
+  chainId: networks.helix.chainId, // chainId
   chainConfiguration: {
-    provingMechanism: networks.eco.proving.mechanism, // provingMechanism
-    settlementChainId: networks.eco.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.eco.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.eco.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber: networks.eco.proving.outputRootVersionNumber, // outputRootVersionNumber
+    provingMechanism: networks.helix.proving.mechanism, // provingMechanism
+    settlementChainId: networks.helix.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.helix.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.helix.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber: networks.helix.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
 // Set the config for the chain we are deploying to
@@ -50,8 +50,8 @@ switch (networkName) {
   case 'optimism':
     config = networks.optimism
     break
-  case 'eco':
-    config = networks.eco
+  case 'helix':
+    config = networks.helix
     break
   default:
     break
@@ -64,7 +64,8 @@ async function main() {
   // Get the singleton deployer
   const singletonDeployer = await ethers.getContractAt(
     'Deployer',
-    '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
+    // '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
+    '0xd31797A946098a0316596986c6C31Da64E6AEA3B',
   )
 
   console.log('Deploying contracts with the account:', deployer.address)
@@ -79,11 +80,12 @@ async function main() {
   const inboxFactory = await ethers.getContractFactory('Inbox')
   const hyperProverFactory = await ethers.getContractFactory('HyperProver')
 
+  console.log('Have factories')
   // Deploy the prover
   const proverTx = await proverFactory.getDeployTransaction([
     baseChainConfiguration,
     optimismChainConfiguration,
-    ecoChainConfiguration,
+    helixChainConfiguration,
   ])
   const proverReceipt = await singletonDeployer.deploy(proverTx.data, salt, {
     gaslimit: 1000000,
@@ -181,7 +183,7 @@ async function main() {
         [
           baseChainConfiguration,
           optimismChainConfiguration,
-          ecoChainConfiguration,
+          helixChainConfiguration,
         ],
       ],
     })

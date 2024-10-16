@@ -4,11 +4,11 @@ const networkIds: any = {
   mainnet: 1,
   optimism: 10,
   base: 8453,
-  eco: 8921733,
+  helix: 8921733,
   1: 'mainnet',
   10: 'optimism',
   8453: 'base',
-  8921733: 'eco',
+  8921733: 'helix',
 }
 
 const actors: any = {
@@ -85,7 +85,7 @@ const networks: any = {
     network: networkIds[10],
     chainId: networkIds.optimism,
     alchemyNetwork: 'optimism',
-    sourceChains: ['base', 'eco'],
+    sourceChains: ['base', 'helix'],
     proverContract: {
       address: '',
       deploymentBlock: 16795390n, // '0x10046Fe'
@@ -114,13 +114,13 @@ const networks: any = {
       },
     },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
-    hyperlaneMailboxAddress: '',
+    hyperlaneMailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D',
   },
   base: {
     network: networkIds[8453],
     chainId: networkIds.base,
     alchemyNetwork: 'base',
-    sourceChains: ['optimism', 'eco'],
+    sourceChains: ['optimism', 'helix'],
     proverContract: {
       address: '',
       deploymentBlock: 14812482n, // '0xe20542',
@@ -152,17 +152,17 @@ const networks: any = {
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      eco: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d', // eco L2 Output Oracle
+      helix: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d', // helix L2 Output Oracle
     },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-    hyperlaneMailboxAddress: '',
+    hyperlaneMailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
   },
-  ecos: {
+  helix: {
     network: networkIds[8921733],
-    chainId: networkIds.eco,
-    alchemyNetwork: 'eco',
+    chainId: networkIds.helix,
+    alchemyNetwork: 'helix',
     sourceChains: ['base', 'optimism'],
-    rpcUrl: 'https://helix-test.calderachain.xyz/http's,
+    rpcUrl: 'https://helix-test.calderachain.xyz/http',
     settlementNetwork: 'base',
     proverContract: {
       address: '',
@@ -192,25 +192,25 @@ const networks: any = {
         contract: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d',
       },
     },
-    usdcAddress: '',
+    usdcAddress: '0x44D5B1DacCB7E8a7341c1AE0b17Dc65a659B1aCA',
     hyperlaneMailboxAddress: '',
   },
 }
 
 const routes: any = [
-  // eco to base
+  // helix to base
   {
     source: {
-      chainId: networkIds.eco,
-      providerName: 'ecoProvider',
+      chainId: networkIds.helix,
+      providerName: 'helixProvider',
       contracts: {
         intentSourceContract: {
-          address: networks.eco.intentSource.address,
-          variableName: 'ecoIntentSourceContractIntentCreator',
+          address: networks.helix.intentSource.address,
+          variableName: 'helixIntentSourceContractIntentCreator',
         },
         proverContract: {
-          address: networks.eco.proverContract.address,
-          variableName: 'ecoProverContract',
+          address: networks.helix.proverContract.address,
+          variableName: 'helixProverContract',
         },
       },
     },
@@ -229,8 +229,8 @@ const routes: any = [
     intent: {
       contracts: {
         rewardToken: {
-          address: networks.eco.usdcAddress,
-          variableName: 'ecoUSDCContractIntentCreator',
+          address: networks.helix.usdcAddress,
+          variableName: 'helixUSDCContractIntentCreator',
         },
         targetToken: {
           address: networks.base.usdcAddress,
@@ -242,19 +242,19 @@ const routes: any = [
       duration: intent.duration,
     },
   },
-  // eco to optimism
+  // helix to optimism
   {
     source: {
-      chainId: networkIds.eco,
-      providerName: 'ecoProvider',
+      chainId: networkIds.helix,
+      providerName: 'helixProvider',
       contracts: {
         intentSourceContract: {
-          address: networks.eco.intentSource.address,
-          variableName: 'ecoIntentSourceContractIntentCreator',
+          address: networks.helix.intentSource.address,
+          variableName: 'helixIntentSourceContractIntentCreator',
         },
         proverContract: {
-          address: networks.eco.proverContract.address,
-          variableName: 'ecoProverContract',
+          address: networks.helix.proverContract.address,
+          variableName: 'helixProverContract',
         },
       },
     },
@@ -273,8 +273,8 @@ const routes: any = [
     intent: {
       contracts: {
         rewardToken: {
-          address: networks.eco.usdcAddress,
-          variableName: 'ecoUSDCContractIntentCreator',
+          address: networks.helix.usdcAddress,
+          variableName: 'helixUSDCContractIntentCreator',
         },
         targetToken: {
           address: networks.optimism.usdcAddress,
@@ -330,7 +330,7 @@ const routes: any = [
       duration: intent.duration,
     },
   },
-  // base to eco
+  // base to helix
   {
     source: {
       chainId: networkIds.base,
@@ -347,12 +347,12 @@ const routes: any = [
       },
     },
     destination: {
-      chainId: networkIds.eco,
-      providerName: 'ecoProvider',
+      chainId: networkIds.helix,
+      providerName: 'helixProvider',
       contracts: {
         inboxContract: {
-          address: networks.eco.inbox.address,
-          variableName: 'ecoInboxContractSolver',
+          address: networks.helix.inbox.address,
+          variableName: 'helixInboxContractSolver',
         },
         provingMechanism: provingMechanisms.bedrockL2SettlementL2Settlement,
         provingState: provingState.finalized,
@@ -365,8 +365,8 @@ const routes: any = [
           variableName: 'baseUSDCContractIntentCreator',
         },
         targetToken: {
-          address: networks.eco.usdcAddress,
-          variableName: 'ecoUSDCContractSolver',
+          address: networks.helix.usdcAddress,
+          variableName: 'helixUSDCContractSolver',
         },
       },
       rewardAmounts: intent.rewardAmounts,
@@ -374,7 +374,7 @@ const routes: any = [
       duration: intent.duration,
     },
   },
-  // optimism to eco
+  // optimism to helix
   {
     source: {
       chainId: networkIds.optimism,
@@ -391,12 +391,12 @@ const routes: any = [
       },
     },
     destination: {
-      chainId: networkIds.eco,
-      providerName: 'ecoProvider',
+      chainId: networkIds.helix,
+      providerName: 'helixProvider',
       contracts: {
         inboxContract: {
-          address: networks.eco.inbox.address,
-          variableName: 'ecoInboxContractSolver',
+          address: networks.helix.inbox.address,
+          variableName: 'helixInboxContractSolver',
         },
         provingMechanism: provingMechanisms.bedrockL2L3,
         provingState: provingState.finalized,
@@ -409,8 +409,8 @@ const routes: any = [
           variableName: 'optimismUSDCContractIntentCreator',
         },
         targetToken: {
-          address: networks.eco.usdcAddress,
-          variableName: 'ecoUSDCContractSolver',
+          address: networks.helix.usdcAddress,
+          variableName: 'helixUSDCContractSolver',
         },
       },
       rewardAmounts: intent.rewardAmounts,

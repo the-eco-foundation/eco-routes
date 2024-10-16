@@ -206,4 +206,74 @@ export namespace s {
     ERC20__factory.abi,
     baseSolver,
   )
+  // helix
+  // Providers
+  export const helixProvider = getDefaultProvider(networks.helix.rpcUrl)
+  // Signers
+  export const helixDeployer: Signer = new Wallet(
+    DEPLOYER_PRIVATE_KEY,
+    helixProvider,
+  )
+  export const helixIntentCreator: Signer = new Wallet(
+    INTENT_CREATOR_PRIVATE_KEY,
+    helixProvider,
+  )
+  export const helixSolver: Signer = new Wallet(
+    SOLVER_PRIVATE_KEY,
+    helixProvider,
+  )
+  export const helixIntentProver: Signer = new Wallet(
+    PROVER_PRIVATE_KEY,
+    helixProvider,
+  )
+  export const helixClaimant: Signer = new Wallet(
+    CLAIMANT_PRIVATE_KEY,
+    helixProvider,
+  )
+  // Contracts
+  // Settlement Contracts for other Chains
+
+  // System Proving Contracts
+  export const helixl1Block = new Contract(
+    networks.helix.proving.l1BlockAddress,
+    IL1Block__factory.abi,
+    helixProvider,
+  )
+  export const helixL2L1MessageParserContract = new Contract(
+    networks.helix.proving.l2l1MessageParserAddress,
+    L2ToL1MessagePasserArtifact.abi,
+    helixProvider,
+  )
+  // ECO PROTOCOL Contracts
+  export const helixIntentSourceContractIntentCreator = new Contract(
+    networks.helix.intentSource.address,
+    IntentSource__factory.abi,
+    helixIntentCreator,
+  )
+
+  export const helixIntentSourceContractClaimant = new Contract(
+    networks.helix.intentSource.address,
+    IntentSource__factory.abi,
+    helixClaimant,
+  )
+  export const helixProverContract = new Contract(
+    networks.helix.proverContract.address,
+    Prover__factory.abi,
+    helixIntentProver, // Use deployer as prover as we need to do privileged operations
+  )
+  export const helixInboxContractSolver = new Contract(
+    networks.helix.inbox.address,
+    Inbox__factory.abi,
+    helixSolver,
+  )
+  export const helixUSDCContractIntentCreator = new Contract(
+    networks.helix.usdcAddress,
+    ERC20__factory.abi,
+    helixIntentCreator,
+  )
+  export const helixUSDCContractSolver = new Contract(
+    networks.helix.usdcAddress,
+    ERC20__factory.abi,
+    helixSolver,
+  )
 }
