@@ -154,6 +154,10 @@ async function main() {
   }
   console.log('Inbox deployed to:', inboxAddress)
 
+  inbox
+    .connect(inboxOwnerSigner)
+    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   if (network.name !== 'hardhat') {
