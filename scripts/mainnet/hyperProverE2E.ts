@@ -138,8 +138,7 @@ export async function hyperproveInstant() {
 
     const messageBody = AbiCoder.defaultAbiCoder().encode(
       ['bytes[]', 'address[]'],
-      //   [thisIntent.data.toArray(), thisIntent.targets.toArray()],
-      [thisIntent.data, [actors.recipient]],
+      [[intentHash], [actors.recipient]],
     )
 
     console.log('fetching fee')

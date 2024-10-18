@@ -24,29 +24,32 @@ interface IInbox {
     // Event emitted when the prover address of a chain is set
     event ProverSet(uint256 indexed _chainID, address indexed _prover);
 
-    // Event emitted when solving intents is not public and a non-whitelisted address made a solve attempt
+    // Error thrown when solving intents is not public and a non-whitelisted address made a solve attempt
     error UnauthorizedSolveAttempt(address _solver);
 
-    // Event emitted when the intent can no longer be fulfilled because its timestamp has expired
+    // Error thrown when the intent can no longer be fulfilled because its timestamp has expired
     error IntentExpired();
 
-    // Event emitted when the intent has already been fulfilled
+    // Error thrown when the intent has already been fulfilled
     error IntentAlreadyFulfilled(bytes32 _hash);
 
-    // Event emitted when the intent call failed while itertating through the callAddresses
+    // Error thrown when the intent call failed while itertating through the callAddresses
     error IntentCallFailed(address _addr, bytes _data, bytes _returnData);
 
-    // Event emitted when the hash generated on the inbox contract does not match the expected hash
+    // Error thrown when the hash generated on the inbox contract does not match the expected hash
     error InvalidHash(bytes32 _expectedHash);
 
-    // Event emitted when a solver attempts to make a call to the hyperlane mailbox
+    // Error thrown when a solver attempts to make a call to the hyperlane mailbox
     error CallToMailbox();
     
-    // Event emitted when the number of intents in a call to sendBatch exceeds MAX_BATCH_SIZE
+    // Error thrown when the number of intents in a call to sendBatch exceeds MAX_BATCH_SIZE
     error BatchTooLarge();
 
-    // Event emitted when an intent that is not yet fulfilled is sent as part of a hyperprove batch
+    // Error thrown when an intent that is not yet fulfilled is sent as part of a hyperprove batch
     error IntentNotFulfilled(bytes32 _hash);
+
+    // Error thrown when the fee sent by the solver for a hyperprover fulfillment is less than the fee required by the mailbox
+    error InsufficientFee(uint256 _requiredFee);
 
     /**
      * This function is the main entry point for fulfilling an intent. It validates that the intentHash is the hash of the other parameters.

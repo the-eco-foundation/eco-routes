@@ -87,8 +87,11 @@ contract Inbox is IInbox, Ownable {
         bytes memory messageBody = abi.encode(hashes, claimants);
         bytes32 _prover32 = _prover.addressToBytes32();
         uint256 fee = fetchFee(_sourceChainID, messageBody, _prover32);
+        if (msg.value < fee) {
+            revert InsufficientFee(fee);
+        }
 
-        IMailbox(mailbox).dispatch{value: msg.value < fee ? msg.value : fee}(
+        IMailbox(mailbox).dispatch{value: fee}(
             uint32(_sourceChainID),
             _prover32,
             messageBody)
@@ -132,8 +135,11 @@ contract Inbox is IInbox, Ownable {
         bytes memory messageBody = abi.encode(hashes, claimants);
         bytes32 _prover32 = _prover.addressToBytes32();
         uint256 fee = fetchFee(_sourceChainID, messageBody, _prover32);
+        if (msg.value < fee) {
+            revert InsufficientFee(fee);
+        }
 
-        IMailbox(mailbox).dispatch{value: msg.value < fee ? msg.value : fee}(
+        IMailbox(mailbox).dispatch{value: fee}(
             uint32(_sourceChainID),
             _prover32,
             messageBody)

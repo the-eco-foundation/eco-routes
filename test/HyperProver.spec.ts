@@ -95,9 +95,6 @@ describe('HyperProver Test', (): void => {
         ['bytes32[]', 'address[]'],
         [[intentHash], [claimantAddress]],
       )
-
-      console.log(msgBody)
-      console.log('a')
       expect(await hyperProver.provenIntents(intentHash)).to.eq(
         ethers.ZeroAddress,
       )
@@ -165,8 +162,20 @@ describe('HyperProver Test', (): void => {
           calldata,
         ),
       ).to.be.revertedWithCustomError(hyperProver, 'UnauthorizedDispatch')
+      const msgbody = abiCoder.encode(
+        ['bytes32[]', 'address[]'],
+        [[intentHash], [await claimant.getAddress()]],
+      )
 
-      await expect(inbox.connect(solver).fulfillHyperInstant(...fulfillData))
+      await expect(
+        inbox.connect(solver).fulfillHyperInstant(...fulfillData, {
+          value: await inbox.fetchFee(
+            sourceChainID,
+            msgbody,
+            ethers.zeroPadValue(await hyperProver.getAddress(), 32),
+          ),
+        }),
+      )
         .to.emit(hyperProver, `IntentProven`)
         .withArgs(intentHash, await claimant.getAddress())
       expect(await hyperProver.provenIntents(intentHash)).to.eq(
@@ -336,6 +345,14 @@ describe('HyperProver Test', (): void => {
         ethers.ZeroAddress,
       )
 
+      const msgbody = abiCoder.encode(
+        ['bytes32[]', 'address[]'],
+        [
+          [intentHash0, intentHash1],
+          [await claimant.getAddress(), await claimant.getAddress()],
+        ],
+      )
+
       await expect(
         inbox
           .connect(solver)
@@ -343,7 +360,13 @@ describe('HyperProver Test', (): void => {
             sourceChainID,
             await hyperProver.getAddress(),
             [intentHash0, intentHash1],
-            { value: 100000 },
+            {
+              value: await inbox.fetchFee(
+                sourceChainID,
+                msgbody,
+                ethers.zeroPadValue(await hyperProver.getAddress(), 32),
+              ),
+            },
           ),
       )
         .to.emit(hyperProver, `IntentProven`)
