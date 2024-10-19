@@ -83,7 +83,7 @@ const networks: any = {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
     proverContractAddress: '0xAdc0BBf74BB9b3A41f5b89cE8bC70f45D8CAA7f4',
-    hyperProverContractAddress: '0x9592E6bA1Cec5d85D0EeF477703814857acFa921',
+    hyperProverContractAddress: '0x1fCF488B9375f3530e22D14f4D1866483F81b599',
     intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
     inboxAddress: '0x6097875C63313ACE4E505aAA4C53A044Da454397',
     intentSource: {
@@ -114,7 +114,7 @@ const networks: any = {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
     proverContractAddress: '0xAdc0BBf74BB9b3A41f5b89cE8bC70f45D8CAA7f4',
-    hyperProverContractAddress: '0x9592E6bA1Cec5d85D0EeF477703814857acFa921',
+    hyperProverContractAddress: '0x1fCF488B9375f3530e22D14f4D1866483F81b599',
     intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
     inboxAddress: '0x6097875C63313ACE4E505aAA4C53A044Da454397',
     intentSource: {
