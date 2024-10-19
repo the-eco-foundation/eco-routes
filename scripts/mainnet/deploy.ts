@@ -31,7 +31,7 @@ const initialSalt: string = 'PREPROD'
 let proverAddress = '0x29a6988942ea82599743573015D13bfa5527df87'
 let intentSourceAddress = '0x8E632CDB655bEe7Cc13Dfb5aC74B7A0C3Fe8Bd46'
 let inboxAddress = ''
-
+const isSolvingPublic = initialSalt !== 'PROD'
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
 )
@@ -112,8 +112,6 @@ async function main() {
   if (inboxAddress === '') {
     const inboxFactory = await ethers.getContractFactory('Inbox')
 
-    const isSolvingPublic = initialSalt !== 'PROD'
-
     const inboxTx = await inboxFactory.getDeployTransaction(
       actors.inboxOwner,
       isSolvingPublic,
@@ -153,7 +151,6 @@ async function main() {
     try {
       await run('verify:verify', {
         address: proverAddress,
-        // constructorArguments: [l1BlockAddressSepolia, deployer.address],
         constructorArguments: [
           [baseChainConfiguration, optimismChainConfiguration],
         ],
@@ -167,14 +164,18 @@ async function main() {
         address: intentSourceAddress,
         constructorArguments: [minimumDuration, counter],
       })
-      console.log('intentSource verified at:', proverAddress)
+      console.log('intentSource verified at:', intentSourceAddress)
     } catch (e) {
       console.log(`Error verifying intentSource`, e)
     }
     try {
       await run('verify:verify', {
         address: inboxAddress,
-        constructorArguments: [deployer.address, false, [actors.solver]],
+        constructorArguments: [
+          deployer.address,
+          isSolvingPublic,
+          [actors.solver],
+        ],
       })
       console.log('Inbox verified at:', inboxAddress)
     } catch (e) {

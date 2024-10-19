@@ -1,10 +1,11 @@
 import { ethers, run, network } from 'hardhat'
 import { IntentSource, Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
-// import { getAddress } from 'ethers'
+import { AlchemyProvider } from 'ethers'
 // import c from '../config/testnet/config'
 // import networks from '../config/testnet/config';
 import { networks, actors } from '../../config/testnet/config'
+export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
@@ -55,12 +56,17 @@ switch (networkName) {
     break
   case 'optimismSepolia':
     counter = networks.optimismSepolia.intentSource.counter
-    minimumDuration = networks.optimismSepolia.intentSource.counter
+    minimumDuration = networks.optimismSepolia.intentSource.minimumDuration
+    deployNetwork = networks.optimismSepolia
+    break
+  case 'optimismSepoliaBlockscout':
+    counter = networks.optimismSepolia.intentSource.counter
+    minimumDuration = networks.optimismSepolia.intentSource.minimumDuration
     deployNetwork = networks.optimismSepolia
     break
   case 'ecoTestnet':
     counter = networks.ecoTestnet.intentSource.counter
-    minimumDuration = networks.ecoTestnet.intentSource.counter
+    minimumDuration = networks.ecoTestnet.intentSource.minimumDuration
     deployNetwork = networks.ecoTestnet
     break
   default:
@@ -69,97 +75,160 @@ switch (networkName) {
     break
 }
 console.log('Counter: ', counter)
+console.log('Minimum duration: ', minimumDuration)
+
+const initialSalt: string = 'TESTNET6'
+const provider = new AlchemyProvider(deployNetwork.network, ALCHEMY_API_KEY)
+
+let proverAddress = ''
+let intentSourceAddress = ''
+let inboxAddress = ''
+
+console.log(
+  `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
+)
+const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
 
 console.log('Deploying to Network: ', network.name)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
+
+  const singletonDeployer = await ethers.getContractAt(
+    'Deployer',
+    '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
+  )
+
   console.log(`**************************************************`)
-  let prover
-  if (network.name === 'ecoTestnet') {
-    prover = await (
-      await ethers.getContractFactory('ProverL3')
-    ).deploy(deployer.address, [
-      baseSepoliaChainConfiguration,
-      optimismSepoliaChainConfiguration,
-      ecoTestnetChainConfiguration,
-    ])
-  } else {
-    prover = await (
-      await ethers.getContractFactory('Prover')
-    ).deploy([
-      baseSepoliaChainConfiguration,
-      optimismSepoliaChainConfiguration,
-      ecoTestnetChainConfiguration,
-    ])
+  const baseChainConfiguration = {
+    chainId: networks.baseSepolia.chainId, // chainId
+    chainConfiguration: {
+      provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+      settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+      blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    },
   }
 
-  console.log('prover implementation deployed to: ', await prover.getAddress())
+  const optimismChainConfiguration = {
+    chainId: networks.optimismSepolia.chainId, // chainId
+    chainConfiguration: {
+      provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
+      settlementChainId: networks.optimismSepolia.proving.settlementChain.id, // settlementChainId
+      settlementContract:
+        networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.     blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress,
+      blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    },
+  }
+  let receipt
 
-  const intentSourceFactory = await ethers.getContractFactory('IntentSource')
-  const intentSource: IntentSource = await intentSourceFactory.deploy(
-    minimumDuration,
-    counter,
-  )
-  console.log('intentSource deployed to:', await intentSource.getAddress())
+  if (proverAddress === '') {
+    const proverFactory = await ethers.getContractFactory('Prover')
+    const proverTx = await proverFactory.getDeployTransaction([
+      baseChainConfiguration,
+      optimismChainConfiguration,
+    ])
+    receipt = await singletonDeployer.deploy(proverTx.data, salt, {
+      gasLimit: 5000000,
+    })
+    // console.log(receipt.blockHash)
+    proverAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber,
+      )
+    )[0].args.addr
+  }
+  console.log('prover implementation deployed to: ', proverAddress)
 
-  const inboxFactory = await ethers.getContractFactory('Inbox')
+  if (intentSourceAddress === '') {
+    const intentSourceFactory = await ethers.getContractFactory('IntentSource')
+    const intentSourceTx = await intentSourceFactory.getDeployTransaction(
+      minimumDuration,
+      counter,
+    )
+    receipt = await singletonDeployer.deploy(intentSourceTx.data, salt, {
+      gasLimit: 5000000,
+    })
+    intentSourceAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber,
+      )
+    )[0].args.addr
+  }
+  console.log('intentSource deployed to:', intentSourceAddress)
 
-  const inbox: Inbox = await inboxFactory.deploy(deployer.address, true, [])
-  console.log('Inbox deployed to:', await inbox.getAddress())
+  if (inboxAddress === '') {
+    const inboxFactory = await ethers.getContractFactory('Inbox')
 
-  await inbox
-    .connect(deployer)
-    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+    // on testnet inboxOwner is the deployer, just to make things easier
+    const inboxTx = await inboxFactory.getDeployTransaction(
+      actors.deployer,
+      true,
+      [],
+    )
+    receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
+      gasLimit: 5000000,
+    })
+    inboxAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber,
+      )
+    )[0].args.addr
+
+    // on testnet inboxOwner is the deployer, just to make things easier
+    const inboxOwnerSigner = deployer
+    const inbox: Inbox = await ethers.getContractAt(
+      'Inbox',
+      inboxAddress,
+      inboxOwnerSigner,
+    )
+
+    inbox
+      .connect(inboxOwnerSigner)
+      .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+  }
+  console.log('Inbox deployed to:', inboxAddress)
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   if (network.name !== 'hardhat') {
     console.log('Waiting for 30 seconds for Bytecode to be on chain')
     await setTimeout(30000)
-    let constructorArgs
-    constructorArgs = [
-      [
-        baseSepoliaChainConfiguration,
-        optimismSepoliaChainConfiguration,
-        ecoTestnetChainConfiguration,
-      ],
-    ]
-    if (network.name === 'ecoTestnet') {
-      constructorArgs = [
-        deployer.address,
-        [
-          baseSepoliaChainConfiguration,
-          optimismSepoliaChainConfiguration,
-          ecoTestnetChainConfiguration,
-        ],
-      ]
-    }
     try {
       await run('verify:verify', {
-        address: await prover.getAddress(),
+        address: proverAddress,
         // constructorArguments: [l1BlockAddressSepolia, deployer.address],
-        constructorArguments: constructorArgs,
+        constructorArguments: [
+          [baseChainConfiguration, optimismChainConfiguration],
+        ],
       })
+      console.log('prover verified at:', proverAddress)
     } catch (e) {
       console.log(`Error verifying prover`, e)
     }
     try {
       await run('verify:verify', {
-        address: await intentSource.getAddress(),
+        address: intentSourceAddress,
         constructorArguments: [minimumDuration, counter],
       })
-      console.log('intentSource verified at:', await intentSource.getAddress())
+      console.log('intentSource verified at:', intentSourceAddress)
     } catch (e) {
       console.log(`Error verifying intentSource`, e)
     }
     try {
       await run('verify:verify', {
-        address: await inbox.getAddress(),
+        address: inboxAddress,
         constructorArguments: [deployer.address, false, [actors.solver]],
       })
-      console.log('Inbox verified at:', await inbox.getAddress())
+      console.log('Inbox verified at:', inboxAddress)
     } catch (e) {
       console.log(`Error verifying inbox`, e)
     }
