@@ -26,7 +26,7 @@ const optimismProvider = new AlchemyProvider(
   ALCHEMY_API_KEY,
 )
 
-console.log('Testing hyperproving across base and optimism testnets')
+console.log('Testing hyperproving across base and optimism')
 
 async function main() {
   ;[sourceNetwork, destinationNetwork] = [networks.base, networks.optimism]
@@ -167,7 +167,7 @@ export async function hyperproveInstant() {
   }
 
   console.log('Waiting for the dust to settle')
-  await setTimeout(45000)
+  await setTimeout(60000)
 
   console.log('show me da money')
   const intentProvenEvents = await hyperprover

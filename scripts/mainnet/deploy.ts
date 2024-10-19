@@ -28,8 +28,8 @@ console.log('Counter: ', counter)
 const initialSalt: string = 'PREPROD'
 // const initialSalt: string = 'PROD'
 
-let proverAddress = '0x29a6988942ea82599743573015D13bfa5527df87'
-let intentSourceAddress = '0x8E632CDB655bEe7Cc13Dfb5aC74B7A0C3Fe8Bd46'
+let proverAddress = ''
+let intentSourceAddress = ''
 let inboxAddress = ''
 const isSolvingPublic = initialSalt !== 'PROD'
 console.log(
@@ -172,7 +172,7 @@ async function main() {
       await run('verify:verify', {
         address: inboxAddress,
         constructorArguments: [
-          deployer.address,
+          actors.inboxOwner,
           isSolvingPublic,
           [actors.solver],
         ],
