@@ -162,7 +162,7 @@ const networks: any = {
     chainId: networkIds.eco,
     alchemyNetwork: 'eco',
     sourceChains: ['base', 'optimism'],
-    rpcUrl: 'https://helix-test.calderachain.xyz/http's,
+    rpcUrl: 'https://helix-test.calderachain.xyz/http',
     settlementNetwork: 'base',
     proverContract: {
       address: '',

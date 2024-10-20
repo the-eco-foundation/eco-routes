@@ -88,17 +88,17 @@ const networks: any = {
     sourceChains: ['base', 'helix'],
     proverContract: {
       address: '0xa7411320887c5a4C8BD9ED7c54fDbeDEb93bFee4',
-      deploymentBlock: 16795390n, // '0x10046Fe'
+      deploymentBlock: 126754500n, // '0x78E1eC4'
     },
     intentSource: {
       address: '0xB78Edd10Bf8Dc630cEEBE77aE0e32B6cAAdE3Fbe',
-      deploymentBlock: 16795394n, // '0x1004702
+      deploymentBlock: 126754500n, // '0x78E1eC4
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
       address: '0x811D3CFE659f653A27581a9C22D8e08A1112cb0e',
-      deploymentBlock: 18354796n, // '0x118126c
+      deploymentBlock: 126754500n, // '0x78E1eC4
     },
     hyperproverContractAddress: '0x9bFceD7B2bbE10Bcc85e4bF16dB7272dc0c2fc16',
     proving: {

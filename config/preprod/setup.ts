@@ -169,6 +169,13 @@ export namespace s {
     CLAIMANT_PRIVATE_KEY,
     baseProvider,
   )
+  // Contracts
+  // Settlement Contracts for other Chains
+  export const baseSettlementContractHelix = new Contract(
+    networks.base.settlementContracts.helix,
+    L2OutputArtifact.abi,
+    baseProvider,
+  )
   // System Proving Contracts
   export const basel1Block = new Contract(
     networks.base.proving.l1BlockAddress,
