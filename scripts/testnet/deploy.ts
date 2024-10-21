@@ -1,9 +1,6 @@
 import { ethers, run, network } from 'hardhat'
-import { IntentSource, Inbox } from '../../typechain-types'
+import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
-import { AlchemyProvider } from 'ethers'
-// import c from '../config/testnet/config'
-// import networks from '../config/testnet/config';
 import { networks, actors } from '../../config/testnet/config'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
@@ -35,17 +32,17 @@ const optimismSepoliaChainConfiguration = {
   },
 }
 
-const ecoTestnetChainConfiguration = {
-  chainId: networks.ecoTestnet.chainId, // chainId
-  chainConfiguration: {
-    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
-    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
-  },
-}
+// const ecoTestnetChainConfiguration = {
+//   chainId: networks.ecoTestnet.chainId, // chainId
+//   chainConfiguration: {
+//     provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+//     settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+//     settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//     blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
+//     outputRootVersionNumber:
+//       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+//   },
+// }
 let counter: number = 0
 let minimumDuration: number = 0
 switch (networkName) {
@@ -78,7 +75,6 @@ console.log('Counter: ', counter)
 console.log('Minimum duration: ', minimumDuration)
 
 const initialSalt: string = 'TESTNET6'
-const provider = new AlchemyProvider(deployNetwork.network, ALCHEMY_API_KEY)
 
 let proverAddress = ''
 let intentSourceAddress = ''
@@ -101,37 +97,12 @@ async function main() {
   )
 
   console.log(`**************************************************`)
-  const baseChainConfiguration = {
-    chainId: networks.baseSepolia.chainId, // chainId
-    chainConfiguration: {
-      provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
-      settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
-      settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-      blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
-      outputRootVersionNumber:
-        networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
-    },
-  }
-
-  const optimismChainConfiguration = {
-    chainId: networks.optimismSepolia.chainId, // chainId
-    chainConfiguration: {
-      provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
-      settlementChainId: networks.optimismSepolia.proving.settlementChain.id, // settlementChainId
-      settlementContract:
-        networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.     blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress,
-      blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
-      outputRootVersionNumber:
-        networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
-    },
-  }
   let receipt
-
   if (proverAddress === '') {
     const proverFactory = await ethers.getContractFactory('Prover')
     const proverTx = await proverFactory.getDeployTransaction([
-      baseChainConfiguration,
-      optimismChainConfiguration,
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
     ])
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
       gasLimit: 5000000,
@@ -207,7 +178,7 @@ async function main() {
         address: proverAddress,
         // constructorArguments: [l1BlockAddressSepolia, deployer.address],
         constructorArguments: [
-          [baseChainConfiguration, optimismChainConfiguration],
+          [baseSepoliaChainConfiguration, optimismSepoliaChainConfiguration],
         ],
       })
       console.log('prover verified at:', proverAddress)
