@@ -62,10 +62,18 @@ async function getRLPEncodedBlock(block) {
     block.nonce,
     toBeHex(block.baseFeePerGas),
     block.withdrawalsRoot,
-    // stripZerosLeft(toBeHex(block.blobGasUsed || 0x0)),
-    // stripZerosLeft(toBeHex(block.excessBlobGas || 0x0)),
+    stripZerosLeft(toBeHex(block.blobGasUsed || 0x0)),
+    stripZerosLeft(toBeHex(block.excessBlobGas || 0x0)),
     block.parentBeaconBlockRoot,
   ])
+  // check the hash is valid
+  const hash = keccak256(rlpEncodedBlockData)
+  console.log('Hash of RLP Encoded Block Data: ', hash)
+  console.log('Block Hash: ', block.hash)
+  if (hash !== block.hash) {
+    console.log('Hashes do not match')
+    throw Error('Hashes do not match')
+  }
   return rlpEncodedBlockData
 }
 
@@ -970,6 +978,7 @@ async function proveWorldStateBedrockOnOptimismForBase(
     [],
     endBatchBlockHex,
   ])
+
   // Get the storage Slot information
   // l1BatchSlot = calculated from the batch number *2 + output slot 3
   // In Solidity
@@ -1003,14 +1012,19 @@ async function proveWorldStateBedrockOnOptimismForBase(
     layer1BaseOutputOracleProof.codeHash, // CodeHash
   ]
   try {
+    console.log('settlemntBlockTag: ', settlementBlockTag)
+    console.log('l1batchSlot: ', l1BatchSlot)
     console.log('Proving World State Bedrock on Optimism')
     console.log('Network ID: ', networkIds.base)
     console.log('RLP Encoded Block Data: ', rlpEncodedBlockData)
-    console.log('End Batch Block Data: ', l2EndBatchBlockData.stateRoot)
+    console.log(
+      'End Batch Block Data State Root: ',
+      l2EndBatchBlockData.stateRoot,
+    )
     console.log('Message Passer Proof: ', l2MesagePasserProof.storageHash)
     console.log('L1 Batch Index: ', l1BatchIndex)
     console.log(
-      'Layer1 Base Output Oracle Proof: ',
+      'Layer1 Base Output Oracle Stoirage Proof: ',
       layer1BaseOutputOracleProof.storageProof[0].proof,
     )
     console.log(
@@ -1020,7 +1034,7 @@ async function proveWorldStateBedrockOnOptimismForBase(
       ),
     )
     console.log(
-      'Layer1 Base Output Oracle Proof: ',
+      'Layer1 Base Output Oracle Account Proof: ',
       layer1BaseOutputOracleProof.accountProof,
     )
     console.log('Settlement World State Root: ', settlementWorldStateRoot)
@@ -1226,6 +1240,7 @@ export async function proveDestinationChainBatchSettled(
   l3BlockNumber,
 ) {
   console.log('In proveDestinationChainBatchSettled')
+  let l3endBatchBlockData
   await Promise.all(
     await Object.entries(sourceChains).map(
       async ([sourceChainkey, sourceChain]) => {
@@ -1243,7 +1258,7 @@ export async function proveDestinationChainBatchSettled(
               break
             }
             case networkIds.optimism: {
-              endBatchBlockData = await proveWorldStatesBedrockL3L2Optimism(
+              l3endBatchBlockData = await proveWorldStatesBedrockL3L2Optimism(
                 // faultDisputeGameAddress,
                 // faultDisputeGameContract,
                 // gameIndex,
@@ -1265,7 +1280,7 @@ export async function proveDestinationChainBatchSettled(
       },
     ),
   )
-  return endBatchBlockData
+  return l3endBatchBlockData
 }
 
 async function proveIntentBase(intentHash, endBatchBlockData) {
