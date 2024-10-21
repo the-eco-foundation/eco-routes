@@ -1573,7 +1573,7 @@ async function main() {
   // Point in time proving for latest batch
   try {
     console.log('In Main')
-    console.log('Batch Settle of Eco Testnet')
+    console.log('Batch Settle of Helix')
     // Get the latest Batch Settled for Base Mainnet
     // const {
     //   blockNumber,
