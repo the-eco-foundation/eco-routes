@@ -73,6 +73,7 @@
     "settleBaseHelixPreProd": "hardhat run scripts/preprod/batchSettleBaseHelix.ts",
     "settleOpPreProd": "hardhat run scripts/preprod/batchSettleOp.ts",
     "settleHelixPreProd": "hardhat run scripts/preprod/batchSettleHelix.ts",
+    "settleBasePreProd": "hardhat run scripts/preprod/batchSettleBase.ts",
     "Mainnet": "-------- Mainnet scripts below",
     "proverDeployBase": "hardhat run --network base scripts/mainnet/proverDeploy.ts",
     "proverDeployOptimism": "hardhat run --network optimism scripts/mainnet/proverDeploy.ts",

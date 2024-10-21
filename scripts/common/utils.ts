@@ -1,4 +1,4 @@
-import { encodeRlp, stripZerosLeft, toBeHex } from 'ethers'
+import { encodeRlp, stripZerosLeft, toBeHex, keccak256 } from 'ethers'
 
 export namespace utils {
   export async function getRLPEncodedBlock(block) {
@@ -26,6 +26,14 @@ export namespace utils {
       stripZerosLeft(toBeHex(block.excessBlobGas)),
       block.parentBeaconBlockRoot,
     ])
+    // check the hash is valid
+    const hash = keccak256(rlpEncodedBlockData)
+    console.log('Hash of RLP Encoded Block Data: ', hash)
+    console.log('Block Hash: ', block.hash)
+    if (hash !== block.hash) {
+      console.log('Hashes do not match')
+      throw Error('Hashes do not match')
+    }
     // console.log('About to return RLP Encoded Block Data: ', rlpEncodedBlockData)
     return rlpEncodedBlockData
   }
