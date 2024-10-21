@@ -22,7 +22,7 @@ let solver: Signer
 const baseProvider = new AlchemyProvider(networks.base.network, ALCHEMY_API_KEY)
 
 const optimismProvider = new AlchemyProvider(
-  networks.base.network,
+  networks.optimism.network,
   ALCHEMY_API_KEY,
 )
 
