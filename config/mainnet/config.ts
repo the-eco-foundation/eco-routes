@@ -15,9 +15,11 @@ const networkIds: any = {
   mainnet: 1,
   optimism: 10,
   base: 8453,
+  eco: 8921733,
   1: 'mainnet',
   10: 'optimism',
   8453: 'base',
+  8921733: 'eco',
 }
 
 const actors: any = {
@@ -120,6 +122,33 @@ const networks: any = {
     },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     hyperlaneMailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
+  },
+  helix: {
+    network: 'helix',
+    chainId: networkIds.eco,
+    proverContractAddress: '',
+    hyperProverContractAddress: '',
+    intentSourceAddress: '',
+    inboxAddress: '',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
+    proving: {
+      mechanism: provingMechanisms.bedrock,
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      l2OutputOracleSlotNumber: 3,
+      outputRootVersionNumber: 0,
+      settlementChain: {
+        network: 'base',
+        id: networkIds.base,
+        // L2 Output Oracle Address
+        contract: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d',
+      },
+    },
+    usdcAddress: '',
+    hyperlaneMailboxAddress: '',
   },
 }
 

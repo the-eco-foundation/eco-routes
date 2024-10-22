@@ -17,7 +17,7 @@ if (
   salt = 'PREPROD'
 }
 
-let inboxAddress = ''
+let inboxAddress = '0x200b2417A9d0F79133C2b05b2C028B8A70392e66'
 let hyperProverAddress = ''
 
 console.log('Deploying to Network: ', network.name)
@@ -40,6 +40,9 @@ switch (network.name) {
     break
   case 'base':
     deployNetwork = mainnetNetworks.base
+    break
+  case 'helix':
+    deployNetwork = mainnetNetworks.helix
     break
 }
 

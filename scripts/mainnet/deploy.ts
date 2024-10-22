@@ -2,6 +2,7 @@ import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 import { networks, actors } from '../../config/mainnet/config'
+import { readContract } from 'viem/_types/actions/public/readContract'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
@@ -28,8 +29,8 @@ console.log('Counter: ', counter)
 const initialSalt: string = 'PREPROD'
 // const initialSalt: string = 'PROD'
 
-let proverAddress = ''
-let intentSourceAddress = ''
+let proverAddress = '0x00060b93eFdb8077a3bC6f0B34e0C322606A94cc'
+let intentSourceAddress = '0xB0A842fdb387B290d4caF7D4439b38173BD810cb'
 let inboxAddress = ''
 const isSolvingPublic = initialSalt !== 'PROD'
 console.log(
@@ -45,7 +46,7 @@ async function main() {
 
   const singletonDeployer = await ethers.getContractAt(
     'Deployer',
-    '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
+    '0xd31797A946098a0316596986c6C31Da64E6AEA3B',
   )
 
   console.log(`**************************************************`)
@@ -71,6 +72,16 @@ async function main() {
         networks.optimism.proving.outputRootVersionNumber, // outputRootVersionNumber
     },
   }
+  const helixChainConfiguration = {
+    chainId: networks.helix.chainId, // chainId
+    chainConfiguration: {
+      provingMechanism: networks.helix.proving.mechanism, // provingMechanism
+      settlementChainId: networks.helix.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.helix.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+      blockhashOracle: networks.helix.proving.l1BlockAddress, // blockhashOracle
+      outputRootVersionNumber: networks.helix.proving.outputRootVersionNumber, // outputRootVersionNumber
+    },
+  }
   let receipt
 
   if (proverAddress === '') {
@@ -78,6 +89,7 @@ async function main() {
     const proverTx = await proverFactory.getDeployTransaction([
       baseChainConfiguration,
       optimismChainConfiguration,
+      helixChainConfiguration,
     ])
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
       gasLimit: 5000000,
@@ -118,8 +130,10 @@ async function main() {
       [actors.solver],
     )
     receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: 8000000,
     })
+    await receipt.wait()
+    console.log(receipt.blockHash)
     inboxAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -129,7 +143,7 @@ async function main() {
 
     const inboxOwnerSigner = await new ethers.Wallet(
       process.env.INBOX_OWNER_PRIVATE_KEY || '0x' + '11'.repeat(32),
-      ethers.getDefaultProvider(networkName),
+      new ethers.AlchemyProvider(networkName, process.env.ALCHEMY_API_KEY),
     )
     const inbox: Inbox = await ethers.getContractAt(
       'Inbox',
@@ -152,7 +166,11 @@ async function main() {
       await run('verify:verify', {
         address: proverAddress,
         constructorArguments: [
-          [baseChainConfiguration, optimismChainConfiguration],
+          [
+            baseChainConfiguration,
+            optimismChainConfiguration,
+            helixChainConfiguration,
+          ],
         ],
       })
       console.log('prover verified at:', proverAddress)
