@@ -81,8 +81,12 @@ contract Prover is SimpleProver, AbstractProver {
     // But optimism maintains a service that posts L1 block data on L2.
     IL1Block public l1BlockhashOracle;
 
-    struct ChainConfiguration {
+    struct ChainConfigurationKey {
+        uint256 chainId;
         ProvingMechanism provingMechanism;
+    }
+
+    struct ChainConfiguration {
         uint256 settlementChainId;
         address settlementContract;
         address blockhashOracle;
@@ -91,22 +95,26 @@ contract Prover is SimpleProver, AbstractProver {
     }
 
     struct ChainConfigurationConstructor {
-        uint256 chainId;
+        ChainConfigurationKey chainConfigurationKey;
         ChainConfiguration chainConfiguration;
     }
 
-    // map the chain id to chain configuration
-    mapping(uint256 => ChainConfiguration) public chainConfigurations;
+    // map the chain id to ProvingMechanism to chain configuration
+    mapping(uint256 => mapping(ProvingMechanism => ChainConfiguration)) public chainConfigurations;
+
+    struct BlockProofKey {
+        uint256 chainId;
+        SettlementType settlementType;
+    }
 
     struct BlockProof {
-        SettlementType settlementType;
         uint256 blockNumber;
         bytes32 blockHash;
         bytes32 stateRoot;
     }
 
     // Store the last BlockProof for each ChainId
-    mapping(uint256 => BlockProof) public provenStates;
+    mapping(uint256 => mapping(SettlementType => BlockProof)) public provenStates;
 
     /**
      * @notice emitted when Self state is proven
@@ -143,7 +151,9 @@ contract Prover is SimpleProver, AbstractProver {
 
     constructor(ChainConfigurationConstructor[] memory _chainConfigurations) {
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
-            _setChainConfiguration(_chainConfigurations[i].chainId, _chainConfigurations[i].chainConfiguration);
+            _setChainConfiguration(
+                _chainConfigurations[i].chainConfigurationKey, _chainConfigurations[i].chainConfiguration
+            );
         }
     }
 
@@ -151,8 +161,11 @@ contract Prover is SimpleProver, AbstractProver {
         return PROOF_TYPE;
     }
 
-    function _setChainConfiguration(uint256 chainId, ChainConfiguration memory chainConfiguration) internal {
-        chainConfigurations[chainId] = chainConfiguration;
+    function _setChainConfiguration(
+        ChainConfigurationKey memory chainConfigurationKey,
+        ChainConfiguration memory chainConfiguration
+    ) internal {
+        chainConfigurations[chainConfigurationKey.chainId][chainConfigurationKey.provingMechanism] = chainConfiguration;
         l1BlockhashOracle = IL1Block(chainConfiguration.blockhashOracle);
     }
 
@@ -167,19 +180,18 @@ contract Prover is SimpleProver, AbstractProver {
     function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {
         require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
-        uint256 settlementChainId = chainConfigurations[block.chainid].settlementChainId;
+        uint256 settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Cannon].settlementChainId;
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
         BlockProof memory blockProof = BlockProof({
-            settlementType: SettlementType.Confirmed,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
-        BlockProof memory existingBlockProof = provenStates[settlementChainId];
+        BlockProof memory existingBlockProof = provenStates[settlementChainId][SettlementType.Confirmed];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            provenStates[settlementChainId] = blockProof;
+            provenStates[settlementChainId][SettlementType.Confirmed] = blockProof;
             emit L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
             revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
@@ -210,9 +222,11 @@ contract Prover is SimpleProver, AbstractProver {
 
         require(keccak256(l2RlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
-        uint256 l2settlementChainId = chainConfigurations[block.chainid].settlementChainId;
-        uint256 settlementChainId = chainConfigurations[l2settlementChainId].settlementChainId;
-        BlockProof memory existingBlockProof = provenStates[settlementChainId];
+        uint256 l2settlementChainId =
+            chainConfigurations[block.chainid][ProvingMechanism.SettlementL3].settlementChainId;
+        uint256 settlementChainId =
+            chainConfigurations[l2settlementChainId][ProvingMechanism.SettlementL3].settlementChainId;
+        BlockProof memory existingBlockProof = provenStates[settlementChainId][SettlementType.Confirmed];
 
         // BlockProof memory l2blockProof = BlockProof({
         //     blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[8])),
@@ -220,7 +234,6 @@ contract Prover is SimpleProver, AbstractProver {
         //     stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[3]))
         // });
         BlockProof memory l1blockProof = BlockProof({
-            settlementType: SettlementType.Confirmed,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[8])),
             blockHash: keccak256(l1RlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[3]))
@@ -245,7 +258,7 @@ contract Prover is SimpleProver, AbstractProver {
             l2WorldStateRoot // L2WorldStateRoot
         );
         if (existingBlockProof.blockNumber < l1blockProof.blockNumber) {
-            provenStates[settlementChainId] = l1blockProof;
+            provenStates[settlementChainId][SettlementType.Confirmed] = l1blockProof;
             emit L1WorldStateProven(l1blockProof.blockNumber, l1blockProof.stateRoot);
         } else {
             revert OutdatedBlock(l1blockProof.blockNumber, existingBlockProof.blockNumber);
@@ -263,7 +276,6 @@ contract Prover is SimpleProver, AbstractProver {
      */
     function proveSelfState(bytes calldata rlpEncodedBlockData) public {
         BlockProof memory blockProof = BlockProof({
-            settlementType: SettlementType.Confirmed,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
@@ -272,9 +284,9 @@ contract Prover is SimpleProver, AbstractProver {
             blockhash(blockProof.blockNumber) == blockProof.blockHash,
             "blockhash is not in last 256 blocks for this chain"
         );
-        BlockProof memory existingBlockProof = provenStates[block.chainid];
+        BlockProof memory existingBlockProof = provenStates[block.chainid][SettlementType.Confirmed];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            provenStates[block.chainid] = blockProof;
+            provenStates[block.chainid][SettlementType.Confirmed] = blockProof;
             emit SelfStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
             revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
@@ -307,8 +319,9 @@ contract Prover is SimpleProver, AbstractProver {
         // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
-        ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
-        BlockProof memory existingSettlementBlockProof = provenStates[chainConfiguration.settlementChainId];
+        ChainConfiguration memory chainConfiguration = chainConfigurations[chainId][ProvingMechanism.Bedrock];
+        BlockProof memory existingSettlementBlockProof =
+            provenStates[chainConfiguration.settlementChainId][SettlementType.Finalized];
         require(
             existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
         );
@@ -339,15 +352,14 @@ contract Prover is SimpleProver, AbstractProver {
 
         // provenL2States[l2WorldStateRoot] = l2OutputIndex;
 
-        BlockProof memory existingBlockProof = provenStates[chainId];
+        BlockProof memory existingBlockProof = provenStates[chainId][SettlementType.Posted];
         BlockProof memory blockProof = BlockProof({
-            settlementType: SettlementType.Posted,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            provenStates[chainId] = blockProof;
+            provenStates[chainId][SettlementType.Posted] = blockProof;
             emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
         } else {
             if (existingBlockProof.blockNumber > blockProof.blockNumber) {
@@ -436,8 +448,9 @@ contract Prover is SimpleProver, AbstractProver {
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
     ) public {
-        ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
-        BlockProof memory existingSettlementBlockProof = provenStates[chainConfiguration.settlementChainId];
+        ChainConfiguration memory chainConfiguration = chainConfigurations[chainId][ProvingMechanism.Cannon];
+        BlockProof memory existingSettlementBlockProof =
+            provenStates[chainConfiguration.settlementChainId][SettlementType.Confirmed];
         require(
             existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
         );
@@ -453,15 +466,14 @@ contract Prover is SimpleProver, AbstractProver {
 
         faultDisputeGameIsResolved(rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot);
 
-        BlockProof memory existingBlockProof = provenStates[chainId];
+        BlockProof memory existingBlockProof = provenStates[chainId][SettlementType.Finalized];
         BlockProof memory blockProof = BlockProof({
-            settlementType: SettlementType.Finalized,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            provenStates[chainId] = blockProof;
+            provenStates[chainId][SettlementType.Finalized] = blockProof;
             emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
         } else {
             if (existingBlockProof.blockNumber > blockProof.blockNumber) {
@@ -482,6 +494,7 @@ contract Prover is SimpleProver, AbstractProver {
      */
     function proveIntent(
         uint256 chainId, //the destination chain id of the intent we are proving
+        SettlementType settlementType,
         address claimant,
         address inboxContract,
         bytes32 intermediateHash,
@@ -491,7 +504,7 @@ contract Prover is SimpleProver, AbstractProver {
         bytes32 l2WorldStateRoot
     ) public {
         // ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
-        BlockProof memory existingBlockProof = provenStates[chainId];
+        BlockProof memory existingBlockProof = provenStates[chainId][settlementType];
         require(existingBlockProof.stateRoot == l2WorldStateRoot, "destination chain state root not yet proved");
 
         bytes32 intentHash = keccak256(abi.encode(inboxContract, intermediateHash));

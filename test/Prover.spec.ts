@@ -15,9 +15,10 @@ import {
 } from 'ethers'
 import {
   networkIds,
-  // enshrined,
   actors,
   networks,
+  // provingMechanisms,
+  settlementTypes,
   bedrock,
   cannon,
   l1l3SettlementLayerState,
@@ -62,9 +63,11 @@ describe('Prover Unit Tests', () => {
       0,
     )
     const baseSepoliaChainConfiguration = {
-      chainId: networks.baseSepolia.chainId, // chainId
-      chainConfiguration: {
+      chainConfigurationKey: {
+        chainId: networkIds.hardhat,
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+      },
+      chainConfiguration: {
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
@@ -76,9 +79,11 @@ describe('Prover Unit Tests', () => {
     }
 
     const optimismSepoliaChainConfiguration = {
-      chainId: networks.optimismSepolia.chainId,
-      chainConfiguration: {
+      chainConfigurationKey: {
+        chainId: networkIds.hardhat,
         provingMechanism: networks.optimismSepolia.proving.mechanism,
+      },
+      chainConfiguration: {
         settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
         settlementContract:
           networks.optimismSepolia.proving.settlementChain.contract,
@@ -224,9 +229,11 @@ describe('Prove Self State Tests', () => {
       0,
     )
     const hardhatChainConfiguration = {
-      chainId: networkIds.hardhat,
-      chainConfiguration: {
+      chainConfigurationKey: {
+        chainId: networkIds.hardhat,
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+      },
+      chainConfiguration: {
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
@@ -238,9 +245,11 @@ describe('Prove Self State Tests', () => {
     }
 
     const baseSepoliaChainConfiguration = {
-      chainId: networks.baseSepolia.chainId, // chainId
-      chainConfiguration: {
+      chainConfigurationKey: {
+        chainId: networkIds.baseSepolia,
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+      },
+      chainConfiguration: {
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
@@ -252,9 +261,11 @@ describe('Prove Self State Tests', () => {
     }
 
     const optimismSepoliaChainConfiguration = {
-      chainId: networks.optimismSepolia.chainId,
+      chainConfigurationKey: {
+        chainId: networkIds.optimismSepolia,
+        provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
+      },
       chainConfiguration: {
-        provingMechanism: networks.optimismSepolia.proving.mechanism,
         settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
         settlementContract:
           networks.optimismSepolia.proving.settlementChain.contract,
@@ -267,9 +278,11 @@ describe('Prove Self State Tests', () => {
     }
 
     const ecoTestnetChainConfiguration = {
-      chainId: networks.ecoTestnet.chainId,
+      chainConfigurationKey: {
+        chainId: networkIds.ecoTestnet,
+        provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+      },
       chainConfiguration: {
-        provingMechanism: networks.ecoTestnet.proving.mechanism,
         settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
         settlementContract:
           networks.ecoTestnet.proving.settlementChain.contract,
@@ -397,9 +410,11 @@ describe('Prover End to End Tests', () => {
       0,
     )
     const hardhatChainConfiguration = {
-      chainId: networkIds.hardhat,
-      chainConfiguration: {
+      chainConfigurationKey: {
+        chainId: networkIds.hardhat,
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+      },
+      chainConfiguration: {
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
@@ -411,9 +426,11 @@ describe('Prover End to End Tests', () => {
     }
 
     const baseSepoliaChainConfiguration = {
-      chainId: networks.baseSepolia.chainId, // chainId
-      chainConfiguration: {
+      chainConfigurationKey: {
+        chainId: networkIds.baseSepolia,
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+      },
+      chainConfiguration: {
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
@@ -425,9 +442,11 @@ describe('Prover End to End Tests', () => {
     }
 
     const optimismSepoliaChainConfiguration = {
-      chainId: networks.optimismSepolia.chainId,
+      chainConfigurationKey: {
+        chainId: networkIds.optimismSepolia,
+        provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
+      },
       chainConfiguration: {
-        provingMechanism: networks.optimismSepolia.proving.mechanism,
         settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
         settlementContract:
           networks.optimismSepolia.proving.settlementChain.contract,
@@ -440,9 +459,11 @@ describe('Prover End to End Tests', () => {
     }
 
     const ecoTestnetChainConfiguration = {
-      chainId: networks.ecoTestnet.chainId,
+      chainConfigurationKey: {
+        chainId: networkIds.ecoTestnet,
+        provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+      },
       chainConfiguration: {
-        provingMechanism: networks.ecoTestnet.proving.mechanism,
         settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
         settlementContract:
           networks.ecoTestnet.proving.settlementChain.contract,
@@ -472,7 +493,6 @@ describe('Prover End to End Tests', () => {
     ])
   })
   it('test proveSettlementLayerState', async () => {
-    console.log('In Prove SettlementLayerState Tests ')
     await expect(
       prover.proveSettlementLayerState(
         bedrock.settlementChain.rlpEncodedBlockData,
@@ -484,10 +504,16 @@ describe('Prover End to End Tests', () => {
         bedrock.settlementChain.worldStateRoot,
       )
 
-    console.log('In Prove SettlementLayerState Tests 2')
+    console.log('In Prove SettlementLayerState Tests')
+    console.log('networks.sepolia.chainId: ', networks.sepolia.chainId)
+    console.log('settlementTypes.Confirmed: ', settlementTypes.Confirmed)
     const provenSettlementLayerState = await prover.provenStates(
       networks.sepolia.chainId,
+      // settlementTypes.Finalized,
+      // settlementTypes.Posted,
+      settlementTypes.Confirmed,
     )
+    console.log('provenSettlementLayerState: ', provenSettlementLayerState)
     expect(provenSettlementLayerState.blockNumber).to.equal(
       bedrock.settlementChain.blockNumber,
     )
@@ -563,6 +589,7 @@ describe('Prover End to End Tests', () => {
       )
     const provenBaseSepoliaLayerState = await prover.provenStates(
       networks.baseSepolia.chainId,
+      settlementTypes.Finalized,
     )
     expect(provenBaseSepoliaLayerState.blockNumber).to.equal(
       bedrock.baseSepolia.endBatchBlock,
@@ -600,6 +627,7 @@ describe('Prover End to End Tests', () => {
 
     const provenEcoTestnetLayerState = await prover.provenStates(
       networkIds.ecoTestnet,
+      settlementTypes.Posted,
     )
     expect(provenEcoTestnetLayerState.blockNumber).to.equal(
       bedrock.destinationChain.endBatchBlock,
@@ -626,6 +654,7 @@ describe('Prover End to End Tests', () => {
     // )
     await prover.proveIntent(
       bedrock.intent.destinationChainId,
+      settlementTypes.Posted,
       getAddress(actors.claimant),
       networks.ecoTestnet.inbox.address,
       bedrock.intent.intermediateHash,
@@ -674,9 +703,11 @@ describe('Prover L3 Settlement Layer Tests', () => {
       0,
     )
     const hardhatChainConfiguration = {
-      chainId: networkIds.hardhat,
-      chainConfiguration: {
+      chainConfigurationKey: {
+        chainId: networkIds.hardhat,
         provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+      },
+      chainConfiguration: {
         settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.ecoTestnet.proving.settlementChain.contract, // settlementContract
@@ -688,9 +719,11 @@ describe('Prover L3 Settlement Layer Tests', () => {
     }
 
     const baseSepoliaChainConfiguration = {
-      chainId: networks.baseSepolia.chainId, // chainId
-      chainConfiguration: {
+      chainConfigurationKey: {
+        chainId: networks.baseSepolia.chainId, // chainId
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+      },
+      chainConfiguration: {
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
@@ -702,9 +735,11 @@ describe('Prover L3 Settlement Layer Tests', () => {
     }
 
     const optimismSepoliaChainConfiguration = {
-      chainId: networks.optimismSepolia.chainId,
+      chainConfigurationKey: {
+        chainId: networks.optimismSepolia.chainId,
+        provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
+      },
       chainConfiguration: {
-        provingMechanism: networks.optimismSepolia.proving.mechanism,
         settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
         settlementContract:
           networks.optimismSepolia.proving.settlementChain.contract,
@@ -717,9 +752,11 @@ describe('Prover L3 Settlement Layer Tests', () => {
     }
 
     const ecoTestnetChainConfiguration = {
-      chainId: networks.ecoTestnet.chainId,
+      chainConfigurationKey: {
+        chainId: networks.ecoTestnet.chainId,
+        provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+      },
       chainConfiguration: {
-        provingMechanism: networks.ecoTestnet.proving.mechanism,
         settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
         settlementContract:
           networks.ecoTestnet.proving.settlementChain.contract,

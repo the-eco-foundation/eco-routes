@@ -41,13 +41,13 @@ const provingMechanisms: any = {
   5: 'HyperProver',
 }
 
-const provingStates: any = {
-  finalized: 0,
-  posted: 1,
-  confirmed: 2,
-  0: 'finalized', // Finalized on Settlement Chain
-  1: 'posted', // Posted to Settlement Chain
-  2: 'confirmed', // Confirmed Locally
+const settlementTypes: any = {
+  Finalized: 0,
+  Posted: 1,
+  Confirmed: 2,
+  0: 'Finalized', // Finalized on Settlement Chain
+  1: 'Posted', // Posted to Settlement Chain
+  2: 'Confirmed', // Confirmed Locally
 }
 
 // Note intents currently being used are for USDC with a common set of actors
@@ -64,6 +64,9 @@ const networks: any = {
     network: networkIds[11155111],
     chainId: networkIds.sepolia,
     alchemyNetwork: 'sepolia',
+    proving: {
+      mechainsim: provingMechanisms[1],
+    },
     // The following settlement contracts are useful for event listening
     finalityDelaySeconds: 0,
     settlementContracts: {
@@ -738,7 +741,7 @@ export {
   networkIds,
   actors,
   provingMechanisms,
-  provingStates,
+  settlementTypes,
   intent,
   networks,
   bedrock,
