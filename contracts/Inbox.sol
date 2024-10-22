@@ -5,7 +5,6 @@ import "./interfaces/IInbox.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
 
 /**
  * @title Inbox
