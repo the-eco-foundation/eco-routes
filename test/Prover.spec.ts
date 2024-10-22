@@ -504,16 +504,12 @@ describe('Prover End to End Tests', () => {
         bedrock.settlementChain.worldStateRoot,
       )
 
-    console.log('In Prove SettlementLayerState Tests')
-    console.log('networks.sepolia.chainId: ', networks.sepolia.chainId)
-    console.log('settlementTypes.Confirmed: ', settlementTypes.Confirmed)
     const provenSettlementLayerState = await prover.provenStates(
       networks.sepolia.chainId,
       // settlementTypes.Finalized,
       // settlementTypes.Posted,
       settlementTypes.Confirmed,
     )
-    console.log('provenSettlementLayerState: ', provenSettlementLayerState)
     expect(provenSettlementLayerState.blockNumber).to.equal(
       bedrock.settlementChain.blockNumber,
     )
@@ -524,7 +520,7 @@ describe('Prover End to End Tests', () => {
       bedrock.settlementChain.worldStateRoot,
     )
 
-    console.log('In Prove SettlementLayerState Tests 3')
+    console.log('s 3')
     // test proveWorldStateCannon'
     const RLPEncodedDisputeGameFactoryData = await prover.rlpEncodeDataLibList(
       bedrock.baseSepolia.disputeGameFactory.contractData,
@@ -569,7 +565,6 @@ describe('Prover End to End Tests', () => {
       faultDisputeGameAccountProof:
         bedrock.baseSepolia.faultDisputeGame.accountProof,
     }
-    console.log('In Prove SettlementLayerState Tests 4')
     await expect(
       prover.proveWorldStateCannon(
         networkIds.baseSepolia,
@@ -638,7 +633,6 @@ describe('Prover End to End Tests', () => {
     expect(provenEcoTestnetLayerState.stateRoot).to.equal(
       bedrock.destinationChain.worldStateRoot,
     )
-    console.log('In Prove SettlementLayerState Tests 5')
 
     // test proveIntent
     const abiCoder = AbiCoder.defaultAbiCoder()
@@ -663,7 +657,6 @@ describe('Prover End to End Tests', () => {
       bedrock.intent.accountProof,
       bedrock.intent.endBatchBlockStateRoot,
     )
-    console.log('In Prove SettlementLayerState Tests 6')
   })
 })
 

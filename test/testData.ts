@@ -65,7 +65,7 @@ const networks: any = {
     chainId: networkIds.sepolia,
     alchemyNetwork: 'sepolia',
     proving: {
-      mechainsim: provingMechanisms[1],
+      mechanism: provingMechanisms.Settlement,
     },
     // The following settlement contracts are useful for event listening
     finalityDelaySeconds: 0,
@@ -209,7 +209,7 @@ const networks: any = {
       counter: 0,
     },
     proving: {
-      mechanism: 3,
+      mechanism: provingMechanisms.HyperProver,
       finalityDelaySeconds: 0,
     },
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',

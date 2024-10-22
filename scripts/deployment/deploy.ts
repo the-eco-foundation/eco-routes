@@ -1,5 +1,5 @@
 import { ethers, run, network } from 'hardhat'
-import { networks } from '../../config/testnet/config'
+import { networkIds, networks } from '../../config/testnet/config'
 
 // TODO: remove the await tx.wait() and update queries for deployed contracts
 // Notes: Singleton Factory address (all chains): 0xce0042B868300000d44A59004Da54A005ffdcf9f
@@ -10,39 +10,48 @@ const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET28'))
 
 console.log('Deploying to Network: ', network.name)
 const baseSepoliaChainConfiguration = {
-  chainId: networks.baseSepolia.chainId, // chainId
-  chainConfiguration: {
+  chainConfigurationKey: {
+    chainId: networkIds.baseSepolia,
     provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+  },
+  chainConfiguration: {
     settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
     settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
     blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
   },
 }
 
 const optimismSepoliaChainConfiguration = {
-  chainId: networks.optimismSepolia.chainId, // chainId
-  chainConfiguration: {
+  chainConfigurationKey: {
+    chainId: networkIds.optimismSepolia,
     provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
+  },
+  chainConfiguration: {
     settlementChainId: networks.optimismSepolia.proving.settlementChain.id, // settlementChainId
     settlementContract:
       networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
     blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: networks.optimismSepolia.proving.finalityDelaySeconds,
   },
 }
 
 const ecoTestnetChainConfiguration = {
-  chainId: networks.ecoTestnet.chainId, // chainId
-  chainConfiguration: {
+  chainConfigurationKey: {
+    chainId: networkIds.ecoTestnet,
     provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+  },
+  chainConfiguration: {
     settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
     settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
     blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
   },
 }
 // Set the config for the chain we are deploying to
@@ -82,7 +91,6 @@ async function main() {
   const intentSourceFactory = await ethers.getContractFactory('IntentSource')
   const inboxFactory = await ethers.getContractFactory('Inbox')
   const hyperProverFactory = await ethers.getContractFactory('HyperProver')
-
   // Deploy the prover
   const proverTx = await proverFactory.getDeployTransaction([
     baseSepoliaChainConfiguration,
