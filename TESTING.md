@@ -114,7 +114,7 @@ ETA Monday 7:00 - 8:00 am
 
 - Intent Hash: `0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24`
 - Intent Creation Transaction (BaseSepolia): [0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408](https://sepolia.basescan.org/tx/0x08129c47b9be538653c65dfe8c6121cef0f2418547d708ee6e536b42f77c0408)
-- Intent Fulfillment Transaction (ecoTestNet): [0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5](https://eco-testnet.explorer.caldera.xyz/tx/0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5)
+- Intent Fulfillment Transaction (ecoTestnet): [0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5](https://eco-testnet.explorer.caldera.xyz/tx/0x8c6988f25cf6105779aab38909094b6c715a5e23ea3638e1ca379fe129a6e6d5)
 - Sepolia World State Proof: [0xf9a8973253a82c2025416e4b49e877298b64d219465c4db000e8f02b486ee130](https://sepolia.basescan.org/tx/0xf9a8973253a82c2025416e4b49e877298b64d219465c4db000e8f02b486ee130)
 - Base World State Proof: [0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387](https://sepolia.basescan.org/tx/0xd350d5112904dbccfe68ac79f95922170368db1b2014695411efe0d2147e8387)
 - ECO World State Proof: [0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c](https://sepolia.basescan.org/tx/0x730116f718f722859bb68544adfa301b0bed5e6d00fba4f68e3487551867809c)
@@ -185,7 +185,7 @@ Method : `proveWorldStateCannon`
 
 - Intents
   - Hash: 0x9fcc6825d5739ef8c19f9ae1f891dc7e38e8433b9356aa940180a482c83774d0
-  - Creation(EcoTestNet): 0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f
+  - Creation(EcoTestnet): 0x59bcb1186ffbe99bdbd19633e0c8b21ad88a846b3eb42efc746c5cfe4075336f
   - Fulfillment(BaseSepolia): 0x5e2966449300edbfc9624a299775f5f5b4c9f090302f86f006cdf25541e1c64a
     - Block: 13398241
 

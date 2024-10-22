@@ -9,6 +9,15 @@ import {ISemver} from "./interfaces/ISemVer.sol";
 contract HyperProver is IMessageRecipient, SimpleProver {
     using TypeCasts for bytes32;
 
+    ProofType public constant PROOF_TYPE = ProofType.Hyperlane;
+
+    /**
+     * emitted on an attempt to register a claimant on an intent that has already been proven and has a claimant
+     * @dev this is an event rather than an error because the expected behavior is to ignore one intent but continue with the rest
+     * @param _intentHash the hash of the intent
+     */
+    event IntentAlreadyProven(bytes32 _intentHash);
+
     /**
      * emitted on an unauthorized call to the handle() method
      * @param _sender the address that called the handle() method
@@ -22,11 +31,11 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     error UnauthorizedDispatch(address _sender);
 
     // local mailbox address
-    address immutable MAILBOX;
+    address public immutable MAILBOX;
 
     // address of the Inbox contract
     // assumes that all Inboxes are deployed via ERC-2470 and hence have the same address
-    address immutable INBOX;
+    address public immutable INBOX;
 
     string public constant version = "0.3.0-beta.0";
     /**
@@ -50,15 +59,25 @@ contract HyperProver is IMessageRecipient, SimpleProver {
         if (MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);
         }
-        // message body is exactly what was sent into the mailbox on the inbox' chain
-        // encode(intentHash, claimant)
+
         address sender = _sender.bytes32ToAddress();
 
         if (INBOX != sender) {
             revert UnauthorizedDispatch(sender);
         }
-        (bytes32 intentHash, address claimant) = abi.decode(_messageBody, (bytes32, address));
-        provenIntents[intentHash] = claimant;
-        emit IntentProven(intentHash, claimant);
+        (bytes32[] memory hashes, address[] memory claimants) = abi.decode(_messageBody, (bytes32[], address[]));
+        for (uint256 i = 0; i < hashes.length; i++) {
+            (bytes32 intentHash, address claimant) = (hashes[i], claimants[i]);
+            if (provenIntents[intentHash] != address(0)) {
+                emit IntentAlreadyProven(intentHash);
+            } else {
+                provenIntents[intentHash] = claimant;
+                emit IntentProven(intentHash, claimant);
+            }
+        }
+    }
+
+    function getProofType() external pure override returns (ProofType) {
+        return PROOF_TYPE;
     }
 }

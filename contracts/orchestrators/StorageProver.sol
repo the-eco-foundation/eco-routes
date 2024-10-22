@@ -6,9 +6,15 @@ import {IProver} from "../interfaces/IProver.sol";
 contract StorageProver is IProver {
     IProver public prover;
 
+    ProofType public constant PROOF_TYPE = ProofType.Storage;
+
     constructor(address _proverAddress) {
         // Prover prover = new Prover();
         prover = IProver(_proverAddress);
+    }
+
+    function getProofType() external pure override returns (ProofType) {
+        return PROOF_TYPE;
     }
 
     function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {

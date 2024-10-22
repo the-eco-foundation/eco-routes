@@ -42,14 +42,14 @@ export async function getIntentsToProve(
 ) {
   // get BaseSepolia Last OptimimsmSepolia BlockNumber from WorldState
 
-  // const sourceChainConfig = networks.ecoTestNet.sourceChains
+  // const sourceChainConfig = networks.ecoTestnet.sourceChains
   const sourceChainConfig = [networkIds[471923]]
-  // const sourceChainConfig = [networkIds.ecoTestNet]
+  // const sourceChainConfig = [networkIds.ecoTestnet]
   console.log('sourceChainConfig: ', sourceChainConfig)
-  const settlementBlockNumber = await s.ecoTestNetl1Block.number()
+  const settlementBlockNumber = await s.ecoTestnetl1Block.number()
   const sourceChains: Record<number, SourceChainInfo> = {}
   // get the starting block to scan for intents
-  let ecoTestNetProvenState
+  let ecoTestnetProvenState
   let scanAllIntentsForInbox = false
   // TODO change to use contract factory for deploys then can use ethers deploymentTransaction to get the blockNumber
   let startingBlockNumber = networks.baseSepolia.inbox.deploymentBlock || 0n
@@ -62,21 +62,21 @@ export async function getIntentsToProve(
       console.log('sourceChain: ', sourceChain)
       // @ts-ignore
       const proverContract = s[`${sourceChain}ProverContract`] as Contract
-      ecoTestNetProvenState = await proverContract.provenStates(
+      ecoTestnetProvenState = await proverContract.provenStates(
         networkIds.baseSepolia,
       )
-      console.log('ecoTestNetProvenState: ', ecoTestNetProvenState)
-      sourceChainInfo.lastProvenBlock = ecoTestNetProvenState.blockNumber
+      console.log('ecoTestnetProvenState: ', ecoTestnetProvenState)
+      sourceChainInfo.lastProvenBlock = ecoTestnetProvenState.blockNumber
       if (proveAll) {
         sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
         sourceChainInfo.needNewProvenState = true
         startingBlockNumber = inboxDeploymentBlock
         scanAllIntentsForInbox = true
       } else {
-        if (ecoTestNetProvenState.blockNumber > inboxDeploymentBlock) {
-          sourceChainInfo.lastProvenBlock = ecoTestNetProvenState.blockNumber
-          if (ecoTestNetProvenState.blockNumber < startingBlockNumber) {
-            startingBlockNumber = ecoTestNetProvenState.blockNumber
+        if (ecoTestnetProvenState.blockNumber > inboxDeploymentBlock) {
+          sourceChainInfo.lastProvenBlock = ecoTestnetProvenState.blockNumber
+          if (ecoTestnetProvenState.blockNumber < startingBlockNumber) {
+            startingBlockNumber = ecoTestnetProvenState.blockNumber
           }
         } else {
           sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
@@ -100,7 +100,7 @@ export async function getIntentsToProve(
   const settlementBlockNumberHex = toQuantity(settlementBlockNumber)
   // Get the event from the latest Block checking transaction hash
   const intentHashEvents = await s.baseSepoliaInboxContractSolver.queryFilter(
-    s.ecoTestNetInboxContractSolver.getEvent('Fulfillment'),
+    s.ecoTestnetInboxContractSolver.getEvent('Fulfillment'),
     toQuantity(startingBlockNumber),
     settlementBlockNumberHex,
   )
@@ -125,8 +125,8 @@ export async function getIntentsToProve(
     .filter((intentToProve) => {
       console.log('intentToProve: ', intentToProve)
       console.log('intentToProve.sourceChain: ', intentToProve.sourceChain)
-      console.log('networkIds.ecoTestNet: ', networkIds.ecoTestNet)
-      if (intentToProve.sourceChain !== networkIds.ecoTestNet) {
+      console.log('networkIds.ecoTestnet: ', networkIds.ecoTestnet)
+      if (intentToProve.sourceChain !== networkIds.ecoTestnet) {
         return false
       } else {
         if (
@@ -148,12 +148,12 @@ export async function getIntentsToProve(
   // return [chainId, intentHash, intentFulfillTransaction]
 }
 
-async function proveSettlementChainInstantBaseSepoliaEcoTestNet() {
-  console.log('In proveSettlementChainInstantBaseSepoliaEcoTestNet')
+async function proveSettlementChainInstantBaseSepoliaEcoTestnet() {
+  console.log('In proveSettlementChainInstantBaseSepoliaEcoTestnet')
   let provedSettlementState = false
   let errorCount = 0
   while (!provedSettlementState) {
-    const setlementBlock = await s.ecoTestNetl1Block.number()
+    const setlementBlock = await s.ecoTestnetl1Block.number()
     console.log('setlementBlock: ', setlementBlock)
     const settlementBlockNumberLatest = toQuantity(setlementBlock)
 
@@ -187,7 +187,7 @@ async function proveSettlementChainInstantBaseSepoliaEcoTestNet() {
         stripZerosLeft(toBeHex(block.excessBlobGas)),
         block.parentBeaconBlockRoot,
       ])
-      tx = await s.ecoTestNetProverContract.proveSettlementLayerState(
+      tx = await s.ecoTestnetProverContract.proveSettlementLayerState(
         getBytes(hexlify(rlpEncodedBlockData)),
         // networkIds.baseSepolia,
       )
@@ -217,22 +217,22 @@ async function proveSettlementChainInstantBaseSepoliaEcoTestNet() {
       //   )
       //   console.log(`Transaction failed: ${decodedError?.name}`)
       //   console.log(
-      //     `Error in proveSettlementLayerState EcoTestNet:`,
+      //     `Error in proveSettlementLayerState EcoTestnet:`,
       //     e.shortMessage,
       //   )
       // } else {
-      //   console.log(`Error in proveSettlementLayerState EcoTestNet:`, e)
+      //   console.log(`Error in proveSettlementLayerState EcoTestnet:`, e)
       // }
     }
   }
 }
 
-async function proveIntentEcoTestNet(
+async function proveIntentEcoTestnet(
   intentHash,
   settlementBlockTag,
   settlementWorldStateRoot,
 ) {
-  console.log('In proveIntentEcoTestNet')
+  console.log('In proveIntentEcoTestnet')
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
@@ -245,14 +245,14 @@ async function proveIntentEcoTestNet(
   ])
 
   const intentInfo =
-    await s.ecoTestNetIntentSourceContractClaimant.getIntent(intentHash)
+    await s.ecoTestnetIntentSourceContractClaimant.getIntent(intentHash)
 
   const abiCoder = AbiCoder.defaultAbiCoder()
   const intermediateHash = keccak256(
     abiCoder.encode(
       ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
       [
-        networkIds.ecoTestNet, // sourceChainID
+        networkIds.ecoTestnet, // sourceChainID
         intentInfo[1], // destinationChainID
         intentInfo[2], // targetTokens
         intentInfo[3], // callData
@@ -263,13 +263,13 @@ async function proveIntentEcoTestNet(
   )
 
   try {
-    const proveIntentTx = await s.ecoTestNetProverContract.proveIntent(
+    const proveIntentTx = await s.ecoTestnetProverContract.proveIntent(
       networkIds.baseSepolia,
       actors.claimant,
       networks.baseSepolia.inbox.address,
       intermediateHash,
       intentInboxProof.storageProof[0].proof,
-      await s.ecoTestNetProverContract.rlpEncodeDataLibList([
+      await s.ecoTestnetProverContract.rlpEncodeDataLibList([
         toBeHex(intentInboxProof.nonce), // nonce
         stripZerosLeft(toBeHex(intentInboxProof.balance)),
         intentInboxProof.storageHash,
@@ -283,8 +283,8 @@ async function proveIntentEcoTestNet(
     console.log('Prove Intent tx:', proveIntentTx.hash)
     return proveIntentTx.hash
   } catch (e) {
-    if (e.data && s.ecoTestNetProverContract) {
-      const decodedError = s.ecoTestNetProverContract.interface.parseError(
+    if (e.data && s.ecoTestnetProverContract) {
+      const decodedError = s.ecoTestnetProverContract.interface.parseError(
         e.data,
       )
       console.log(`Transaction failed in proveIntent : ${decodedError?.name}`)
@@ -313,8 +313,8 @@ export async function proveIntents(
         // await proveIntentOptimismSepolia(intent.intentHash, endBatchBlockData)
         break
       }
-      case networkIds.ecoTestNet: {
-        await proveIntentEcoTestNet(
+      case networkIds.ecoTestnet: {
+        await proveIntentEcoTestnet(
           intent.intentHash,
           settlementBlockTag,
           settlementWorldStateRoot,
@@ -325,18 +325,18 @@ export async function proveIntents(
   }
 }
 
-async function withdrawRewardEcoTestNet(intentHash) {
+async function withdrawRewardEcoTestnet(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
-      await s.ecoTestNetIntentSourceContractClaimant.withdrawRewards(intentHash)
+      await s.ecoTestnetIntentSourceContractClaimant.withdrawRewards(intentHash)
     await withdrawTx.wait()
     console.log('Withdrawal tx: ', withdrawTx.hash)
     return withdrawTx.hash
   } catch (e) {
-    if (e.data && s.ecoTestNetIntentSourceContractClaimant) {
+    if (e.data && s.ecoTestnetIntentSourceContractClaimant) {
       const decodedError =
-        s.ecoTestNetIntentSourceContractClaimant.interface.parseError(e.data)
+        s.ecoTestnetIntentSourceContractClaimant.interface.parseError(e.data)
       console.log(
         `Transaction failed in withdrawReward : ${decodedError?.name}`,
       )
@@ -357,8 +357,8 @@ export async function withdrawFunds(intentsToProve) {
       case networkIds.optimismSepolia: {
         break
       }
-      case networkIds.ecoTestNet: {
-        await withdrawRewardEcoTestNet(intent.intentHash)
+      case networkIds.ecoTestnet: {
+        await withdrawRewardEcoTestnet(intent.intentHash)
         break
       }
     }
@@ -372,7 +372,7 @@ async function main() {
   // let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
-    console.log('Instant Settle of Base Sepolia to EcoTestNet')
+    console.log('Instant Settle of Base Sepolia to EcoTestnet')
 
     // Get all the intents that can be proven for the batch by destination chain
     const { intentsToProve } = await getIntentsToProve(
@@ -382,7 +382,7 @@ async function main() {
     console.log('intentsToProve: ', intentsToProve)
     // Prove the latest batch settled
     const { settlementBlockNumberLatest, settlementWorldStateRootLatest } =
-      await proveSettlementChainInstantBaseSepoliaEcoTestNet()
+      await proveSettlementChainInstantBaseSepoliaEcoTestnet()
     // Prove all the intents
     console.log('intentsToProve: ', intentsToProve)
     await proveIntents(

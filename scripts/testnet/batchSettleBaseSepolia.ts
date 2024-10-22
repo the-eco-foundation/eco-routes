@@ -531,7 +531,7 @@ export async function proveDestinationChainBatchSettled(
               )
               break
             }
-            case networkIds.ecoTestNet: {
+            case networkIds.ecoTestnet: {
               // will use instantSettle for this
               // endBatchBlockData = await proveWorldStatesCannonL2L3(
               //   faultDisputeGameAddress,
@@ -692,9 +692,9 @@ export async function proveIntents(intentsToProve, endBatchBlockData) {
         await proveIntentOptimismSepolia(intent.intentHash, endBatchBlockData)
         break
       }
-      case networkIds.ecoTestNet: {
+      case networkIds.ecoTestnet: {
         // will use instantSettle for this
-        // await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
+        // await proveIntentEcoTestnet(intent.intentHash, endBatchBlockData)
         break
       }
     }
@@ -762,9 +762,9 @@ export async function withdrawFunds(intentsToProve) {
         await withdrawRewardOptimismSepolia(intent.intentHash)
         break
       }
-      case networkIds.ecoTestNet: {
+      case networkIds.ecoTestnet: {
         // will use instantSettle for this
-        // await withdrawRewardEcoTestNet(intent.intentHash)
+        // await withdrawRewardEcoTestnet(intent.intentHash)
         break
       }
     }

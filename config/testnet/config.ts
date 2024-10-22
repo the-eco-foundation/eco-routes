@@ -4,12 +4,12 @@ const networkIds: any = {
   sepolia: 11155111,
   optimismSepolia: 11155420,
   baseSepolia: 84532,
-  ecoTestNet: 471923,
+  ecoTestnet: 471923,
   // arbitrumSepolia: 421614,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
-  471923: 'ecoTestNet',
+  471923: 'ecoTestnet',
   // 421614: 'arbitrumSepolia',
 }
 
@@ -87,22 +87,22 @@ const networks: any = {
     network: networkIds[11155420],
     chainId: networkIds.optimismSepolia,
     alchemyNetwork: 'optimism-sepolia',
-    sourceChains: ['baseSepolia', 'ecoTestNet'],
+    sourceChains: ['baseSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0xa32c040aafD794e6b53144738b275282C3d236d9',
+      address: '0x3eB0C0CE94112136Cd6677F180DF433296D53556',
       deploymentBlock: 16795390n, // '0x10046Fe'
     },
     intentSource: {
-      address: '0x3303A6F5720133E45C54D007D80A55FC5c6a91AF',
+      address: '0x566826D965B60706984400fA7676944d501e39af',
       deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xf883F21d23d9bA5b02c48c2c700fc497a3821433',
+      address: '0xC2F970303CA76a5680868868529a1411122DA0B9',
       deploymentBlock: 18354796n, // '0x118126c
     },
-    hyperproverContractAddress: '0x762Db5D3F9A5B52D3C3d527BbcaEbE67e094F633',
+    hyperProverContractAddress: '0x987977e83328665b926f3c85574bFc4605fEa3EE',
     proving: {
       mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -122,22 +122,22 @@ const networks: any = {
     network: networkIds[84532],
     chainId: networkIds.baseSepolia,
     alchemyNetwork: 'base-sepolia',
-    sourceChains: ['optimismSepolia', 'ecoTestNet'],
+    sourceChains: ['optimismSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0xa32c040aafD794e6b53144738b275282C3d236d9',
+      address: '0x3eB0C0CE94112136Cd6677F180DF433296D53556',
       deploymentBlock: 14812482n, // '0xe20542',
     },
     intentSource: {
-      address: '0x3303A6F5720133E45C54D007D80A55FC5c6a91AF',
+      address: '0x566826D965B60706984400fA7676944d501e39af',
       deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xf883F21d23d9bA5b02c48c2c700fc497a3821433',
+      address: '0xC2F970303CA76a5680868868529a1411122DA0B9',
       deploymentBlock: 14812488n, // '0xe20548',
     },
-    hyperproverContractAddress: '0x762Db5D3F9A5B52D3C3d527BbcaEbE67e094F633',
+    hyperProverContractAddress: '0x987977e83328665b926f3c85574bFc4605fEa3EE',
     proving: {
       mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -155,33 +155,33 @@ const networks: any = {
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      ecoTestNet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet L2 Output Oracle
+      ecoTestnet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestnet L2 Output Oracle
     },
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
   },
-  ecoTestNet: {
+  ecoTestnet: {
     network: networkIds[471923],
-    chainId: networkIds.ecoTestNet,
+    chainId: networkIds.ecoTestnet,
     alchemyNetwork: 'eco-testnet',
     sourceChains: ['baseSepolia', 'optimismSepolia'],
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContract: {
-      address: '0xa32c040aafD794e6b53144738b275282C3d236d9',
+      address: '0x3eB0C0CE94112136Cd6677F180DF433296D53556',
       deploymentBlock: '0x35dc32', // 3529778n
     },
     intentSource: {
-      address: '0x3303A6F5720133E45C54D007D80A55FC5c6a91AF',
+      address: '0x566826D965B60706984400fA7676944d501e39af',
       deploymentBlock: 3529780n, // '0x35dc34',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xf883F21d23d9bA5b02c48c2c700fc497a3821433',
+      address: '0xC2F970303CA76a5680868868529a1411122DA0B9',
       deploymentBlock: 3529786n, // '0x35dc3a',
     },
-    hyperproverContractAddress: '0x762Db5D3F9A5B52D3C3d527BbcaEbE67e094F633',
+    hyperProverContractAddress: '0x987977e83328665b926f3c85574bFc4605fEa3EE',
     proving: {
       mechanism: 1,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -221,19 +221,19 @@ const networks: any = {
 }
 
 const routes: any = [
-  // ecoTestNet to baseSepolia
+  // ecoTestnet to baseSepolia
   {
     source: {
-      chainId: networkIds.ecoTestNet,
-      providerName: 'ecoTestNetProvider',
+      chainId: networkIds.ecoTestnet,
+      providerName: 'ecoTestnetProvider',
       contracts: {
         intentSourceContract: {
-          address: networks.ecoTestNet.intentSource.address,
-          variableName: 'ecoTestNetIntentSourceContractIntentCreator',
+          address: networks.ecoTestnet.intentSource.address,
+          variableName: 'ecoTestnetIntentSourceContractIntentCreator',
         },
         proverContract: {
-          address: networks.ecoTestNet.proverContract.address,
-          variableName: 'ecoTestNetProverContract',
+          address: networks.ecoTestnet.proverContract.address,
+          variableName: 'ecoTestnetProverContract',
         },
       },
     },
@@ -252,8 +252,8 @@ const routes: any = [
     intent: {
       contracts: {
         rewardToken: {
-          address: networks.ecoTestNet.usdcAddress,
-          variableName: 'ecoTestNetUSDCContractIntentCreator',
+          address: networks.ecoTestnet.usdcAddress,
+          variableName: 'ecoTestnetUSDCContractIntentCreator',
         },
         targetToken: {
           address: networks.baseSepolia.usdcAddress,
@@ -265,19 +265,19 @@ const routes: any = [
       duration: intent.duration,
     },
   },
-  // ecoTestNet to optimismSepolia
+  // ecoTestnet to optimismSepolia
   {
     source: {
-      chainId: networkIds.ecoTestNet,
-      providerName: 'ecoTestNetProvider',
+      chainId: networkIds.ecoTestnet,
+      providerName: 'ecoTestnetProvider',
       contracts: {
         intentSourceContract: {
-          address: networks.ecoTestNet.intentSource.address,
-          variableName: 'ecoTestNetIntentSourceContractIntentCreator',
+          address: networks.ecoTestnet.intentSource.address,
+          variableName: 'ecoTestnetIntentSourceContractIntentCreator',
         },
         proverContract: {
-          address: networks.ecoTestNet.proverContract.address,
-          variableName: 'ecoTestNetProverContract',
+          address: networks.ecoTestnet.proverContract.address,
+          variableName: 'ecoTestnetProverContract',
         },
       },
     },
@@ -296,8 +296,8 @@ const routes: any = [
     intent: {
       contracts: {
         rewardToken: {
-          address: networks.ecoTestNet.usdcAddress,
-          variableName: 'ecoTestNetUSDCContractIntentCreator',
+          address: networks.ecoTestnet.usdcAddress,
+          variableName: 'ecoTestnetUSDCContractIntentCreator',
         },
         targetToken: {
           address: networks.optimismSepolia.usdcAddress,
@@ -353,7 +353,7 @@ const routes: any = [
       duration: intent.duration,
     },
   },
-  // baseSepolia to ecoTestNet
+  // baseSepolia to ecoTestnet
   {
     source: {
       chainId: networkIds.baseSepolia,
@@ -370,12 +370,12 @@ const routes: any = [
       },
     },
     destination: {
-      chainId: networkIds.ecoTestNet,
-      providerName: 'ecoTestNetProvider',
+      chainId: networkIds.ecoTestnet,
+      providerName: 'ecoTestnetProvider',
       contracts: {
         inboxContract: {
-          address: networks.ecoTestNet.inbox.address,
-          variableName: 'ecoTestNetInboxContractSolver',
+          address: networks.ecoTestnet.inbox.address,
+          variableName: 'ecoTestnetInboxContractSolver',
         },
         provingMechanism: provingMechanisms.bedrockL2Settlement,
         provingState: provingState.finalized,
@@ -388,8 +388,8 @@ const routes: any = [
           variableName: 'baseSepoliaUSDCContractIntentCreator',
         },
         targetToken: {
-          address: networks.ecoTestNet.usdcAddress,
-          variableName: 'ecoTestNetUSDCContractSolver',
+          address: networks.ecoTestnet.usdcAddress,
+          variableName: 'ecoTestnetUSDCContractSolver',
         },
       },
       rewardAmounts: intent.rewardAmounts,
@@ -397,7 +397,7 @@ const routes: any = [
       duration: intent.duration,
     },
   },
-  // optimismSepolia to ecoTestNet
+  // optimismSepolia to ecoTestnet
   {
     source: {
       chainId: networkIds.optimismSepolia,
@@ -414,12 +414,12 @@ const routes: any = [
       },
     },
     destination: {
-      chainId: networkIds.ecoTestNet,
-      providerName: 'ecoTestNetProvider',
+      chainId: networkIds.ecoTestnet,
+      providerName: 'ecoTestnetProvider',
       contracts: {
         inboxContract: {
-          address: networks.ecoTestNet.inbox.address,
-          variableName: 'ecoTestNetInboxContractSolver',
+          address: networks.ecoTestnet.inbox.address,
+          variableName: 'ecoTestnetInboxContractSolver',
         },
         provingMechanism: provingMechanisms.bedrockL2L3,
         provingState: provingState.finalized,
@@ -432,8 +432,8 @@ const routes: any = [
           variableName: 'optimismSepoliaUSDCContractIntentCreator',
         },
         targetToken: {
-          address: networks.ecoTestNet.usdcAddress,
-          variableName: 'ecoTestNetUSDCContractSolver',
+          address: networks.ecoTestnet.usdcAddress,
+          variableName: 'ecoTestnetUSDCContractSolver',
         },
       },
       rewardAmounts: intent.rewardAmounts,

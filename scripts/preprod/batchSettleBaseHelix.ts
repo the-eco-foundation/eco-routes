@@ -407,7 +407,7 @@ async function proveWorldStatesBedrockL3L2Base(
     settlementWorldStateRoot,
     endBatchBlockDataL2,
   )
-  // Prove ECO TestNet World State on Base
+  // Prove ECO Testnet World State on Base
   await proveWorldStateBedrockOnBaseforHelix(
     l3OutputIndex,
     l3BlockNumber,

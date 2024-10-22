@@ -114,7 +114,7 @@ const networks: any = {
       },
     },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
-    hyperlaneMailboxAddress: '',
+    hyperlaneMailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D',
   },
   base: {
     network: networkIds[8453],
@@ -155,45 +155,7 @@ const networks: any = {
       eco: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d', // eco L2 Output Oracle
     },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-    hyperlaneMailboxAddress: '',
-  },
-  ecos: {
-    network: networkIds[8921733],
-    chainId: networkIds.eco,
-    alchemyNetwork: 'eco',
-    sourceChains: ['base', 'optimism'],
-    rpcUrl: 'https://helix-test.calderachain.xyz/http',
-    settlementNetwork: 'base',
-    proverContract: {
-      address: '',
-      deploymentBlock: '0x35dc32', // 3529778n
-    },
-    intentSource: {
-      address: '',
-      deploymentBlock: 3529780n, // '0x35dc34',
-      minimumDuration: 1000,
-      counter: 0,
-    },
-    inbox: {
-      address: '',
-      deploymentBlock: 3529786n, // '0x35dc3a',
-    },
-    hyperproverContractAddress: '',
-    proving: {
-      mechanism: 1,
-      l1BlockAddress: '0x4200000000000000000000000000000000000015',
-      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
-      l2OutputOracleSlotNumber: 3,
-      outputRootVersionNumber: 0,
-      l1BlockSlotNumber: 2,
-      settlementChain: {
-        network: 'base',
-        id: 8453,
-        contract: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d',
-      },
-    },
-    usdcAddress: '',
-    hyperlaneMailboxAddress: '',
+    hyperlaneMailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
   },
 }
 

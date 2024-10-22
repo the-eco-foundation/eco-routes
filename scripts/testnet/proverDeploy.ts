@@ -32,15 +32,15 @@ const optimismSepoliaChainConfiguration = {
   },
 }
 
-const ecoTestNetChainConfiguration = {
-  chainId: networks.ecoTestNet.chainId, // chainId
+const ecoTestnetChainConfiguration = {
+  chainId: networks.ecoTestnet.chainId, // chainId
   chainConfiguration: {
-    provingMechanism: networks.ecoTestNet.proving.mechanism, // provingMechanism
-    settlementChainId: networks.ecoTestNet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestNet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestNet.proving.l1BlockAddress, // blockhashOracle
+    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
-      networks.ecoTestNet.proving.outputRootVersionNumber, // outputRootVersionNumber
+      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
 let counter: number = 0
@@ -51,8 +51,8 @@ switch (networkName) {
   case 'optimismSepolia':
     counter = networks.optimismSepolia.intentSource.counter
     break
-  case 'ecoTestNet':
-    counter = networks.ecoTestNet.intentSource.counter
+  case 'ecoTestnet':
+    counter = networks.ecoTestnet.intentSource.counter
     break
   default:
     counter = 0
@@ -69,7 +69,7 @@ async function main() {
   const prover = await proverFactory.deploy([
     baseSepoliaChainConfiguration,
     optimismSepoliaChainConfiguration,
-    ecoTestNetChainConfiguration,
+    ecoTestnetChainConfiguration,
   ])
   console.log('prover implementation deployed to: ', await prover.getAddress())
 
@@ -86,7 +86,7 @@ async function main() {
           [
             baseSepoliaChainConfiguration,
             optimismSepoliaChainConfiguration,
-            ecoTestNetChainConfiguration,
+            ecoTestnetChainConfiguration,
           ],
         ],
       })

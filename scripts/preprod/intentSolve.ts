@@ -104,7 +104,7 @@ export async function intentSolve(route) {
 
     // fulfill the intent
 
-    const fulfillTx = await inboxContract.fulfill(
+    const fulfillTx = await inboxContract.fulfillStorage(
       route.source.chainId, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
