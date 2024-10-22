@@ -1,23 +1,14 @@
 /* eslint-disable no-magic-numbers */
-const provingMechanisms: any = {
-  self: 0,
-  bedrock: 1,
-  cannon: 2,
-  nitro: 3,
-  hyperProver: 4,
-  0: 'self',
-  1: 'bedrock',
-  2: 'cannon',
-  3: 'nitro',
-  4: 'hyperProver',
-}
+
 const networkIds: any = {
   mainnet: 1,
   optimism: 10,
   base: 8453,
+  eco: 8921733,
   1: 'mainnet',
   10: 'optimism',
   8453: 'base',
+  8921733: 'eco',
 }
 
 const actors: any = {
@@ -30,6 +21,46 @@ const actors: any = {
   recipient: '0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9',
 }
 
+const provingMechanisms: any = {
+  // self: 0, // Destination is Self
+  // settlement: 10, // Source Chain is an L2, Destination is A L1 Settlement Chain
+  settlementL3: 11, // Source Chain is an L3, Destination is a L2 Settlement Chain
+  // bedrock: 20, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
+  // bedrockL2L3: 21, // Source Chain is an L2, Destination Chain is an L3 using Bedrock
+  bedrockL3L2: 22, // Source Chain is an L3, Destination Chain is an L2 using Bedrock
+  // bedrockL1Settlement: 23, // Source Chain is an L1, settlement chain for the Destination Chain which is an L2 using Bedrock
+  bedrockL2Settlement: 24, // Source Chain is the L2, settlement chain for the Destination Chain which is an L3 using Bedrock
+  cannon: 30, // Source Chain is an L2, Destination Chain is an L2 using Cannon
+  cannonL2L3: 31, // Source Chain is an L2, Destination Chain is an L3 using Cannon
+  cannonL3L2: 32, // Source Chain is an L3, Destination Chain is an L2 using Cannon
+  // cannonL1Settlement: 33, // Source Chain is an L1 settlement chain for the Destination Chain which is an L2 using Cannon
+  // cannonL2Settlement: 34, // Source Chain is the L2 settlement chain for the Destination Chain which is an L3 using Cannon
+  hyperProver: 40, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
+  // 0: 'self',
+  // 10: 'settlement',
+  11: 'settlementL3',
+  // 20: 'bedrock',
+  // 21: 'bedrockL2L3',
+  22: 'bedrockL3L2',
+  // 23: 'bedrockL1Settlement',
+  24: 'bedrockL2Settlement',
+  30: 'cannon',
+  31: 'cannonL2L3',
+  // 32: 'cannonL3L2',
+  // 33: 'cannonL1Settlement',
+  // 34: 'cannonL2Settlement',
+  40: 'hyperProver',
+}
+
+const provingState: any = {
+  finalized: 0,
+  posted: 1,
+  confirmed: 2,
+  0: 'finalized', // Finalized on Settlement Chain
+  1: 'posted', // Posted to Settlement Chain
+  2: 'confirmed', // Confirmed Locally
+}
+
 // Note intents currently being used are for USDC with a common set of actors
 // the other data coming from the network
 // Here we store a minimal set of addtional fieds
@@ -37,32 +68,13 @@ const intent: any = {
   rewardAmounts: [1001],
   targetAmounts: [1000],
   duration: 3600,
-  opBaseBedrock: {
-    hash: '0xb8da53479f442d4f4592d17855185eddd3b414a71a13b29f507524a05986ed04',
-    fulfillTransaction:
-      '0xbe0c059d4303863a225791808725ddb0c6f3b061cc4233beb1c632af561fdd24',
-  },
-  baseOpCannon: {
-    settlementBlockTag: '0x13a303b', // 20590651n
-    settlementStateRoot:
-      '0x2c8ae6de0f5432d5b06626b19ec08f8948fec8c200a141bfc802dd56c310c668',
-    // faultDisputeGame: '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
-    faultDisputeGame: {
-      address: '0x212B650A940B2C9c924De8AA2c225a06Fca2E3f7',
-      creationBlock: '0x139d029', // 20566057n
-      resolvedBlock: '0x13a3205', // 20591109n
-      gameIndex: 1709,
-    },
-    hash: '0xe11e44c20010fb864574e5f85f9b86d611f952835a5c772aa6606f282e72fad7',
-    fulfillTransaction:
-      '0xfc5e71a24a608e78c5035b112f6b58f0a922434fa5189474165910e125b09ca0',
-  },
 }
 
 const networks: any = {
   mainnet: {
-    network: 'mainnet',
+    network: networkIds[1],
     chainId: networkIds.mainnet,
+    alchemyNetwork: 'mainnet',
     // The following settlement contracts are useful for event listening
     settlementContracts: {
       base: '0x56315b90c40730925ec5485cf004d835058518A0', // base L2 OUTPUT ORACLE
@@ -70,20 +82,31 @@ const networks: any = {
     },
   },
   optimism: {
-    network: 'optimism',
+    network: networkIds[10],
     chainId: networkIds.optimism,
-    proverContractAddress: '0xDb2CF52d39Cdd2116bc66711cFc43cB16ce17A2b',
-    intentSourceAddress: '0x755e48140807D290916F2a2777d0eCD905Ce5a73',
-    inboxAddress: '0x4fFf766A3E4A77584AaE21EaB8B2C2241619D983',
+    alchemyNetwork: 'optimism',
+    sourceChains: ['base', 'eco'],
+    proverContract: {
+      address: '',
+      deploymentBlock: 16795390n, // '0x10046Fe'
+    },
     intentSource: {
+      address: '',
+      deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
     },
+    inbox: {
+      address: '',
+      deploymentBlock: 18354796n, // '0x118126c
+    },
+    hyperproverContractAddress: '',
     proving: {
       mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
+      l1BlockSlotNumber: 2,
       settlementChain: {
         network: 'mainnet',
         id: networkIds.mainnet,
@@ -91,23 +114,35 @@ const networks: any = {
       },
     },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+    hyperlaneMailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D',
   },
   base: {
-    network: 'base',
+    network: networkIds[8453],
     chainId: networkIds.base,
-    proverContractAddress: '0x62fd344CE4E0e4c3d9C98D64390cA2739aF9021f',
-    intentSourceAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
-    inboxAddress: '0xc06CA8866586cF19bf22E102a3083673C4246629',
+    alchemyNetwork: 'base',
+    sourceChains: ['optimism', 'eco'],
+    proverContract: {
+      address: '',
+      deploymentBlock: 14812482n, // '0xe20542',
+    },
     intentSource: {
+      address: '',
+      deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
+    inbox: {
+      address: '',
+      deploymentBlock: 14812488n, // '0xe20548',
+    },
+    hyperproverContractAddress: '',
     proving: {
       mechanism: provingMechanisms.bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
+      l1BlockSlotNumber: 2,
       settlementChain: {
         network: 'mainnet',
         id: networkIds.mainnet,
@@ -115,8 +150,288 @@ const networks: any = {
         contract: '0x56315b90c40730925ec5485cf004d835058518A0',
       },
     },
+    // The following settlement contracts are useful for event listening
+    settlementContracts: {
+      eco: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d', // eco L2 Output Oracle
+    },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    hyperlaneMailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
   },
 }
 
-export { provingMechanisms, networkIds, intent, actors, networks }
+const routes: any = [
+  // eco to base
+  {
+    source: {
+      chainId: networkIds.eco,
+      providerName: 'ecoProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.eco.intentSource.address,
+          variableName: 'ecoIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.eco.proverContract.address,
+          variableName: 'ecoProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.base.inbox.address,
+          variableName: 'baseInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.settlementL3,
+        provingState: provingState.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.eco.usdcAddress,
+          variableName: 'ecoUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+  // eco to optimism
+  {
+    source: {
+      chainId: networkIds.eco,
+      providerName: 'ecoProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.eco.intentSource.address,
+          variableName: 'ecoIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.eco.proverContract.address,
+          variableName: 'ecoProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.optimism.inbox.address,
+          variableName: 'optimismInboxContractSolver',
+        },
+      },
+      provingMechanism: provingMechanisms.cannonL3L2,
+      provingState: provingState.finalized,
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.eco.usdcAddress,
+          variableName: 'ecoUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+  // base to optimism
+  {
+    source: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.base.intentSource.address,
+          variableName: 'baseIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.base.proverContract.address,
+          variableName: 'baseProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.optimism.inbox.address,
+          variableName: 'optimismInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.cannon,
+        provingState: provingState.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+  // base to eco
+  {
+    source: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.base.intentSource.address,
+          variableName: 'baseIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.base.proverContract.address,
+          variableName: 'baseProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.eco,
+      providerName: 'ecoProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.eco.inbox.address,
+          variableName: 'ecoInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.bedrockL2SettlementL2Settlement,
+        provingState: provingState.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.eco.usdcAddress,
+          variableName: 'ecoUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+  // optimism to eco
+  {
+    source: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.optimism.intentSource.address,
+          variableName: 'optimismIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.optimism.proverContract.address,
+          variableName: 'optimismProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.eco,
+      providerName: 'ecoProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.eco.inbox.address,
+          variableName: 'ecoInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.bedrockL2L3,
+        provingState: provingState.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.eco.usdcAddress,
+          variableName: 'ecoUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+  // optimism to base
+  {
+    source: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.optimism.intentSource.address,
+          variableName: 'optimismIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.optimism.proverContract.address,
+          variableName: 'optimismProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.base.inbox.address,
+          variableName: 'baseInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.bedrock,
+        provingState: provingState.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+]
+
+export {
+  provingMechanisms,
+  provingState,
+  networkIds,
+  intent,
+  actors,
+  networks,
+  routes,
+}
