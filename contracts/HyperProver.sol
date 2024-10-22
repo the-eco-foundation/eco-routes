@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import '@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol';
+import "@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
-import './interfaces/SimpleProver.sol';
-
+import "./libs/SimpleProver.sol";
+import {ISemver} from "./interfaces/ISemVer.sol";
 
 contract HyperProver is IMessageRecipient, SimpleProver {
     using TypeCasts for bytes32;
@@ -20,19 +20,21 @@ contract HyperProver is IMessageRecipient, SimpleProver {
      * @param _sender the address that called the dispatch() method
      */
     error UnauthorizedDispatch(address _sender);
-        
+
     // local mailbox address
     address immutable MAILBOX;
-    
+
     // address of the Inbox contract
     // assumes that all Inboxes are deployed via ERC-2470 and hence have the same address
     address immutable INBOX;
 
+    string public constant version = "0.3.0-beta.0";
     /**
      * @notice constructor
      * @param _mailbox the address of the local mailbox
      * @param _inbox the address of the Inbox contract
      */
+
     constructor(address _mailbox, address _inbox) {
         MAILBOX = _mailbox;
         INBOX = _inbox;
@@ -44,8 +46,8 @@ contract HyperProver is IMessageRecipient, SimpleProver {
      * @param _sender the address that called the dispatch() method
      * @param _messageBody the message body
      */
-    function handle(uint32, bytes32 _sender, bytes calldata _messageBody) public payable{
-        if(MAILBOX != msg.sender) {
+    function handle(uint32, bytes32 _sender, bytes calldata _messageBody) public payable {
+        if (MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);
         }
         // message body is exactly what was sent into the mailbox on the inbox' chain

@@ -16,7 +16,7 @@ export async function optimismBaseIntentSolve() {
   // approve lockup
   const rewardToken = s.optimismUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.optimism.intentSourceAddress,
+    networks.optimism.intentSource.address,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
@@ -35,13 +35,13 @@ export async function optimismBaseIntentSolve() {
     const intentTx =
       await s.optimismIntentSourceContractIntentCreator.createIntent(
         networkIds.base, // desination chainId
-        networks.base.inboxAddress, // destination inbox address
+        networks.base.inbox.address, // destination inbox address
         [networks.base.usdcAddress], // target Tokens
         data, // call datat for destination chain
         [networks.optimism.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.optimism.proverContractAddress, // prover contract address
+        networks.optimism.proverContract.address, // prover contract address
       )
     await intentTx.wait()
 
@@ -79,7 +79,7 @@ export async function optimismBaseIntentSolve() {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.baseUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.base.inboxAddress,
+      networks.base.inbox.address,
       intent.targetAmounts[0],
     )
     await fundTx.wait()
@@ -117,7 +117,7 @@ export async function baseOptimismIntentSolve() {
   // approve lockup
   const rewardToken = s.baseUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.base.intentSourceAddress,
+    networks.base.intentSource.address,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
@@ -135,13 +135,13 @@ export async function baseOptimismIntentSolve() {
   try {
     const intentTx = await s.baseIntentSourceContractIntentCreator.createIntent(
       networkIds.optimism, // desination chainId
-      networks.optimism.inboxAddress, // destination inbox address
+      networks.optimism.inbox.address, // destination inbox address
       [networks.optimism.usdcAddress], // target Tokens
       data, // call datat for destination chain
       [networks.base.usdcAddress], // reward Tokens on source chain
       intent.rewardAmounts, // reward amounts on source chain
       expiryTime, // intent expiry time
-      networks.base.proverContractAddress, // prover contract address
+      networks.base.proverContract.address, // prover contract address
     )
     await intentTx.wait()
 
@@ -179,7 +179,7 @@ export async function baseOptimismIntentSolve() {
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.optimismUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.optimism.inboxAddress,
+      networks.optimism.inbox.address,
       intent.targetAmounts[0],
     )
     await fundTx.wait()

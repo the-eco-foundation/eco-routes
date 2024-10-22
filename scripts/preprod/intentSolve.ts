@@ -1,7 +1,7 @@
 import { encodeTransfer } from '../../utils/encode'
 import { BigNumberish, BytesLike, toQuantity, Contract, Provider } from 'ethers'
-import { networkIds, actors, routes } from '../../config/testnet/config'
-import { s } from '../../config/testnet/setup'
+import { networkIds, actors, routes } from '../../config/preprod/config'
+import { s } from '../../config/preprod/setup'
 
 export async function intentSolve(route) {
   console.log(

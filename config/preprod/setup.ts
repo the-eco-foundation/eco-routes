@@ -1,4 +1,11 @@
-import { AbiCoder, AlchemyProvider, Contract, Wallet, Signer } from 'ethers'
+import {
+  getDefaultProvider,
+  AbiCoder,
+  AlchemyProvider,
+  Contract,
+  Wallet,
+  Signer,
+} from 'ethers'
 import {
   Inbox__factory,
   IntentSource__factory,
@@ -6,7 +13,7 @@ import {
   Prover__factory,
   ERC20__factory,
 } from '../../typechain-types'
-import { networks } from '../../config/mainnet/config'
+import { networks } from '../preprod/config'
 import * as L2OutputArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2OutputOracle.sol/L2OutputOracle.json'
 import * as DisputeGameFactoryArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/DisputeGameFactory.sol/DisputeGameFactory.json'
 import * as L2ToL1MessagePasserArtifact from '@eth-optimism/contracts-bedrock/forge-artifacts/L2ToL1MessagePasser.sol/L2ToL1MessagePasser.json'
@@ -162,6 +169,13 @@ export namespace s {
     CLAIMANT_PRIVATE_KEY,
     baseProvider,
   )
+  // Contracts
+  // Settlement Contracts for other Chains
+  export const baseSettlementContractHelix = new Contract(
+    networks.base.settlementContracts.helix,
+    L2OutputArtifact.abi,
+    baseProvider,
+  )
   // System Proving Contracts
   export const basel1Block = new Contract(
     networks.base.proving.l1BlockAddress,
@@ -205,5 +219,75 @@ export namespace s {
     networks.base.usdcAddress,
     ERC20__factory.abi,
     baseSolver,
+  )
+  // helix
+  // Providers
+  export const helixProvider = getDefaultProvider(networks.helix.rpcUrl)
+  // Signers
+  export const helixDeployer: Signer = new Wallet(
+    DEPLOYER_PRIVATE_KEY,
+    helixProvider,
+  )
+  export const helixIntentCreator: Signer = new Wallet(
+    INTENT_CREATOR_PRIVATE_KEY,
+    helixProvider,
+  )
+  export const helixSolver: Signer = new Wallet(
+    SOLVER_PRIVATE_KEY,
+    helixProvider,
+  )
+  export const helixIntentProver: Signer = new Wallet(
+    PROVER_PRIVATE_KEY,
+    helixProvider,
+  )
+  export const helixClaimant: Signer = new Wallet(
+    CLAIMANT_PRIVATE_KEY,
+    helixProvider,
+  )
+  // Contracts
+  // Settlement Contracts for other Chains
+
+  // System Proving Contracts
+  export const helixl1Block = new Contract(
+    networks.helix.proving.l1BlockAddress,
+    IL1Block__factory.abi,
+    helixProvider,
+  )
+  export const helixL2L1MessageParserContract = new Contract(
+    networks.helix.proving.l2l1MessageParserAddress,
+    L2ToL1MessagePasserArtifact.abi,
+    helixProvider,
+  )
+  // ECO PROTOCOL Contracts
+  export const helixIntentSourceContractIntentCreator = new Contract(
+    networks.helix.intentSource.address,
+    IntentSource__factory.abi,
+    helixIntentCreator,
+  )
+
+  export const helixIntentSourceContractClaimant = new Contract(
+    networks.helix.intentSource.address,
+    IntentSource__factory.abi,
+    helixClaimant,
+  )
+  export const helixProverContract = new Contract(
+    networks.helix.proverContract.address,
+    Prover__factory.abi,
+    helixIntentProver, // Use deployer as prover as we need to do privileged operations
+  )
+  export const helixInboxContractSolver = new Contract(
+    networks.helix.inbox.address,
+    Inbox__factory.abi,
+    helixSolver,
+  )
+  export const helixUSDCContractIntentCreator = new Contract(
+    networks.helix.usdcAddress,
+    ERC20__factory.abi,
+    helixIntentCreator,
+  )
+  export const helixUSDCContractSolver = new Contract(
+    networks.helix.usdcAddress,
+    ERC20__factory.abi,
+    helixSolver,
   )
 }

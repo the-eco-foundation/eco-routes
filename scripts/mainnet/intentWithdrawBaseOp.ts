@@ -401,13 +401,13 @@ async function proveIntent(intentHash, endBatchBlockData) {
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
   console.log(
-    'networks.optimism.inboxAddress: ',
-    networks.optimism.inboxAddress,
+    'networks.optimism.inbox.address: ',
+    networks.optimism.inbox.address,
   )
   console.log('inboxStorageSlot: ', inboxStorageSlot)
   console.log('endBatchBlockData.number: ', endBatchBlockData.number)
   const intentInboxProof = await s.optimismProvider.send('eth_getProof', [
-    networks.optimism.inboxAddress,
+    networks.optimism.inbox.address,
     [inboxStorageSlot],
     endBatchBlockData.number,
   ])
@@ -435,8 +435,8 @@ async function proveIntent(intentHash, endBatchBlockData) {
     console.log('networkIds.optimism: ', networkIds.optimism)
     console.log('actors.claimant: ', actors.claimant)
     console.log(
-      'networks.optimism.inboxAddress: ',
-      networks.optimism.inboxAddress,
+      'networks.optimism.inbox.address: ',
+      networks.optimism.inbox.address,
     )
     console.log('intermediateHash: ', intermediateHash)
     console.log(
@@ -456,7 +456,7 @@ async function proveIntent(intentHash, endBatchBlockData) {
     const proveIntentTx = await s.baseProverContract.proveIntent(
       networkIds.optimism,
       actors.claimant,
-      networks.optimism.inboxAddress,
+      networks.optimism.inbox.address,
       intermediateHash,
       intentInboxProof.storageProof[0].proof,
       await s.baseProverContract.rlpEncodeDataLibList([

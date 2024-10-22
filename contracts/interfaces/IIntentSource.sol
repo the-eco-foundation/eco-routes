@@ -1,5 +1,4 @@
-/* -*- c-basic-offset: 4 -*- */
-// SPDX-License-hash: MIT
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
 import {Intent} from "../types/Intent.sol";
@@ -51,6 +50,7 @@ interface IIntentSource {
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
+     * @param _prover the prover contract address for the intent
      */
     //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
     event IntentCreated(
@@ -61,8 +61,9 @@ interface IIntentSource {
         bytes[] _data,
         address[] _rewardTokens,
         uint256[] _rewardAmounts,
-        uint256 indexed _expiryTime,
-        bytes32 nonce
+        uint256 _expiryTime,
+        bytes32 nonce,
+        address indexed _prover
     );
 
     /**

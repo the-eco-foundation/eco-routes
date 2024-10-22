@@ -3,9 +3,10 @@
 pragma solidity ^0.8.26;
 
 import "./interfaces/IIntentSource.sol";
-import "./interfaces/SimpleProver.sol";
+import "./libs/SimpleProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ISemver} from "./interfaces/ISemVer.sol";
 
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
@@ -30,11 +31,13 @@ contract IntentSource is IIntentSource {
     // stores the intents
     mapping(bytes32 intenthash => Intent) public intents;
 
+    string public constant version = "0.3.0-beta.0";
     /**
      * @param _minimumDuration the minimum duration of an intent originating on this chain
      * @param _counterStart the initial value of the counter
      * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs to be redeployed.
      */
+
     constructor(uint256 _minimumDuration, uint256 _counterStart) {
         CHAIN_ID = block.chainid;
         MINIMUM_DURATION = _minimumDuration;
@@ -117,7 +120,8 @@ contract IntentSource is IIntentSource {
             _intent.rewardTokens,
             _intent.rewardAmounts,
             _intent.expiryTime,
-            _intent.nonce
+            _intent.nonce,
+            _intent.prover
         );
     }
 
