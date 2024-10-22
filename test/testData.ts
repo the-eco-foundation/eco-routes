@@ -1,7 +1,5 @@
 /* eslint-disable no-magic-numbers */
 
-import { s } from '../config/mainnet/setup'
-
 const networkIds: any = {
   sepolia: 11155111,
   optimismSepolia: 11155420,
