@@ -59,8 +59,6 @@ async function main() {
 }
 
 export async function hyperproveInstant() {
-  console.log('sourceNetwork.usdcAddress: ', sourceNetwork.usdcAddress)
-  console.log('intentCreator: ', intentCreator)
   const rewardToken = await ethers.getContractAt(
     'ERC20',
     sourceNetwork.usdcAddress,

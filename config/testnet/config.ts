@@ -1,5 +1,4 @@
 /* eslint-disable no-magic-numbers */
-
 const networkIds: any = {
   sepolia: 11155111,
   optimismSepolia: 11155420,
@@ -23,37 +22,21 @@ const actors: any = {
 }
 
 const provingMechanisms: any = {
-  // self: 0, // Destination is Self
-  // settlement: 10, // Source Chain is an L2, Destination is A L1 Settlement Chain
-  settlementL3: 11, // Source Chain is an L3, Destination is a L2 Settlement Chain
-  // bedrock: 20, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
-  // bedrockL2L3: 21, // Source Chain is an L2, Destination Chain is an L3 using Bedrock
-  bedrockL3L2: 22, // Source Chain is an L3, Destination Chain is an L2 using Bedrock
-  // bedrockL1Settlement: 23, // Source Chain is an L1, settlement chain for the Destination Chain which is an L2 using Bedrock
-  bedrockL2Settlement: 24, // Source Chain is the L2, settlement chain for the Destination Chain which is an L3 using Bedrock
-  cannon: 30, // Source Chain is an L2, Destination Chain is an L2 using Cannon
-  cannonL2L3: 31, // Source Chain is an L2, Destination Chain is an L3 using Cannon
-  cannonL3L2: 32, // Source Chain is an L3, Destination Chain is an L2 using Cannon
-  // cannonL1Settlement: 33, // Source Chain is an L1 settlement chain for the Destination Chain which is an L2 using Cannon
-  // cannonL2Settlement: 34, // Source Chain is the L2 settlement chain for the Destination Chain which is an L3 using Cannon
-  hyperProver: 40, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
-  // 0: 'self',
-  // 10: 'settlement',
-  11: 'settlementL3',
-  // 20: 'bedrock',
-  // 21: 'bedrockL2L3',
-  22: 'bedrockL3L2',
-  // 23: 'bedrockL1Settlement',
-  24: 'bedrockL2Settlement',
-  30: 'cannon',
-  31: 'cannonL2L3',
-  // 32: 'cannonL3L2',
-  // 33: 'cannonL1Settlement',
-  // 34: 'cannonL2Settlement',
-  40: 'hyperProver',
+  Self: 0, // Destination is Self
+  Settlement: 1, // Source Chain is an L2, Destination is A L1 Settlement Chain
+  SettlementL3: 2, // Source Chain is an L3, Destination is a L2 Settlement Chain
+  Bedrock: 3, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
+  Cannon: 4, // Source Chain is an L2, Destination Chain is an L2 using Cannon
+  HyperProver: 5, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
+  0: 'Self',
+  1: 'Settlement',
+  2: 'SettlementL3',
+  3: 'Bedrock',
+  4: 'Cannon',
+  5: 'HyperProver',
 }
 
-const provingState: any = {
+const provingStates: any = {
   finalized: 0,
   posted: 1,
   confirmed: 2,
@@ -77,6 +60,7 @@ const networks: any = {
     chainId: networkIds.sepolia,
     alchemyNetwork: 'sepolia',
     // The following settlement contracts are useful for event listening
+    finalityDelaySeconds: 0,
     settlementContracts: {
       optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
       baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
@@ -104,7 +88,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0x987977e83328665b926f3c85574bFc4605fEa3EE',
     proving: {
-      mechanism: provingMechanisms.cannon,
+      mechanism: provingMechanisms[2],
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
@@ -114,6 +98,7 @@ const networks: any = {
         id: networkIds.sepolia,
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
+      finalityDelaySeconds: 0,
     },
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
@@ -139,7 +124,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0x987977e83328665b926f3c85574bFc4605fEa3EE',
     proving: {
-      mechanism: provingMechanisms.cannon,
+      mechanism: provingMechanisms[2],
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
@@ -152,6 +137,7 @@ const networks: any = {
         // Old L2 Ourput Oracle Address
         // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
       },
+      finalityDelaySeconds: 604800,
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
@@ -194,6 +180,7 @@ const networks: any = {
         id: 84532,
         contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
       },
+      finalityDelaySeconds: 604800,
     },
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
@@ -215,6 +202,7 @@ const networks: any = {
     },
     proving: {
       mechanism: 3,
+      finalityDelaySeconds: 0,
     },
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
   },
@@ -488,11 +476,11 @@ const routes: any = [
 ]
 
 export {
-  provingMechanisms,
-  provingState,
   networkIds,
-  intent,
   actors,
+  provingMechanisms,
+  provingStates,
+  intent,
   networks,
   routes,
 }

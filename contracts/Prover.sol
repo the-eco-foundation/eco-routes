@@ -34,7 +34,25 @@ import {SimpleProver} from "./libs/SimpleProver.sol";
 import {ISemver} from "./interfaces/ISemVer.sol";
 
 contract Prover is SimpleProver, AbstractProver {
+    // The settlement type for the chain
+    enum SettlementType {
+        Finalized, // Finalized Block information has been posted and resolved on the settlement chain
+        Posted, // Settlement Block information has been posted on the settlement chain
+        Confirmed // Block is confirmed on the local chain
+
+    }
+    // The proving mechanism for the chain
+    enum ProvingMechanism {
+        Self, // Destination is Self
+        Settlement, // Source Chain is an L2, Destination is A L1 Settlement Chain
+        SettlementL3, // Source Chain is an L3, Destination is a L2 Settlement Chain
+        Bedrock, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
+        Cannon, // Source Chain is an L2, Destination Chain is an L2 using Cannon
+        HyperProver //HyperProver
+
+    }
     // uint16 public constant NONCE_PACKING = 1;
+
     ProofType public constant PROOF_TYPE = ProofType.Storage;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
@@ -64,11 +82,12 @@ contract Prover is SimpleProver, AbstractProver {
     IL1Block public l1BlockhashOracle;
 
     struct ChainConfiguration {
-        uint8 provingMechanism;
+        ProvingMechanism provingMechanism;
         uint256 settlementChainId;
         address settlementContract;
         address blockhashOracle;
         uint256 outputRootVersionNumber;
+        uint256 finalityDelaySeconds;
     }
 
     struct ChainConfigurationConstructor {
@@ -80,6 +99,7 @@ contract Prover is SimpleProver, AbstractProver {
     mapping(uint256 => ChainConfiguration) public chainConfigurations;
 
     struct BlockProof {
+        SettlementType settlementType;
         uint256 blockNumber;
         bytes32 blockHash;
         bytes32 stateRoot;
@@ -152,6 +172,7 @@ contract Prover is SimpleProver, AbstractProver {
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
         BlockProof memory blockProof = BlockProof({
+            settlementType: SettlementType.Confirmed,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
@@ -199,6 +220,7 @@ contract Prover is SimpleProver, AbstractProver {
         //     stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l2RlpEncodedBlockData)[3]))
         // });
         BlockProof memory l1blockProof = BlockProof({
+            settlementType: SettlementType.Confirmed,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[8])),
             blockHash: keccak256(l1RlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(l1RlpEncodedBlockData)[3]))
@@ -241,6 +263,7 @@ contract Prover is SimpleProver, AbstractProver {
      */
     function proveSelfState(bytes calldata rlpEncodedBlockData) public {
         BlockProof memory blockProof = BlockProof({
+            settlementType: SettlementType.Confirmed,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
@@ -318,6 +341,7 @@ contract Prover is SimpleProver, AbstractProver {
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
+            settlementType: SettlementType.Posted,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
@@ -431,6 +455,7 @@ contract Prover is SimpleProver, AbstractProver {
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
+            settlementType: SettlementType.Finalized,
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
             blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: l2WorldStateRoot
