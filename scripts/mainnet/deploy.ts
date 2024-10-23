@@ -2,7 +2,6 @@ import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 import { networks, actors } from '../../config/mainnet/config'
-import { readContract } from 'viem/_types/actions/public/readContract'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
@@ -20,17 +19,18 @@ switch (networkName) {
     minimumDuration = networks.optimism.intentSource.minimumDuration
     deployNetwork = networks.optimism
     break
-  default:
-    counter = 0
-    minimumDuration = 0
+  case 'helix':
+    counter = networks.helix.intentSource.counter
+    minimumDuration = networks.helix.intentSource.minimumDuration
+    deployNetwork = networks.helix
     break
 }
 console.log('Counter: ', counter)
-const initialSalt: string = 'PREPROD'
+const initialSalt: string = 'HANDOFF0'
 // const initialSalt: string = 'PROD'
 
-let proverAddress = '0x00060b93eFdb8077a3bC6f0B34e0C322606A94cc'
-let intentSourceAddress = '0xB0A842fdb387B290d4caF7D4439b38173BD810cb'
+let proverAddress = ''
+let intentSourceAddress = ''
 let inboxAddress = ''
 const isSolvingPublic = initialSalt !== 'PROD'
 console.log(
@@ -40,13 +40,15 @@ const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
 
 console.log('Deploying to Network: ', network.name)
 
+// console.log(network)
+
 async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
 
   const singletonDeployer = await ethers.getContractAt(
     'Deployer',
-    '0xd31797A946098a0316596986c6C31Da64E6AEA3B',
+    '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
   )
 
   console.log(`**************************************************`)
@@ -125,15 +127,14 @@ async function main() {
     const inboxFactory = await ethers.getContractFactory('Inbox')
 
     const inboxTx = await inboxFactory.getDeployTransaction(
-      actors.inboxOwner,
+      actors.deployer,
       isSolvingPublic,
       [actors.solver],
     )
     receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
-      gasLimit: 8000000,
+      gasLimit: 3000000,
     })
     await receipt.wait()
-    console.log(receipt.blockHash)
     inboxAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -141,10 +142,8 @@ async function main() {
       )
     )[0].args.addr
 
-    const inboxOwnerSigner = await new ethers.Wallet(
-      process.env.INBOX_OWNER_PRIVATE_KEY || '0x' + '11'.repeat(32),
-      new ethers.AlchemyProvider(networkName, process.env.ALCHEMY_API_KEY),
-    )
+    const inboxOwnerSigner = deployer
+
     const inbox: Inbox = await ethers.getContractAt(
       'Inbox',
       inboxAddress,
@@ -190,7 +189,7 @@ async function main() {
       await run('verify:verify', {
         address: inboxAddress,
         constructorArguments: [
-          actors.inboxOwner,
+          actors.deployer,
           isSolvingPublic,
           [actors.solver],
         ],

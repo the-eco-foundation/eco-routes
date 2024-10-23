@@ -14,10 +14,10 @@ if (
   salt = 'TESTNET'
 } else {
   //   salt = 'PROD'
-  salt = 'PREPROD'
+  salt = 'HANDOFF0'
 }
 
-let inboxAddress = '0x200b2417A9d0F79133C2b05b2C028B8A70392e66'
+let inboxAddress = ''
 let hyperProverAddress = ''
 
 console.log('Deploying to Network: ', network.name)

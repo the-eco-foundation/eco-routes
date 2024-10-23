@@ -111,6 +111,7 @@ const config: HardhatUserConfig = {
       optimisticEthereum: process.env.OPTIMISM_SCAN_API_KEY || '',
       base: process.env.BASE_SCAN_API_KEY || '',
       ecoTestnet: process.env.CALDERA_SCAN_API_KEY || '',
+      helix: process.env.CALDERA_SCAN_API_KEY || '',
     },
     customChains: [
       {
@@ -135,6 +136,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://eco-testnet.explorer.caldera.xyz/api',
           browserURL: 'https://eco-testnet.explorer.caldera.xyz/',
+        },
+      },
+      {
+        network: 'helix',
+        chainId: 8921733,
+        urls: {
+          apiURL: 'https://helix-test.calderaexplorer.xyz/api',
+          browserURL: 'https://helix-test.calderaexplorer.xyz/',
         },
       },
     ],
