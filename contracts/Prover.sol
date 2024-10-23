@@ -147,6 +147,12 @@ contract Prover is SimpleProver, AbstractProver {
      */
     error OutdatedBlock(uint256 _inputBlockNumber, uint256 _latestBlockNumber);
 
+    /**
+     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+     * @param _destinationChain the destination chain we are getting settlment chain for
+     */
+    error NoSettlementChainConfigured(uint256 _destinationChain);
+
     string public constant version = "0.3.0-beta.0";
 
     constructor(ChainConfigurationConstructor[] memory _chainConfigurations) {
@@ -181,6 +187,12 @@ contract Prover is SimpleProver, AbstractProver {
         require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
         uint256 settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Cannon].settlementChainId;
+        if (settlementChainId == 0) {
+            settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Bedrock].settlementChainId;
+            if (settlementChainId == 0) {
+                revert NoSettlementChainConfigured(block.chainid);
+            }
+        }
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 

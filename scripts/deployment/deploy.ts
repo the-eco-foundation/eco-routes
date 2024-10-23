@@ -6,7 +6,7 @@ import { networkIds, networks } from '../../config/testnet/config'
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET28'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET29'))
 
 console.log('Deploying to Network: ', network.name)
 const baseSepoliaChainConfiguration = {

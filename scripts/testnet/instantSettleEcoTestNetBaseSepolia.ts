@@ -20,6 +20,7 @@ import {
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
+import { settlementTypes } from '../../test/testData'
 // import { intent } from '../../test/testData'
 
 type SourceChainInfo = {
@@ -265,6 +266,7 @@ async function proveIntentEcoTestnet(
   try {
     const proveIntentTx = await s.ecoTestnetProverContract.proveIntent(
       networkIds.baseSepolia,
+      settlementTypes.Confirmed,
       actors.claimant,
       networks.baseSepolia.inbox.address,
       intermediateHash,
