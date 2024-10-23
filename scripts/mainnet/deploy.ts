@@ -19,13 +19,14 @@ switch (networkName) {
     minimumDuration = networks.optimism.intentSource.minimumDuration
     deployNetwork = networks.optimism
     break
-  default:
-    counter = 0
-    minimumDuration = 0
+  case 'helix':
+    counter = networks.helix.intentSource.counter
+    minimumDuration = networks.helix.intentSource.minimumDuration
+    deployNetwork = networks.helix
     break
 }
 console.log('Counter: ', counter)
-const initialSalt: string = 'PREPROD'
+const initialSalt: string = 'HANDOFF0'
 // const initialSalt: string = 'PROD'
 
 let proverAddress = ''
@@ -38,6 +39,8 @@ console.log(
 const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
 
 console.log('Deploying to Network: ', network.name)
+
+// console.log(network)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -71,6 +74,16 @@ async function main() {
         networks.optimism.proving.outputRootVersionNumber, // outputRootVersionNumber
     },
   }
+  const helixChainConfiguration = {
+    chainId: networks.helix.chainId, // chainId
+    chainConfiguration: {
+      provingMechanism: networks.helix.proving.mechanism, // provingMechanism
+      settlementChainId: networks.helix.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.helix.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+      blockhashOracle: networks.helix.proving.l1BlockAddress, // blockhashOracle
+      outputRootVersionNumber: networks.helix.proving.outputRootVersionNumber, // outputRootVersionNumber
+    },
+  }
   let receipt
 
   if (proverAddress === '') {
@@ -78,6 +91,7 @@ async function main() {
     const proverTx = await proverFactory.getDeployTransaction([
       baseChainConfiguration,
       optimismChainConfiguration,
+      helixChainConfiguration,
     ])
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
       gasLimit: 5000000,
@@ -113,13 +127,14 @@ async function main() {
     const inboxFactory = await ethers.getContractFactory('Inbox')
 
     const inboxTx = await inboxFactory.getDeployTransaction(
-      actors.inboxOwner,
+      actors.deployer,
       isSolvingPublic,
       [actors.solver],
     )
     receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: 3000000,
     })
+    await receipt.wait()
     inboxAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -127,10 +142,8 @@ async function main() {
       )
     )[0].args.addr
 
-    const inboxOwnerSigner = await new ethers.Wallet(
-      process.env.INBOX_OWNER_PRIVATE_KEY || '0x' + '11'.repeat(32),
-      ethers.getDefaultProvider(networkName),
-    )
+    const inboxOwnerSigner = deployer
+
     const inbox: Inbox = await ethers.getContractAt(
       'Inbox',
       inboxAddress,
@@ -152,7 +165,11 @@ async function main() {
       await run('verify:verify', {
         address: proverAddress,
         constructorArguments: [
-          [baseChainConfiguration, optimismChainConfiguration],
+          [
+            baseChainConfiguration,
+            optimismChainConfiguration,
+            helixChainConfiguration,
+          ],
         ],
       })
       console.log('prover verified at:', proverAddress)
@@ -172,7 +189,7 @@ async function main() {
       await run('verify:verify', {
         address: inboxAddress,
         constructorArguments: [
-          actors.inboxOwner,
+          actors.deployer,
           isSolvingPublic,
           [actors.solver],
         ],
