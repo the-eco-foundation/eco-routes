@@ -32,17 +32,17 @@ const optimismSepoliaChainConfiguration = {
   },
 }
 
-// const ecoTestnetChainConfiguration = {
-//   chainId: networks.ecoTestnet.chainId, // chainId
-//   chainConfiguration: {
-//     provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
-//     settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
-//     settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-//     blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
-//     outputRootVersionNumber:
-//       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
-//   },
-// }
+const ecoTestnetChainConfiguration = {
+  chainId: networks.ecoTestnet.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber:
+      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
 let counter: number = 0
 let minimumDuration: number = 0
 switch (networkName) {
@@ -78,7 +78,7 @@ const initialSalt: string = 'TESTNET6'
 
 let proverAddress = ''
 let intentSourceAddress = ''
-let inboxAddress = ''
+let inboxAddress = '0x200b2417A9d0F79133C2b05b2C028B8A70392e66'
 
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
@@ -103,10 +103,7 @@ async function main() {
     const proverTx = await proverFactory.getDeployTransaction([
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-<<<<<<< HEAD
       ecoTestnetChainConfiguration,
-=======
->>>>>>> HYPERPROVER
     ])
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
       gasLimit: 5000000,
@@ -182,15 +179,11 @@ async function main() {
         address: proverAddress,
         // constructorArguments: [l1BlockAddressSepolia, deployer.address],
         constructorArguments: [
-<<<<<<< HEAD
           [
             baseSepoliaChainConfiguration,
             optimismSepoliaChainConfiguration,
             ecoTestnetChainConfiguration,
           ],
-=======
-          [baseSepoliaChainConfiguration, optimismSepoliaChainConfiguration],
->>>>>>> HYPERPROVER
         ],
       })
       console.log('prover verified at:', proverAddress)
