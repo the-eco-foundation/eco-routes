@@ -82,10 +82,10 @@ const networks: any = {
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
-    proverContractAddress: '0x2427852f965ec94aB49F2eC4a2C8Fa7dea22d58b',
-    hyperProverContractAddress: '0x9592E6bA1Cec5d85D0EeF477703814857acFa921',
-    intentSourceAddress: '0x9Cd45DF0422e2dEE7D3D9D1bDF99F68072203d38',
-    inboxAddress: '0xF816067Fc8C39A99BAA2dd71E761E5283707B729',
+    proverContractAddress: '0xAdc0BBf74BB9b3A41f5b89cE8bC70f45D8CAA7f4',
+    hyperProverContractAddress: '0x1fCF488B9375f3530e22D14f4D1866483F81b599',
+    intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
+    inboxAddress: '0x6097875C63313ACE4E505aAA4C53A044Da454397',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -113,10 +113,10 @@ const networks: any = {
   baseSepolia: {
     network: 'base-sepolia',
     chainId: networkIds.baseSepolia,
-    proverContractAddress: '0x9262b3C1907917Cf6341AA8d993CaFCDD2c09491',
-    hyperProverContractAddress: '0x9592E6bA1Cec5d85D0EeF477703814857acFa921',
-    intentSourceAddress: '0x102071ad4D7aa2bb2D08a096955A213A46D95A68',
-    inboxAddress: '0xF816067Fc8C39A99BAA2dd71E761E5283707B729',
+    proverContractAddress: '0xAdc0BBf74BB9b3A41f5b89cE8bC70f45D8CAA7f4',
+    hyperProverContractAddress: '0x1fCF488B9375f3530e22D14f4D1866483F81b599',
+    intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
+    inboxAddress: '0x6097875C63313ACE4E505aAA4C53A044Da454397',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,

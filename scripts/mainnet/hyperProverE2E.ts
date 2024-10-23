@@ -22,11 +22,11 @@ let solver: Signer
 const baseProvider = new AlchemyProvider(networks.base.network, ALCHEMY_API_KEY)
 
 const optimismProvider = new AlchemyProvider(
-  networks.base.network,
+  networks.optimism.network,
   ALCHEMY_API_KEY,
 )
 
-console.log('Testing hyperproving across base and optimism testnets')
+console.log('Testing hyperproving across base and optimism')
 
 async function main() {
   ;[sourceNetwork, destinationNetwork] = [networks.base, networks.optimism]
@@ -138,8 +138,7 @@ export async function hyperproveInstant() {
 
     const messageBody = AbiCoder.defaultAbiCoder().encode(
       ['bytes[]', 'address[]'],
-      //   [thisIntent.data.toArray(), thisIntent.targets.toArray()],
-      [thisIntent.data, [actors.recipient]],
+      [[intentHash], [actors.recipient]],
     )
 
     console.log('fetching fee')
@@ -168,7 +167,7 @@ export async function hyperproveInstant() {
   }
 
   console.log('Waiting for the dust to settle')
-  await setTimeout(45000)
+  await setTimeout(60000)
 
   console.log('show me da money')
   const intentProvenEvents = await hyperprover

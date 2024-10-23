@@ -9,7 +9,6 @@ import {
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
 import { encodeTransfer } from '../utils/encode'
 import { keccak256, toBeHex } from 'ethers'
-import { intent } from './testData'
 
 describe('Inbox Test', (): void => {
   let inbox: Inbox
@@ -115,8 +114,8 @@ describe('Inbox Test', (): void => {
     expect(await inbox.solverWhitelist(owner)).to.be.false
   })
 
-  describe('setters', async () => {
-    it('doesnt let non-owner call set functions', async () => {
+  describe('onlyOwner', async () => {
+    it('doesnt let non-owner call onlyOwner functions', async () => {
       await expect(
         inbox.connect(solver).makeSolvingPublic(),
       ).to.be.revertedWithCustomError(inbox, 'OwnableUnauthorizedAccount')
@@ -125,6 +124,9 @@ describe('Inbox Test', (): void => {
       ).to.be.revertedWithCustomError(inbox, 'OwnableUnauthorizedAccount')
       await expect(
         inbox.connect(solver).setMailbox(await mailbox.getAddress()),
+      ).to.be.revertedWithCustomError(inbox, 'OwnableUnauthorizedAccount')
+      await expect(
+        inbox.connect(solver).drain(solver.address),
       ).to.be.revertedWithCustomError(inbox, 'OwnableUnauthorizedAccount')
     })
     it('lets owner make solving public', async () => {
@@ -423,11 +425,42 @@ describe('Inbox Test', (): void => {
     it('fetches the fee', async () => {
       expect(
         await inbox.fetchFee(
-          0,
+          sourceChainID,
           calldata,
           ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
         ),
       ).to.eq(toBeHex(`100000`, 32))
+    })
+    it('fails to fulfill hyper instant if the fee is too low', async () => {
+      expect(await mailbox.dispatched()).to.be.false
+      await expect(
+        inbox
+          .connect(solver)
+          .fulfillHyperInstant(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+            await dummyHyperProver.getAddress(),
+            {
+              value:
+                Number(
+                  await inbox.fetchFee(
+                    sourceChainID,
+                    calldata,
+                    ethers.zeroPadBytes(
+                      await dummyHyperProver.getAddress(),
+                      32,
+                    ),
+                  ),
+                ) - 1,
+            },
+          ),
+      ).to.be.revertedWithCustomError(inbox, 'InsufficientFee')
+      expect(await mailbox.dispatched()).to.be.false
     })
     it('fulfills hyper instant', async () => {
       await expect(
@@ -442,6 +475,15 @@ describe('Inbox Test', (): void => {
             dstAddr.address,
             intentHash,
             await dummyHyperProver.getAddress(),
+            {
+              value: Number(
+                await inbox.fetchFee(
+                  sourceChainID,
+                  calldata,
+                  ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+                ),
+              ),
+            },
           ),
       )
         .to.emit(inbox, 'Fulfillment')
@@ -488,6 +530,39 @@ describe('Inbox Test', (): void => {
 
       expect(await mailbox.dispatched()).to.be.false
     })
+    it('drains', async () => {
+      const fee = await inbox.fetchFee(
+        sourceChainID,
+        calldata,
+        ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+      )
+      const excess = ethers.parseEther('.123')
+      await inbox
+        .connect(solver)
+        .fulfillHyperInstant(
+          sourceChainID,
+          [erc20Address],
+          [calldata],
+          timeStamp,
+          nonce,
+          dstAddr.address,
+          intentHash,
+          await dummyHyperProver.getAddress(),
+          {
+            value: fee + excess,
+          },
+        )
+      const initialSolverbalance = await ethers.provider.getBalance(
+        solver.address,
+      )
+      await inbox.connect(owner).drain(solver.address)
+      expect(await ethers.provider.getBalance(solver.address)).to.eq(
+        initialSolverbalance + excess,
+      )
+      expect(await ethers.provider.getBalance(await inbox.getAddress())).to.eq(
+        0,
+      )
+    })
     context('sendBatch', async () => {
       it('should revert if number of intents exceeds MAX_BATCH_SIZE', async () => {
         const i = intentHash
@@ -522,6 +597,45 @@ describe('Inbox Test', (): void => {
           .withArgs(hashes[0])
         expect(await mailbox.dispatched()).to.be.false
       })
+      it('should revert if sending a batch with too low a fee', async () => {
+        expect(await mailbox.dispatched()).to.be.false
+        await inbox
+          .connect(solver)
+          .fulfillHyperBatched(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+            await dummyHyperProver.getAddress(),
+          )
+        expect(await mailbox.dispatched()).to.be.false
+        await expect(
+          inbox
+            .connect(solver)
+            .sendBatch(
+              sourceChainID,
+              await dummyHyperProver.getAddress(),
+              [intentHash],
+              {
+                value:
+                  Number(
+                    await inbox.fetchFee(
+                      sourceChainID,
+                      calldata,
+                      ethers.zeroPadBytes(
+                        await dummyHyperProver.getAddress(),
+                        32,
+                      ),
+                    ),
+                  ) - 1,
+              },
+            ),
+        ).to.be.revertedWithCustomError(inbox, 'InsufficientFee')
+        expect(await mailbox.dispatched()).to.be.false
+      })
       it('succeeds for a single intent', async () => {
         expect(await mailbox.dispatched()).to.be.false
         await inbox
@@ -540,9 +654,23 @@ describe('Inbox Test', (): void => {
         await expect(
           inbox
             .connect(solver)
-            .sendBatch(sourceChainID, await dummyHyperProver.getAddress(), [
-              intentHash,
-            ]),
+            .sendBatch(
+              sourceChainID,
+              await dummyHyperProver.getAddress(),
+              [intentHash],
+              {
+                value: Number(
+                  await inbox.fetchFee(
+                    sourceChainID,
+                    calldata,
+                    ethers.zeroPadBytes(
+                      await dummyHyperProver.getAddress(),
+                      32,
+                    ),
+                  ),
+                ),
+              },
+            ),
         ).to.not.be.reverted
         expect(await mailbox.destinationDomain()).to.eq(sourceChainID)
         expect(await mailbox.recipientAddress()).to.eq(
@@ -597,10 +725,23 @@ describe('Inbox Test', (): void => {
         await expect(
           inbox
             .connect(solver)
-            .sendBatch(sourceChainID, await dummyHyperProver.getAddress(), [
-              intentHash,
-              otherHash,
-            ]),
+            .sendBatch(
+              sourceChainID,
+              await dummyHyperProver.getAddress(),
+              [intentHash, otherHash],
+              {
+                value: Number(
+                  await inbox.fetchFee(
+                    sourceChainID,
+                    calldata,
+                    ethers.zeroPadBytes(
+                      await dummyHyperProver.getAddress(),
+                      32,
+                    ),
+                  ),
+                ),
+              },
+            ),
         ).to.not.be.reverted
         expect(await mailbox.destinationDomain()).to.eq(sourceChainID)
         expect(await mailbox.recipientAddress()).to.eq(
