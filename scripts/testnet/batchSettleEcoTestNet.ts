@@ -19,6 +19,8 @@ import {
   networkIds,
   networks,
   actors,
+  settlementTypes,
+  provingMechanisms,
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
@@ -107,18 +109,54 @@ export async function getBatchSettled() {
   // Get the Output Index and Block Number from L2 OUTPUT ORACLE that was sent before this block
   // Get the event from the latest Block checking transaction hash
   console.log('BlockNumber from Base L2 OutputOracle: ', blockNumber)
+  const ThreeSecondBlocksInOneWeek = 302400n
   const l2OutputOracleEvents =
     await s.baseSepoliaSettlementContractEcoTestnet.queryFilter(
       s.baseSepoliaSettlementContractEcoTestnet.getEvent('OutputProposed'),
-      toQuantity(blockNumber - 200n),
-      toQuantity(blockNumber),
+      // toQuantity(blockNumber - OneSecondBlocksInTwoWeeks),
+      toQuantity(blockNumber - ThreeSecondBlocksInOneWeek),
     )
-  const l3OutputIndex = toNumber(
-    l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[2],
-  )
-  const l3BlockNumber = BigInt(
-    l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[3],
-  )
+  // Need to loop backwards from the last invent checking the block.timestamp
+  // Till we find a block.timestamp that is less than the current time - networks.ecoTestnet.proving.finalityDelaySeconds
+  let eventIndex = l2OutputOracleEvents.length - 1
+  let l3OutputIndex, l3BlockNumber
+  while (eventIndex >= 0) {
+    console.log('eventIndex: ', eventIndex)
+    const dateInSeconds = Math.floor(Date.now() / 1000)
+    console.log(
+      'l3BlockNumber: ',
+      toQuantity(l2OutputOracleEvents[eventIndex].topics[3]),
+    )
+    const l3EndBatchblock = await s.ecoTestnetProvider.send(
+      'eth_getBlockByNumber',
+      [toQuantity(l2OutputOracleEvents[eventIndex].topics[3]), false],
+    )
+    console.log('Date In Seconds          : ', dateInSeconds)
+    console.log(
+      'Calc block time          : ',
+      toNumber(l3EndBatchblock.timestamp) +
+        networks.ecoTestnet.proving.finalityDelaySeconds,
+    )
+    console.log(
+      'l3EndBatchblock.timestamp: ',
+      toNumber(l3EndBatchblock.timestamp),
+    )
+    console.log(
+      'finalityDelaySeconds: ',
+      networks.ecoTestnet.proving.finalityDelaySeconds,
+    )
+
+    if (
+      dateInSeconds >
+      toNumber(l3EndBatchblock.timestamp) +
+        networks.ecoTestnet.proving.finalityDelaySeconds
+    ) {
+      l3OutputIndex = toNumber(l2OutputOracleEvents[eventIndex].topics[2])
+      l3BlockNumber = BigInt(l2OutputOracleEvents[eventIndex].topics[3])
+      break
+    }
+    eventIndex -= 1
+  }
 
   return {
     blockNumber,
@@ -152,6 +190,7 @@ export async function getIntentsToProve(
       const proverContract = s[`${sourceChain}ProverContract`] as Contract
       ecoTestnetProvenState = await proverContract.provenStates(
         networkIds.ecoTestnet,
+        settlementTypes.Finalized,
       )
       sourceChainInfo.lastProvenBlock = ecoTestnetProvenState.blockNumber
       if (proveAll) {
@@ -657,8 +696,17 @@ export async function proveDestinationChainBatchSettled(
   l3OutputIndex,
   l3BlockNumber,
 ) {
-  console.log('In proveDestinationChainBatchSettled')
   let endBatchBlockData
+  console.log('In proveDestinationChainBatchSettled')
+  console.log('Testing Only to be removed')
+  endBatchBlockData = await proveWorldStatesBedrockL3L2Op(
+    faultDisputeGameAddress,
+    faultDisputeGameContract,
+    gameIndex,
+    l3OutputIndex,
+    l3BlockNumber,
+  )
+  console.log('endTesting')
   await Promise.all(
     await Object.entries(sourceChains).map(
       async ([sourceChainkey, sourceChain]) => {

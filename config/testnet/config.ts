@@ -76,20 +76,20 @@ const networks: any = {
     alchemyNetwork: 'optimism-sepolia',
     sourceChains: ['baseSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0x5900FF69924Bce8Bb8Cb0718afC23eBE5131315B',
+      address: '0xed84b971657F5B182cc8Bb521EB09C959C215dCC',
       deploymentBlock: 16795390n, // '0x10046Fe'
     },
     intentSource: {
-      address: '0x2Abddc1F15cCB2E71264a7C32E46873e11302D5b',
+      address: '0x65E1BB1752AE3b6EA7E1c1531fb565Aa4724BFBB',
       deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x9f73f5b9dA2eC4165638851664D3A9d9302BeBEc',
+      address: '0x64Fff610959159Df6bad6402017BfD73Fd233380',
       deploymentBlock: 18354796n, // '0x118126c
     },
-    hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
+    hyperProverContractAddress: '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',

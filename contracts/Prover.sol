@@ -338,10 +338,11 @@ contract Prover is SimpleProver, AbstractProver {
             existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
         );
         // check that the End Batch Block timestamp is greater than the current timestamp + finality delay
-        uint256 endBatchBlockTimeStamp =
-            uint256(bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[11])));
+        uint256 endBatchBlockTimeStamp = bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[11]));
+
         require(
-            endBatchBlockTimeStamp > block.timestamp + chainConfiguration.finalityDelaySeconds, "block not finalized"
+            block.timestamp > (endBatchBlockTimeStamp + chainConfiguration.finalityDelaySeconds),
+            "block before finality delay period"
         );
 
         bytes32 outputRoot = generateOutputRoot(
