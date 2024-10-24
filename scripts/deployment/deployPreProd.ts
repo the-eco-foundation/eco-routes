@@ -62,18 +62,10 @@ async function main() {
   const [deployer] = await ethers.getSigners()
 
   // Get the singleton deployer
-  let singletonDeployer
-  if (networkName === 'helix') {
-    singletonDeployer = await ethers.getContractAt(
-      'Deployer',
-      '0xd31797A946098a0316596986c6C31Da64E6AEA3B',
-    )
-  } else {
-    singletonDeployer = await ethers.getContractAt(
-      'Deployer',
-      '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
-    )
-  }
+  const singletonDeployer = await ethers.getContractAt(
+    'Deployer',
+    '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
+  )
   console.log('Deploying contracts with the account:', deployer.address)
   console.log(
     'Deploying contracts with the singleton deployer:',
