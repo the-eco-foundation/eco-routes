@@ -17,7 +17,7 @@ import {
   networkIds,
   actors,
   networks,
-  // provingMechanisms,
+  provingMechanisms,
   settlementTypes,
   bedrock,
   cannon,
@@ -68,15 +68,21 @@ describe('Prover Unit Tests', () => {
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
       },
     }
+    console.log(
+      'baseSepoliaChainConfiguration: ',
+      baseSepoliaChainConfiguration,
+    )
 
     const optimismSepoliaChainConfiguration = {
       chainConfigurationKey: {
@@ -84,16 +90,22 @@ describe('Prover Unit Tests', () => {
         provingMechanism: networks.optimismSepolia.proving.mechanism,
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
         settlementContract:
           networks.optimismSepolia.proving.settlementChain.contract,
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
           networks.optimismSepolia.proving.outputRootVersionNumber,
+        provingTimeSeconds: networks.optimismSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds:
           networks.optimismSepolia.proving.finalityDelaySeconds,
       },
     }
+    console.log(
+      'optimismSepoliaChainConfiguration: ',
+      optimismSepoliaChainConfiguration,
+    )
     // console.log(
     //   'baseSepoliaChainConfiguration: ',
     //   baseSepoliaChainConfiguration,
@@ -231,15 +243,17 @@ describe('Prove Self State Tests', () => {
     const hardhatChainConfiguration = {
       chainConfigurationKey: {
         chainId: networkIds.hardhat,
-        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        provingMechanism: provingMechanisms.Self, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
       },
     }
@@ -250,12 +264,14 @@ describe('Prove Self State Tests', () => {
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
       },
     }
@@ -266,12 +282,14 @@ describe('Prove Self State Tests', () => {
         provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
         settlementContract:
           networks.optimismSepolia.proving.settlementChain.contract,
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
           networks.optimismSepolia.proving.outputRootVersionNumber,
+        provingTimeSeconds: networks.optimismSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds:
           networks.optimismSepolia.proving.finalityDelaySeconds,
       },
@@ -283,12 +301,14 @@ describe('Prove Self State Tests', () => {
         provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
         settlementContract:
           networks.ecoTestnet.proving.settlementChain.contract,
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
           networks.ecoTestnet.proving.outputRootVersionNumber,
+        provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
         finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
       },
     }
@@ -409,18 +429,38 @@ describe('Prover End to End Tests', () => {
       0,
       0,
     )
+
+    const sepoliaChainConfiguration = {
+      chainConfigurationKey: {
+        chainId: networkIds.sepolia,
+        provingMechanism: networks.sepolia.proving.mechanism, // provingMechanism
+      },
+      chainConfiguration: {
+        exists: true,
+        settlementChainId: networks.sepolia.proving.settlementChain.id, // settlementChainId
+        settlementContract: networks.sepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+        outputRootVersionNumber:
+          networks.sepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        provingTimeSeconds: networks.sepolia.proving.provingTimeSeconds,
+        finalityDelaySeconds: networks.sepolia.proving.finalityDelaySeconds,
+      },
+    }
+
     const hardhatChainConfiguration = {
       chainConfigurationKey: {
         chainId: networkIds.hardhat,
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
       },
     }
@@ -431,12 +471,14 @@ describe('Prover End to End Tests', () => {
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
       },
     }
@@ -447,12 +489,14 @@ describe('Prover End to End Tests', () => {
         provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
         settlementContract:
           networks.optimismSepolia.proving.settlementChain.contract,
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
           networks.optimismSepolia.proving.outputRootVersionNumber,
+        provingTimeSeconds: networks.optimismSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds:
           networks.optimismSepolia.proving.finalityDelaySeconds,
       },
@@ -464,12 +508,14 @@ describe('Prover End to End Tests', () => {
         provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
         settlementContract:
           networks.ecoTestnet.proving.settlementChain.contract,
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
           networks.ecoTestnet.proving.outputRootVersionNumber,
+        provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
         finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
       },
     }
@@ -486,6 +532,7 @@ describe('Prover End to End Tests', () => {
     //   )
     //   console.log('ecoTestnetChainConfiguration: ', ecoTestnetChainConfiguration)
     prover = await proverContract.deploy([
+      sepoliaChainConfiguration,
       hardhatChainConfiguration,
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
@@ -520,7 +567,6 @@ describe('Prover End to End Tests', () => {
       bedrock.settlementChain.worldStateRoot,
     )
 
-    console.log('s 3')
     // test proveWorldStateCannon'
     const RLPEncodedDisputeGameFactoryData = await prover.rlpEncodeDataLibList(
       bedrock.baseSepolia.disputeGameFactory.contractData,
@@ -622,7 +668,7 @@ describe('Prover End to End Tests', () => {
 
     const provenEcoTestnetLayerState = await prover.provenStates(
       networkIds.ecoTestnet,
-      settlementTypes.Posted,
+      settlementTypes.Finalized,
     )
     expect(provenEcoTestnetLayerState.blockNumber).to.equal(
       bedrock.destinationChain.endBatchBlock,
@@ -646,9 +692,33 @@ describe('Prover End to End Tests', () => {
     //   ['bytes'],
     //   [abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
     // )
+    console.log(
+      'bedrock.intent.destinationChainId: ',
+      bedrock.intent.destinationChainId,
+    )
+    console.log('settlementTypes.Finalized: ', settlementTypes.Finalized)
+    console.log('getAddress(actors.claimant): ', getAddress(actors.claimant))
+    console.log(
+      'networks.ecoTestnet.inbox.address: ',
+      networks.ecoTestnet.inbox.address,
+    )
+    console.log(
+      'bedrock.intent.intermediateHash: ',
+      bedrock.intent.intermediateHash,
+    )
+    console.log('bedrock.intent.storageProof: ', bedrock.intent.storageProof)
+    console.log(
+      'await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData): ',
+      await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData),
+    )
+    console.log('bedrock.intent.accountProof: ', bedrock.intent.accountProof)
+    console.log(
+      'bedrock.intent.endBatchBlockStateRoot: ',
+      bedrock.intent.endBatchBlockStateRoot,
+    )
     await prover.proveIntent(
       bedrock.intent.destinationChainId,
-      settlementTypes.Posted,
+      settlementTypes.Finalized,
       getAddress(actors.claimant),
       networks.ecoTestnet.inbox.address,
       bedrock.intent.intermediateHash,
@@ -701,12 +771,14 @@ describe('Prover L3 Settlement Layer Tests', () => {
         provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.ecoTestnet.proving.settlementChain.contract, // settlementContract
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+        provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
         finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
       },
     }
@@ -717,12 +789,14 @@ describe('Prover L3 Settlement Layer Tests', () => {
         provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
         settlementContract:
           networks.baseSepolia.proving.settlementChain.contract, // settlementContract
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
       },
     }
@@ -733,12 +807,14 @@ describe('Prover L3 Settlement Layer Tests', () => {
         provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
       },
       chainConfiguration: {
+        exists: true,
         settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
         settlementContract:
           networks.optimismSepolia.proving.settlementChain.contract,
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
           networks.optimismSepolia.proving.outputRootVersionNumber,
+        provingTimeSeconds: networks.optimismSepolia.proving.provingTimeSeconds,
         finalityDelaySeconds:
           networks.optimismSepolia.proving.finalityDelaySeconds,
       },

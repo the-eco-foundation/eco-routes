@@ -64,9 +64,19 @@ const networks: any = {
     alchemyNetwork: 'sepolia',
     proving: {
       mechanism: provingMechanisms.Settlement,
+      l1BlockAddress: '0x0000000000000000000000000000000000000000',
+      l2l1MessageParserAddress: '0x0000000000000000000000000000000000000000',
+      outputRootVersionNumber: 0,
+      l1BlockSlotNumber: 2,
+      settlementChain: {
+        network: 'sepolia',
+        id: networkIds.sepolia,
+        contract: '0x0000000000000000000000000000000000000000',
+      },
+      provingTimeSeconds: 36,
+      finalityDelaySeconds: 0,
     },
     // The following settlement contracts are useful for event listening
-    finalityDelaySeconds: 0,
     settlementContracts: {
       optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
       baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
@@ -79,20 +89,20 @@ const networks: any = {
     alchemyNetwork: 'optimism-sepolia',
     sourceChains: ['baseSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0x3eB0C0CE94112136Cd6677F180DF433296D53556',
+      address: '0xed84b971657F5B182cc8Bb521EB09C959C215dCC',
       deploymentBlock: 16795390n, // '0x10046Fe'
     },
     intentSource: {
-      address: '0x566826D965B60706984400fA7676944d501e39af',
+      address: '0x65E1BB1752AE3b6EA7E1c1531fb565Aa4724BFBB',
       deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xC2F970303CA76a5680868868529a1411122DA0B9',
+      address: '0x64Fff610959159Df6bad6402017BfD73Fd233380',
       deploymentBlock: 18354796n, // '0x118126c
     },
-    hyperProverContractAddress: '0x987977e83328665b926f3c85574bFc4605fEa3EE',
+    hyperProverContractAddress: '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -104,6 +114,7 @@ const networks: any = {
         id: networkIds.sepolia,
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
+      provingTimeSeconds: 302400,
       finalityDelaySeconds: 0,
     },
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
@@ -115,20 +126,20 @@ const networks: any = {
     alchemyNetwork: 'base-sepolia',
     sourceChains: ['optimismSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0x3eB0C0CE94112136Cd6677F180DF433296D53556',
+      address: '0x5900FF69924Bce8Bb8Cb0718afC23eBE5131315B',
       deploymentBlock: 14812482n, // '0xe20542',
     },
     intentSource: {
-      address: '0x566826D965B60706984400fA7676944d501e39af',
+      address: '0x2Abddc1F15cCB2E71264a7C32E46873e11302D5b',
       deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xC2F970303CA76a5680868868529a1411122DA0B9',
+      address: '0x9f73f5b9dA2eC4165638851664D3A9d9302BeBEc',
       deploymentBlock: 14812488n, // '0xe20548',
     },
-    hyperProverContractAddress: '0x987977e83328665b926f3c85574bFc4605fEa3EE',
+    hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -143,7 +154,8 @@ const networks: any = {
         // Old L2 Ourput Oracle Address
         // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
       },
-      finalityDelaySeconds: 0,
+      provingTimeSeconds: 302400,
+      finalityDelaySeconds: 604800,
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
@@ -160,20 +172,20 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContract: {
-      address: '0x3eB0C0CE94112136Cd6677F180DF433296D53556',
+      address: '0x5900FF69924Bce8Bb8Cb0718afC23eBE5131315B',
       deploymentBlock: '0x35dc32', // 3529778n
     },
     intentSource: {
-      address: '0x566826D965B60706984400fA7676944d501e39af',
+      address: '0x2Abddc1F15cCB2E71264a7C32E46873e11302D5b',
       deploymentBlock: 3529780n, // '0x35dc34',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1',
+      address: '0x9f73f5b9dA2eC4165638851664D3A9d9302BeBEc',
       deploymentBlock: 3529786n, // '0x35dc3a',
     },
-    hyperProverContractAddress: '0x987977e83328665b926f3c85574bFc4605fEa3EE',
+    hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
     proving: {
       mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -186,7 +198,8 @@ const networks: any = {
         id: 84532,
         contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
       },
-      finalityDelaySeconds: 604800,
+      provingTimeSeconds: 3600,
+      finalityDelaySeconds: 12,
     },
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
@@ -208,6 +221,7 @@ const networks: any = {
     },
     proving: {
       mechanism: provingMechanisms.HyperProver,
+      provingTimeSeconds: 604800,
       finalityDelaySeconds: 0,
     },
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',

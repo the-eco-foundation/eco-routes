@@ -11,6 +11,7 @@ const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET31'))
 console.log('Deploying to Network: ', network.name)
 const baseSepoliaChainConfiguration = {
   chainConfigurationKey: {
+    exists: true,
     chainId: networkIds.baseSepolia,
     provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
   },
@@ -20,12 +21,14 @@ const baseSepoliaChainConfiguration = {
     blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
     finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
   },
 }
 
 const optimismSepoliaChainConfiguration = {
   chainConfigurationKey: {
+    exists: true,
     chainId: networkIds.optimismSepolia,
     provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
   },
@@ -36,12 +39,14 @@ const optimismSepoliaChainConfiguration = {
     blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    provingTimeSeconds: networks.optimismSepolia.proving.provingTimeSeconds,
     finalityDelaySeconds: networks.optimismSepolia.proving.finalityDelaySeconds,
   },
 }
 
 const ecoTestnetChainConfiguration = {
   chainConfigurationKey: {
+    exists: true,
     chainId: networkIds.ecoTestnet,
     provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
   },
@@ -51,6 +56,7 @@ const ecoTestnetChainConfiguration = {
     blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+    provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
     finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
   },
 }

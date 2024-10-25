@@ -61,9 +61,10 @@ const networks: any = {
     alchemyNetwork: 'sepolia',
     proving: {
       mechanism: provingMechanisms.Settlement,
+      provingTimeSeconds: 36,
+      finalityDelaySeconds: 0,
     },
     // The following settlement contracts are useful for event listening
-    finalityDelaySeconds: 0,
     settlementContracts: {
       optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
       baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
@@ -101,6 +102,7 @@ const networks: any = {
         id: networkIds.sepolia,
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
+      provingTimeSeconds: 302400,
       finalityDelaySeconds: 0,
     },
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
@@ -140,6 +142,7 @@ const networks: any = {
         // Old L2 Ourput Oracle Address
         // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
       },
+      provingTimeSeconds: 302400,
       finalityDelaySeconds: 604800,
     },
     // The following settlement contracts are useful for event listening
@@ -183,7 +186,8 @@ const networks: any = {
         id: 84532,
         contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
       },
-      finalityDelaySeconds: 604800,
+      provingTimeSeconds: 3600,
+      finalityDelaySeconds: 12,
     },
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
@@ -205,6 +209,7 @@ const networks: any = {
     },
     proving: {
       mechanism: provingMechanisms.HyperProver,
+      provingTimeSeconds: 604800,
       finalityDelaySeconds: 0,
     },
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
