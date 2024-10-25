@@ -20,7 +20,7 @@ import {
   networks,
   actors,
   settlementTypes,
-  provingMechanisms,
+  // provingMechanisms,
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
