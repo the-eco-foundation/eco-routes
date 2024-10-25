@@ -678,6 +678,10 @@ describe('Prover End to End Tests', () => {
 })
 
 // proveL1L3SettlementLayerState
+// This uses Hardhat as the source chain representing ecoTestnet
+// BaseSepolia is the L2 settlement chain
+// Sepolia is the L1 settlement chain
+// OptimismSepolia is the Destination Chain
 describe('Prover L3 Settlement Layer Tests', () => {
   let deployerSigner: SignerWithAddress
   let intentCreatorSigner: SignerWithAddress
@@ -751,7 +755,7 @@ describe('Prover L3 Settlement Layer Tests', () => {
       chainConfigurationKey: {
         chainId: networks.baseSepolia.chainId, // chainId
         // provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
-        provingMechanism: provingMechanisms.SettlementL3, // provingMechanism
+        provingMechanism: provingMechanisms.Settlement, // provingMechanism
       },
       chainConfiguration: {
         exists: true,
@@ -785,29 +789,29 @@ describe('Prover L3 Settlement Layer Tests', () => {
       },
     }
 
-    const ecoTestnetChainConfiguration = {
-      chainConfigurationKey: {
-        chainId: networks.ecoTestnet.chainId,
-        provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
-      },
-      chainConfiguration: {
-        exists: true,
-        settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
-        settlementContract:
-          networks.ecoTestnet.proving.settlementChain.contract,
-        blockhashOracle: await blockhashOracle.getAddress(),
-        outputRootVersionNumber:
-          networks.ecoTestnet.proving.outputRootVersionNumber,
-        provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
-        finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
-      },
-    }
+    // const ecoTestnetChainConfiguration = {
+    //   chainConfigurationKey: {
+    //     chainId: networks.ecoTestnet.chainId,
+    //     provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+    //   },
+    //   chainConfiguration: {
+    //     exists: true,
+    //     settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
+    //     settlementContract:
+    //       networks.ecoTestnet.proving.settlementChain.contract,
+    //     blockhashOracle: await blockhashOracle.getAddress(),
+    //     outputRootVersionNumber:
+    //       networks.ecoTestnet.proving.outputRootVersionNumber,
+    //     provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
+    //     finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
+    //   },
+    // }
     const proverContract = await ethers.getContractFactory('Prover')
     prover = await proverContract.deploy([
       hardhatChainConfiguration,
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-      ecoTestnetChainConfiguration,
+      // ecoTestnetChainConfiguration,
     ])
   })
   it('test l1l3 StorageProof', async () => {
@@ -827,14 +831,14 @@ describe('Prover L3 Settlement Layer Tests', () => {
     )
   })
   //TODO: Fix the Proving Mechanism configuration
-  // it('test l1l3SettlementState', async () => {
-  //   await prover.proveL1L3SettlementLayerState(
-  //     l1l3SettlementLayerState.parameters.l1RlpEncodedBlockData,
-  //     l1l3SettlementLayerState.parameters.l2RlpEncodedBlockData,
-  //     l1l3SettlementLayerState.parameters.l2l1StorageProof,
-  //     l1l3SettlementLayerState.parameters.rlpEncodedL2L1BlockData,
-  //     l1l3SettlementLayerState.parameters.l2AccountProof,
-  //     l1l3SettlementLayerState.parameters.l2WorldStateRoot,
-  //   )
-  // })
+  it('test l1l3SettlementState', async () => {
+    await prover.proveL1L3SettlementLayerState(
+      l1l3SettlementLayerState.parameters.l1RlpEncodedBlockData,
+      l1l3SettlementLayerState.parameters.l2RlpEncodedBlockData,
+      l1l3SettlementLayerState.parameters.l2l1StorageProof,
+      l1l3SettlementLayerState.parameters.rlpEncodedL2L1BlockData,
+      l1l3SettlementLayerState.parameters.l2AccountProof,
+      l1l3SettlementLayerState.parameters.l2WorldStateRoot,
+    )
+  })
 })

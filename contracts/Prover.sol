@@ -273,10 +273,10 @@ contract Prover is SimpleProver, AbstractProver {
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
     ) public {
-        uint256 l2settlementChainId =
-            chainConfigurations[block.chainid][ProvingMechanism.SettlementL3].settlementChainId;
+        //TODO : Currently we only have L3 that run bedrock moving forward we should support other L3 proving mechanisms
+        uint256 l2settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Bedrock].settlementChainId;
         uint256 settlementChainId =
-            chainConfigurations[l2settlementChainId][ProvingMechanism.SettlementL3].settlementChainId;
+            chainConfigurations[l2settlementChainId][ProvingMechanism.Settlement].settlementChainId;
         if (!chainConfigurations[settlementChainId][ProvingMechanism.SettlementL3].exists) {
             revert InvalidDestinationProvingMechanism(block.chainid, ProvingMechanism.SettlementL3);
         }
