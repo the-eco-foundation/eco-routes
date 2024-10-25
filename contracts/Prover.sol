@@ -32,6 +32,7 @@ import {IL1Block} from "./interfaces/IL1Block.sol";
 import {AbstractProver} from "./libs/AbstractProver.sol";
 import {SimpleProver} from "./libs/SimpleProver.sol";
 import {ISemver} from "./interfaces/ISemVer.sol";
+import {console} from "hardhat/console.sol";
 
 contract Prover is SimpleProver, AbstractProver {
     // The settlement type for the chain
@@ -224,6 +225,7 @@ contract Prover is SimpleProver, AbstractProver {
      * state.
      */
     function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {
+        console.log("Hello I'm in proveSettlementLayerState");
         uint256 settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Cannon].settlementChainId;
         if (!chainConfigurations[settlementChainId][ProvingMechanism.Settlement].exists) {
             revert InvalidDestinationProvingMechanism(block.chainid, ProvingMechanism.Settlement);
@@ -273,12 +275,13 @@ contract Prover is SimpleProver, AbstractProver {
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
     ) public {
+        console.log("Hi I'm in proveL1L3SettlementLayerState");
         //TODO : Currently we only have L3 that run bedrock moving forward we should support other L3 proving mechanisms
         uint256 l2settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Bedrock].settlementChainId;
         uint256 settlementChainId =
             chainConfigurations[l2settlementChainId][ProvingMechanism.Settlement].settlementChainId;
         if (!chainConfigurations[settlementChainId][ProvingMechanism.SettlementL3].exists) {
-            revert InvalidDestinationProvingMechanism(block.chainid, ProvingMechanism.SettlementL3);
+            revert InvalidDestinationProvingMechanism(settlementChainId, ProvingMechanism.SettlementL3);
         }
         // Check that the L2 block data hashes to the L1 block hash on L3
 
