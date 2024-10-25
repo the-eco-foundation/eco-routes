@@ -14,7 +14,7 @@ if (
   salt = 'TESTNET'
 } else {
   //   salt = 'PROD'
-  salt = 'PREPROD'
+  salt = 'HANDOFF0'
 }
 
 let inboxAddress = ''
@@ -40,6 +40,9 @@ switch (network.name) {
     break
   case 'base':
     deployNetwork = mainnetNetworks.base
+    break
+  case 'helix':
+    deployNetwork = mainnetNetworks.helix
     break
 }
 
