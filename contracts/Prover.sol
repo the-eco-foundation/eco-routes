@@ -32,7 +32,6 @@ import {IL1Block} from "./interfaces/IL1Block.sol";
 import {AbstractProver} from "./libs/AbstractProver.sol";
 import {SimpleProver} from "./libs/SimpleProver.sol";
 import {ISemver} from "./interfaces/ISemVer.sol";
-import {console} from "hardhat/console.sol";
 
 contract Prover is SimpleProver, AbstractProver {
     // The settlement type for the chain
@@ -225,13 +224,8 @@ contract Prover is SimpleProver, AbstractProver {
      * state.
      */
     function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {
-        console.log("Hi I'm in proveSettlementLayerState");
-        console.log("block.chainid", block.chainid);
         uint256 settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Cannon].settlementChainId;
-        console.log("settlementChainId", settlementChainId);
-        console.log("First test");
         if (!chainConfigurations[settlementChainId][ProvingMechanism.Settlement].exists) {
-            console.log("About to revert");
             revert InvalidDestinationProvingMechanism(block.chainid, ProvingMechanism.Settlement);
         }
         require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
@@ -251,13 +245,10 @@ contract Prover is SimpleProver, AbstractProver {
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
         BlockProof memory existingBlockProof = provenStates[settlementChainId][SettlementType.Confirmed];
-        console.log("Second test");
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
-            console.log("Second test ok");
             provenStates[settlementChainId][SettlementType.Confirmed] = blockProof;
             emit L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
-            console.log("Have Outdated Block");
             revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
@@ -282,14 +273,10 @@ contract Prover is SimpleProver, AbstractProver {
         bytes[] calldata l2AccountProof,
         bytes32 l2WorldStateRoot
     ) public {
-        console.log("Hi I'm in proveL1L3SettlementLayerState");
         //TODO : Currently we only have L3 that run bedrock moving forward we should support other L3 proving mechanisms
         uint256 l2settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Bedrock].settlementChainId;
         uint256 settlementChainId =
             chainConfigurations[l2settlementChainId][ProvingMechanism.Settlement].settlementChainId;
-        console.log("l2settlementChainId", l2settlementChainId);
-        console.log("settlementChainId", settlementChainId);
-        console.log("chainConfigurations", chainConfigurations[settlementChainId][ProvingMechanism.SettlementL3].exists);
         if (!chainConfigurations[settlementChainId][ProvingMechanism.SettlementL3].exists) {
             revert InvalidDestinationProvingMechanism(settlementChainId, ProvingMechanism.SettlementL3);
         }
@@ -501,8 +488,6 @@ contract Prover is SimpleProver, AbstractProver {
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
     ) public {
-        console.log("Hi I'm in proveWorldStateCannon");
-        console.log("chainId", chainId);
         if (!chainConfigurations[chainId][ProvingMechanism.Cannon].exists) {
             revert InvalidDestinationProvingMechanism(chainId, ProvingMechanism.Cannon);
         }
