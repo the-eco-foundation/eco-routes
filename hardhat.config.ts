@@ -99,6 +99,16 @@ const config: HardhatUserConfig = {
       url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
+    mantle: {
+      chainId: 5000,
+      url: `https://mantle-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      accounts: [DEPLOYER_PRIVATE_KEY],
+    },
+    mantleSepolia: {
+      chainId: 5003,
+      url: `https://mantle-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      accounts: [DEPLOYER_PRIVATE_KEY],
+    },
   },
   etherscan: {
     apiKey: {
@@ -106,12 +116,15 @@ const config: HardhatUserConfig = {
       optimismSepoliaBlockscout: process.env.OPTIMISM_BLOCKSCOUT_API_KEY || '',
       baseSepolia: process.env.BASE_SCAN_API_KEY || '',
       arbitrumSepolia: process.env.ARBITRUM_SCAN_API_KEY || '',
+      arbitrum: process.env.ARBITRUM_SCAN_API_KEY || '',
       optimism: process.env.OPTIMISM_SCAN_API_KEY || '',
       optimismBlockscout: process.env.OPTIMISM_BLOCKSCOUT_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISM_SCAN_API_KEY || '',
       base: process.env.BASE_SCAN_API_KEY || '',
       ecoTestnet: process.env.CALDERA_SCAN_API_KEY || '',
       helix: process.env.CALDERA_SCAN_API_KEY || '',
+      mantle: process.env.ETHERSCAN_API_KEY || '',
+      mantleSepolia: process.env.ETHERSCAN_API_KEY || '',
     },
     customChains: [
       {
@@ -144,6 +157,38 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://helix-test.calderaexplorer.xyz/api',
           browserURL: 'https://helix-test.calderaexplorer.xyz/',
+        },
+      },
+      {
+        network: 'mantle',
+        chainId: 5000,
+        urls: {
+          apiURL: 'https://api.mantlescan.xyz/api',
+          browserURL: 'https://mantlescan.xyz/',
+        },
+      },
+      {
+        network: 'mantleSepolia',
+        chainId: 5003,
+        urls: {
+          apiURL: 'https://api-sepolia.mantlescan.xyz/api',
+          browserURL: 'https://sepolia.mantlescan.xyz/',
+        },
+      },
+      {
+        network: 'arbitrum',
+        chainId: 42161,
+        urls: {
+          apiURL: 'https://api.arbiscan.io/api',
+          browserURL: 'https://arbiscan.io/',
+        },
+      },
+      {
+        network: 'arbitrumSepolia',
+        chainId: 421614,
+        urls: {
+          apiURL: 'https://api-sepolia.arbiscan.io/api',
+          browserURL: 'https://sepolia.arbiscan.io/',
         },
       },
     ],

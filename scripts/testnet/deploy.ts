@@ -78,8 +78,8 @@ const initialSalt: string = 'TESTNET6'
 
 let proverAddress = ''
 let intentSourceAddress = ''
-let inboxAddress = '0x200b2417A9d0F79133C2b05b2C028B8A70392e66'
-
+let inboxAddress = ''
+let hyperProverAddress = ''
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
 )
@@ -169,6 +169,29 @@ async function main() {
   }
   console.log('Inbox deployed to:', inboxAddress)
 
+  if (hyperProverAddress === '' && inboxAddress !== '') {
+    const hyperProverFactory = await ethers.getContractFactory('HyperProver')
+
+    const hyperProverTx = await hyperProverFactory.getDeployTransaction(
+      deployNetwork.hyperlaneMailboxAddress,
+      inboxAddress,
+    )
+
+    receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
+      gasLimit: 1000000,
+    })
+    console.log('hyperProver deployed')
+
+    hyperProverAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber,
+      )
+    )[0].args.addr
+
+    console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+  }
+
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   if (network.name !== 'hardhat') {
@@ -207,6 +230,18 @@ async function main() {
       console.log('Inbox verified at:', inboxAddress)
     } catch (e) {
       console.log(`Error verifying inbox`, e)
+    }
+    try {
+      await run('verify:verify', {
+        address: hyperProverAddress,
+        constructorArguments: [
+          deployNetwork.hyperlaneMailboxAddress,
+          inboxAddress,
+        ],
+      })
+      console.log('hyperProver verified at:', hyperProverAddress)
+    } catch (e) {
+      console.log(`Error verifying hyperProver`, e)
     }
   }
 }
