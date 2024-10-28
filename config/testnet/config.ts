@@ -91,7 +91,7 @@ const networks: any = {
     alchemyNetwork: 'optimism-sepolia',
     sourceChains: ['baseSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0x7fdA25dD9768bB9F3B1E48e61D420c719236884E',
+      address: '0xfBC728D2ab7575988eCEEBc2d7B69846cA8c8453',
       deploymentBlock: 16795390n, // '0x10046Fe'
     },
     intentSource: {
@@ -128,7 +128,7 @@ const networks: any = {
     alchemyNetwork: 'base-sepolia',
     sourceChains: ['optimismSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0x5a730Fd709AdDE8fFA97fc062c398E603dAa9A4D',
+      address: '0x235264209566a026FaDA7d1e467218F5a6A412Cb',
       deploymentBlock: 14812482n, // '0xe20542',
     },
     intentSource: {
@@ -174,7 +174,7 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContract: {
-      address: '0xC6917D4EFb592DBdf905D68177C9EBD2d9e675A8',
+      address: '0x8c2F4fdA46853Feb5b2Cf6EF19D64f525778C07f',
       deploymentBlock: '0x35dc32', // 3529778n
     },
     intentSource: {
@@ -240,7 +240,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.sepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.sepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      blockhashOracle: networks.sepolia.proving.l1BlockAddress, // blockhashOracle
       outputRootVersionNumber: networks.sepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.sepolia.proving.provingTimeSeconds,
       finalityDelaySeconds: networks.sepolia.proving.finalityDelaySeconds,
@@ -255,7 +255,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.sepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.sepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      blockhashOracle: networks.sepolia.proving.l1BlockAddress, // blockhashOracle
       outputRootVersionNumber: networks.sepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.sepolia.proving.provingTimeSeconds,
       finalityDelaySeconds: networks.sepolia.proving.finalityDelaySeconds,
@@ -270,7 +270,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
@@ -286,7 +286,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
@@ -302,7 +302,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
@@ -319,7 +319,7 @@ const deploymentConfigs = {
       settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
       settlementContract:
         networks.optimismSepolia.proving.settlementChain.contract,
-      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.optimismSepolia.proving.outputRootVersionNumber,
       provingTimeSeconds: networks.optimismSepolia.proving.provingTimeSeconds,
@@ -336,7 +336,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
       settlementContract: networks.ecoTestnet.proving.settlementChain.contract,
-      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.ecoTestnet.proving.outputRootVersionNumber,
       provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
@@ -349,6 +349,7 @@ const deploymentChainConfigs = {
   baseSepolia: [
     deploymentConfigs.sepoliaSettlement,
     deploymentConfigs.baseSepoliaSelf,
+    deploymentConfigs.baseSepoliaCannon,
     deploymentConfigs.optimismSepoliaCannon,
     deploymentConfigs.ecoTestnetBedrock,
   ],
@@ -356,11 +357,13 @@ const deploymentChainConfigs = {
     deploymentConfigs.sepoliaSettlement,
     deploymentConfigs.baseSepoliaCannon,
     deploymentConfigs.ecoTestnetBedrock,
+    deploymentConfigs.optimismSepoliaCannon,
   ],
   ecoTestnet: [
     deploymentConfigs.sepoliaSettlementL3,
     deploymentConfigs.baseSepoliaSettlement,
     deploymentConfigs.optimismSepoliaCannon,
+    deploymentConfigs.ecoTestnetBedrock,
   ],
 }
 

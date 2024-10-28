@@ -28,9 +28,9 @@ export namespace utils {
     ])
     // check the hash is valid
     const hash = keccak256(rlpEncodedBlockData)
-    console.log('Hash of RLP Encoded Block Data: ', hash)
-    console.log('Block Hash: ', block.hash)
     if (hash !== block.hash) {
+      console.log('Hash of RLP Encoded Block Data: ', hash)
+      console.log('Block Hash: ', block.hash)
       console.log('Hashes do not match')
       throw Error('Hashes do not match')
     }

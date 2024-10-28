@@ -151,6 +151,13 @@ contract Prover is SimpleProver, AbstractProver {
 
     /**
      * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+     * @param _blockHash the block hash we are trying to prove
+     * @param _l1BlockhashOracleHash the latest blockhash from the L1BlockhashOracle
+     */
+    error InvalidBlockData(bytes32 _blockHash, bytes32 _l1BlockhashOracleHash);
+
+    /**
+     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
      * @param _destinationChain the destination chain we are getting settlment chain for
      */
     error NoSettlementChainConfigured(uint256 _destinationChain);
@@ -181,7 +188,9 @@ contract Prover is SimpleProver, AbstractProver {
         ChainConfiguration memory chainConfiguration
     ) internal {
         chainConfigurations[chainConfigurationKey.chainId][chainConfigurationKey.provingMechanism] = chainConfiguration;
+        // if (chainConfigurationKey.chainId == block.chainid) {
         l1BlockhashOracle = IL1Block(chainConfiguration.blockhashOracle);
+        // }
     }
 
     // To see block information available on chain see
@@ -224,20 +233,18 @@ contract Prover is SimpleProver, AbstractProver {
      * state.
      */
     function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {
-        uint256 settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Cannon].settlementChainId;
-        if (!chainConfigurations[settlementChainId][ProvingMechanism.Settlement].exists) {
-            revert InvalidDestinationProvingMechanism(block.chainid, ProvingMechanism.Settlement);
-        }
-        require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
-
-        if (settlementChainId == 0) {
+        uint256 settlementChainId = 0;
+        if (chainConfigurations[block.chainid][ProvingMechanism.Cannon].exists) {
+            settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Cannon].settlementChainId;
+        } else if (chainConfigurations[block.chainid][ProvingMechanism.Bedrock].exists) {
             settlementChainId = chainConfigurations[block.chainid][ProvingMechanism.Bedrock].settlementChainId;
-            if (settlementChainId == 0) {
-                revert NoSettlementChainConfigured(block.chainid);
-            }
+        } else {
+            revert NoSettlementChainConfigured(block.chainid);
         }
-        // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
-        // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
+        if (keccak256(rlpEncodedBlockData) != l1BlockhashOracle.hash()) {
+            revert InvalidBlockData(keccak256(rlpEncodedBlockData), l1BlockhashOracle.hash());
+        }
+        // require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
         BlockProof memory blockProof = BlockProof({
             blockNumber: bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),

@@ -2,7 +2,6 @@ import {
   AbiCoder,
   Block,
   Contract,
-  encodeRlp,
   getAddress,
   getBytes,
   hexlify,
@@ -12,6 +11,7 @@ import {
   toQuantity,
   toNumber,
   toBeHex,
+  toBigInt,
 } from 'ethers'
 import {
   networkIds,
@@ -21,6 +21,7 @@ import {
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
+import { utils } from '../common/utils'
 
 type SourceChainInfo = {
   sourceChain: number
@@ -154,7 +155,7 @@ async function proveSettlementChainInstantBaseSepoliaEcoTestnet() {
   let errorCount = 0
   while (!provedSettlementState) {
     const setlementBlock = await s.ecoTestnetl1Block.number()
-    console.log('setlementBlock: ', setlementBlock)
+    // console.log('setlementBlock: ', setlementBlock)
     const settlementBlockNumberLatest = toQuantity(setlementBlock)
 
     const block: Block = await s.baseSepoliaProvider.send(
@@ -165,32 +166,11 @@ async function proveSettlementChainInstantBaseSepoliaEcoTestnet() {
     let tx
     let settlementWorldStateRootLatest
     try {
-      const rlpEncodedBlockData = encodeRlp([
-        block.parentHash,
-        block.sha3Uncles,
-        block.miner,
-        block.stateRoot,
-        block.transactionsRoot,
-        block.receiptsRoot,
-        block.logsBloom,
-        stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
-        toBeHex(block.number),
-        toBeHex(block.gasLimit),
-        toBeHex(block.gasUsed),
-        block.timestamp,
-        block.extraData,
-        block.mixHash,
-        block.nonce,
-        toBeHex(block.baseFeePerGas),
-        block.withdrawalsRoot,
-        stripZerosLeft(toBeHex(block.blobGasUsed)),
-        stripZerosLeft(toBeHex(block.excessBlobGas)),
-        block.parentBeaconBlockRoot,
-      ])
-      tx = await s.ecoTestnetProverContract.proveSettlementLayerState(
-        getBytes(hexlify(rlpEncodedBlockData)),
-        // networkIds.baseSepolia,
-      )
+      const rlpEncodedBlockData = await utils.getRLPEncodedBlock(block)
+      tx =
+        await s.ecoTestnetProverContract.proveSettlementLayerState(
+          rlpEncodedBlockData,
+        )
       await tx.wait()
       console.log('Prove Settlement world state tx: ', tx.hash)
       settlementWorldStateRootLatest = block.stateRoot
@@ -211,18 +191,25 @@ async function proveSettlementChainInstantBaseSepoliaEcoTestnet() {
     } catch (e) {
       errorCount += 1
       console.log('ProveSettlementState errorCount: ', errorCount)
-      // if (e.data && s.baseSepoliaProverContract) {
-      //   const decodedError = s.baseSepoliaProverContract.interface.parseError(
-      //     e.data,
-      //   )
-      //   console.log(`Transaction failed: ${decodedError?.name}`)
-      //   console.log(
-      //     `Error in proveSettlementLayerState EcoTestnet:`,
-      //     e.shortMessage,
-      //   )
-      // } else {
-      //   console.log(`Error in proveSettlementLayerState EcoTestnet:`, e)
-      // }
+      console.log('settlementBlock            : ', setlementBlock)
+      console.log(
+        'settlementBlockNumberLatest: ',
+        toBigInt(settlementBlockNumberLatest),
+      )
+      // console.log('ErrorDescription: ', e)
+      if (e.data && s.baseSepoliaProverContract) {
+        const decodedError = s.baseSepoliaProverContract.interface.parseError(
+          e.data,
+        )
+        console.log(`Transaction failed: ${decodedError?.name}`)
+        console.log(
+          `Error in proveSettlementLayerState EcoTestnet:`,
+          e.shortMessage,
+        )
+        // console.log('Full error: ', e)
+      } else {
+        console.log(`Error in proveSettlementLayerState EcoTestnet:`, e)
+      }
     }
   }
 }
