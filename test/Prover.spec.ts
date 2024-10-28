@@ -20,6 +20,7 @@ import {
   provingMechanisms,
   settlementTypes,
   deploymentChainConfig,
+  deploymentChainConfigs,
 } from '../config/local/config'
 import {
   bedrock,
@@ -52,32 +53,8 @@ describe('Prover Unit Tests', () => {
   })
 
   beforeEach(async () => {
-    blockhashOracle = await deploy(deployerSigner, MockL1Block__factory)
-    // only the number and hash matters here
-    await blockhashOracle.setL1BlockValues(
-      bedrock.settlementChain.blockNumber,
-      0,
-      0,
-      bedrock.settlementChain.blockHash,
-      0,
-      '0x' + '00'.repeat(32),
-      0,
-      0,
-    )
-    const chainConfig = cloneDeep(deploymentChainConfig)
-    // console.log('Prover Unit Tests')
-    // console.log('deploymentChainConfig: ', deploymentChainConfig)
-    const deploymentChains = []
-    for (const chain of chainConfig) {
-      chain.chainConfiguration.blockhashOracle =
-        await blockhashOracle.getAddress()
-      deploymentChains.push(chain)
-    }
     const proverContract = await ethers.getContractFactory('Prover')
-    // console.log('In Prover Unit Tests')
-    // console.log('deploymentChainConfig: ', deploymentChainConfig)
-
-    prover = await proverContract.deploy(deploymentChains)
+    prover = await proverContract.deploy(deploymentChainConfigs.unitTests)
   })
 
   describe('on prover implements interface', () => {
@@ -201,28 +178,13 @@ describe('Prove Self State Tests', () => {
       0,
       0,
     )
-    const chainConfig = cloneDeep(deploymentChainConfig)
+    const chainConfig = cloneDeep(deploymentChainConfigs.selfStateTests)
     const deploymentChains = []
     for (const chain of chainConfig) {
       chain.chainConfiguration.blockhashOracle =
         await blockhashOracle.getAddress()
-      // for self test set hardhat config to baseSepolia
-      if (chain.chainConfigurationKey.chainId === networkIds.baseSepolia) {
-        chain.chainConfigurationKey.chainId = networkIds.hardhat
-        chain.chainConfigurationKey.provingMechanism = provingMechanisms.Self
-      }
       deploymentChains.push(chain)
-      // for self test set hardhat config to baseSepolia
-      if (chain.chainConfigurationKey.chainId === networkIds.baseSepolia) {
-        const hardhatChain = cloneDeep(chain)
-        hardhatChain.chainConfigurationKey.chainId = networkIds.hardhat
-        hardhatChain.chainConfigurationKey.provingMechanism =
-          provingMechanisms.Self
-        deploymentChains.push(hardhatChain)
-      }
     }
-    // console.log('In Prove Self State Tests')
-    // console.log('deploymentChains: ', deploymentChains)
     const proverContract = await ethers.getContractFactory('Prover')
     prover = await proverContract.deploy(deploymentChains)
   })
@@ -320,19 +282,12 @@ describe('Prover End to End Tests', () => {
       0,
       0,
     )
-    const chainConfig = cloneDeep(deploymentChainConfig)
+    const chainConfig = cloneDeep(deploymentChainConfigs.endToEndTests)
     const deploymentChains = []
     for (const chain of chainConfig) {
       chain.chainConfiguration.blockhashOracle =
         await blockhashOracle.getAddress()
       deploymentChains.push(chain)
-      if (chain.chainConfigurationKey.chainId === networkIds.baseSepolia) {
-        const hardhatChain = cloneDeep(chain)
-        hardhatChain.chainConfigurationKey.chainId = networkIds.hardhat
-        hardhatChain.chainConfigurationKey.provingMechanism =
-          provingMechanisms.Cannon
-        deploymentChains.push(hardhatChain)
-      }
     }
     const proverContract = await ethers.getContractFactory('Prover')
     prover = await proverContract.deploy(deploymentChains)
@@ -543,26 +498,26 @@ describe('Prover L3 Settlement Layer Tests', () => {
       0,
       0,
     )
-    const chainConfig = cloneDeep(deploymentChainConfig)
+    const chainConfig = cloneDeep(deploymentChainConfigs.l3SettlementTests)
     const deploymentChains = []
     for (const chain of chainConfig) {
       chain.chainConfiguration.blockhashOracle =
         await blockhashOracle.getAddress()
       // change the Settlement Types for Sepolia and BaseSepolia for SettlementL3
-      if (chain.chainConfigurationKey.chainId === networkIds.sepolia) {
-        chain.chainConfigurationKey.provingMechanism =
-          provingMechanisms.SettlementL3
-      }
-      if (chain.chainConfigurationKey.chainId === networkIds.baseSepolia) {
-        chain.chainConfigurationKey.provingMechanism =
-          provingMechanisms.Settlement
-      }
+      // if (chain.chainConfigurationKey.chainId === networkIds.sepolia) {
+      //   chain.chainConfigurationKey.provingMechanism =
+      //     provingMechanisms.SettlementL3
+      // }
+      // if (chain.chainConfigurationKey.chainId === networkIds.baseSepolia) {
+      //   chain.chainConfigurationKey.provingMechanism =
+      //     provingMechanisms.Settlement
+      // }
       deploymentChains.push(chain)
-      if (chain.chainConfigurationKey.chainId === networkIds.ecoTestnet) {
-        const hardhatChain = cloneDeep(chain)
-        hardhatChain.chainConfigurationKey.chainId = networkIds.hardhat
-        deploymentChains.push(hardhatChain)
-      }
+      // if (chain.chainConfigurationKey.chainId === networkIds.ecoTestnet) {
+      //   const hardhatChain = cloneDeep(chain)
+      //   hardhatChain.chainConfigurationKey.chainId = networkIds.hardhat
+      //   deploymentChains.push(hardhatChain)
+      // }
     }
     const proverContract = await ethers.getContractFactory('Prover')
     prover = await proverContract.deploy(deploymentChains)

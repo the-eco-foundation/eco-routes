@@ -1,10 +1,12 @@
 /* eslint-disable no-magic-numbers */
 const networkIds: any = {
+  noChain: 0,
   sepolia: 11155111,
   optimismSepolia: 11155420,
   baseSepolia: 84532,
   ecoTestnet: 471923,
   // arbitrumSepolia: 421614,
+  0: 'noChain',
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
