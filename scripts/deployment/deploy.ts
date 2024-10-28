@@ -1,76 +1,37 @@
 import { ethers, run, network } from 'hardhat'
-import { networkIds, networks } from '../../config/testnet/config'
+import {
+  networkIds,
+  networks,
+  deploymentChainConfigs,
+} from '../../config/testnet/config'
 
 // TODO: remove the await tx.wait() and update queries for deployed contracts
 // Notes: Singleton Factory address (all chains): 0xce0042B868300000d44A59004Da54A005ffdcf9f
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET31'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET36'))
 
 console.log('Deploying to Network: ', network.name)
-const baseSepoliaChainConfiguration = {
-  chainConfigurationKey: {
-    exists: true,
-    chainId: networkIds.baseSepolia,
-    provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
-  },
-  chainConfiguration: {
-    settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
-    provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
-    finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
-  },
-}
-
-const optimismSepoliaChainConfiguration = {
-  chainConfigurationKey: {
-    exists: true,
-    chainId: networkIds.optimismSepolia,
-    provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
-  },
-  chainConfiguration: {
-    settlementChainId: networks.optimismSepolia.proving.settlementChain.id, // settlementChainId
-    settlementContract:
-      networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
-    provingTimeSeconds: networks.optimismSepolia.proving.provingTimeSeconds,
-    finalityDelaySeconds: networks.optimismSepolia.proving.finalityDelaySeconds,
-  },
-}
-
-const ecoTestnetChainConfiguration = {
-  chainConfigurationKey: {
-    exists: true,
-    chainId: networkIds.ecoTestnet,
-    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
-  },
-  chainConfiguration: {
-    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
-    provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
-    finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
-  },
-}
+let proverAddress = '0x7fdA25dD9768bB9F3B1E48e61D420c719236884E'
+let intentSourceAddress = '0x1285E45A43A057d33A64690f8160F7F0311f343f'
+let inboxAddress = '0xaF908126aB3C58b737c6170842F2Bf5D358c250A'
+let hyperProverAddress = '0x258b353Bc9B2C4780f470Ca71502b5a51Efc4228'
 // Set the config for the chain we are deploying to
 let config
+let chainConfig
 switch (networkName) {
   case 'baseSepolia':
     config = networks.baseSepolia
+    chainConfig = deploymentChainConfigs.baseSepolia
     break
   case 'optimismSepolia':
     config = networks.optimismSepolia
+    chainConfig = deploymentChainConfigs.optimismSepolia
     break
   case 'ecoTestnet':
     config = networks.ecoTestnet
+    chainConfig = deploymentChainConfigs.ecoTestnet
     break
   default:
     break
@@ -98,110 +59,125 @@ async function main() {
   const inboxFactory = await ethers.getContractFactory('Inbox')
   const hyperProverFactory = await ethers.getContractFactory('HyperProver')
   // Deploy the prover
-  const proverTx = await proverFactory.getDeployTransaction([
-    baseSepoliaChainConfiguration,
-    optimismSepoliaChainConfiguration,
-    ecoTestnetChainConfiguration,
-  ])
-  const proverReceipt = await singletonDeployer.deploy(proverTx.data, salt, {
-    gaslimit: 1000000,
-  })
-  await proverReceipt.wait()
-  console.log('prover deployed')
+  const proverTx = await proverFactory.getDeployTransaction(chainConfig)
+  //   [
+  //   baseSepoliaChainConfiguration,
+  //   optimismSepoliaChainConfiguration,
+  //   ecoTestnetChainConfiguration,
+  // ])
+  if (proverAddress === '') {
+    const proverReceipt = await singletonDeployer.deploy(proverTx.data, salt, {
+      gaslimit: 1000000,
+    })
+    await proverReceipt.wait()
+    console.log('prover deployed')
 
-  const proverAddress = (
-    await singletonDeployer.queryFilter(
-      singletonDeployer.filters.Deployed,
-      proverReceipt.blockNumber,
-    )
-  )[0].args.addr
+    proverAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        proverReceipt.blockNumber,
+      )
+    )[0].args.addr
 
-  console.log(`prover deployed to: ${proverAddress}`)
+    console.log(`prover deployed to: ${proverAddress}`)
+  } else {
+    console.log('prover already deployed at:', proverAddress)
+  }
 
   // Deploy the intent source
-
-  const intentSourceTx = await intentSourceFactory.getDeployTransaction(
-    config.intentSource.minimumDuration,
-    config.intentSource.counter,
-  )
-  const intentSourcereceipt = await singletonDeployer.deploy(
-    intentSourceTx.data,
-    salt,
-    {
-      gaslimit: 1000000,
-    },
-  )
-  await intentSourcereceipt.wait()
-  console.log('IntentSource deployed')
-
-  const intentSourceAddress = (
-    await singletonDeployer.queryFilter(
-      singletonDeployer.filters.Deployed,
-      intentSourcereceipt.blockNumber,
+  if (intentSourceAddress === '') {
+    const intentSourceTx = await intentSourceFactory.getDeployTransaction(
+      config.intentSource.minimumDuration,
+      config.intentSource.counter,
     )
-  )[0].args.addr
+    const intentSourcereceipt = await singletonDeployer.deploy(
+      intentSourceTx.data,
+      salt,
+      {
+        gaslimit: 1000000,
+      },
+    )
+    await intentSourcereceipt.wait()
+    console.log('IntentSource deployed')
 
-  console.log(`intentSource deployed to: ${intentSourceAddress}`)
+    intentSourceAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        intentSourcereceipt.blockNumber,
+      )
+    )[0].args.addr
+
+    console.log(`intentSource deployed to: ${intentSourceAddress}`)
+  } else {
+    console.log('intentSource already deployed at:', intentSourceAddress)
+  }
 
   // Deploy the inbox
-  const inboxTx = await inboxFactory.getDeployTransaction(
-    deployer.address,
-    true,
-    [],
-    // config.hyperlaneMailboxAddress,
-  )
-  const inboxReceipt = await singletonDeployer.deploy(inboxTx.data, salt, {
-    gaslimit: 1000000,
-  })
-  await inboxReceipt.wait()
-  console.log('inbox deployed')
-
-  const inboxAddress = (
-    await singletonDeployer.queryFilter(
-      singletonDeployer.filters.Deployed,
-      inboxReceipt.blockNumber,
+  if (inboxAddress === '') {
+    const inboxTx = await inboxFactory.getDeployTransaction(
+      deployer.address,
+      true,
+      [],
+      // config.hyperlaneMailboxAddress,
     )
-  )[0].args.addr
+    const inboxReceipt = await singletonDeployer.deploy(inboxTx.data, salt, {
+      gaslimit: 1000000,
+    })
+    await inboxReceipt.wait()
+    console.log('inbox deployed')
 
-  console.log(`inbox deployed to: ${inboxAddress}`)
+    inboxAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        inboxReceipt.blockNumber,
+      )
+    )[0].args.addr
+
+    console.log(`inbox deployed to: ${inboxAddress}`)
+  } else {
+    console.log('inbox already deployed at:', inboxAddress)
+  }
 
   // Deploy the hyperProver
-  const hyperProverTx = await hyperProverFactory.getDeployTransaction(
-    config.hyperlaneMailboxAddress,
-    inboxAddress,
-  )
-
-  const hyperProverReceipt = await singletonDeployer.deploy(
-    hyperProverTx.data,
-    salt,
-    {
-      gasLimit: 1000000,
-    },
-  )
-  await hyperProverReceipt.wait()
-  console.log('hyperProver deployed')
-
-  const hyperProverAddress = (
-    await singletonDeployer.queryFilter(
-      singletonDeployer.filters.Deployed,
-      hyperProverReceipt.blockNumber,
+  if (hyperProverAddress === '') {
+    console.log(
+      'config.hyperlaneMailboxAddress: ',
+      config.hyperlaneMailboxAddress,
     )
-  )[0].args.addr
+    console.log('inboxAddress: ', inboxAddress)
+    const hyperProverTx = await hyperProverFactory.getDeployTransaction(
+      config.hyperlaneMailboxAddress,
+      inboxAddress,
+    )
 
-  console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+    const hyperProverReceipt = await singletonDeployer.deploy(
+      hyperProverTx.data,
+      salt,
+      {
+        gasLimit: 1000000,
+      },
+    )
+    await hyperProverReceipt.wait()
+    console.log('hyperProver deployed')
+
+    hyperProverAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        hyperProverReceipt.blockNumber,
+      )
+    )[0].args.addr
+
+    console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+  } else {
+    console.log('hyperProver already deployed at:', hyperProverAddress)
+  }
 
   // Verify all the contracts
   // verify prover
   try {
     await run('verify:verify', {
       address: proverAddress,
-      constructorArguments: [
-        [
-          baseSepoliaChainConfiguration,
-          optimismSepoliaChainConfiguration,
-          ecoTestnetChainConfiguration,
-        ],
-      ],
+      constructorArguments: [chainConfig],
     })
     console.log('prover verified at:', proverAddress)
   } catch (e) {

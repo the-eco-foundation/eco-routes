@@ -51,6 +51,7 @@
     "deployEcoTestnet": "hardhat run --network ecoTestnet scripts/deployment/deploy.ts",
     "deployBaseSepolia": "hardhat run --network baseSepolia scripts/deployment/deploy.ts",
     "deployOptimismSepolia": "hardhat run --network optimismSepolia scripts/deployment/deploy.ts",
+    "deployTestNet": "yarn deployEcoTestnet &&  yarn deployBaseSepolia && yarn deployOptimismSepolia",
     "proverDeployOptimismSepolia": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/proverDeploy.ts",
     "intentSolve": "hardhat run scripts/testnet/intentSolve.ts",
     "instantSettleEcoTestnetBaseSepolia": "hardhat run scripts/testnet/instantSettleEcoTestNetBaseSepolia.ts",

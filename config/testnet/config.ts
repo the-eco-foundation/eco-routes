@@ -1,3 +1,6 @@
+import { optimism } from '@hyperlane-xyz/registry'
+import { ethers } from 'hardhat'
+
 /* eslint-disable no-magic-numbers */
 const networkIds: any = {
   noChain: 0,
@@ -63,6 +66,15 @@ const networks: any = {
     alchemyNetwork: 'sepolia',
     proving: {
       mechanism: provingMechanisms.Settlement,
+      l1BlockAddress: '0x0000000000000000000000000000000000000000',
+      l2l1MessageParserAddress: '0x0000000000000000000000000000000000000000',
+      outputRootVersionNumber: 0,
+      l1BlockSlotNumber: 2,
+      settlementChain: {
+        network: 'sepolia',
+        id: networkIds.sepolia,
+        contract: '0x0000000000000000000000000000000000000000',
+      },
       provingTimeSeconds: 36,
       finalityDelaySeconds: 0,
     },
@@ -79,20 +91,20 @@ const networks: any = {
     alchemyNetwork: 'optimism-sepolia',
     sourceChains: ['baseSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0xed84b971657F5B182cc8Bb521EB09C959C215dCC',
+      address: '0x7fdA25dD9768bB9F3B1E48e61D420c719236884E',
       deploymentBlock: 16795390n, // '0x10046Fe'
     },
     intentSource: {
-      address: '0x65E1BB1752AE3b6EA7E1c1531fb565Aa4724BFBB',
+      address: '0x1285E45A43A057d33A64690f8160F7F0311f343f',
       deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x64Fff610959159Df6bad6402017BfD73Fd233380',
+      address: '0xaF908126aB3C58b737c6170842F2Bf5D358c250A',
       deploymentBlock: 18354796n, // '0x118126c
     },
-    hyperProverContractAddress: '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
+    hyperProverContractAddress: '0x258b353Bc9B2C4780f470Ca71502b5a51Efc4228',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -116,20 +128,20 @@ const networks: any = {
     alchemyNetwork: 'base-sepolia',
     sourceChains: ['optimismSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0x5900FF69924Bce8Bb8Cb0718afC23eBE5131315B',
+      address: '0x5a730Fd709AdDE8fFA97fc062c398E603dAa9A4D',
       deploymentBlock: 14812482n, // '0xe20542',
     },
     intentSource: {
-      address: '0x2Abddc1F15cCB2E71264a7C32E46873e11302D5b',
+      address: '0x1285E45A43A057d33A64690f8160F7F0311f343f',
       deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x9f73f5b9dA2eC4165638851664D3A9d9302BeBEc',
+      address: '0xaF908126aB3C58b737c6170842F2Bf5D358c250A',
       deploymentBlock: 14812488n, // '0xe20548',
     },
-    hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
+    hyperProverContractAddress: '0x258b353Bc9B2C4780f470Ca71502b5a51Efc4228',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -162,20 +174,20 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContract: {
-      address: '0x5900FF69924Bce8Bb8Cb0718afC23eBE5131315B',
+      address: '0xC6917D4EFb592DBdf905D68177C9EBD2d9e675A8',
       deploymentBlock: '0x35dc32', // 3529778n
     },
     intentSource: {
-      address: '0x2Abddc1F15cCB2E71264a7C32E46873e11302D5b',
+      address: '0x1285E45A43A057d33A64690f8160F7F0311f343f',
       deploymentBlock: 3529780n, // '0x35dc34',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x9f73f5b9dA2eC4165638851664D3A9d9302BeBEc',
+      address: '0xaF908126aB3C58b737c6170842F2Bf5D358c250A',
       deploymentBlock: 3529786n, // '0x35dc3a',
     },
-    hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
+    hyperProverContractAddress: '0x258b353Bc9B2C4780f470Ca71502b5a51Efc4228',
     proving: {
       mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -216,6 +228,140 @@ const networks: any = {
     },
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
   },
+}
+
+const deploymentConfigs = {
+  sepoliaSettlement: {
+    chainConfigurationKey: {
+      chainId: networkIds.sepolia,
+      provingMechanism: provingMechanisms.Settlement, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.sepolia.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.sepolia.proving.settlementChain.contract, // settlementContract
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber: networks.sepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      provingTimeSeconds: networks.sepolia.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.sepolia.proving.finalityDelaySeconds,
+    },
+  },
+  sepoliaSettlementL3: {
+    chainConfigurationKey: {
+      chainId: networkIds.sepolia,
+      provingMechanism: provingMechanisms.SettlementL3, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.sepolia.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.sepolia.proving.settlementChain.contract, // settlementContract
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber: networks.sepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      provingTimeSeconds: networks.sepolia.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.sepolia.proving.finalityDelaySeconds,
+    },
+  },
+  baseSepoliaSettlement: {
+    chainConfigurationKey: {
+      chainId: networkIds.baseSepolia,
+      provingMechanism: provingMechanisms.Settlement, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
+    },
+  },
+  baseSepoliaSelf: {
+    chainConfigurationKey: {
+      chainId: networkIds.baseSepolia,
+      provingMechanism: provingMechanisms.Self, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
+    },
+  },
+  baseSepoliaCannon: {
+    chainConfigurationKey: {
+      chainId: networkIds.baseSepolia,
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
+    },
+  },
+  optimismSepoliaCannon: {
+    chainConfigurationKey: {
+      chainId: networkIds.optimismSepolia,
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
+      settlementContract:
+        networks.optimismSepolia.proving.settlementChain.contract,
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.optimismSepolia.proving.outputRootVersionNumber,
+      provingTimeSeconds: networks.optimismSepolia.proving.provingTimeSeconds,
+      finalityDelaySeconds:
+        networks.optimismSepolia.proving.finalityDelaySeconds,
+    },
+  },
+  ecoTestnetBedrock: {
+    chainConfigurationKey: {
+      chainId: networkIds.ecoTestnet,
+      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
+      settlementContract: networks.ecoTestnet.proving.settlementChain.contract,
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.ecoTestnet.proving.outputRootVersionNumber,
+      provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
+    },
+  },
+}
+
+const deploymentChainConfigs = {
+  baseSepolia: [
+    deploymentConfigs.sepoliaSettlement,
+    deploymentConfigs.baseSepoliaSelf,
+    deploymentConfigs.optimismSepoliaCannon,
+    deploymentConfigs.ecoTestnetBedrock,
+  ],
+  optimismSepolia: [
+    deploymentConfigs.sepoliaSettlement,
+    deploymentConfigs.baseSepoliaCannon,
+    deploymentConfigs.ecoTestnetBedrock,
+  ],
+  ecoTestnet: [
+    deploymentConfigs.sepoliaSettlementL3,
+    deploymentConfigs.baseSepoliaSettlement,
+    deploymentConfigs.optimismSepoliaCannon,
+  ],
 }
 
 const routes: any = [
@@ -492,5 +638,7 @@ export {
   settlementTypes,
   intent,
   networks,
+  deploymentConfigs,
+  deploymentChainConfigs,
   routes,
 }
