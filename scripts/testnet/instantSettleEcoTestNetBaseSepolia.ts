@@ -17,11 +17,10 @@ import {
   networkIds,
   networks,
   actors,
+  settlementTypes,
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
-import { settlementTypes } from '../../test/testData'
-// import { intent } from '../../test/testData'
 
 type SourceChainInfo = {
   sourceChain: number

@@ -10,7 +10,7 @@ import {
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET36'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET'))
 
 console.log('Deploying to Network: ', network.name)
 let proverAddress = '0x7fdA25dD9768bB9F3B1E48e61D420c719236884E'
