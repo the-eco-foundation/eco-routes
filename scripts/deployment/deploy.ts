@@ -13,10 +13,10 @@ const networkName = network.name
 const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET'))
 
 console.log('Deploying to Network: ', network.name)
-let proverAddress = ''
-let intentSourceAddress = '0x1285E45A43A057d33A64690f8160F7F0311f343f'
-let inboxAddress = '0xaF908126aB3C58b737c6170842F2Bf5D358c250A'
-let hyperProverAddress = '0x258b353Bc9B2C4780f470Ca71502b5a51Efc4228'
+let proverAddress = '0x212D1ad08cB7F9f29626B7D027777A4ffc4524A6'
+let intentSourceAddress = '0x6283C594e665E64e9e4a7eAF10Dc0380edF63c91'
+let inboxAddress = '0x56EF64a871E6236f61089ACa8D82C6A0CB6DFD0f'
+let hyperProverAddress = '0x7f8b58F2545F9Dc5708e2cF0D128b1a0F9AAd9b4'
 // Set the config for the chain we are deploying to
 let config
 let chainConfig
@@ -36,7 +36,7 @@ switch (networkName) {
   default:
     break
 }
-console.log('chainConfig: ', chainConfig)
+// console.log('chainConfig: ', chainConfig)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
