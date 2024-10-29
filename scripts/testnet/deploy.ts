@@ -7,6 +7,23 @@ export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
 let deployNetwork: any
+let counter: number = 0
+let minimumDuration: number = 0
+let localGasLimit: number = 0
+switch (networkName) {
+  case 'baseSepolia':
+    deployNetwork = networks.baseSepolia
+    break
+  case 'optimismSepolia':
+    deployNetwork = networks.optimismSepolia
+    break
+  case 'optimismSepoliaBlockscout':
+    deployNetwork = networks.optimismSepolia
+    break
+  case 'ecoTestnet':
+    deployNetwork = networks.ecoTestnet
+    break
+}
 const baseSepoliaChainConfiguration = {
   chainId: networks.baseSepolia.chainId, // chainId
   chainConfiguration: {
@@ -43,49 +60,21 @@ const ecoTestnetChainConfiguration = {
       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
-let counter: number = 0
-let minimumDuration: number = 0
-switch (networkName) {
-  case 'baseSepolia':
-    counter = networks.baseSepolia.intentSource.counter
-    minimumDuration = networks.baseSepolia.intentSource.minimumDuration
-    deployNetwork = networks.baseSepolia
-    break
-  case 'optimismSepolia':
-    counter = networks.optimismSepolia.intentSource.counter
-    minimumDuration = networks.optimismSepolia.intentSource.minimumDuration
-    deployNetwork = networks.optimismSepolia
-    break
-  case 'optimismSepoliaBlockscout':
-    counter = networks.optimismSepolia.intentSource.counter
-    minimumDuration = networks.optimismSepolia.intentSource.minimumDuration
-    deployNetwork = networks.optimismSepolia
-    break
-  case 'ecoTestnet':
-    counter = networks.ecoTestnet.intentSource.counter
-    minimumDuration = networks.ecoTestnet.intentSource.minimumDuration
-    deployNetwork = networks.ecoTestnet
-    break
-  default:
-    counter = 0
-    minimumDuration = 0
-    break
-}
-console.log('Counter: ', counter)
-console.log('Minimum duration: ', minimumDuration)
+const initialSalt: string = 'HANDOFF0'
+// const initialSalt: string = 'PROD'
 
-const initialSalt: string = 'TESTNET6'
-
-let proverAddress = ''
-let intentSourceAddress = ''
-let inboxAddress = ''
-let hyperProverAddress = ''
+let proverAddress: string = ''
+let intentSourceAddress: string = '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905'
+let inboxAddress: string = '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0'
+let hyperProverAddress: string = '0xB1017F865c6306319C65266158979278F7f50118'
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
 )
 const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
 
 console.log('Deploying to Network: ', network.name)
+
+// console.log(network)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -95,6 +84,10 @@ async function main() {
     'Deployer',
     '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
   )
+  localGasLimit = deployNetwork.gasLimit
+  counter = deployNetwork.intentSource.counter
+  minimumDuration = deployNetwork.intentSource.minimumDuration
+  console.log('localGasLimit:', localGasLimit)
 
   console.log(`**************************************************`)
   let receipt
