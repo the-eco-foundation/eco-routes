@@ -1061,6 +1061,7 @@ async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
   try {
     const proveIntentTx = await s.baseSepoliaProverContract.proveIntent(
       networkIds.optimismSepolia,
+      settlementTypes.Finalized,
       actors.claimant,
       networks.optimismSepolia.inbox.address,
       intermediateHash,
@@ -1126,6 +1127,7 @@ async function proveIntentEcoTestnet(intentHash, endBatchBlockData) {
   try {
     const proveIntentTx = await s.ecoTestnetProverContract.proveIntent(
       networkIds.optimismSepolia,
+      settlementTypes.Finalized,
       actors.claimant,
       networks.optimismSepolia.inbox.address,
       intermediateHash,

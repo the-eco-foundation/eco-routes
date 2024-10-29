@@ -508,6 +508,7 @@ async function proveIntentBaseSepolia(intentHash, l3BlockNumber) {
   try {
     const proveIntentTx = await s.baseSepoliaProverContract.proveIntent(
       networkIds.ecoTestnet,
+      settlementTypes.Finalized,
       actors.claimant,
       networks.ecoTestnet.inbox.address,
       intermediateHash,

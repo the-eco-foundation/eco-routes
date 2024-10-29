@@ -780,6 +780,7 @@ async function proveIntentOptimismSepolia(intentHash, endBatchBlockData) {
   try {
     const proveIntentTx = await s.optimismSepoliaProverContract.proveIntent(
       networkIds.ecoTestnet,
+      settlementTypes.Finalized,
       actors.claimant,
       networks.ecoTestnet.inbox.address,
       intermediateHash,
