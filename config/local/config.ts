@@ -1,5 +1,4 @@
 /* eslint-disable no-magic-numbers */
-import { deploy } from '@openzeppelin/hardhat-upgrades/dist/utils'
 import { ethers } from 'hardhat'
 
 const networkIds: any = {

@@ -204,18 +204,15 @@ contract Prover is SimpleProver, AbstractProver {
     {
         if (provingMechanism == ProvingMechanism.Bedrock) {
             chainConfiguration = chainConfigurations[chainId][ProvingMechanism.Bedrock];
-            BlockProof memory existingSettlementBlockProof;
             {
                 if (chainConfiguration.settlementChainId != block.chainid) {
-                    existingSettlementBlockProof =
-                        provenStates[chainConfiguration.settlementChainId][SettlementType.Confirmed];
+                    blockProof = provenStates[chainConfiguration.settlementChainId][SettlementType.Finalized];
+                    blockProofKey = BlockProofKey({chainId: chainId, settlementType: SettlementType.Finalized});
                 } else {
-                    existingSettlementBlockProof =
-                        provenStates[chainConfiguration.settlementChainId][SettlementType.Finalized];
+                    blockProof = provenStates[chainConfiguration.settlementChainId][SettlementType.Confirmed];
+                    blockProofKey = BlockProofKey({chainId: chainId, settlementType: SettlementType.Confirmed});
                 }
             }
-            blockProofKey = BlockProofKey({chainId: chainId, settlementType: SettlementType.Posted});
-            blockProof = BlockProof({blockNumber: 0, blockHash: bytes32(0), stateRoot: bytes32(0)});
         }
         return (chainConfiguration, blockProofKey, blockProof);
     }

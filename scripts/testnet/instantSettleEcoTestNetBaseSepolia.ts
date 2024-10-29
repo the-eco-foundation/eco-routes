@@ -4,7 +4,7 @@ import {
   Contract,
   getAddress,
   getBytes,
-  hexlify,
+  // hexlify,
   keccak256,
   solidityPackedKeccak256,
   stripZerosLeft,
