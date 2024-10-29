@@ -193,6 +193,33 @@ contract Prover is SimpleProver, AbstractProver {
         // }
     }
 
+    function getProvenState(uint256 chainId, ProvingMechanism provingMechanism)
+        internal
+        view
+        returns (
+            ChainConfiguration memory chainConfiguration,
+            BlockProofKey memory blockProofKey,
+            BlockProof memory blockProof
+        )
+    {
+        if (provingMechanism == ProvingMechanism.Bedrock) {
+            chainConfiguration = chainConfigurations[chainId][ProvingMechanism.Bedrock];
+            BlockProof memory existingSettlementBlockProof;
+            {
+                if (chainConfiguration.settlementChainId != block.chainid) {
+                    existingSettlementBlockProof =
+                        provenStates[chainConfiguration.settlementChainId][SettlementType.Confirmed];
+                } else {
+                    existingSettlementBlockProof =
+                        provenStates[chainConfiguration.settlementChainId][SettlementType.Finalized];
+                }
+            }
+            blockProofKey = BlockProofKey({chainId: chainId, settlementType: SettlementType.Posted});
+            blockProof = BlockProof({blockNumber: 0, blockHash: bytes32(0), stateRoot: bytes32(0)});
+        }
+        return (chainConfiguration, blockProofKey, blockProof);
+    }
+
     // To see block information available on chain see
     // https://docs.soliditylang.org/en/latest/units-and-global-variables.html#block-and-transaction-properties
     /**
@@ -356,20 +383,25 @@ contract Prover is SimpleProver, AbstractProver {
         if (!chainConfigurations[chainId][ProvingMechanism.Bedrock].exists) {
             revert InvalidDestinationProvingMechanism(chainId, ProvingMechanism.Bedrock);
         }
+        BlockProofKey memory existingSettlementBlockProofKey;
+        BlockProof memory existingSettlementBlockProof;
+        ChainConfiguration memory chainConfiguration;
+        (chainConfiguration, existingSettlementBlockProofKey, existingSettlementBlockProof) =
+            getProvenState(chainId, ProvingMechanism.Bedrock);
         // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
-        ChainConfiguration memory chainConfiguration = chainConfigurations[chainId][ProvingMechanism.Bedrock];
-        BlockProof memory existingSettlementBlockProof;
-        {
-            if (chainConfiguration.settlementChainId != block.chainid) {
-                existingSettlementBlockProof =
-                    provenStates[chainConfiguration.settlementChainId][SettlementType.Confirmed];
-            } else {
-                existingSettlementBlockProof =
-                    provenStates[chainConfiguration.settlementChainId][SettlementType.Finalized];
-            }
-        }
+        // ChainConfiguration memory chainConfiguration = chainConfigurations[chainId][ProvingMechanism.Bedrock];
+        // BlockProof memory existingSettlementBlockProof;
+        // {
+        //     if (chainConfiguration.settlementChainId != block.chainid) {
+        //         existingSettlementBlockProof =
+        //             provenStates[chainConfiguration.settlementChainId][SettlementType.Confirmed];
+        //     } else {
+        //         existingSettlementBlockProof =
+        //             provenStates[chainConfiguration.settlementChainId][SettlementType.Finalized];
+        //     }
+        // }
         require(
             existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
         );
