@@ -6,11 +6,11 @@ import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPRe
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 
 library ProverLibrary {
-    uint256 public constant L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT =
+    uint256 internal constant L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT =
         0x405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ad1;
 
     // Output slot for the game status (aaaaa)
-    uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
+    uint256 internal constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
 
     struct FaultDisputeGameStatusSlotData {
         uint64 createdAt;
@@ -39,12 +39,67 @@ library ProverLibrary {
         bytes[] disputeGameFactoryAccountProof;
     }
 
-    function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
+    struct ChainConfigurationKey {
+        uint256 chainId;
+        ProvingMechanism provingMechanism;
+    }
+
+    struct ChainConfiguration {
+        bool exists;
+        uint256 settlementChainId;
+        address settlementContract;
+        address blockhashOracle;
+        uint256 outputRootVersionNumber;
+        uint256 provingTimeSeconds;
+        uint256 finalityDelaySeconds;
+    }
+
+    struct ChainConfigurationConstructor {
+        ChainConfigurationKey chainConfigurationKey;
+        ChainConfiguration chainConfiguration;
+    }
+
+    // map the chain id to ProvingMechanism to chain configuration
+    // mapping(uint256 => mapping(ProvingMechanism => ChainConfiguration)) public chainConfigurations;
+
+    struct BlockProofKey {
+        uint256 chainId;
+        SettlementType settlementType;
+    }
+
+    struct BlockProof {
+        uint256 blockNumber;
+        bytes32 blockHash;
+        bytes32 stateRoot;
+    }
+
+    // Store the last BlockProof for each ChainId
+    // mapping(uint256 => mapping(SettlementType => BlockProof)) public provenStates;
+
+    // The settlement type for the chain
+    enum SettlementType {
+        Finalized, // Finalized Block information has been posted and resolved on the settlement chain
+        Posted, // Settlement Block information has been posted on the settlement chain
+        Confirmed // Block is confirmed on the local chain
+
+    }
+    // The proving mechanism for the chain
+    enum ProvingMechanism {
+        Self, // Destination is Self
+        Settlement, // Source Chain is an L2, Destination is A L1 Settlement Chain
+        SettlementL3, // Source Chain is an L3, Destination is a L2 Settlement Chain
+        Bedrock, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
+        Cannon, // Source Chain is an L2, Destination Chain is an L2 using Cannon
+        HyperProver //HyperProver
+
+    }
+
+    function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) internal pure {
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
     }
 
     function proveAccount(bytes memory _address, bytes memory _data, bytes[] memory _proof, bytes32 _root)
-        public
+        internal
         pure
     {
         require(SecureMerkleTrie.verifyInclusionProof(_address, _data, _proof, _root), "failed to prove account");
@@ -55,12 +110,12 @@ library ProverLibrary {
         bytes32 worldStateRoot,
         bytes32 messagePasserStateRoot,
         bytes32 latestBlockHash
-    ) public pure returns (bytes32) {
+    ) internal pure returns (bytes32) {
         return keccak256(abi.encode(provingVersion, worldStateRoot, messagePasserStateRoot, latestBlockHash));
     }
 
     // helper function for getting all rlp data encoded
-    function rlpEncodeDataLibList(bytes[] memory dataList) public pure returns (bytes memory) {
+    function rlpEncodeDataLibList(bytes[] memory dataList) internal pure returns (bytes memory) {
         for (uint256 i = 0; i < dataList.length; ++i) {
             dataList[i] = RLPWriter.writeBytes(dataList[i]);
         }
@@ -73,7 +128,7 @@ library ProverLibrary {
     /// @param _gameProxy The game proxy address.
     /// @return gameId_ The packed GameId.
 
-    function pack(uint32 _gameType, uint64 _timestamp, address _gameProxy) public pure returns (bytes32 gameId_) {
+    function pack(uint32 _gameType, uint64 _timestamp, address _gameProxy) internal pure returns (bytes32 gameId_) {
         assembly {
             gameId_ := or(or(shl(224, _gameType), shl(160, _timestamp)), _gameProxy)
         }
@@ -84,7 +139,7 @@ library ProverLibrary {
     /// @return gameType_ The game type.
     /// @return timestamp_ The timestamp of the game's creation.
     /// @return gameProxy_ The game proxy address.
-    function unpack(bytes32 _gameId) public pure returns (uint32 gameType_, uint64 timestamp_, address gameProxy_) {
+    function unpack(bytes32 _gameId) internal pure returns (uint32 gameType_, uint64 timestamp_, address gameProxy_) {
         assembly {
             gameType_ := shr(224, _gameId)
             timestamp_ := and(shr(160, _gameId), 0xFFFFFFFFFFFFFFFF)
@@ -92,7 +147,7 @@ library ProverLibrary {
         }
     }
 
-    function bytesToUint(bytes memory b) public pure returns (uint256) {
+    function bytesToUint(bytes memory b) internal pure returns (uint256) {
         uint256 number;
         for (uint256 i = 0; i < b.length; i++) {
             number = number + uint256(uint8(b[i])) * (2 ** (8 * (b.length - (i + 1))));
@@ -106,7 +161,7 @@ library ProverLibrary {
         uint8 gameStatus,
         bool initialized,
         bool l2BlockNumberChallenged
-    ) public pure returns (bytes memory gameStatusStorageSlotRLP) {
+    ) internal pure returns (bytes memory gameStatusStorageSlotRLP) {
         // The if test is to remove leaing zeroes from the bytes
         // Assumption is that initialized is always true
         if (l2BlockNumberChallenged) {
@@ -141,7 +196,7 @@ library ProverLibrary {
         address faultDisputeGameProxyAddress,
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
-    ) public pure {
+    ) internal pure {
         require(
             faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
         ); // ensure faultDisputeGame is resolved
@@ -177,5 +232,37 @@ library ProverLibrary {
             faultDisputeGameProofData.faultDisputeGameAccountProof,
             l1WorldStateRoot
         );
+    }
+
+    function getProvenState(
+        uint256 chainId,
+        ProvingMechanism provingMechanism,
+        mapping(uint256 => mapping(ProvingMechanism => ChainConfiguration)) storage chainConfigurations,
+        mapping(uint256 => mapping(SettlementType => BlockProof)) storage provenStates
+    )
+        internal
+        view
+        returns (
+            ChainConfiguration memory chainConfiguration,
+            BlockProofKey memory blockProofKey,
+            BlockProof memory blockProof
+        )
+    {
+        if (provingMechanism == ProvingMechanism.Bedrock) {
+            chainConfiguration = chainConfigurations[chainId][ProvingMechanism.Bedrock];
+            BlockProof memory existingSettlementBlockProof;
+            {
+                if (chainConfiguration.settlementChainId != block.chainid) {
+                    existingSettlementBlockProof =
+                        provenStates[chainConfiguration.settlementChainId][SettlementType.Confirmed];
+                } else {
+                    existingSettlementBlockProof =
+                        provenStates[chainConfiguration.settlementChainId][SettlementType.Finalized];
+                }
+            }
+            blockProofKey = BlockProofKey({chainId: chainId, settlementType: SettlementType.Posted});
+            blockProof = BlockProof({blockNumber: 0, blockHash: bytes32(0), stateRoot: bytes32(0)});
+        }
+        return (chainConfiguration, blockProofKey, blockProof);
     }
 }
