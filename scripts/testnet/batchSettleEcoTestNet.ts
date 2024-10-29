@@ -681,15 +681,15 @@ export async function proveDestinationChainBatchSettled(
 ) {
   let endBatchBlockData
   console.log('In proveDestinationChainBatchSettled')
-  console.log('Testing Only to be removed')
-  endBatchBlockData = await proveWorldStatesBedrockL3L2Op(
-    faultDisputeGameAddress,
-    faultDisputeGameContract,
-    gameIndex,
-    l3OutputIndex,
-    l3BlockNumber,
-  )
-  console.log('endTesting')
+  // console.log('Testing Only to be removed')
+  // endBatchBlockData = await proveWorldStatesBedrockL3L2Op(
+  //   faultDisputeGameAddress,
+  //   faultDisputeGameContract,
+  //   gameIndex,
+  //   l3OutputIndex,
+  //   l3BlockNumber,
+  // )
+  // console.log('endTesting')
   await Promise.all(
     await Object.entries(sourceChains).map(
       async ([sourceChainkey, sourceChain]) => {

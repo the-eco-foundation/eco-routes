@@ -130,6 +130,7 @@ export async function getIntentsToProve(
       const proverContract = s[`${sourceChain}ProverContract`] as Contract
       baseSepoliaProvenState = await proverContract.provenStates(
         networkIds.baseSepolia,
+        settlementTypes.Finalized,
       )
       sourceChainInfo.lastProvenBlock = baseSepoliaProvenState.blockNumber
       if (proveAll) {
@@ -515,6 +516,13 @@ export async function proveDestinationChainBatchSettled(
 ) {
   console.log('In proveDestinationChainBatchSettled')
   let endBatchBlockData
+  // console.log('Testing Only to be removed')
+  // endBatchBlockData = await proveWorldStatesCannon(
+  //   faultDisputeGameAddress,
+  //   faultDisputeGameContract,
+  //   gameIndex,
+  // )
+  // console.log('endTesting')
   await Promise.all(
     await Object.entries(sourceChains).map(
       async ([sourceChainkey, sourceChain]) => {
