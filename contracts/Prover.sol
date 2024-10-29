@@ -360,8 +360,16 @@ contract Prover is SimpleProver, AbstractProver {
         // can also use timestamp instead of block when this is proven for better crosschain knowledge
         // failing the need for all that, change the mapping to map to bool
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId][ProvingMechanism.Bedrock];
-        BlockProof memory existingSettlementBlockProof =
-            provenStates[chainConfiguration.settlementChainId][SettlementType.Finalized];
+        BlockProof memory existingSettlementBlockProof;
+        {
+            if (chainConfiguration.settlementChainId != block.chainid) {
+                existingSettlementBlockProof =
+                    provenStates[chainConfiguration.settlementChainId][SettlementType.Confirmed];
+            } else {
+                existingSettlementBlockProof =
+                    provenStates[chainConfiguration.settlementChainId][SettlementType.Finalized];
+            }
+        }
         require(
             existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
         );

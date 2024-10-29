@@ -19,6 +19,7 @@ import {
   networkIds,
   networks,
   actors,
+  settlementTypes,
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
@@ -121,6 +122,7 @@ export async function getIntentsToProve(
       const proverContract = s[`${sourceChain}ProverContract`] as Contract
       ecoTestnetProvenState = await proverContract.provenStates(
         networkIds.ecoTestnet,
+        settlementTypes.Finalized,
       )
       sourceChainInfo.lastProvenBlock = ecoTestnetProvenState.blockNumber
       if (proveAll) {

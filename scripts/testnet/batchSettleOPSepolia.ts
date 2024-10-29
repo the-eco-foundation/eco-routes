@@ -19,6 +19,7 @@ import {
   networkIds,
   networks,
   actors,
+  settlementTypes,
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
@@ -102,6 +103,7 @@ export async function getIntentsToProve(
       optimismSepoliaProvenState = await proverContract.provenStates(
         // await s.[sourceChain]ProverContract.provenStates(
         networkIds.optimismSepolia,
+        settlementTypes.Finalized,
       )
       sourceChainInfo.lastProvenBlock = optimismSepoliaProvenState.blockNumber
       if (proveAll) {
@@ -974,6 +976,19 @@ export async function proveDestinationChainBatchSettled(
 ) {
   console.log('In proveDestinationChainBatchSettled')
   let endBatchBlockData
+  // Force Batch Settelment
+  // baseSepolia
+  endBatchBlockData = await proveWorldStatesCannon(
+    faultDisputeGameAddress,
+    faultDisputeGameContract,
+    gameIndex,
+  )
+  // ecoTestnet
+  endBatchBlockData = await proveWorldStatesCannonL2L3(
+    faultDisputeGameAddress,
+    faultDisputeGameContract,
+    gameIndex,
+  ) // End Forc Batch Settlement
   await Promise.all(
     await Object.entries(sourceChains).map(
       async ([sourceChainkey, sourceChain]) => {
