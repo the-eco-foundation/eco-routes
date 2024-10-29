@@ -149,14 +149,10 @@ contract Prover is SimpleProver {
         // }
     }
 
+    // Expose some Library Functions
     // helper function for getting all rlp data encoded
     function rlpEncodeDataLibList(bytes[] memory dataList) public pure returns (bytes memory) {
         return ProverLibrary.rlpEncodeDataLibList(dataList);
-        // for (uint256 i = 0; i < dataList.length; ++i) {
-        //     dataList[i] = RLPWriter.writeBytes(dataList[i]);
-        // }
-
-        // return RLPWriter.writeList(dataList);
     }
 
     // To see block information available on chain see
