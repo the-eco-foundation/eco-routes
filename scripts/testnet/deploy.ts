@@ -2,6 +2,7 @@ import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 import { networks, actors } from '../../config/testnet/config'
+import { arbitrum, chainAddresses } from '@hyperlane-xyz/registry'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const networkName = network.name
@@ -22,6 +23,12 @@ switch (networkName) {
     break
   case 'ecoTestnet':
     deployNetwork = networks.ecoTestnet
+    break
+  case 'arbitrumSepolia':
+    deployNetwork = networks.arbitrumSepolia
+    break
+  case 'mantleSepolia':
+    deployNetwork = networks.mantleSepolia
     break
 }
 const baseSepoliaChainConfiguration = {
@@ -60,13 +67,38 @@ const ecoTestnetChainConfiguration = {
       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
+
+// const arbitrumSepoliaChainConfiguration = {
+//   chainId: networks.arbitrumSepolia.chainId, // chainId
+//   chainConfiguration: {
+//     provingMechanism: networks.arbitrumSepolia.proving.mechanism, // provingMechanism
+//     settlementChainId: networks.arbitrumSepolia.proving.settlementChain.id, // settlementChainId
+//     settlementContract:
+//       networks.arbitrumSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//     blockhashOracle: networks.arbitrumSepolia.proving.l1BlockAddress, // blockhashOracle
+//     outputRootVersionNumber:
+//       networks.arbitrumSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+//   },
+// }
+
+const mantleSepoliaChainConfiguration = {
+  chainId: networks.mantleSepolia.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.mantleSepolia.proving.mechanism, // provingMechanism
+    settlementChainId: networks.mantleSepolia.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.mantleSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.mantleSepolia.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber:
+      networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
 const initialSalt: string = 'HANDOFF0'
 // const initialSalt: string = 'PROD'
 
 let proverAddress: string = ''
-let intentSourceAddress: string = '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905'
-let inboxAddress: string = '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0'
-let hyperProverAddress: string = '0xB1017F865c6306319C65266158979278F7f50118'
+let intentSourceAddress: string = ''
+let inboxAddress: string = ''
+let hyperProverAddress: string = ''
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
 )
@@ -97,9 +129,11 @@ async function main() {
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
       ecoTestnetChainConfiguration,
+      //   arbitrumSepoliaChainConfiguration,
+      mantleSepoliaChainConfiguration,
     ])
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: localGasLimit,
     })
     // console.log(receipt.blockHash)
     proverAddress = (
@@ -118,7 +152,7 @@ async function main() {
       counter,
     )
     receipt = await singletonDeployer.deploy(intentSourceTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: localGasLimit / 2,
     })
     intentSourceAddress = (
       await singletonDeployer.queryFilter(
@@ -139,7 +173,7 @@ async function main() {
       [],
     )
     receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: localGasLimit / 2,
     })
     inboxAddress = (
       await singletonDeployer.queryFilter(
@@ -171,7 +205,7 @@ async function main() {
     )
 
     receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
-      gasLimit: 1000000,
+      gasLimit: localGasLimit / 4,
     })
     console.log('hyperProver deployed')
 
@@ -199,6 +233,8 @@ async function main() {
             baseSepoliaChainConfiguration,
             optimismSepoliaChainConfiguration,
             ecoTestnetChainConfiguration,
+            //   arbitrumSepoliaChainConfiguration,
+            mantleSepoliaChainConfiguration,
           ],
         ],
       })
