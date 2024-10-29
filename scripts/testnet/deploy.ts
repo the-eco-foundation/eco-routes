@@ -2,7 +2,6 @@ import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 import { networks, actors } from '../../config/testnet/config'
-import { arbitrum, chainAddresses } from '@hyperlane-xyz/registry'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const networkName = network.name
@@ -105,8 +104,6 @@ console.log(
 const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
 
 console.log('Deploying to Network: ', network.name)
-
-// console.log(network)
 
 async function main() {
   const [deployer] = await ethers.getSigners()

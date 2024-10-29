@@ -234,18 +234,18 @@ const networks: any = {
     },
     proving: {
       mechanism: provingMechanisms.bedrock,
-      l1BlockAddress: '0x4200000000000000000000000000000000000015',
-      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      l1BlockAddress: '',
+      l2l1MessageParserAddress: '',
       l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
       settlementChain: {
         network: 'mainnet',
         id: networkIds.mainnet,
         // L2 Output Oracle Address
-        contract: '0x31d543e7BE1dA6eFDc2206Ef7822879045B9f481',
+        contract: '0x4121dc8e48Bc6196795eb4867772A5e259fecE07',
       },
     },
-    usdcAddress: '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9',
+    usdcAddress: '',
     hyperlaneMailboxAddress: '',
     gasLimit: 25000000000,
   },
