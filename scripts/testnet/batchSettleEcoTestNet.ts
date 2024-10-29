@@ -119,45 +119,16 @@ export async function getBatchSettled() {
       toQuantity(blockNumber - L2OutputOracleEventsBlocksToRetrieve),
       toQuantity(blockNumber),
     )
-  console.log(
-    'l2OutputOracleEvents -1: ',
-    l2OutputOracleEvents[l2OutputOracleEvents.length - 1].blockNumber,
-  )
-  console.log(
-    'l2OutputOracleEvents -2: ',
-    l2OutputOracleEvents[l2OutputOracleEvents.length - 2].blockNumber,
-  )
-  console.log('l2OutputOracleEvents 0: ', l2OutputOracleEvents[0].blockNumber)
   // Need to loop backwards from the last event checking the block.timestamp
   // Till we find a block.timestamp that is less than the current time - networks.ecoTestnet.proving.finalityDelaySeconds
   let eventIndex = l2OutputOracleEvents.length - 1
   let l3OutputIndex, l3BlockNumber
   while (eventIndex >= 0) {
-    console.log('eventIndex: ', eventIndex)
     const dateInSeconds = Math.floor(Date.now() / 1000)
-    console.log(
-      'l3BlockNumber: ',
-      toQuantity(l2OutputOracleEvents[eventIndex].topics[3]),
-    )
     const l3EndBatchblock = await s.ecoTestnetProvider.send(
       'eth_getBlockByNumber',
       [toQuantity(l2OutputOracleEvents[eventIndex].topics[3]), false],
     )
-    console.log('Date In Seconds          : ', dateInSeconds)
-    console.log(
-      'Calc block time          : ',
-      toNumber(l3EndBatchblock.timestamp) +
-        networks.ecoTestnet.proving.finalityDelaySeconds,
-    )
-    console.log(
-      'l3EndBatchblock.timestamp: ',
-      toNumber(l3EndBatchblock.timestamp),
-    )
-    console.log(
-      'finalityDelaySeconds: ',
-      networks.ecoTestnet.proving.finalityDelaySeconds,
-    )
-
     if (
       dateInSeconds >
       toNumber(l3EndBatchblock.timestamp) +
@@ -625,35 +596,6 @@ async function proveWorldStateBedrockOnOptimismSepoliaforEcoTestnet(
     layer1EcoTestnetOutputOracleProof.codeHash, // CodeHash
   ]
   try {
-    console.log('====================================================')
-    console.log('about to prove Bedrock L3 World State optimismSepolia')
-    console.log('settlementBlockTag: ', settlementBlockTag)
-    console.log('l3BlockNumber: ', l3BlockNumber)
-    console.log('l1batchSlot: ', l1BatchSlot)
-    console.log('networkIds.ecoTestnet: ', networkIds.ecoTestnet)
-    console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
-    console.log(
-      'l2MesagePasserProof.storageHash: ',
-      l2MesagePasserProof.storageHash,
-    )
-    console.log('l1BatchIndex: ', l1BatchIndex)
-    console.log(
-      'layer1EcoTestnetOutputOracleProof.storageProof[0].proof: ',
-      layer1EcoTestnetOutputOracleProof.storageProof[0].proof,
-    )
-    console.log(
-      'layer1EcoTestnetOutputOracleContractData: ',
-      await s.optimismSepoliaProverContract.rlpEncodeDataLibList(
-        layer1EcoTestnetOutputOracleContractData,
-      ),
-    )
-    console.log(
-      'layer1EcoTestnetOutputOracleProof.accountProof: ',
-      layer1EcoTestnetOutputOracleProof.accountProof,
-    )
-    console.log('settlementWorldStateRoot: ', settlementWorldStateRoot)
-    console.log('====================================================')
     const proveOutputTX =
       await s.optimismSepoliaProverContract.proveWorldStateBedrock(
         networkIds.ecoTestnet,

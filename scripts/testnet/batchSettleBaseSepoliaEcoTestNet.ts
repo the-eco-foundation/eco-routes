@@ -95,29 +95,10 @@ export async function getBatchSettled() {
   let eventIndex = l2OutputOracleEvents.length - 1
   let l3OutputIndex, l3BlockNumber
   while (eventIndex >= 0) {
-    console.log('eventIndex: ', eventIndex)
     const dateInSeconds = Math.floor(Date.now() / 1000)
-    console.log(
-      'l3BlockNumber: ',
-      toQuantity(l2OutputOracleEvents[eventIndex].topics[3]),
-    )
     const l3EndBatchblock = await s.ecoTestnetProvider.send(
       'eth_getBlockByNumber',
       [toQuantity(l2OutputOracleEvents[eventIndex].topics[3]), false],
-    )
-    console.log('Date In Seconds          : ', dateInSeconds)
-    console.log(
-      'Calc block time          : ',
-      toNumber(l3EndBatchblock.timestamp) +
-        networks.ecoTestnet.proving.finalityDelaySeconds,
-    )
-    console.log(
-      'l3EndBatchblock.timestamp: ',
-      toNumber(l3EndBatchblock.timestamp),
-    )
-    console.log(
-      'finalityDelaySeconds: ',
-      networks.ecoTestnet.proving.finalityDelaySeconds,
     )
 
     if (
