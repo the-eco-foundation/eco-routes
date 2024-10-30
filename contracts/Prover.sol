@@ -135,6 +135,48 @@ contract Prover is SimpleProver {
         }
     }
 
+    function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
+        ProverLibrary.proveStorage(_key, _val, _proof, _root);
+    }
+
+    function proveAccount(bytes memory _address, bytes memory _data, bytes[] memory _proof, bytes32 _root)
+        public
+        pure
+    {
+        ProverLibrary.proveAccount(_address, _data, _proof, _root);
+    }
+
+    /// @notice Packs values into a 32 byte GameId type.
+    /// @param _gameType The game type.
+    /// @param _timestamp The timestamp of the game's creation.
+    /// @param _gameProxy The game proxy address.
+    /// @return gameId_ The packed GameId.
+
+    function pack(uint32 _gameType, uint64 _timestamp, address _gameProxy) public pure returns (bytes32 gameId_) {
+        return ProverLibrary.pack(_gameType, _timestamp, _gameProxy);
+    }
+
+    /// @notice Unpacks values from a 32 byte GameId type.
+    /// @param _gameId The packed GameId.
+    /// @return gameType_ The game type.
+    /// @return timestamp_ The timestamp of the game's creation.
+    /// @return gameProxy_ The game proxy address.
+    function unpack(bytes32 _gameId) public pure returns (uint32 gameType_, uint64 timestamp_, address gameProxy_) {
+        return ProverLibrary.unpack(_gameId);
+    }
+
+    function assembleGameStatusStorage(
+        uint64 createdAt,
+        uint64 resolvedAt,
+        uint8 gameStatus,
+        bool initialized,
+        bool l2BlockNumberChallenged
+    ) public pure returns (bytes memory gameStatusStorageSlotRLP) {
+        return ProverLibrary.assembleGameStatusStorage(
+            createdAt, resolvedAt, gameStatus, initialized, l2BlockNumberChallenged
+        );
+    }
+
     function getProofType() external pure override returns (ProofType) {
         return PROOF_TYPE;
     }
@@ -324,28 +366,11 @@ contract Prover is SimpleProver {
         if (!chainConfigurations[chainId][ProverLibrary.ProvingMechanism.Bedrock].exists) {
             revert InvalidDestinationProvingMechanism(chainId, ProverLibrary.ProvingMechanism.Bedrock);
         }
-        // could set a more strict requirement here to make the L1 block number greater than something corresponding to the intent creation
-        // can also use timestamp instead of block when this is proven for better crosschain knowledge
-        // failing the need for all that, change the mapping to map to bool
         ProverLibrary.BlockProofKey memory existingSettlementBlockProofKey;
         ProverLibrary.BlockProof memory existingSettlementBlockProof;
         ProverLibrary.ChainConfiguration memory chainConfiguration;
         (chainConfiguration, existingSettlementBlockProofKey, existingSettlementBlockProof) = ProverLibrary
             .getProvenState(chainId, ProverLibrary.ProvingMechanism.Bedrock, chainConfigurations, provenStates);
-        // chainConfigurations[chainId][ProverLibrary.ProvingMechanism.Bedrock].settlementChainId,
-        // ProverLibrary.SettlementType.Confirmed
-
-        // ProverLibrary.ChainConfiguration memory chainConfiguration = chainConfigurations[chainId][ProverLibrary.ProvingMechanism.Bedrock];
-        // ProverLibrary.BlockProof memory existingSettlementBlockProof;
-        // {
-        //     if (chainConfiguration.settlementChainId != block.chainid) {
-        //         existingSettlementBlockProof =
-        //             provenStates[chainConfiguration.settlementChainId][ProverLibrary.SettlementType.Confirmed];
-        //     } else {
-        //         existingSettlementBlockProof =
-        //             provenStates[chainConfiguration.settlementChainId][ProverLibrary.SettlementType.Finalized];
-        //     }
-        // }
         require(
             existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
         );

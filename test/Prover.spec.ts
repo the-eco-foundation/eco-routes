@@ -292,170 +292,170 @@ describe('Prover End to End Tests', () => {
     prover = await proverContract.deploy(deploymentChains)
   })
 
-  // it('test proveSettlementLayerState', async () => {
-  //   await expect(
-  //     prover.proveSettlementLayerState(
-  //       bedrock.settlementChain.rlpEncodedBlockData,
-  //     ),
-  //   )
-  //     .to.emit(prover, 'L1WorldStateProven')
-  //     .withArgs(
-  //       bedrock.settlementChain.blockNumber,
-  //       bedrock.settlementChain.worldStateRoot,
-  //     )
+  it('test proveSettlementLayerState', async () => {
+    await expect(
+      prover.proveSettlementLayerState(
+        bedrock.settlementChain.rlpEncodedBlockData,
+      ),
+    )
+      .to.emit(prover, 'L1WorldStateProven')
+      .withArgs(
+        bedrock.settlementChain.blockNumber,
+        bedrock.settlementChain.worldStateRoot,
+      )
 
-  //   const provenSettlementLayerState = await prover.provenStates(
-  //     networks.sepolia.chainId,
-  //     settlementTypes.Confirmed,
-  //   )
-  //   expect(provenSettlementLayerState.blockNumber).to.equal(
-  //     bedrock.settlementChain.blockNumber,
-  //   )
-  //   expect(provenSettlementLayerState.blockHash).to.equal(
-  //     bedrock.settlementChain.blockHash,
-  //   )
-  //   expect(provenSettlementLayerState.stateRoot).to.equal(
-  //     bedrock.settlementChain.worldStateRoot,
-  //   )
+    const provenSettlementLayerState = await prover.provenStates(
+      networks.sepolia.chainId,
+      settlementTypes.Confirmed,
+    )
+    expect(provenSettlementLayerState.blockNumber).to.equal(
+      bedrock.settlementChain.blockNumber,
+    )
+    expect(provenSettlementLayerState.blockHash).to.equal(
+      bedrock.settlementChain.blockHash,
+    )
+    expect(provenSettlementLayerState.stateRoot).to.equal(
+      bedrock.settlementChain.worldStateRoot,
+    )
 
-  //   // test proveWorldStateCannon'
-  //   const RLPEncodedDisputeGameFactoryData = await prover.rlpEncodeDataLibList(
-  //     bedrock.baseSepolia.disputeGameFactory.contractData,
-  //   )
-  //   // Prove the L2 World State for Cannon
-  //   const disputeGameFactoryProofData = {
-  //     messagePasserStateRoot: bedrock.baseSepolia.messagePasserStateRoot,
-  //     latestBlockHash: bedrock.baseSepolia.endBatchBlockHash,
-  //     gameIndex:
-  //       bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameIndex,
-  //     gameId: bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameId,
-  //     disputeFaultGameStorageProof:
-  //       bedrock.baseSepolia.disputeGameFactory.storageProof,
-  //     rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
-  //     disputeGameFactoryAccountProof:
-  //       bedrock.baseSepolia.disputeGameFactory.accountProof,
-  //   }
+    // test proveWorldStateCannon'
+    const RLPEncodedDisputeGameFactoryData = await prover.rlpEncodeDataLibList(
+      bedrock.baseSepolia.disputeGameFactory.contractData,
+    )
+    // Prove the L2 World State for Cannon
+    const disputeGameFactoryProofData = {
+      messagePasserStateRoot: bedrock.baseSepolia.messagePasserStateRoot,
+      latestBlockHash: bedrock.baseSepolia.endBatchBlockHash,
+      gameIndex:
+        bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameIndex,
+      gameId: bedrock.baseSepolia.disputeGameFactory.faultDisputeGame.gameId,
+      disputeFaultGameStorageProof:
+        bedrock.baseSepolia.disputeGameFactory.storageProof,
+      rlpEncodedDisputeGameFactoryData: RLPEncodedDisputeGameFactoryData,
+      disputeGameFactoryAccountProof:
+        bedrock.baseSepolia.disputeGameFactory.accountProof,
+    }
 
-  //   const RLPEncodedFaultDisputeGameData = await prover.rlpEncodeDataLibList(
-  //     bedrock.baseSepolia.faultDisputeGame.contractData,
-  //   )
-  //   const faultDisputeGameProofData = {
-  //     faultDisputeGameStateRoot: bedrock.baseSepolia.faultDisputeGame.stateRoot,
-  //     faultDisputeGameRootClaimStorageProof:
-  //       bedrock.baseSepolia.faultDisputeGame.rootClaim.storageProof,
-  //     faultDisputeGameStatusSlotData: {
-  //       createdAt:
-  //         bedrock.baseSepolia.faultDisputeGame.status.storage.createdAt,
-  //       resolvedAt:
-  //         bedrock.baseSepolia.faultDisputeGame.status.storage.resolvedAt,
-  //       gameStatus:
-  //         bedrock.baseSepolia.faultDisputeGame.status.storage.gameStatus,
-  //       initialized:
-  //         bedrock.baseSepolia.faultDisputeGame.status.storage.initialized,
-  //       l2BlockNumberChallenged:
-  //         bedrock.baseSepolia.faultDisputeGame.status.storage
-  //           .l2BlockNumberChallenged,
-  //     },
-  //     faultDisputeGameStatusStorageProof:
-  //       bedrock.baseSepolia.faultDisputeGame.status.storageProof,
-  //     rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
-  //     faultDisputeGameAccountProof:
-  //       bedrock.baseSepolia.faultDisputeGame.accountProof,
-  //   }
-  //   await expect(
-  //     prover.proveWorldStateCannon(
-  //       networkIds.baseSepolia,
-  //       bedrock.baseSepolia.rlpEncodedendBatchBlockData,
-  //       // RLPEncodedBaseSepoliaEndBatchBlock,
-  //       bedrock.baseSepolia.endBatchBlockStateRoot,
-  //       disputeGameFactoryProofData,
-  //       faultDisputeGameProofData,
-  //       bedrock.settlementChain.worldStateRoot,
-  //     ),
-  //   )
-  //     .to.emit(prover, 'L2WorldStateProven')
-  //     .withArgs(
-  //       networkIds.baseSepolia,
-  //       bedrock.baseSepolia.endBatchBlock,
-  //       bedrock.baseSepolia.worldStateRoot,
-  //     )
-  //   const provenBaseSepoliaLayerState = await prover.provenStates(
-  //     networks.baseSepolia.chainId,
-  //     settlementTypes.Finalized,
-  //   )
-  //   expect(provenBaseSepoliaLayerState.blockNumber).to.equal(
-  //     bedrock.baseSepolia.endBatchBlock,
-  //   )
-  //   expect(provenBaseSepoliaLayerState.blockHash).to.equal(
-  //     bedrock.baseSepolia.endBatchBlockHash,
-  //   )
-  //   expect(provenBaseSepoliaLayerState.stateRoot).to.equal(
-  //     bedrock.baseSepolia.worldStateRoot,
-  //   )
+    const RLPEncodedFaultDisputeGameData = await prover.rlpEncodeDataLibList(
+      bedrock.baseSepolia.faultDisputeGame.contractData,
+    )
+    const faultDisputeGameProofData = {
+      faultDisputeGameStateRoot: bedrock.baseSepolia.faultDisputeGame.stateRoot,
+      faultDisputeGameRootClaimStorageProof:
+        bedrock.baseSepolia.faultDisputeGame.rootClaim.storageProof,
+      faultDisputeGameStatusSlotData: {
+        createdAt:
+          bedrock.baseSepolia.faultDisputeGame.status.storage.createdAt,
+        resolvedAt:
+          bedrock.baseSepolia.faultDisputeGame.status.storage.resolvedAt,
+        gameStatus:
+          bedrock.baseSepolia.faultDisputeGame.status.storage.gameStatus,
+        initialized:
+          bedrock.baseSepolia.faultDisputeGame.status.storage.initialized,
+        l2BlockNumberChallenged:
+          bedrock.baseSepolia.faultDisputeGame.status.storage
+            .l2BlockNumberChallenged,
+      },
+      faultDisputeGameStatusStorageProof:
+        bedrock.baseSepolia.faultDisputeGame.status.storageProof,
+      rlpEncodedFaultDisputeGameData: RLPEncodedFaultDisputeGameData,
+      faultDisputeGameAccountProof:
+        bedrock.baseSepolia.faultDisputeGame.accountProof,
+    }
+    await expect(
+      prover.proveWorldStateCannon(
+        networkIds.baseSepolia,
+        bedrock.baseSepolia.rlpEncodedendBatchBlockData,
+        // RLPEncodedBaseSepoliaEndBatchBlock,
+        bedrock.baseSepolia.endBatchBlockStateRoot,
+        disputeGameFactoryProofData,
+        faultDisputeGameProofData,
+        bedrock.settlementChain.worldStateRoot,
+      ),
+    )
+      .to.emit(prover, 'L2WorldStateProven')
+      .withArgs(
+        networkIds.baseSepolia,
+        bedrock.baseSepolia.endBatchBlock,
+        bedrock.baseSepolia.worldStateRoot,
+      )
+    const provenBaseSepoliaLayerState = await prover.provenStates(
+      networks.baseSepolia.chainId,
+      settlementTypes.Finalized,
+    )
+    expect(provenBaseSepoliaLayerState.blockNumber).to.equal(
+      bedrock.baseSepolia.endBatchBlock,
+    )
+    expect(provenBaseSepoliaLayerState.blockHash).to.equal(
+      bedrock.baseSepolia.endBatchBlockHash,
+    )
+    expect(provenBaseSepoliaLayerState.stateRoot).to.equal(
+      bedrock.baseSepolia.worldStateRoot,
+    )
 
-  //   // test proveWorldStateBedrock
+    // test proveWorldStateBedrock
 
-  //   // await expect(
-  //   //   prover.proveWorldStateBedrock(
-  //   //     bedrock.intent.destinationChainId,
-  //   //     bedrock.destinationChain.rlpEncodedBlockData, // TODO: Check if this is the correct data
-  //   //     bedrock.destinationChain.worldStateRoot,
-  //   //     bedrock.destinationChain.messageParserStateRoot,
-  //   //     bedrock.destinationChain.batchIndex,
-  //   //     bedrock.baseSepolia.storageProof,
-  //   //     await prover.rlpEncodeDataLibList(
-  //   //       bedrock.destinationChain.contractData,
-  //   //     ),
-  //   //     bedrock.baseSepolia.accountProof,
-  //   //     bedrock.baseSepolia.worldStateRoot,
-  //   //   ),
-  //   // )
-  //   //   .to.emit(prover, 'L2WorldStateProven')
-  //   //   .withArgs(
-  //   //     bedrock.intent.destinationChainId,
-  //   //     bedrock.destinationChain.endBatchBlock,
-  //   //     bedrock.destinationChain.worldStateRoot,
-  //   //   )
+    await expect(
+      prover.proveWorldStateBedrock(
+        bedrock.intent.destinationChainId,
+        bedrock.destinationChain.rlpEncodedBlockData, // TODO: Check if this is the correct data
+        bedrock.destinationChain.worldStateRoot,
+        bedrock.destinationChain.messageParserStateRoot,
+        bedrock.destinationChain.batchIndex,
+        bedrock.baseSepolia.storageProof,
+        await prover.rlpEncodeDataLibList(
+          bedrock.destinationChain.contractData,
+        ),
+        bedrock.baseSepolia.accountProof,
+        bedrock.baseSepolia.worldStateRoot,
+      ),
+    )
+      .to.emit(prover, 'L2WorldStateProven')
+      .withArgs(
+        bedrock.intent.destinationChainId,
+        bedrock.destinationChain.endBatchBlock,
+        bedrock.destinationChain.worldStateRoot,
+      )
 
-  //   const provenEcoTestnetLayerState = await prover.provenStates(
-  //     networkIds.ecoTestnet,
-  //     settlementTypes.Finalized,
-  //   )
-  //   expect(provenEcoTestnetLayerState.blockNumber).to.equal(
-  //     bedrock.destinationChain.endBatchBlock,
-  //   )
-  //   expect(provenEcoTestnetLayerState.blockHash).to.equal(
-  //     bedrock.destinationChain.endBatchBlockHash,
-  //   )
-  //   expect(provenEcoTestnetLayerState.stateRoot).to.equal(
-  //     bedrock.destinationChain.worldStateRoot,
-  //   )
+    const provenEcoTestnetLayerState = await prover.provenStates(
+      networkIds.ecoTestnet,
+      settlementTypes.Finalized,
+    )
+    expect(provenEcoTestnetLayerState.blockNumber).to.equal(
+      bedrock.destinationChain.endBatchBlock,
+    )
+    expect(provenEcoTestnetLayerState.blockHash).to.equal(
+      bedrock.destinationChain.endBatchBlockHash,
+    )
+    expect(provenEcoTestnetLayerState.stateRoot).to.equal(
+      bedrock.destinationChain.worldStateRoot,
+    )
 
-  //   // test proveIntent
-  //   const abiCoder = AbiCoder.defaultAbiCoder()
-  //   const calcintentHash = keccak256(
-  //     abiCoder.encode(
-  //       ['address', 'bytes32'],
-  //       [networks.ecoTestnet.inbox.address, bedrock.intent.intermediateHash],
-  //     ),
-  //   )
-  //   // const intentStorageSlot = solidityPackedKeccak256(
-  //   //   ['bytes'],
-  //   //   [abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
-  //   // )
-  //   //TODO: Need to generate new intent Data for Inbox contract changes
-  //   // await prover.proveIntent(
-  //   //   bedrock.intent.destinationChainId,
-  //   //   settlementTypes.Finalized,
-  //   //   getAddress(actors.claimant),
-  //   //   networks.ecoTestnet.inbox.address,
-  //   //   bedrock.intent.intermediateHash,
-  //   //   bedrock.intent.storageProof,
-  //   //   await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData),
-  //   //   bedrock.intent.accountProof,
-  //   //   bedrock.intent.endBatchBlockStateRoot,
-  //   // )
-  // })
+    // test proveIntent
+    const abiCoder = AbiCoder.defaultAbiCoder()
+    const calcintentHash = keccak256(
+      abiCoder.encode(
+        ['address', 'bytes32'],
+        [networks.ecoTestnet.inbox.address, bedrock.intent.intermediateHash],
+      ),
+    )
+    // const intentStorageSlot = solidityPackedKeccak256(
+    //   ['bytes'],
+    //   [abiCoder.encode(['bytes32', 'uint256'], [calcintentHash, 1])],
+    // )
+    //TODO: Need to generate new intent Data for Inbox contract changes
+    // await prover.proveIntent(
+    //   bedrock.intent.destinationChainId,
+    //   settlementTypes.Finalized,
+    //   getAddress(actors.claimant),
+    //   networks.ecoTestnet.inbox.address,
+    //   bedrock.intent.intermediateHash,
+    //   bedrock.intent.storageProof,
+    //   await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData),
+    //   bedrock.intent.accountProof,
+    //   bedrock.intent.endBatchBlockStateRoot,
+    // )
+  })
 })
 
 // proveL1L3SettlementLayerState

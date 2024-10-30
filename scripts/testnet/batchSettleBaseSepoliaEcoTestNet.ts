@@ -72,10 +72,11 @@ export async function getBatchSettled() {
   // // Get the Output Index and Block Number from L2 OUTPUT ORACLE that was sent before this block
   // // Get the event from the latest Block checking transaction hash
   const blockNumber = BigInt(await s.baseSepoliaProvider.getBlockNumber())
+  const L2OutputOracleEventsBlocksToRetrieve = 200000n // ECO Testnet is only 12 seconds so can look at all blocks
   const l2OutputOracleEvents =
     await s.baseSepoliaSettlementContractEcoTestnet.queryFilter(
       s.baseSepoliaSettlementContractEcoTestnet.getEvent('OutputProposed'),
-      toQuantity(blockNumber - 2000n),
+      toQuantity(blockNumber - L2OutputOracleEventsBlocksToRetrieve),
       toQuantity(blockNumber),
     )
   console.log(
@@ -85,12 +86,32 @@ export async function getBatchSettled() {
   const endBatchBlockDataL2 = await s.baseSepoliaProvider.getBlock(
     l2OutputOracleEvents[l2OutputOracleEvents.length - 1].blockNumber,
   )
-  const l3OutputIndex = toNumber(
-    l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[2],
-  )
-  const l3BlockNumber = BigInt(
-    l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[3],
-  )
+  // const l3OutputIndex = toNumber(
+  //   l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[2],
+  // )
+  // const l3BlockNumber = BigInt(
+  //   l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[3],
+  // )
+  let eventIndex = l2OutputOracleEvents.length - 1
+  let l3OutputIndex, l3BlockNumber
+  while (eventIndex >= 0) {
+    const dateInSeconds = Math.floor(Date.now() / 1000)
+    const l3EndBatchblock = await s.ecoTestnetProvider.send(
+      'eth_getBlockByNumber',
+      [toQuantity(l2OutputOracleEvents[eventIndex].topics[3]), false],
+    )
+
+    if (
+      dateInSeconds >
+      toNumber(l3EndBatchblock.timestamp) +
+        networks.ecoTestnet.proving.finalityDelaySeconds
+    ) {
+      l3OutputIndex = toNumber(l2OutputOracleEvents[eventIndex].topics[2])
+      l3BlockNumber = BigInt(l2OutputOracleEvents[eventIndex].topics[3])
+      break
+    }
+    eventIndex -= 1
+  }
 
   return {
     endBatchBlockDataL2,
@@ -508,6 +529,7 @@ async function proveIntentBaseSepolia(intentHash, l3BlockNumber) {
   try {
     const proveIntentTx = await s.baseSepoliaProverContract.proveIntent(
       networkIds.ecoTestnet,
+      settlementTypes.Finalized,
       actors.claimant,
       networks.ecoTestnet.inbox.address,
       intermediateHash,

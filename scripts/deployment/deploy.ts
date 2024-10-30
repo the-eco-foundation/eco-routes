@@ -1,6 +1,6 @@
 import { ethers, run, network } from 'hardhat'
 import {
-  networkIds,
+  // networkIds,
   networks,
   deploymentChainConfigs,
 } from '../../config/testnet/config'
@@ -10,13 +10,13 @@ import {
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET-JW2'))
 
 console.log('Deploying to Network: ', network.name)
-let proverAddress = '0x212D1ad08cB7F9f29626B7D027777A4ffc4524A6'
-let intentSourceAddress = '0x6283C594e665E64e9e4a7eAF10Dc0380edF63c91'
-let inboxAddress = '0x56EF64a871E6236f61089ACa8D82C6A0CB6DFD0f'
-let hyperProverAddress = '0x7f8b58F2545F9Dc5708e2cF0D128b1a0F9AAd9b4'
+let proverAddress = ''
+let intentSourceAddress = '0x1C3dc053C8aBA45129059744bE5fF116156EFF80'
+let inboxAddress = '0x6015110767b01eDbc569a9Ad481dA7F2Cf78Bcb3'
+let hyperProverAddress = '0x9496532052BBe0e262Af0b76cC9BD528e9A8b010'
 // Set the config for the chain we are deploying to
 let config
 let chainConfig
