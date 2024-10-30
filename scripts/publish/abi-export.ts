@@ -15,21 +15,27 @@ type AbiFile = {
 const abiParentDir = path.join(__dirname, '../../contracts/build/abi')
 const dirs = [
   path.join(abiParentDir, '/contracts'),
-  path.join(abiParentDir, '/interfaces')
+  path.join(abiParentDir, '/interfaces'),
 ]
 let mainIndexContent = ''
 
-dirs.forEach(abiDir => {
+dirs.forEach((abiDir) => {
   console.log(abiDir)
   // Read through the directory and get all .json files
-  const jsonFiles = fs.readdirSync(abiDir).filter(file => file.endsWith('.json'))
+  const jsonFiles = fs
+    .readdirSync(abiDir)
+    .filter((file) => file.endsWith('.json'))
 
   // Read each JSON file and parse its content
   const data = jsonFiles.reduce((acc: AbiFile[], file) => {
     const filePath = path.join(abiDir, file)
     const fileContent = fs.readFileSync(filePath, 'utf-8')
     const abiFile = JSON.parse(fileContent)
-    acc.push({ abi: abiFile.abi, contractName: abiFile.contractName, sourceName: abiFile.sourceName })
+    acc.push({
+      abi: abiFile.abi,
+      contractName: abiFile.contractName,
+      sourceName: abiFile.sourceName,
+    })
     fs.unlinkSync(filePath)
     return acc
   }, [])
@@ -50,6 +56,3 @@ dirs.forEach(abiDir => {
 })
 
 fs.writeFileSync(path.join(abiParentDir, 'index.ts'), mainIndexContent, 'utf-8')
-
-
-

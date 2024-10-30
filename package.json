@@ -1,6 +1,6 @@
 {
   "name": "@ecoinc/ecoism",
-  "version": "v0.1.1-bees",
+  "version": "v0.1.11-beta",
   "description": "The Ecoism protocol is a decentralized intent based system that allows users to submit their intent to the network and have it fulfilled by a solver on the destination rollup of their choise.",
   "engines": {
     "node": ">=18.17.0"

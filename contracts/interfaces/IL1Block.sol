@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
+import "./ISemver.sol";
 
-interface IL1Block {
+interface IL1Block is ISemver{
     /// @notice The latest L1 block number known by the L2 system.
     function number() external view returns (uint64);
 

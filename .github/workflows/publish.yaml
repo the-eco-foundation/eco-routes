@@ -1,10 +1,13 @@
-name: Ecoism CI Tests
+name: Eco Publish
 
-on: [push]
+on:
+  push:
+    tags:
+      - "*"
 
 jobs:
-  lint:
-    name: Eslint, prettier and solhint
+  publish:
+    name: Publish to NPM
     runs-on: ubuntu-latest
 
     steps:
@@ -32,31 +35,14 @@ jobs:
         with:
           cmd: format # will run `yarn format` command
 
-  tests:
-    name: Test Suite
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v3
-
-      - name: install node
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: ".nvmrc"
-          cache: "npm"
-
-      - name: install dependencies
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install # will run `yarn install` command
-
-      - name: build project
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: build # will run `yarn build` command
-
       - name: Run Test
         uses: borales/actions-yarn@v4
         with:
           cmd: test # will run `yarn test` command
+
+      - name: Publish to NPM
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: publish # will run `yarn publish` command
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

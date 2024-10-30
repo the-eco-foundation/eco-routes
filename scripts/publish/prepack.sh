@@ -25,6 +25,7 @@ rm contracts/build/abi/contracts/*.dbg.json
 rm contracts/build/abi/interfaces/*.dbg.json
 
 npx ts-node scripts/publish/abi-export.ts
+npx ts-node scripts/publish/package.ts
 
 cp README.md contracts/
 
