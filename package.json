@@ -41,7 +41,6 @@
     "debug": "hardhat test",
     "coverage": "SOLIDITY_COVERAGE=1 hardhat coverage",
     "coverageReport": "SOLIDITY_COVERAGE=1 hardhat coverage; cd coverage; python3 -m http.server 7800",
-    "prepack": "npm run build",
     "callGraph": "slither . --print call-graph; dot all_contracts.call-graph.dot -Tpng -o ./docs/slither/call-graph.png; rm *.call-graph.dot",
     "inheritanceGraph": "slither . --print inheritance-graph; dot inheritance-graph.dot -Tpng -o ./docs/slither/inheritance-graph.png; rm inheritance-graph.dot",
     "variableOrder": "slither --print variable-order . 2>&1 | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' | tee  ./docs/slither/variable-order.txt",
@@ -73,7 +72,10 @@
     "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdrawOpBase.ts",
     "intentWithdrawBaseOp": "hardhat run scripts/mainnet/intentWithdrawBaseOp.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
-    "EndMainnetCannon": "-------- End Cannon scripts  --------"
+    "EndMainnetCannon": "-------- End Cannon scripts  --------",
+    "prepack": "bash scripts/publish/prepack.sh",
+    "prepare": "yarn clean && yarn build && node scripts/generateExports.js",
+    "prepublishOnly": "yarn run prepare"
   },
   "files": [
     "contracts/**.sol",
