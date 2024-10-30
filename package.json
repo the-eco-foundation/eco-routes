@@ -1,6 +1,6 @@
 {
-  "name": "@eco/ecoism",
-  "version": "0.0.1",
+  "name": "@ecoinc/ecoism",
+  "version": "v0.1.1-stable",
   "description": "The Ecoism protocol is a decentralized intent based system that allows users to submit their intent to the network and have it fulfilled by a solver on the destination rollup of their choise.",
   "engines": {
     "node": ">=18.17.0"
@@ -73,9 +73,9 @@
     "intentWithdrawBaseOp": "hardhat run scripts/mainnet/intentWithdrawBaseOp.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
     "EndMainnetCannon": "-------- End Cannon scripts  --------",
-    "prepack": "bash scripts/publish/prepack.sh",
-    "prepare": "yarn clean && yarn build && node scripts/generateExports.js",
-    "prepublishOnly": "yarn run prepare"
+    "versionPackage": "npx ts-node scripts/publish/version.ts",
+    "prepack": "version && bash scripts/publish/prepack.sh",
+    "prepublishOnly": "yarn run prepack"
   },
   "files": [
     "contracts/**.sol",
