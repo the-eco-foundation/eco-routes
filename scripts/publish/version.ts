@@ -47,7 +47,7 @@ const updateVersionInSolidityFiles = (dir: string, version: string) => {
 
 // Update the version in package.json
 exec(
-  `yarn version --new-version ${tagName} --no-git-tag-version`,
+  `yarn version --new-version ${tagName} --no-git-tag-version --non-interactive`,
   (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`)
@@ -60,3 +60,25 @@ exec(
 
 // Update the Version variable in all Solidity files
 updateVersionInSolidityFiles(contractsDir, tagName)
+
+
+
+// const updateVersionInPackageJson = (dir: string, version: string) => {
+//   const packageJsonPath = path.join(dir, 'package.json');
+
+//   if (!fs.existsSync(packageJsonPath)) {
+//     console.error(`package.json not found in ${dir}`);
+//     return;
+//   }
+
+//   const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+//   const packageJson = JSON.parse(packageJsonContent);
+
+//   packageJson.version = version;
+
+//   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
+//   console.log(`Updated version in ${packageJsonPath}`);
+// };
+
+// Update the version in package.json
+// updateVersionInPackageJson(path.join(__dirname, '../..'), tagName);

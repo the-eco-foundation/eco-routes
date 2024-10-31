@@ -25,20 +25,25 @@ jobs:
         with:
           cmd: install # will run `yarn install` command
 
-      - name: build project
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: build # will run `yarn build` command
+      # - name: build project
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: build # will run `yarn build` command
 
-      - name: check lint
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: format # will run `yarn format` command
+      # - name: check lint
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: format # will run `yarn format` command
 
-      - name: Run Test
-        uses: borales/actions-yarn@v4
+      # - name: Run Test
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: test # will run `yarn test` command
+      - name: Publish new version to NPM
+        uses: actions/setup-node@v1
         with:
-          cmd: test # will run `yarn test` command
+          always-auth: true
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Publish to NPM
         uses: borales/actions-yarn@v4
