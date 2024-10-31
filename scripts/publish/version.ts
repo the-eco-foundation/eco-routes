@@ -7,14 +7,14 @@ const githubRef = process.env.GITHUB_REF
 
 if (!githubRef) {
   console.error('GITHUB_REF environment variable is not set.')
-  process.exit(1)
+  throw new Error('GITHUB_REF environment variable is not set.')
 }
 
 // Check if GITHUB_REF is a tag
 const tagPrefix = 'refs/tags/'
 if (!githubRef.startsWith(tagPrefix)) {
   console.error('GITHUB_REF is not a tag.')
-  process.exit(1)
+  throw new Error('GITHUB_REF is not a tag.')
 }
 
 // Extract the tag name
