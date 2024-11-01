@@ -1,7 +1,6 @@
 name: Eco Publish
 
-on:
-  push:
+on: [push]
 #     tags:
 #       - "*"
 # on:
