@@ -17,8 +17,8 @@ env COMPILE_MODE=production npm run build
 mkdirp build/src/abi/contracts
 mkdirp build/src/abi/interfaces
 echo "mkdir"
-cp -f artifacts/contracts/**/*.json build/src/abi/contracts
-cp -f artifacts/contracts/interfaces/**/*.json build/src/abi/interfaces
+cp artifacts/contracts/**/*.json build/src/abi/contracts
+cp artifacts/contracts/interfaces/**/*.json build/src/abi/interfaces
 echo "artifacts fin"
 rsync -av --include '*/*.sol' --exclude 'test' --exclude 'build' --exclude  'README.md' --exclude 'tools' contracts/ build/src
 echo "rsync fin"
