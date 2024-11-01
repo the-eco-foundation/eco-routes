@@ -63,44 +63,44 @@ jobs:
         with:
           cmd: deployCI
   # publish:
-    name: Publish to NPM
-    needs: buildAndTest
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "npm"
-          registry-url: "https://registry.npmjs.org"
-      - name: Install dependencies
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
-      - name: Download build artifact from buildAndTest job
-        uses: actions/download-artifact@v4
-        with:
-         name: artifacts
-      # - name: Build Project
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: build
-      # - name: Run Tests
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: test
-      - name: Prepack
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: prepack
-      - name: Publish to NPM
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: publish # --provenance --access public
-          dir: 'build'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  #   name: Publish to NPM
+  #   needs: buildAndTest
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     # Setup .npmrc file to publish to npm
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version-file: ".nvmrc"
+  #         cache: "npm"
+  #         registry-url: "https://registry.npmjs.org"
+  #     - name: Install dependencies
+  #       uses: borales/actions-yarn@v4
+  #       with:
+  #         cmd: install
+  #     - name: Download build artifact from buildAndTest job
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #        name: artifacts
+  #     # - name: Build Project
+  #     #   uses: borales/actions-yarn@v4
+  #     #   with:
+  #     #     cmd: build
+  #     # - name: Run Tests
+  #     #   uses: borales/actions-yarn@v4
+  #     #   with:
+  #     #     cmd: test
+  #     - name: Prepack
+  #       uses: borales/actions-yarn@v4
+  #       with:
+  #         cmd: prepack
+  #     - name: Publish to NPM
+  #       uses: borales/actions-yarn@v4
+  #       with:
+  #         cmd: publish # --provenance --access public
+  #         dir: 'build'
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
