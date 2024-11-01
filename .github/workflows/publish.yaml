@@ -49,8 +49,8 @@ jobs:
           cmd: install
       - name: Download build artifact from buildAndTest job
         uses: actions/download-artifact@v4
-        with:
-         name: artifacts
+      - name: List Files
+        run: ls -R
       # - name: Build Project
       #   uses: borales/actions-yarn@v4
       #   with:
