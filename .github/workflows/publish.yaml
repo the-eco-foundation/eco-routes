@@ -24,22 +24,21 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
           registry-url: "https://registry.npmjs.org"
-      - run: which cp
-      # - name: Install dependencies
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: install
-      # - name: Build Project
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: build
-      # - name: Run Tests
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: test
-      # - name: Publish to NPM
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: which cp #&& prepack && cd build && publish --provenance --access public
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Build Project
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: build
+      - name: Run Tests
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: test
+      - name: Publish to NPM
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: prepack && cd build && publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
