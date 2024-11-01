@@ -68,6 +68,13 @@ jobs:
           cmd: deployCI
         env:
           DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          OPTIMISM_SCAN_API_KEY: ${{ secrets.OPTIMISM_SCAN_API_KEY }}
+          OPTIMISM_BLOCKSCOUT_API_KEY: ${{ secrets.OPTIMISM_BLOCKSCOUT_API_KEY }}
+          BASE_SCAN_API_KEY: ${{ secrets.BASE_SCAN_API_KEY }}
+          ARBSCAN_API_KEY: ${{ secrets.ARBSCAN_API_KEY }}
+          CALDERA_SCAN_API_KEY: ${{ secrets.CALDERA_SCAN_API_KEY }}
+          MANTLESCAN_API_KEY: ${{ secrets.MANTLESCAN_API_KEY }}
   # publish:
   #   name: Publish to NPM
   #   needs: buildAndTest
