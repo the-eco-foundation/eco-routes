@@ -1,51 +1,97 @@
 import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
-import { networks, actors } from '../../config/mainnet/config'
+import { networks, actors } from '../../config/testnet/config'
 import { updateAddresses } from '../deploy/addresses'
+export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
 let deployNetwork: any
+const baseSepoliaChainConfiguration = {
+  chainId: networks.baseSepolia.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+    settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber:
+      networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
+
+const optimismSepoliaChainConfiguration = {
+  chainId: networks.optimismSepolia.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
+    settlementChainId: networks.optimismSepolia.proving.settlementChain.id, // settlementChainId
+    settlementContract:
+      networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber:
+      networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
+
+const ecoTestnetChainConfiguration = {
+  chainId: networks.ecoTestnet.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber:
+      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
 let counter: number = 0
 let minimumDuration: number = 0
 switch (networkName) {
-  case 'base':
-    counter = networks.base.intentSource.counter
-    minimumDuration = networks.base.intentSource.minimumDuration
-    deployNetwork = networks.base
+  case 'baseSepolia':
+    counter = networks.baseSepolia.intentSource.counter
+    minimumDuration = networks.baseSepolia.intentSource.minimumDuration
+    deployNetwork = networks.baseSepolia
     break
-  case 'optimism':
-    counter = networks.optimism.intentSource.counter
-    minimumDuration = networks.optimism.intentSource.minimumDuration
-    deployNetwork = networks.optimism
+  case 'optimismSepolia':
+    counter = networks.optimismSepolia.intentSource.counter
+    minimumDuration = networks.optimismSepolia.intentSource.minimumDuration
+    deployNetwork = networks.optimismSepolia
     break
-  case 'helix':
-    counter = networks.helix.intentSource.counter
-    minimumDuration = networks.helix.intentSource.minimumDuration
-    deployNetwork = networks.helix
+  case 'optimismSepoliaBlockscout':
+    counter = networks.optimismSepolia.intentSource.counter
+    minimumDuration = networks.optimismSepolia.intentSource.minimumDuration
+    deployNetwork = networks.optimismSepolia
+    break
+  case 'ecoTestnet':
+    counter = networks.ecoTestnet.intentSource.counter
+    minimumDuration = networks.ecoTestnet.intentSource.minimumDuration
+    deployNetwork = networks.ecoTestnet
+    break
+  default:
+    counter = 0
+    minimumDuration = 0
     break
 }
 console.log('Counter: ', counter)
-const initialSalt: string = 'HANDOFF0'
-// const initialSalt: string = 'PROD'
+console.log('Minimum duration: ', minimumDuration)
+
+const initialSalt: string = 'TESTNET6'
 
 let proverAddress = ''
 let intentSourceAddress = ''
 let inboxAddress = ''
 if (process.env.DEPLOY_CI === 'true') {
   console.log('Deploying for CI')
+} else {
+  inboxAddress = '0x200b2417A9d0F79133C2b05b2C028B8A70392e66'
 }
 
-const isSolvingPublic = initialSalt !== 'PROD'
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
 )
 const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
 
 console.log('Deploying to Network: ', network.name)
-
-// console.log(network)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -57,50 +103,18 @@ async function main() {
   )
 
   console.log(`**************************************************`)
-  const baseChainConfiguration = {
-    chainId: networks.base.chainId, // chainId
-    chainConfiguration: {
-      provingMechanism: networks.base.proving.mechanism, // provingMechanism
-      settlementChainId: networks.base.proving.settlementChain.id, // settlementChainId
-      settlementContract: networks.base.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-      blockhashOracle: networks.base.proving.l1BlockAddress, // blockhashOracle
-      outputRootVersionNumber: networks.base.proving.outputRootVersionNumber, // outputRootVersionNumber
-    },
-  }
-
-  const optimismChainConfiguration = {
-    chainId: networks.optimism.chainId, // chainId
-    chainConfiguration: {
-      provingMechanism: networks.optimism.proving.mechanism, // provingMechanism
-      settlementChainId: networks.optimism.proving.settlementChain.id, // settlementChainId
-      settlementContract: networks.optimism.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.     blockhashOracle: networks.optimism.proving.l1BlockAddress,
-      blockhashOracle: networks.optimism.proving.l1BlockAddress, // blockhashOracle
-      outputRootVersionNumber:
-        networks.optimism.proving.outputRootVersionNumber, // outputRootVersionNumber
-    },
-  }
-  const helixChainConfiguration = {
-    chainId: networks.helix.chainId, // chainId
-    chainConfiguration: {
-      provingMechanism: networks.helix.proving.mechanism, // provingMechanism
-      settlementChainId: networks.helix.proving.settlementChain.id, // settlementChainId
-      settlementContract: networks.helix.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-      blockhashOracle: networks.helix.proving.l1BlockAddress, // blockhashOracle
-      outputRootVersionNumber: networks.helix.proving.outputRootVersionNumber, // outputRootVersionNumber
-    },
-  }
   let receipt
-
   if (proverAddress === '') {
     const proverFactory = await ethers.getContractFactory('Prover')
     const proverTx = await proverFactory.getDeployTransaction([
-      baseChainConfiguration,
-      optimismChainConfiguration,
-      helixChainConfiguration,
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+      ecoTestnetChainConfiguration,
     ])
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
       gasLimit: 5000000,
     })
+    // console.log(receipt.blockHash)
     proverAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -128,19 +142,18 @@ async function main() {
   }
   console.log('intentSource deployed to:', intentSourceAddress)
   updateAddresses(networkName, 'IntentSource', intentSourceAddress)
-
   if (inboxAddress === '') {
     const inboxFactory = await ethers.getContractFactory('Inbox')
 
+    // on testnet inboxOwner is the deployer, just to make things easier
     const inboxTx = await inboxFactory.getDeployTransaction(
       actors.deployer,
-      isSolvingPublic,
-      [actors.solver],
+      true,
+      [],
     )
     receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
-      gasLimit: 3000000,
+      gasLimit: 5000000,
     })
-    await receipt.wait()
     inboxAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -148,8 +161,8 @@ async function main() {
       )
     )[0].args.addr
 
+    // on testnet inboxOwner is the deployer, just to make things easier
     const inboxOwnerSigner = deployer
-
     const inbox: Inbox = await ethers.getContractAt(
       'Inbox',
       inboxAddress,
@@ -162,7 +175,6 @@ async function main() {
   }
   console.log('Inbox deployed to:', inboxAddress)
   updateAddresses(networkName, 'Inbox', inboxAddress)
-
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   if (network.name !== 'hardhat') {
@@ -171,11 +183,12 @@ async function main() {
     try {
       await run('verify:verify', {
         address: proverAddress,
+        // constructorArguments: [l1BlockAddressSepolia, deployer.address],
         constructorArguments: [
           [
-            baseChainConfiguration,
-            optimismChainConfiguration,
-            helixChainConfiguration,
+            baseSepoliaChainConfiguration,
+            optimismSepoliaChainConfiguration,
+            ecoTestnetChainConfiguration,
           ],
         ],
       })
@@ -195,11 +208,7 @@ async function main() {
     try {
       await run('verify:verify', {
         address: inboxAddress,
-        constructorArguments: [
-          actors.inboxOwner,
-          isSolvingPublic,
-          [actors.solver],
-        ],
+        constructorArguments: [deployer.address, false, [actors.solver]],
       })
       console.log('Inbox verified at:', inboxAddress)
     } catch (e) {
