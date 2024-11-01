@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -euo pipefail
 
@@ -6,10 +6,6 @@ set -euo pipefail
 mkdirp() {
   node -e "fs.mkdirSync('$1', { recursive: true })"
 }
-
-alias
-
-unalias cp
 
 # cd to the root of the repo
 cd "$(git rev-parse --show-toplevel)"
