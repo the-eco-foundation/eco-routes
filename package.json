@@ -75,7 +75,8 @@
     "EndMainnetCannon": "-------- End Cannon scripts  --------",
     "versionPackage": "npx ts-node scripts/publish/version.ts",
     "prepack": "yarn run versionPackage && bash scripts/publish/prepack.sh",
-    "prepublishOnly": "yarn run prepack"
+    "prepublishOnly": "yarn run prepack",
+    "deployCI": "npx ts-node scripts/deploy/deployCI.ts"
   },
   "files": [
     "build/**"

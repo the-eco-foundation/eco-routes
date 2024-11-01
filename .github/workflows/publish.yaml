@@ -1,16 +1,71 @@
 name: Eco Publish
 
-# on:
-#   push:
+on:
+  push:
 #     tags:
 #       - "*"
-on:
-  release:
-    types: [published]
+# on:
+#   release:
+#     types: [published]
 
 jobs:
-  publish:
+  buildAndTest:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Build Project
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: build
+      - name: Run Tests
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: test
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: ./artifacts
+          retention-days: 1
+  deploy:
+    name: Deploy Contracts
+    needs: buildAndTest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Download build artifact from buildAndTest job
+        uses: actions/download-artifact@v4
+        with:
+         name: artifacts
+      # - name: Build Project
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: build
+      # - name: Run Tests
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: test
+      - name: Deploy Contracts
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: deployCI
+  # publish:
     name: Publish to NPM
+    needs: buildAndTest
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -27,14 +82,18 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install
-      - name: Build Project
-        uses: borales/actions-yarn@v4
+      - name: Download build artifact from buildAndTest job
+        uses: actions/download-artifact@v4
         with:
-          cmd: build
-      - name: Run Tests
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: test
+         name: artifacts
+      # - name: Build Project
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: build
+      # - name: Run Tests
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: test
       - name: Prepack
         uses: borales/actions-yarn@v4
         with:
