@@ -2,6 +2,7 @@ import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 import { networks, actors } from '../../config/testnet/config'
+import { updateAddresses } from '../deploy/addresses'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const networkName = network.name
@@ -78,7 +79,12 @@ const initialSalt: string = 'TESTNET6'
 
 let proverAddress = ''
 let intentSourceAddress = ''
-let inboxAddress = '0x200b2417A9d0F79133C2b05b2C028B8A70392e66'
+let inboxAddress = ''
+if (process.env.DEPLOY_CI === 'true') {
+  console.log('Deploying for CI')
+} else {
+  inboxAddress = '0x200b2417A9d0F79133C2b05b2C028B8A70392e66'
+}
 
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
@@ -117,7 +123,7 @@ async function main() {
     )[0].args.addr
   }
   console.log('prover implementation deployed to: ', proverAddress)
-
+  updateAddresses(networkName, 'Prover', proverAddress)
   if (intentSourceAddress === '') {
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
     const intentSourceTx = await intentSourceFactory.getDeployTransaction(
@@ -135,7 +141,7 @@ async function main() {
     )[0].args.addr
   }
   console.log('intentSource deployed to:', intentSourceAddress)
-
+  updateAddresses(networkName, 'IntentSource', intentSourceAddress)
   if (inboxAddress === '') {
     const inboxFactory = await ethers.getContractFactory('Inbox')
 
@@ -168,7 +174,7 @@ async function main() {
       .setMailbox(deployNetwork.hyperlaneMailboxAddress)
   }
   console.log('Inbox deployed to:', inboxAddress)
-
+  updateAddresses(networkName, 'Inbox', inboxAddress)
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   if (network.name !== 'hardhat') {

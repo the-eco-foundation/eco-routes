@@ -7,13 +7,16 @@ on: [push]
 #   release:
 #     types: [published]
 
-
 jobs:
   buildAndTest:
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
       - name: Install dependencies
         uses: borales/actions-yarn@v4
         with:
@@ -38,19 +41,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: "npm"
-      - name: Install dependencies
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
+          cache: "yarn"
       - name: Download build artifact from buildAndTest job
         uses: actions/download-artifact@v4
       - name: List Files
         run: ls -R
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
       # - name: Build Project
       #   uses: borales/actions-yarn@v4
       #   with:
@@ -63,6 +66,8 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: deployCI
+        env:
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
   # publish:
   #   name: Publish to NPM
   #   needs: buildAndTest

@@ -2,6 +2,7 @@ import { ethers, run, network } from 'hardhat'
 import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
 import { networks, actors } from '../../config/mainnet/config'
+import { updateAddresses } from '../deploy/addresses'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
@@ -32,6 +33,10 @@ const initialSalt: string = 'HANDOFF0'
 let proverAddress = ''
 let intentSourceAddress = ''
 let inboxAddress = ''
+if (process.env.DEPLOY_CI === 'true') {
+  console.log('Deploying for CI')
+}
+
 const isSolvingPublic = initialSalt !== 'PROD'
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
@@ -104,7 +109,7 @@ async function main() {
     )[0].args.addr
   }
   console.log('prover implementation deployed to: ', proverAddress)
-
+  updateAddresses(networkName, 'Prover', proverAddress)
   if (intentSourceAddress === '') {
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
     const intentSourceTx = await intentSourceFactory.getDeployTransaction(
@@ -122,6 +127,7 @@ async function main() {
     )[0].args.addr
   }
   console.log('intentSource deployed to:', intentSourceAddress)
+  updateAddresses(networkName, 'IntentSource', intentSourceAddress)
 
   if (inboxAddress === '') {
     const inboxFactory = await ethers.getContractFactory('Inbox')
@@ -155,6 +161,7 @@ async function main() {
       .setMailbox(deployNetwork.hyperlaneMailboxAddress)
   }
   console.log('Inbox deployed to:', inboxAddress)
+  updateAddresses(networkName, 'Inbox', inboxAddress)
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address

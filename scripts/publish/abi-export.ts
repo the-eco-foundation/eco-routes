@@ -18,7 +18,7 @@ const dirs = [
   path.join(abiParentDir, '/interfaces'),
 ]
 let mainIndexContent = ''
-console.log("start abi exports")
+console.log('start abi exports')
 dirs.forEach((abiDir) => {
   console.log(abiDir)
   // Read through the directory and get all .json files
@@ -56,4 +56,4 @@ dirs.forEach((abiDir) => {
 })
 
 fs.writeFileSync(path.join(abiParentDir, 'index.ts'), mainIndexContent, 'utf-8')
-console.log("finish abi exports")
+console.log('finish abi exports')

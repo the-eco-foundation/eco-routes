@@ -3,7 +3,7 @@ import * as path from 'path'
 
 const packageJsonPath = path.join(__dirname, '../../package.json')
 const outputPath = path.join(__dirname, '../../build/package.json')
-console.log("start package json generation")
+console.log('start package json generation')
 fs.readFile(packageJsonPath, 'utf8', (err, data) => {
   if (err) {
     console.error('Error reading package.json:', err)
