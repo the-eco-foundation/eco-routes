@@ -12,7 +12,7 @@ type AbiFile = {
 }
 
 // Directory containing the JSON files
-const abiParentDir = path.join(__dirname, '../../contracts/build/abi')
+const abiParentDir = path.join(__dirname, '../../build/src/abi')
 const dirs = [
   path.join(abiParentDir, '/contracts'),
   path.join(abiParentDir, '/interfaces'),

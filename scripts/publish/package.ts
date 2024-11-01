@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 const packageJsonPath = path.join(__dirname, '../../package.json')
-const outputPath = path.join(__dirname, '../../contracts/build/package.json')
+const outputPath = path.join(__dirname, '../../build/package.json')
 
 fs.readFile(packageJsonPath, 'utf8', (err, data) => {
   if (err) {
@@ -12,8 +12,10 @@ fs.readFile(packageJsonPath, 'utf8', (err, data) => {
 
   const packageJson = JSON.parse(data)
   delete packageJson.devDependencies
+  delete packageJson.dependencies
   delete packageJson.scripts
   delete packageJson.files
+  delete packageJson.engines
 
   fs.writeFile(
     outputPath,

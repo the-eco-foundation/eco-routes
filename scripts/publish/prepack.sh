@@ -14,20 +14,21 @@ npm run clean
 
 env COMPILE_MODE=production npm run build
 
-mkdirp contracts/build/abi/contracts
-mkdirp contracts/build/abi/interfaces
+mkdirp build/src/abi/contracts
+mkdirp build/src/abi/interfaces
 
-cp artifacts/contracts/**/*.json contracts/build/abi/contracts
-cp artifacts/contracts/interfaces/**/*.json contracts/build/abi/interfaces
+cp artifacts/contracts/**/*.json build/src/abi/contracts
+cp artifacts/contracts/interfaces/**/*.json build/src/abi/interfaces
 
-rsync -av --include '*/*.sol' --exclude 'test' --exclude 'build' --exclude 'tools' contracts/ contracts/build
-rm contracts/build/abi/contracts/*.dbg.json
-rm contracts/build/abi/interfaces/*.dbg.json
+rsync -av --include '*/*.sol' --exclude 'test' --exclude 'build' --exclude  'README.md' --exclude 'tools' contracts/ build/src
+rm build/src/abi/contracts/*.dbg.json
+rm build/src/abi/interfaces/*.dbg.json
 
 npx ts-node scripts/publish/abi-export.ts
 npx ts-node scripts/publish/package.ts
 
-cp README.md contracts/
+cp README.md build/
+cp LICENSE build/
 
 
 

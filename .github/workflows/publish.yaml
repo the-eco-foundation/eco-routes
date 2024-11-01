@@ -1,53 +1,43 @@
 name: Eco Publish
 
+# on:
+#   push:
+#     tags:
+#       - "*"
 on:
-  push:
-    tags:
-      - "*"
+  release:
+    types: [published]
 
 jobs:
   publish:
     name: Publish to NPM
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - name: checkout code
-        uses: actions/checkout@v3
-
-      - name: install node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
-
-      - name: install dependencies
+          registry-url: "https://registry.npmjs.org"
+      - name: Install dependencies
         uses: borales/actions-yarn@v4
         with:
-          cmd: install # will run `yarn install` command
-
-      # - name: build project
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: build # will run `yarn build` command
-
-      # - name: check lint
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: format # will run `yarn format` command
-
-      # - name: Run Test
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: test # will run `yarn test` command
-      - name: Publish new version to NPM
-        uses: actions/setup-node@v1
+          cmd: install
+      - name: Build Project
+        uses: borales/actions-yarn@v4
         with:
-          always-auth: true
-          registry-url: 'https://registry.npmjs.org'
-
+          cmd: build
+      - name: Run Tests
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: test
       - name: Publish to NPM
         uses: borales/actions-yarn@v4
         with:
-          cmd: publish # will run `yarn publish` command
+          cmd: prepack && cd build && publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -61,8 +61,6 @@ exec(
 // Update the Version variable in all Solidity files
 updateVersionInSolidityFiles(contractsDir, tagName)
 
-
-
 // const updateVersionInPackageJson = (dir: string, version: string) => {
 //   const packageJsonPath = path.join(dir, 'package.json');
 
