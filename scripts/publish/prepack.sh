@@ -27,7 +27,7 @@ rm build/src/abi/interfaces/*.dbg.json
 echo "start ts node"
 npx ts-node scripts/publish/abi-export.ts
 npx ts-node scripts/publish/package.ts
-
+echo "finish ts node"
 cp README.md build/
 cp LICENSE build/
 

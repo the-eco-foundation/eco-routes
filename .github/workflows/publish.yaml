@@ -35,9 +35,14 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: test
+      - name: Prepack
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: prepack
       - name: Publish to NPM
         uses: borales/actions-yarn@v4
         with:
-          cmd: prepack && cd build && publish --provenance --access public
+          cmd: publish --provenance --access public
+          dir: 'build'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
