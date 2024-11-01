@@ -1,4 +1,4 @@
-const { exec } = require('child_process')
+import {exec} from 'child_process'
 
 process.env.DEPLOY_CI = 'true'
 const mainnetDep = [
@@ -12,12 +12,12 @@ const mainnetDep = [
 const sepoliaDep = mainnetDep.map((dep) => dep + 'Sepolia')
 
 export function deployContracts() {
-  for (const dep of mainnetDep) {
-    callYarnCmd(dep)
-  }
-  for (const dep of sepoliaDep) {
-    callYarnCmd(dep)
-  }
+  // for (const dep of mainnetDep) {
+  //   callYarnCmd(dep)
+  // }
+  // for (const dep of sepoliaDep) { <<<--------get this working, then export to ts file all the addresses and deploy scripts
+  //   callYarnCmd(dep)
+  // }
 }
 
 function callYarnCmd(cmd: string) {
