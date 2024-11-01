@@ -93,7 +93,7 @@
     "versionPackage": "npx ts-node scripts/publish/version.ts",
     "prepack": "yarn run versionPackage && bash scripts/publish/prepack.sh",
     "prepublishOnly": "yarn run prepack",
-    "deployCI": "npx ts-node scripts/deploy/deployCI.ts"
+    "deployCI": "hardhat run scripts/deploy/deployCI.ts"
   },
   "files": [
     "contracts/**.sol",
