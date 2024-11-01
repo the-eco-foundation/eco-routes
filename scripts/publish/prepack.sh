@@ -7,6 +7,10 @@ mkdirp() {
   node -e "fs.mkdirSync('$1', { recursive: true })"
 }
 
+alias
+
+unalias cp
+
 # cd to the root of the repo
 cd "$(git rev-parse --show-toplevel)"
 
