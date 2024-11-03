@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.28;
 
-interface IInbox {
+import "./ISemver.sol";
 
+interface IInbox is ISemver {
     // Event emitted when an intent is succesfully fulfilled
     event Fulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
@@ -41,7 +42,7 @@ interface IInbox {
 
     // Error thrown when a solver attempts to make a call to the hyperlane mailbox
     error CallToMailbox();
-    
+
     // Error thrown when the number of intents in a call to sendBatch exceeds MAX_BATCH_SIZE
     error BatchTooLarge();
 
@@ -111,7 +112,6 @@ interface IInbox {
      * @param _prover The prover against which this intent will be checked
      * @return results The results of the calls as an array of bytes
      */
-
     function fulfillHyperBatched(
         uint256 _sourceChainID,
         address[] calldata _targets,
@@ -122,7 +122,7 @@ interface IInbox {
         bytes32 _expectedHash,
         address _prover
     ) external returns (bytes[] memory);
-    
+
     /**
      * Sends a batch of intents to the hyperprover in a single message.
      * All intents should be between the same source and destination chains and should be proven against the same hyperprover.

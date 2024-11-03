@@ -82,20 +82,19 @@ const mantleChainConfiguration = {
 const initialSalt: string = 'HANDOFF0'
 // const initialSalt: string = 'PROD'
 
-<<<<<<< HEAD
-let proverAddress = ''
-let intentSourceAddress = ''
-let inboxAddress = ''
+let proverAddress: string = ''
+let intentSourceAddress: string = ''
+let inboxAddress: string = ''
+let hyperProverAddress: string = ''
 if (process.env.DEPLOY_CI === 'true') {
   console.log('Deploying for CI')
+} else {
+  proverAddress = ''
+  intentSourceAddress = '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905'
+  inboxAddress = '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0'
+  hyperProverAddress = '0xB1017F865c6306319C65266158979278F7f50118'
 }
 
-=======
-let proverAddress: string = ''
-let intentSourceAddress: string = '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905'
-let inboxAddress: string = '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0'
-let hyperProverAddress: string = '0xB1017F865c6306319C65266158979278F7f50118'
->>>>>>> origin/ED-4282
 const isSolvingPublic = initialSalt !== 'PROD'
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
@@ -160,11 +159,8 @@ async function main() {
     )[0].args.addr
   }
   console.log('intentSource deployed to:', intentSourceAddress)
-<<<<<<< HEAD
   updateAddresses(networkName, 'IntentSource', intentSourceAddress)
 
-=======
->>>>>>> origin/ED-4282
   if (inboxAddress === '') {
     const inboxFactory = await ethers.getContractFactory('Inbox')
 
@@ -221,6 +217,7 @@ async function main() {
     )[0].args.addr
 
     console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+    updateAddresses(networkName, 'HyperProver', hyperProverAddress)
   }
 
   // adding a try catch as if the contract has previously been deployed will get a
@@ -258,7 +255,7 @@ async function main() {
       await run('verify:verify', {
         address: inboxAddress,
         constructorArguments: [
-          actors.inboxOwner,
+          actors.deployer,
           isSolvingPublic,
           [actors.solver],
         ],

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.28;
 /**
  * _____                    _____                   _______
  *          /\    \                  /\    \                 /::\    \
@@ -28,7 +28,7 @@ pragma solidity ^0.8.26;
 import "@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "./libs/SimpleProver.sol";
-import {ISemver} from "./interfaces/ISemVer.sol";
+// import {Semver} from "./libs/Semver.sol";
 
 contract HyperProver is IMessageRecipient, SimpleProver {
     using TypeCasts for bytes32;
@@ -61,24 +61,30 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     // assumes that all Inboxes are deployed via ERC-2470 and hence have the same address
     address public immutable INBOX;
 
-    string public constant version = "0.3.0-beta.0";
+    // function version() external pure returns (string memory) {
+    //     return Semver.version();
+    // }
     /**
      * @notice constructor
-     * @param _mailbox the address of the local mailbox
-     * @param _inbox the address of the Inbox contract
+     * @dev the constructor sets the addresses of the local mailbox and the Inbox contract
+     * _mailbox the address of the local mailbox
+     * _inbox the address of the Inbox contract
      */
-
     constructor(address _mailbox, address _inbox) {
         MAILBOX = _mailbox;
         INBOX = _inbox;
     }
 
+    function version() external pure returns (string memory) {
+        return "0.3.1-beta.0";
+    }
     /**
      * @notice implementation of the handle method required by IMessageRecipient
      * @dev the uint32 value is not used in this implementation, but it is required by the interface. It is the chain ID of the intent's origin chain.
      * @param _sender the address that called the dispatch() method
      * @param _messageBody the message body
      */
+
     function handle(uint32, bytes32 _sender, bytes calldata _messageBody) public payable {
         if (MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);

@@ -1,6 +1,6 @@
 /* -*- c-basic-offset: 4 -*- */
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.28;
 /**
  * _____                    _____                   _______
  *          /\    \                  /\    \                 /::\    \
@@ -30,7 +30,7 @@ import "./interfaces/IIntentSource.sol";
 import "./libs/SimpleProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ISemver} from "./interfaces/ISemVer.sol";
+// import "./libs/Semver.sol";
 
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
@@ -55,19 +55,23 @@ contract IntentSource is IIntentSource {
     // stores the intents
     mapping(bytes32 intenthash => Intent) public intents;
 
-    string public constant version = "0.3.0-beta.0";
     /**
-     * @param _minimumDuration the minimum duration of an intent originating on this chain
-     * @param _counterStart the initial value of the counter
      * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs to be redeployed.
+     * _minimumDuration the minimum duration of an intent originating on this chain
+     * _counterStart the initial value of the counter
      */
-
     constructor(uint256 _minimumDuration, uint256 _counterStart) {
         CHAIN_ID = block.chainid;
         MINIMUM_DURATION = _minimumDuration;
         counter = _counterStart;
     }
 
+    // function version() external pure returns (string memory) {
+    //     return Semver.version();
+    // }
+    function version() external pure returns (string memory) {
+        return "0.3.1-beta.0";
+    }
     /**
      * @notice Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets.
      * @dev If a proof ON THE SOURCE CHAIN is not completed by the expiry time, the reward funds will not be redeemable by the solver, REGARDLESS OF WHETHER THE INSTRUCTIONS WERE EXECUTED.
@@ -81,6 +85,7 @@ contract IntentSource is IIntentSource {
      * @param _expiryTime the timestamp at which the intent expires
      * @param _prover the prover against which the intent's status will be checked
      */
+
     function createIntent(
         uint256 _destinationChainID,
         address _inbox,

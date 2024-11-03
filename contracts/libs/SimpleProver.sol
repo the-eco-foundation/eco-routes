@@ -2,8 +2,10 @@
 pragma solidity ^0.8.13;
 
 import "../interfaces/ISimpleProver.sol";
+import "../interfaces/ISemver.sol";
 
 abstract contract SimpleProver is ISimpleProver {
+    // abstract contract SimpleProver is IProver {
     /**
      * @notice emitted when an intent has been successfully proven
      * @param _hash  the hash of the intent

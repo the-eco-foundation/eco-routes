@@ -59,4 +59,4 @@ jobs:
       - name: Run Test
         uses: borales/actions-yarn@v4
         with:
-          cmd: test # will run `yarn build` command
+          cmd: test # will run `yarn test` command

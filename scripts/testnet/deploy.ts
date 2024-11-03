@@ -95,21 +95,16 @@ const mantleSepoliaChainConfiguration = {
 console.log('Counter: ', counter)
 console.log('Minimum duration: ', minimumDuration)
 
-const initialSalt: string = 'TESTNET6'
-
-let proverAddress = ''
-let intentSourceAddress = ''
-let inboxAddress = ''
-if (process.env.DEPLOY_CI === 'true') {
-  console.log('Deploying for CI')
-} else {
-  inboxAddress = '0x200b2417A9d0F79133C2b05b2C028B8A70392e66'
-}
+const initialSalt: string = 'HANDOFF0'
 
 let proverAddress: string = ''
 let intentSourceAddress: string = ''
 let inboxAddress: string = ''
 let hyperProverAddress: string = ''
+if (process.env.DEPLOY_CI === 'true') {
+  console.log('Deploying for CI')
+}
+
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
 )
@@ -204,6 +199,7 @@ async function main() {
       .setMailbox(deployNetwork.hyperlaneMailboxAddress)
   }
   console.log('Inbox deployed to:', inboxAddress)
+  updateAddresses(networkName, 'Inbox', inboxAddress)
 
   if (hyperProverAddress === '' && inboxAddress !== '') {
     const hyperProverFactory = await ethers.getContractFactory('HyperProver')
@@ -226,6 +222,7 @@ async function main() {
     )[0].args.addr
 
     console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+    updateAddresses(networkName, 'HyperProver', hyperProverAddress)
   }
 
   // adding a try catch as if the contract has previously been deployed will get a

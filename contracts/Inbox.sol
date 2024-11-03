@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.28;
 /**
  * _____                    _____                   _______
  *          /\    \                  /\    \                 /::\    \
@@ -29,7 +29,7 @@ import "./interfaces/IInbox.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {ISemver} from "./interfaces/ISemVer.sol";
+// import "./libs/Semver.sol";
 
 /**
  * @title Inbox
@@ -68,13 +68,18 @@ contract Inbox is IInbox, Ownable {
         }
     }
 
-    string public constant version = "0.3.0-beta.0";
+    // function version() external pure returns (string memory) {
+    //     return Semver.version();
+    // }
+    function version() external pure returns (string memory) {
+        return "0.3.1-beta.0";
+    }
 
     /**
      * constructor
-     * @param _owner the owner of the contract that gets access to privileged functions
-     * @param _isSolvingPublic whether or not solving is public at start
-     * @param _solvers the initial whitelist of solvers, only relevant if {_isSolvingPublic} is false
+     *  _owner the owner of the contract that gets access to privileged functions
+     *  _isSolvingPublic whether or not solving is public at start
+     *  _solvers the initial whitelist of solvers, only relevant if {_isSolvingPublic} is false
      * @dev privileged functions are made such that they can only make changes once
      */
     constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers) Ownable(_owner) {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.28;
 /**
  * _____                    _____                   _______
  *          /\    \                  /\    \                 /::\    \
@@ -32,7 +32,7 @@ import {IL1Block} from "./interfaces/IL1Block.sol";
 // import {AbstractProver} from "./libs/AbstractProver.sol";
 import {ProverLibrary} from "./libs/ProverLibrary.sol";
 import {SimpleProver} from "./libs/SimpleProver.sol";
-import {ISemver} from "./interfaces/ISemVer.sol";
+// import {Semver} from "./libs/Semver.sol";
 
 contract Prover is SimpleProver {
     // uint16 public constant NONCE_PACKING = 1;
@@ -125,14 +125,19 @@ contract Prover is SimpleProver {
         uint256 _destinationChain, ProverLibrary.ProvingMechanism _provingMechanismRequired
     );
 
-    string public constant version = "0.3.0-beta.0";
-
     constructor(ProverLibrary.ChainConfigurationConstructor[] memory _chainConfigurations) {
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
             _setChainConfiguration(
                 _chainConfigurations[i].chainConfigurationKey, _chainConfigurations[i].chainConfiguration
             );
         }
+    }
+
+    // function version() external pure returns (string memory) {
+    //     return Semver.version();
+    // }
+    function version() external pure returns (string memory) {
+        return "0.3.1-beta.0";
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
