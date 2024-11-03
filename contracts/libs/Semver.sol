@@ -2,7 +2,7 @@
 pragma solidity ^0.8.28;
 
 library Semver {
-    function version() external pure returns (string memory) {
+    function version() internal pure returns (string memory) {
         return "0.3.1-beta.0";
     }
 }

@@ -29,7 +29,7 @@ import "./interfaces/IInbox.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-// import "./libs/Semver.sol";
+import "./libs/Semver.sol";
 
 /**
  * @title Inbox
@@ -68,11 +68,8 @@ contract Inbox is IInbox, Ownable {
         }
     }
 
-    // function version() external pure returns (string memory) {
-    //     return Semver.version();
-    // }
     function version() external pure returns (string memory) {
-        return "0.3.1-beta.0";
+        return Semver.version();
     }
 
     /**

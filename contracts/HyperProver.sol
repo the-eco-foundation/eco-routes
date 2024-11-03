@@ -28,7 +28,7 @@ pragma solidity ^0.8.28;
 import "@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "./libs/SimpleProver.sol";
-// import {Semver} from "./libs/Semver.sol";
+import {Semver} from "./libs/Semver.sol";
 
 contract HyperProver is IMessageRecipient, SimpleProver {
     using TypeCasts for bytes32;
@@ -61,9 +61,6 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     // assumes that all Inboxes are deployed via ERC-2470 and hence have the same address
     address public immutable INBOX;
 
-    // function version() external pure returns (string memory) {
-    //     return Semver.version();
-    // }
     /**
      * @notice constructor
      * @dev the constructor sets the addresses of the local mailbox and the Inbox contract
@@ -76,15 +73,15 @@ contract HyperProver is IMessageRecipient, SimpleProver {
     }
 
     function version() external pure returns (string memory) {
-        return "0.3.1-beta.0";
+        return Semver.version();
     }
+
     /**
      * @notice implementation of the handle method required by IMessageRecipient
      * @dev the uint32 value is not used in this implementation, but it is required by the interface. It is the chain ID of the intent's origin chain.
      * @param _sender the address that called the dispatch() method
      * @param _messageBody the message body
      */
-
     function handle(uint32, bytes32 _sender, bytes calldata _messageBody) public payable {
         if (MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);

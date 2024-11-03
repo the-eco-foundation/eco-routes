@@ -30,7 +30,7 @@ import "./interfaces/IIntentSource.sol";
 import "./libs/SimpleProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-// import "./libs/Semver.sol";
+import "./libs/Semver.sol";
 
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
@@ -66,11 +66,8 @@ contract IntentSource is IIntentSource {
         counter = _counterStart;
     }
 
-    // function version() external pure returns (string memory) {
-    //     return Semver.version();
-    // }
     function version() external pure returns (string memory) {
-        return "0.3.1-beta.0";
+        return Semver.version();
     }
     /**
      * @notice Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets.

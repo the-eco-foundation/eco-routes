@@ -32,7 +32,7 @@ import {IL1Block} from "./interfaces/IL1Block.sol";
 // import {AbstractProver} from "./libs/AbstractProver.sol";
 import {ProverLibrary} from "./libs/ProverLibrary.sol";
 import {SimpleProver} from "./libs/SimpleProver.sol";
-// import {Semver} from "./libs/Semver.sol";
+import {Semver} from "./libs/Semver.sol";
 
 contract Prover is SimpleProver {
     // uint16 public constant NONCE_PACKING = 1;
@@ -133,11 +133,8 @@ contract Prover is SimpleProver {
         }
     }
 
-    // function version() external pure returns (string memory) {
-    //     return Semver.version();
-    // }
     function version() external pure returns (string memory) {
-        return "0.3.1-beta.0";
+        return Semver.version();
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
