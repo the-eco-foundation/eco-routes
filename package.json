@@ -89,11 +89,7 @@
     "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdrawOpBase.ts",
     "intentWithdrawBaseOp": "hardhat run scripts/mainnet/intentWithdrawBaseOp.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
-    "EndMainnetCannon": "-------- End Cannon scripts  --------",
-    "versionPackage": "npx ts-node scripts/publish/version.ts",
-    "prepack": "yarn run versionPackage && bash scripts/publish/prepack.sh",
-    "prepublishOnly": "yarn run prepack",
-    "deployCI": "hardhat run scripts/deploy/deployCI.ts"
+    "EndMainnetCannon": "-------- End Cannon scripts  --------"
   },
   "files": [
     "contracts/**.sol",
