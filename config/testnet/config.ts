@@ -7,11 +7,14 @@ const networkIds: any = {
   ecoTestnet: 471923,
   // arbitrumSepolia: 421614,
   0: 'noChain',
+  arbitrumSepolia: 421614,
+  mantleSepolia: 5003,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
   471923: 'ecoTestnet',
-  // 421614: 'arbitrumSepolia',
+  421614: 'arbitrumSepolia',
+  5003: 'mantleSepolia',
 }
 
 const actors: any = {
@@ -118,6 +121,7 @@ const networks: any = {
     },
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
+    gasLimit: 8000000,
   },
   baseSepolia: {
     network: networkIds[84532],
@@ -162,6 +166,7 @@ const networks: any = {
     },
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
+    gasLimit: 8000000,
   },
   ecoTestnet: {
     network: networkIds[471923],
@@ -209,21 +214,63 @@ const networks: any = {
     alchemyNetwork: 'arbitrum-sepolia',
     settlementNetwork: 'sepolia',
     intentSourceAddress: '',
-    proverContract: {
-      address: '',
-      deploymentBlock: '', // 0n
-    },
+    proverContractAddress: '',
     inboxAddress: '',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
     },
     proving: {
-      mechanism: provingMechanisms.HyperProver,
-      provingTimeSeconds: 604800,
-      finalityDelaySeconds: 0,
+      mechanism: '',
+      l1BlockAddress: '',
+      l2l1MessageParserAddress: '',
+      outputRootVersionNumber: 0,
+      settlementChain: {
+        network: 'sepolia',
+        id: networkIds.sepolia,
+        // Dispute Game Factory address
+        contract: '',
+        // Old L2 Ourput Oracle Address
+        // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
+      },
     },
+    // The following destination chains are useful for proving
+    // destinationChains: [
+    //   84532, // baseSepolia
+    //   11155420, // optimismSepolia
+    //   471923, // ecoTestnet
+    // ],
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
+    hyperlaneMailboxAddress: '0xc756cFc1b7d0d4646589EDf10eD54b201237F5e8',
+    gasLimit: 8000000,
+  },
+  mantleSepolia: {
+    network: 'mantleSepolia',
+    chainId: networkIds.mantleSepolia,
+    proverContractAddress: '',
+    hyperProverContractAddress: '',
+    intentSourceAddress: '',
+    inboxAddress: '',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
+    proving: {
+      mechanism: provingMechanisms.bedrock,
+      l1BlockAddress: '',
+      l2l1MessageParserAddress: '',
+      l2OutputOracleSlotNumber: 3,
+      outputRootVersionNumber: 0,
+      settlementChain: {
+        network: 'mainnet',
+        id: networkIds.mainnet,
+        // L2 Output Oracle Address
+        contract: '0x4121dc8e48Bc6196795eb4867772A5e259fecE07',
+      },
+    },
+    usdcAddress: '',
+    hyperlaneMailboxAddress: '',
+    gasLimit: 25000000000,
   },
 }
 
