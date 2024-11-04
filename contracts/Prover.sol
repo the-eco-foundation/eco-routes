@@ -72,58 +72,58 @@ contract Prover is SimpleProver {
     // Store the last ProverLibrary.BlockProof for each ChainId
     mapping(uint256 => mapping(ProverLibrary.SettlementType => ProverLibrary.BlockProof)) public provenStates;
 
-    /**
-     * @notice emitted when Self state is proven
-     * @param _blockNumber  the block number corresponding to this chains world state
-     * @param _SelfStateRoot the world state root at _blockNumber
-     */
-    event SelfStateProven(uint256 indexed _blockNumber, bytes32 _SelfStateRoot);
+    // /**
+    //  * @notice emitted when Self state is proven
+    //  * @param _blockNumber  the block number corresponding to this chains world state
+    //  * @param _SelfStateRoot the world state root at _blockNumber
+    //  */
+    // event SelfStateProven(uint256 indexed _blockNumber, bytes32 _SelfStateRoot);
 
-    /**
-     * @notice emitted when L1 world state is proven
-     * @param _blockNumber  the block number corresponding to this L1 world state
-     * @param _L1WorldStateRoot the world state root at _blockNumber
-     */
-    event L1WorldStateProven(uint256 indexed _blockNumber, bytes32 _L1WorldStateRoot);
+    // /**
+    //  * @notice emitted when L1 world state is proven
+    //  * @param _blockNumber  the block number corresponding to this L1 world state
+    //  * @param _L1WorldStateRoot the world state root at _blockNumber
+    //  */
+    // event L1WorldStateProven(uint256 indexed _blockNumber, bytes32 _L1WorldStateRoot);
 
-    /**
-     * @notice emitted when L2 world state is proven
-     * @param _destinationChainID the chainID of the destination chain
-     * @param _blockNumber the blocknumber corresponding to the world state
-     * @param _L2WorldStateRoot the world state root at _blockNumber
-     */
-    event L2WorldStateProven(
-        uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot
-    );
+    // /**
+    //  * @notice emitted when L2 world state is proven
+    //  * @param _destinationChainID the chainID of the destination chain
+    //  * @param _blockNumber the blocknumber corresponding to the world state
+    //  * @param _L2WorldStateRoot the world state root at _blockNumber
+    //  */
+    // event L2WorldStateProven(
+    //     uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot
+    // );
 
-    /**
-     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
-     * @param _inputBlockNumber the block number we are trying to prove
-     * @param _latestBlockNumber the latest block number that has been proven
-     */
-    error OutdatedBlock(uint256 _inputBlockNumber, uint256 _latestBlockNumber);
+    // /**
+    //  * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+    //  * @param _inputBlockNumber the block number we are trying to prove
+    //  * @param _latestBlockNumber the latest block number that has been proven
+    //  */
+    // error OutdatedBlock(uint256 _inputBlockNumber, uint256 _latestBlockNumber);
 
-    /**
-     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
-     * @param _blockHash the block hash we are trying to prove
-     * @param _l1BlockhashOracleHash the latest blockhash from the L1BlockhashOracle
-     */
-    error InvalidBlockData(bytes32 _blockHash, bytes32 _l1BlockhashOracleHash);
+    // /**
+    //  * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+    //  * @param _blockHash the block hash we are trying to prove
+    //  * @param _l1BlockhashOracleHash the latest blockhash from the L1BlockhashOracle
+    //  */
+    // error InvalidBlockData(bytes32 _blockHash, bytes32 _l1BlockhashOracleHash);
 
-    /**
-     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
-     * @param _destinationChain the destination chain we are getting settlment chain for
-     */
-    error NoSettlementChainConfigured(uint256 _destinationChain);
+    // /**
+    //  * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+    //  * @param _destinationChain the destination chain we are getting settlment chain for
+    //  */
+    // error NoSettlementChainConfigured(uint256 _destinationChain);
 
-    /**
-     * @notice emitted when the destination chain does not support the proving mechanism
-     * @param _destinationChain the destination chain
-     * @param _provingMechanismRequired the proving mechanism that was required
-     */
-    error InvalidDestinationProvingMechanism(
-        uint256 _destinationChain, ProverLibrary.ProvingMechanism _provingMechanismRequired
-    );
+    // /**
+    //  * @notice emitted when the destination chain does not support the proving mechanism
+    //  * @param _destinationChain the destination chain
+    //  * @param _provingMechanismRequired the proving mechanism that was required
+    //  */
+    // error InvalidDestinationProvingMechanism(
+    //     uint256 _destinationChain, ProverLibrary.ProvingMechanism _provingMechanismRequired
+    // );
 
     constructor(ProverLibrary.ChainConfigurationConstructor[] memory _chainConfigurations) {
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
@@ -210,7 +210,7 @@ contract Prover is SimpleProver {
      */
     function proveSelfState(bytes calldata rlpEncodedBlockData) public {
         if (!chainConfigurations[block.chainid][ProverLibrary.ProvingMechanism.Self].exists) {
-            revert InvalidDestinationProvingMechanism(block.chainid, ProverLibrary.ProvingMechanism.Self);
+            revert ProverLibrary.InvalidDestinationProvingMechanism(block.chainid, ProverLibrary.ProvingMechanism.Self);
         }
         ProverLibrary.BlockProof memory blockProof = ProverLibrary.BlockProof({
             blockNumber: ProverLibrary.bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
@@ -225,9 +225,9 @@ contract Prover is SimpleProver {
             provenStates[block.chainid][ProverLibrary.SettlementType.Confirmed];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[block.chainid][ProverLibrary.SettlementType.Confirmed] = blockProof;
-            emit SelfStateProven(blockProof.blockNumber, blockProof.stateRoot);
+            emit ProverLibrary.SelfStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
-            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+            revert ProverLibrary.OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
 
@@ -248,10 +248,10 @@ contract Prover is SimpleProver {
             settlementChainId =
                 chainConfigurations[block.chainid][ProverLibrary.ProvingMechanism.Bedrock].settlementChainId;
         } else {
-            revert NoSettlementChainConfigured(block.chainid);
+            revert ProverLibrary.NoSettlementChainConfigured(block.chainid);
         }
         if (keccak256(rlpEncodedBlockData) != l1BlockhashOracle.hash()) {
-            revert InvalidBlockData(keccak256(rlpEncodedBlockData), l1BlockhashOracle.hash());
+            revert ProverLibrary.InvalidBlockData(keccak256(rlpEncodedBlockData), l1BlockhashOracle.hash());
         }
         // require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
 
@@ -264,9 +264,9 @@ contract Prover is SimpleProver {
             provenStates[settlementChainId][ProverLibrary.SettlementType.Confirmed];
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[settlementChainId][ProverLibrary.SettlementType.Confirmed] = blockProof;
-            emit L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
+            emit ProverLibrary.L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
-            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+            revert ProverLibrary.OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
 
@@ -296,7 +296,9 @@ contract Prover is SimpleProver {
         uint256 settlementChainId =
             chainConfigurations[l2settlementChainId][ProverLibrary.ProvingMechanism.Settlement].settlementChainId;
         if (!chainConfigurations[settlementChainId][ProverLibrary.ProvingMechanism.SettlementL3].exists) {
-            revert InvalidDestinationProvingMechanism(settlementChainId, ProverLibrary.ProvingMechanism.SettlementL3);
+            revert ProverLibrary.InvalidDestinationProvingMechanism(
+                settlementChainId, ProverLibrary.ProvingMechanism.SettlementL3
+            );
         }
         // Check that the L2 block data hashes to the L1 block hash on L3
 
@@ -336,9 +338,9 @@ contract Prover is SimpleProver {
         );
         if (existingBlockProof.blockNumber < l1blockProof.blockNumber) {
             provenStates[settlementChainId][ProverLibrary.SettlementType.Confirmed] = l1blockProof;
-            emit L1WorldStateProven(l1blockProof.blockNumber, l1blockProof.stateRoot);
+            emit ProverLibrary.L1WorldStateProven(l1blockProof.blockNumber, l1blockProof.stateRoot);
         } else {
-            revert OutdatedBlock(l1blockProof.blockNumber, existingBlockProof.blockNumber);
+            revert ProverLibrary.OutdatedBlock(l1blockProof.blockNumber, existingBlockProof.blockNumber);
         }
     }
 
@@ -366,7 +368,7 @@ contract Prover is SimpleProver {
         bytes32 l1WorldStateRoot
     ) public virtual {
         if (!chainConfigurations[chainId][ProverLibrary.ProvingMechanism.Bedrock].exists) {
-            revert InvalidDestinationProvingMechanism(chainId, ProverLibrary.ProvingMechanism.Bedrock);
+            revert ProverLibrary.InvalidDestinationProvingMechanism(chainId, ProverLibrary.ProvingMechanism.Bedrock);
         }
         ProverLibrary.BlockProofKey memory existingSettlementBlockProofKey;
         ProverLibrary.BlockProof memory existingSettlementBlockProof;
@@ -420,10 +422,10 @@ contract Prover is SimpleProver {
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId][ProverLibrary.SettlementType.Finalized] = blockProof;
-            emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
+            emit ProverLibrary.L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
         } else {
             if (existingBlockProof.blockNumber > blockProof.blockNumber) {
-                revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+                revert ProverLibrary.OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
             }
         }
     }
@@ -509,7 +511,7 @@ contract Prover is SimpleProver {
         bytes32 l1WorldStateRoot
     ) public {
         if (!chainConfigurations[chainId][ProverLibrary.ProvingMechanism.Cannon].exists) {
-            revert InvalidDestinationProvingMechanism(chainId, ProverLibrary.ProvingMechanism.Cannon);
+            revert ProverLibrary.InvalidDestinationProvingMechanism(chainId, ProverLibrary.ProvingMechanism.Cannon);
         }
         ProverLibrary.ChainConfiguration memory chainConfiguration =
             chainConfigurations[chainId][ProverLibrary.ProvingMechanism.Cannon];
@@ -541,10 +543,10 @@ contract Prover is SimpleProver {
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
             provenStates[chainId][ProverLibrary.SettlementType.Finalized] = blockProof;
-            emit L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
+            emit ProverLibrary.L2WorldStateProven(chainId, blockProof.blockNumber, blockProof.stateRoot);
         } else {
             if (existingBlockProof.blockNumber > blockProof.blockNumber) {
-                revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+                revert ProverLibrary.OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
             }
         }
     }

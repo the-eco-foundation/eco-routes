@@ -94,15 +94,86 @@ library ProverLibrary {
 
     }
 
+    /**
+     * @notice emitted when Self state is proven
+     * @param blockNumber  the block number corresponding to this chains world state
+     * @param selfStateRoot the world state root at _blockNumber
+     */
+    event SelfStateProven(uint256 indexed blockNumber, bytes32 selfStateRoot);
+
+    /**
+     * @notice emitted when L1 world state is proven
+     * @param blockNumber  the block number corresponding to this L1 world state
+     * @param l1WorldStateRoot the world state root at _blockNumber
+     */
+    event L1WorldStateProven(uint256 indexed blockNumber, bytes32 l1WorldStateRoot);
+
+    /**
+     * @notice emitted when L2 world state is proven
+     * @param destinationChainID the chainID of the destination chain
+     * @param blockNumber the blocknumber corresponding to the world state
+     * @param l2WorldStateRoot the world state root at _blockNumber
+     */
+    event L2WorldStateProven(uint256 indexed destinationChainID, uint256 indexed blockNumber, bytes32 l2WorldStateRoot);
+
+    /**
+     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+     * @param _inputBlockNumber the block number we are trying to prove
+     * @param _latestBlockNumber the latest block number that has been proven
+     */
+    error OutdatedBlock(uint256 _inputBlockNumber, uint256 _latestBlockNumber);
+
+    /**
+     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+     * @param _blockHash the block hash we are trying to prove
+     * @param _l1BlockhashOracleHash the latest blockhash from the L1BlockhashOracle
+     */
+    error InvalidBlockData(bytes32 _blockHash, bytes32 _l1BlockhashOracleHash);
+
+    /**
+     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+     * @param _destinationChain the destination chain we are getting settlment chain for
+     */
+    error NoSettlementChainConfigured(uint256 _destinationChain);
+
+    /**
+     * @notice emitted when the destination chain does not support the proving mechanism
+     * @param _destinationChain the destination chain
+     * @param _provingMechanismRequired the proving mechanism that was required
+     */
+    error InvalidDestinationProvingMechanism(
+        uint256 _destinationChain, ProverLibrary.ProvingMechanism _provingMechanismRequired
+    );
+
+    /**
+     * @notice emitted when we receive an invalid storage proof
+     */
+    error FailedToProveStorage();
+
+    /**
+     * @notice emitted when we receive an invalid Account Proof
+     */
+    error FailedToProveAccount();
+
+    /**
+     * @notice emitted when the Fault Dispute Game is not resolved
+     * @param _faultDisputeGameProxyAddress the faultDisputeGames Proxy Address
+     */
+    error FaultDisputeGameNotResolved(address _faultDisputeGameProxyAddress);
+
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) internal pure {
-        require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
+        if (!SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root)) {
+            revert FailedToProveStorage();
+        }
     }
 
     function proveAccount(bytes memory _address, bytes memory _data, bytes[] memory _proof, bytes32 _root)
         internal
         pure
     {
-        require(SecureMerkleTrie.verifyInclusionProof(_address, _data, _proof, _root), "failed to prove account");
+        if (!SecureMerkleTrie.verifyInclusionProof(_address, _data, _proof, _root)) {
+            revert FailedToProveAccount();
+        }
     }
 
     function generateOutputRoot(
@@ -197,9 +268,9 @@ library ProverLibrary {
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
     ) internal pure {
-        require(
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
-        ); // ensure faultDisputeGame is resolved
+        if (faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus != 2) {
+            revert FaultDisputeGameNotResolved(faultDisputeGameProxyAddress);
+        }
         // Prove that the FaultDispute game has been settled
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
         proveStorage(
