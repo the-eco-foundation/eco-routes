@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-interface ISimpleProver {
+import {ISemver} from "./ISemver.sol";
+
+interface ISimpleProver is ISemver {
     // The types of proof that provers can be
     enum ProofType {
         Storage,

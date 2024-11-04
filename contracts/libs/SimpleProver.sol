@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "../interfaces/ISimpleProver.sol";
-import "../interfaces/ISemver.sol";
+import {ISimpleProver} from "../interfaces/ISimpleProver.sol";
 
 abstract contract SimpleProver is ISimpleProver {
     // abstract contract SimpleProver is IProver {

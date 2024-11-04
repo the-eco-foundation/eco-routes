@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-import "./ISemver.sol";
+import {ISemver} from "./ISemver.sol";
 
 interface IInbox is ISemver {
     // Event emitted when an intent is succesfully fulfilled

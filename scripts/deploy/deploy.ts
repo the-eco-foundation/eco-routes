@@ -1,4 +1,4 @@
-import {exec} from 'child_process'
+import { exec } from 'child_process'
 
 process.env.DEPLOY_CI = 'true'
 const mainnetDep = [
