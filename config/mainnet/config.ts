@@ -71,7 +71,7 @@ const networks: any = {
     chainId: networkIds.mainnet,
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      base: '0x56315b90c40730925ec5485cf004d835058518A0', // base L2 OUTPUT ORACLE
+      base: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e', // base dispute game factory
       optimism: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9', // optimism Dispute Game Factory
       mantle: '0x31d543e7BE1dA6eFDc2206Ef7822879045B9f481', // mantle L2 OUTPUT ORACLE
     },
@@ -114,7 +114,7 @@ const networks: any = {
       counter: 0,
     },
     proving: {
-      mechanism: provingMechanisms.bedrock,
+      mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
@@ -122,8 +122,8 @@ const networks: any = {
       settlementChain: {
         network: 'mainnet',
         id: networkIds.mainnet,
-        // L2 Output Oracle Address
-        contract: '0x56315b90c40730925ec5485cf004d835058518A0',
+        // disputeGameFactory
+        contract: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e',
       },
     },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
