@@ -505,11 +505,11 @@ describe('Prover L3 Settlement Layer Tests', () => {
       // change the Settlement Types for Sepolia and BaseSepolia for SettlementL3
       // if (chain.chainConfigurationKey.chainId === networkIds.sepolia) {
       //   chain.chainConfigurationKey.provingMechanism =
-      //     provingMechanisms.settlementL3
+      //     provingMechanisms.SettlementL3
       // }
       // if (chain.chainConfigurationKey.chainId === networkIds.baseSepolia) {
       //   chain.chainConfigurationKey.provingMechanism =
-      //     provingMechanisms.settlement
+      //     provingMechanisms.Settlement
       // }
       deploymentChains.push(chain)
       // if (chain.chainConfigurationKey.chainId === networkIds.ecoTestnet) {

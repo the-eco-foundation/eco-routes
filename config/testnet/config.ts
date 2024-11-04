@@ -28,18 +28,20 @@ const actors: any = {
 }
 
 const provingMechanisms: any = {
-  self: 0, // Destination is Self
-  settlement: 1, // Source Chain is an L2, Destination is A L1 Settlement Chain
-  settlementL3: 2, // Source Chain is an L3, Destination is a L2 Settlement Chain
-  bedrock: 3, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
-  cannon: 4, // Source Chain is an L2, Destination Chain is an L2 using Cannon
-  hyperProver: 5, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
-  0: 'self',
-  1: 'settlement',
-  2: 'settlementL3',
-  3: 'bedrock',
-  4: 'cannon',
-  5: 'hyperProver',
+  Self: 0, // Destination is Self
+  Settlement: 1, // Source Chain is an L2, Destination is A L1 Settlement Chain
+  SettlementL3: 2, // Source Chain is an L3, Destination is a L2 Settlement Chain
+  Bedrock: 3, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
+  Cannon: 4, // Source Chain is an L2, Destination Chain is an L2 using Cannon
+  HyperProver: 5, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
+  ArbitrumNitro: 6, // Source Chain is an L2 Destination Chain is an L2 using Arbitrum Nitro
+  0: 'Self',
+  1: 'Settlement',
+  2: 'SettlementL3',
+  3: 'Bedrock',
+  4: 'Cannon',
+  5: 'HyperProver',
+  6: 'ArbitrumNitro',
 }
 
 const settlementTypes: any = {
@@ -66,7 +68,7 @@ const networks: any = {
     chainId: networkIds.sepolia,
     alchemyNetwork: 'sepolia',
     proving: {
-      mechanism: provingMechanisms.settlement,
+      mechanism: provingMechanisms.Settlement,
       l1BlockAddress: ethers.ZeroAddress,
       l2l1MessageParserAddress: ethers.ZeroAddress,
       outputRootVersionNumber: 0,
@@ -108,7 +110,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0x9496532052BBe0e262Af0b76cC9BD528e9A8b010',
     proving: {
-      mechanism: provingMechanisms.cannon,
+      mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
@@ -146,7 +148,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0x9496532052BBe0e262Af0b76cC9BD528e9A8b010',
     proving: {
-      mechanism: provingMechanisms.cannon,
+      mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
@@ -193,7 +195,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0x9496532052BBe0e262Af0b76cC9BD528e9A8b010',
     proving: {
-      mechanism: provingMechanisms.bedrock,
+      mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
@@ -258,7 +260,7 @@ const networks: any = {
       counter: 0,
     },
     proving: {
-      mechanism: provingMechanisms.bedrock,
+      mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '',
       l2l1MessageParserAddress: '',
       l2OutputOracleSlotNumber: 3,
@@ -280,7 +282,7 @@ const deploymentConfigs = {
   sepoliaSettlement: {
     chainConfigurationKey: {
       chainId: networkIds.sepolia,
-      provingMechanism: provingMechanisms.settlement, // provingMechanism
+      provingMechanism: provingMechanisms.Settlement, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -295,7 +297,7 @@ const deploymentConfigs = {
   sepoliaSettlementL3: {
     chainConfigurationKey: {
       chainId: networkIds.sepolia,
-      provingMechanism: provingMechanisms.settlementL3, // provingMechanism
+      provingMechanism: provingMechanisms.SettlementL3, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -310,7 +312,7 @@ const deploymentConfigs = {
   baseSepoliaSettlement: {
     chainConfigurationKey: {
       chainId: networkIds.baseSepolia,
-      provingMechanism: provingMechanisms.settlement, // provingMechanism
+      provingMechanism: provingMechanisms.Settlement, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -326,7 +328,7 @@ const deploymentConfigs = {
   baseSepoliaSelf: {
     chainConfigurationKey: {
       chainId: networkIds.baseSepolia,
-      provingMechanism: provingMechanisms.self, // provingMechanism
+      provingMechanism: provingMechanisms.Self, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -342,7 +344,7 @@ const deploymentConfigs = {
   baseSepoliaCannon: {
     chainConfigurationKey: {
       chainId: networkIds.baseSepolia,
-      provingMechanism: provingMechanisms.cannon, // provingMechanism
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -358,7 +360,7 @@ const deploymentConfigs = {
   optimismSepoliaCannon: {
     chainConfigurationKey: {
       chainId: networkIds.optimismSepolia,
-      provingMechanism: provingMechanisms.cannon, // provingMechanism
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -376,7 +378,7 @@ const deploymentConfigs = {
   ecoTestnetBedrock: {
     chainConfigurationKey: {
       chainId: networkIds.ecoTestnet,
-      provingMechanism: provingMechanisms.bedrock, // provingMechanism
+      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -438,7 +440,7 @@ const routes: any = [
           address: networks.baseSepolia.inbox.address,
           variableName: 'baseSepoliaInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.settlementL3,
+        provingMechanism: provingMechanisms.SettlementL3,
         provingState: settlementTypes.finalized,
       },
     },
@@ -483,7 +485,7 @@ const routes: any = [
           variableName: 'optimismSepoliaInboxContractSolver',
         },
       },
-      provingMechanism: provingMechanisms.cannon,
+      provingMechanism: provingMechanisms.Cannon,
       provingState: settlementTypes.finalized,
     },
     intent: {
@@ -526,7 +528,7 @@ const routes: any = [
           address: networks.optimismSepolia.inbox.address,
           variableName: 'optimismSepoliaInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.cannon,
+        provingMechanism: provingMechanisms.Cannon,
         provingState: settlementTypes.finalized,
       },
     },
@@ -570,7 +572,7 @@ const routes: any = [
           address: networks.ecoTestnet.inbox.address,
           variableName: 'ecoTestnetInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.bedrock,
+        provingMechanism: provingMechanisms.Bedrock,
         provingState: settlementTypes.finalized,
       },
     },
@@ -614,7 +616,7 @@ const routes: any = [
           address: networks.ecoTestnet.inbox.address,
           variableName: 'ecoTestnetInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.bedrock,
+        provingMechanism: provingMechanisms.Bedrock,
         provingState: settlementTypes.finalized,
       },
     },
@@ -658,7 +660,7 @@ const routes: any = [
           address: networks.baseSepolia.inbox.address,
           variableName: 'baseSepoliaInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.cannon,
+        provingMechanism: provingMechanisms.Cannon,
         provingState: settlementTypes.finalized,
       },
     },

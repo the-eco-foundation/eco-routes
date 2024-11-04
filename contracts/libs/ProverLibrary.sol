@@ -90,7 +90,8 @@ library ProverLibrary {
         SettlementL3, // Source Chain is an L3, Destination is a L2 Settlement Chain
         Bedrock, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
         Cannon, // Source Chain is an L2, Destination Chain is an L2 using Cannon
-        HyperProver //HyperProver
+        HyperProver, //HyperProver
+        ArbitrumNitro // Arbitrum Nitro
 
     }
 

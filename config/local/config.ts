@@ -34,12 +34,14 @@ const provingMechanisms: any = {
   Bedrock: 3, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
   Cannon: 4, // Source Chain is an L2, Destination Chain is an L2 using Cannon
   HyperProver: 5, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
+  ArbitrumNitro: 6, // Source Chain is an L2 Destination Chain is an L2 using Arbitrum Nitro
   0: 'Self',
   1: 'Settlement',
   2: 'SettlementL3',
   3: 'Bedrock',
   4: 'Cannon',
   5: 'HyperProver',
+  6: 'ArbitrumNitro',
 }
 
 const settlementTypes: any = {
@@ -66,7 +68,7 @@ const networks: any = {
     chainId: networkIds.sepolia,
     alchemyNetwork: 'sepolia',
     proving: {
-      mechanism: provingMechanisms.settlement,
+      mechanism: provingMechanisms.Settlement,
       l1BlockAddress: '0x0000000000000000000000000000000000000000',
       l2l1MessageParserAddress: '0x0000000000000000000000000000000000000000',
       outputRootVersionNumber: 0,
@@ -107,7 +109,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
     proving: {
-      mechanism: provingMechanisms.cannon,
+      mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
@@ -144,7 +146,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
     proving: {
-      mechanism: provingMechanisms.cannon,
+      mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
@@ -190,7 +192,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
     proving: {
-      mechanism: provingMechanisms.bedrock,
+      mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
@@ -235,7 +237,7 @@ const deploymentConfigs = {
   sepoliaSettlement: {
     chainConfigurationKey: {
       chainId: networkIds.sepolia,
-      provingMechanism: provingMechanisms.settlement, // provingMechanism
+      provingMechanism: provingMechanisms.Settlement, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -250,7 +252,7 @@ const deploymentConfigs = {
   sepoliaSettlementL3: {
     chainConfigurationKey: {
       chainId: networkIds.sepolia,
-      provingMechanism: provingMechanisms.settlementL3, // provingMechanism
+      provingMechanism: provingMechanisms.SettlementL3, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -265,7 +267,7 @@ const deploymentConfigs = {
   baseSepoliaSettlement: {
     chainConfigurationKey: {
       chainId: networkIds.baseSepolia,
-      provingMechanism: provingMechanisms.settlement, // provingMechanism
+      provingMechanism: provingMechanisms.Settlement, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -281,7 +283,7 @@ const deploymentConfigs = {
   baseSepoliaSelf: {
     chainConfigurationKey: {
       chainId: networkIds.baseSepolia,
-      provingMechanism: provingMechanisms.self, // provingMechanism
+      provingMechanism: provingMechanisms.Self, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -297,7 +299,7 @@ const deploymentConfigs = {
   baseSepoliaCannon: {
     chainConfigurationKey: {
       chainId: networkIds.baseSepolia,
-      provingMechanism: provingMechanisms.cannon, // provingMechanism
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -313,7 +315,7 @@ const deploymentConfigs = {
   optimismSepoliaCannon: {
     chainConfigurationKey: {
       chainId: networkIds.optimismSepolia,
-      provingMechanism: provingMechanisms.cannon, // provingMechanism
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -331,7 +333,7 @@ const deploymentConfigs = {
   ecoTestnetBedrock: {
     chainConfigurationKey: {
       chainId: networkIds.ecoTestnet,
-      provingMechanism: provingMechanisms.bedrock, // provingMechanism
+      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -347,7 +349,7 @@ const deploymentConfigs = {
   hardhatSelf: {
     chainConfigurationKey: {
       chainId: networkIds.hardhat,
-      provingMechanism: provingMechanisms.self, // provingMechanism
+      provingMechanism: provingMechanisms.Self, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -363,7 +365,7 @@ const deploymentConfigs = {
   hardhatBedrock: {
     chainConfigurationKey: {
       chainId: networkIds.hardhat,
-      provingMechanism: provingMechanisms.bedrock, // provingMechanism
+      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -379,7 +381,7 @@ const deploymentConfigs = {
   hardhatCannon: {
     chainConfigurationKey: {
       chainId: networkIds.hardhat,
-      provingMechanism: provingMechanisms.cannon, // provingMechanism
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,

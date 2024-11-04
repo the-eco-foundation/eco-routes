@@ -29,20 +29,20 @@ const actors: any = {
 }
 
 const provingMechanisms: any = {
-  self: 0, // Destination is Self
-  settlement: 1, // Source Chain is an L2, Destination is A L1 Settlement Chain
-  settlementL3: 2, // Source Chain is an L3, Destination is a L2 Settlement Chain
-  bedrock: 3, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
-  cannon: 4, // Source Chain is an L2, Destination Chain is an L2 using Cannon
-  hyperProver: 5, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
-  arbitrumNitro: 6, // Source Chain is an L2 Destination Chain is an L2 using Arbitrum Nitro
-  0: 'self',
-  1: 'settlement',
-  2: 'settlementL3',
-  3: 'bedrock',
-  4: 'cannon',
-  5: 'hyperProver',
-  6: 'arbitrumNitro',
+  Self: 0, // Destination is Self
+  Settlement: 1, // Source Chain is an L2, Destination is A L1 Settlement Chain
+  SettlementL3: 2, // Source Chain is an L3, Destination is a L2 Settlement Chain
+  Bedrock: 3, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
+  Cannon: 4, // Source Chain is an L2, Destination Chain is an L2 using Cannon
+  HyperProver: 5, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
+  ArbitrumNitro: 6, // Source Chain is an L2 Destination Chain is an L2 using Arbitrum Nitro
+  0: 'Self',
+  1: 'Settlement',
+  2: 'SettlementL3',
+  3: 'Bedrock',
+  4: 'Cannon',
+  5: 'HyperProver',
+  6: 'ArbitrumNitro',
 }
 
 const settlementTypes: any = {
@@ -69,7 +69,7 @@ const networks: any = {
     chainId: networkIds.mainnet,
     alchemyNetwork: 'mainnet',
     proving: {
-      mechanism: provingMechanisms.settlement,
+      mechanism: provingMechanisms.Settlement,
       l1BlockAddress: ethers.ZeroAddress,
       l2l1MessageParserAddress: ethers.ZeroAddress,
       outputRootVersionNumber: 0,
@@ -110,7 +110,7 @@ const networks: any = {
     },
     hyperproverContractAddress: '0x9bFceD7B2bbE10Bcc85e4bF16dB7272dc0c2fc16',
     proving: {
-      mechanism: provingMechanisms.cannon,
+      mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
@@ -145,7 +145,7 @@ const networks: any = {
     },
     hyperproverContractAddress: '0x9d532072e79D578Ea7C83F340b86E7148333CAaA',
     proving: {
-      mechanism: provingMechanisms.cannon,
+      mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
@@ -188,7 +188,7 @@ const networks: any = {
     },
     hyperproverContractAddress: '0x6A9901b8Ecf763FC6A0Dd9ced9C7D597A0f68394',
     proving: {
-      mechanism: provingMechanisms.bedrock,
+      mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
@@ -247,7 +247,7 @@ const networks: any = {
       counter: 0,
     },
     proving: {
-      mechanism: provingMechanisms.bedrock,
+      mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
@@ -269,7 +269,7 @@ const deploymentConfigs = {
   mainnetSettlement: {
     chainConfigurationKey: {
       chainId: networkIds.mainnet,
-      provingMechanism: provingMechanisms.settlement, // provingMechanism
+      provingMechanism: provingMechanisms.Settlement, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -284,7 +284,7 @@ const deploymentConfigs = {
   mainnetSettlementL3: {
     chainConfigurationKey: {
       chainId: networkIds.mainnet,
-      provingMechanism: provingMechanisms.settlementL3, // provingMechanism
+      provingMechanism: provingMechanisms.SettlementL3, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -299,7 +299,7 @@ const deploymentConfigs = {
   baseSettlement: {
     chainConfigurationKey: {
       chainId: networkIds.base,
-      provingMechanism: provingMechanisms.settlement, // provingMechanism
+      provingMechanism: provingMechanisms.Settlement, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -314,7 +314,7 @@ const deploymentConfigs = {
   baseSelf: {
     chainConfigurationKey: {
       chainId: networkIds.base,
-      provingMechanism: provingMechanisms.self, // provingMechanism
+      provingMechanism: provingMechanisms.Self, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -329,7 +329,7 @@ const deploymentConfigs = {
   baseCannon: {
     chainConfigurationKey: {
       chainId: networkIds.base,
-      provingMechanism: provingMechanisms.cannon, // provingMechanism
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -344,7 +344,7 @@ const deploymentConfigs = {
   optimismCannon: {
     chainConfigurationKey: {
       chainId: networkIds.optimism,
-      provingMechanism: provingMechanisms.cannon, // provingMechanism
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -360,7 +360,7 @@ const deploymentConfigs = {
   ecoTestnetBedrock: {
     chainConfigurationKey: {
       chainId: networkIds.ecoTestnet,
-      provingMechanism: provingMechanisms.bedrock, // provingMechanism
+      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -376,7 +376,7 @@ const deploymentConfigs = {
   mantleBedrock: {
     chainConfigurationKey: {
       chainId: networkIds.mantle,
-      provingMechanism: provingMechanisms.bedrock, // provingMechanism
+      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -446,7 +446,7 @@ const routes: any = [
           address: networks.base.inbox.address,
           variableName: 'baseInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.settlementL3,
+        provingMechanism: provingMechanisms.SettlementL3,
         settlementTypes: settlementTypes.finalized,
       },
     },
@@ -491,7 +491,7 @@ const routes: any = [
           variableName: 'optimismInboxContractSolver',
         },
       },
-      provingMechanism: provingMechanisms.cannon,
+      provingMechanism: provingMechanisms.Cannon,
       settlementTypes: settlementTypes.finalized,
     },
     intent: {
@@ -535,7 +535,7 @@ const routes: any = [
           variableName: 'mantleInboxContractSolver',
         },
       },
-      provingMechanism: provingMechanisms.bedrock,
+      provingMechanism: provingMechanisms.Bedrock,
       settlementTypes: settlementTypes.finalized,
     },
     intent: {
@@ -578,7 +578,7 @@ const routes: any = [
           address: networks.optimism.inbox.address,
           variableName: 'optimismInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.cannon,
+        provingMechanism: provingMechanisms.Cannon,
         settlementTypes: settlementTypes.finalized,
       },
     },
@@ -622,7 +622,7 @@ const routes: any = [
           address: networks.helix.inbox.address,
           variableName: 'helixInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.bedrock,
+        provingMechanism: provingMechanisms.Bedrock,
         settlementTypes: settlementTypes.finalized,
       },
     },
@@ -666,7 +666,7 @@ const routes: any = [
           address: networks.mantle.inbox.address,
           variableName: 'optimismInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.bedrock,
+        provingMechanism: provingMechanisms.Bedrock,
         settlementTypes: settlementTypes.finalized,
       },
     },
@@ -710,7 +710,7 @@ const routes: any = [
           address: networks.helix.inbox.address,
           variableName: 'helixInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.bedrock,
+        provingMechanism: provingMechanisms.Bedrock,
         settlementTypes: settlementTypes.finalized,
       },
     },
@@ -754,7 +754,7 @@ const routes: any = [
           address: networks.base.inbox.address,
           variableName: 'baseInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.cannon,
+        provingMechanism: provingMechanisms.Cannon,
         settlementTypes: settlementTypes.finalized,
       },
     },
@@ -798,7 +798,7 @@ const routes: any = [
           address: networks.mantle.inbox.address,
           variableName: 'mantleInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.bedrock,
+        provingMechanism: provingMechanisms.Bedrock,
         settlementTypes: settlementTypes.finalized,
       },
     },
@@ -842,7 +842,7 @@ const routes: any = [
           address: networks.helix.inbox.address,
           variableName: 'helixInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.bedrock,
+        provingMechanism: provingMechanisms.Bedrock,
         settlementTypes: settlementTypes.finalized,
       },
     },
@@ -886,7 +886,7 @@ const routes: any = [
           address: networks.base.inbox.address,
           variableName: 'baseInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.cannon,
+        provingMechanism: provingMechanisms.Cannon,
         settlementTypes: settlementTypes.finalized,
       },
     },
@@ -930,7 +930,7 @@ const routes: any = [
           address: networks.optimism.inbox.address,
           variableName: 'optimismInboxContractSolver',
         },
-        provingMechanism: provingMechanisms.cannon,
+        provingMechanism: provingMechanisms.Cannon,
         settlementTypes: settlementTypes.finalized,
       },
     },
