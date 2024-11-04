@@ -66,7 +66,7 @@ const networks: any = {
     chainId: networkIds.sepolia,
     alchemyNetwork: 'sepolia',
     proving: {
-      mechanism: provingMechanisms.Settlement,
+      mechanism: provingMechanisms.settlement,
       l1BlockAddress: '0x0000000000000000000000000000000000000000',
       l2l1MessageParserAddress: '0x0000000000000000000000000000000000000000',
       outputRootVersionNumber: 0,
@@ -107,7 +107,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
     proving: {
-      mechanism: provingMechanisms.Cannon,
+      mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
@@ -144,7 +144,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
     proving: {
-      mechanism: provingMechanisms.Cannon,
+      mechanism: provingMechanisms.cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       outputRootVersionNumber: 0,
@@ -190,7 +190,7 @@ const networks: any = {
     },
     hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
     proving: {
-      mechanism: provingMechanisms.Bedrock,
+      mechanism: provingMechanisms.bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
@@ -235,7 +235,7 @@ const deploymentConfigs = {
   sepoliaSettlement: {
     chainConfigurationKey: {
       chainId: networkIds.sepolia,
-      provingMechanism: provingMechanisms.Settlement, // provingMechanism
+      provingMechanism: provingMechanisms.settlement, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -250,7 +250,7 @@ const deploymentConfigs = {
   sepoliaSettlementL3: {
     chainConfigurationKey: {
       chainId: networkIds.sepolia,
-      provingMechanism: provingMechanisms.SettlementL3, // provingMechanism
+      provingMechanism: provingMechanisms.settlementL3, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -265,7 +265,7 @@ const deploymentConfigs = {
   baseSepoliaSettlement: {
     chainConfigurationKey: {
       chainId: networkIds.baseSepolia,
-      provingMechanism: provingMechanisms.Settlement, // provingMechanism
+      provingMechanism: provingMechanisms.settlement, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -281,7 +281,7 @@ const deploymentConfigs = {
   baseSepoliaSelf: {
     chainConfigurationKey: {
       chainId: networkIds.baseSepolia,
-      provingMechanism: provingMechanisms.Self, // provingMechanism
+      provingMechanism: provingMechanisms.self, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -297,7 +297,7 @@ const deploymentConfigs = {
   baseSepoliaCannon: {
     chainConfigurationKey: {
       chainId: networkIds.baseSepolia,
-      provingMechanism: provingMechanisms.Cannon, // provingMechanism
+      provingMechanism: provingMechanisms.cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -313,7 +313,7 @@ const deploymentConfigs = {
   optimismSepoliaCannon: {
     chainConfigurationKey: {
       chainId: networkIds.optimismSepolia,
-      provingMechanism: provingMechanisms.Cannon, // provingMechanism
+      provingMechanism: provingMechanisms.cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -331,7 +331,7 @@ const deploymentConfigs = {
   ecoTestnetBedrock: {
     chainConfigurationKey: {
       chainId: networkIds.ecoTestnet,
-      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
+      provingMechanism: provingMechanisms.bedrock, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -347,7 +347,7 @@ const deploymentConfigs = {
   hardhatSelf: {
     chainConfigurationKey: {
       chainId: networkIds.hardhat,
-      provingMechanism: provingMechanisms.Self, // provingMechanism
+      provingMechanism: provingMechanisms.self, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -363,7 +363,7 @@ const deploymentConfigs = {
   hardhatBedrock: {
     chainConfigurationKey: {
       chainId: networkIds.hardhat,
-      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
+      provingMechanism: provingMechanisms.bedrock, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
@@ -379,7 +379,7 @@ const deploymentConfigs = {
   hardhatCannon: {
     chainConfigurationKey: {
       chainId: networkIds.hardhat,
-      provingMechanism: provingMechanisms.Cannon, // provingMechanism
+      provingMechanism: provingMechanisms.cannon, // provingMechanism
     },
     chainConfiguration: {
       exists: true,

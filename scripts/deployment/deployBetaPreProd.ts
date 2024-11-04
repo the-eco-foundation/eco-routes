@@ -10,13 +10,13 @@ import {
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET-JW2'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD-JW3'))
 
 console.log('Deploying to Network: ', network.name)
 let proverAddress = ''
-let intentSourceAddress = '0x1C3dc053C8aBA45129059744bE5fF116156EFF80'
-let inboxAddress = '0x6015110767b01eDbc569a9Ad481dA7F2Cf78Bcb3'
-let hyperProverAddress = '0x9496532052BBe0e262Af0b76cC9BD528e9A8b010'
+let intentSourceAddress = ''
+let inboxAddress = ''
+let hyperProverAddress = ''
 // Set the config for the chain we are deploying to
 let config
 let chainConfig
