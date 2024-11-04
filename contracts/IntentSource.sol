@@ -56,7 +56,6 @@ contract IntentSource is IIntentSource {
     mapping(bytes32 intenthash => Intent) public intents;
 
     // last withdrawal block
-
     uint256 public lastWithdrawalBlock;
 
     /**
