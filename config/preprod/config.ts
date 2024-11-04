@@ -357,20 +357,19 @@ const deploymentConfigs = {
       finalityDelaySeconds: networks.optimism.proving.finalityDelaySeconds,
     },
   },
-  ecoTestnetBedrock: {
+  helixBedrock: {
     chainConfigurationKey: {
-      chainId: networkIds.ecoTestnet,
+      chainId: networkIds.helix,
       provingMechanism: provingMechanisms.Bedrock, // provingMechanism
     },
     chainConfiguration: {
       exists: true,
-      settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
-      settlementContract: networks.ecoTestnet.proving.settlementChain.contract,
-      blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
-      outputRootVersionNumber:
-        networks.ecoTestnet.proving.outputRootVersionNumber,
-      provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
-      finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
+      settlementChainId: networks.helix.proving.settlementChain.id,
+      settlementContract: networks.helix.proving.settlementChain.contract,
+      blockhashOracle: networks.helix.proving.l1BlockAddress, // blockhashOracle
+      outputRootVersionNumber: networks.helix.proving.outputRootVersionNumber,
+      provingTimeSeconds: networks.helix.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.helix.proving.finalityDelaySeconds,
     },
   },
   mantleBedrock: {
@@ -396,27 +395,27 @@ const deploymentChainConfigs = {
     deploymentConfigs.baseSelf,
     deploymentConfigs.baseCannon,
     deploymentConfigs.optimismCannon,
-    deploymentConfigs.ecoTestnetBedrock,
+    deploymentConfigs.helixBedrock,
     deploymentConfigs.mantleBedrock,
   ],
   optimism: [
     deploymentConfigs.mainnetSettlement,
     deploymentConfigs.baseCannon,
-    deploymentConfigs.ecoTestnetBedrock,
+    deploymentConfigs.helixBedrock,
     deploymentConfigs.optimismCannon,
     deploymentConfigs.mantleBedrock,
   ],
-  ecoTestnet: [
+  helix: [
     deploymentConfigs.mainnetSettlementL3,
     deploymentConfigs.baseSettlement,
     deploymentConfigs.optimismCannon,
-    deploymentConfigs.ecoTestnetBedrock,
+    deploymentConfigs.helixBedrock,
     deploymentConfigs.mantleBedrock,
   ],
   mantle: [
     deploymentConfigs.mainnetSettlement,
     deploymentConfigs.baseCannon,
-    deploymentConfigs.ecoTestnetBedrock,
+    deploymentConfigs.helixBedrock,
     deploymentConfigs.optimismCannon,
     deploymentConfigs.mantleBedrock,
   ],

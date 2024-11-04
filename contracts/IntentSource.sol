@@ -55,9 +55,6 @@ contract IntentSource is IIntentSource {
     // stores the intents
     mapping(bytes32 intenthash => Intent) public intents;
 
-    // last withdrawal block
-    uint256 public lastWithdrawalBlock;
-
     /**
      * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs to be redeployed.
      * _minimumDuration the minimum duration of an intent originating on this chain
@@ -172,9 +169,6 @@ contract IntentSource is IIntentSource {
             uint256 len = intent.rewardTokens.length;
             for (uint256 i = 0; i < len; i++) {
                 IERC20(intent.rewardTokens[i]).transfer(withdrawTo, intent.rewardAmounts[i]);
-            }
-            if (lastWithdrawalBlock > block.number) {
-                lastWithdrawalBlock = block.number;
             }
             emit Withdrawal(_hash, withdrawTo);
         } else {

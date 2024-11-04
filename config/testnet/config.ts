@@ -158,7 +158,7 @@ const networks: any = {
         id: networkIds.sepolia,
         // Dispute Game Factory address
         contract: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
-        // Old L2 Ourput Oracle Address
+        // Old L2 Output Oracle Address
         // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
       },
       provingTimeSeconds: 302400,
@@ -237,6 +237,8 @@ const networks: any = {
         // Old L2 Ourput Oracle Address
         // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
       },
+      provingTimeSeconds: 302400,
+      finalityDelaySeconds: 604800,
     },
     // The following destination chains are useful for proving
     // destinationChains: [
@@ -261,16 +263,18 @@ const networks: any = {
     },
     proving: {
       mechanism: provingMechanisms.Bedrock,
-      l1BlockAddress: '',
-      l2l1MessageParserAddress: '',
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
       settlementChain: {
-        network: 'mainnet',
-        id: networkIds.mainnet,
+        network: networkIds[11155111],
+        id: networkIds.sepolia,
         // L2 Output Oracle Address
         contract: '0x4121dc8e48Bc6196795eb4867772A5e259fecE07',
       },
+      provingTimeSeconds: 302400,
+      finalityDelaySeconds: 604800,
     },
     usdcAddress: '',
     hyperlaneMailboxAddress: '',
@@ -391,6 +395,23 @@ const deploymentConfigs = {
       finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
     },
   },
+  mantleSepoliaBedrock: {
+    chainConfigurationKey: {
+      chainId: networkIds.mantleSepolia,
+      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.mantleSepolia.proving.settlementChain.id,
+      settlementContract:
+        networks.mantleSepolia.proving.settlementChain.contract,
+      blockhashOracle: networks.mantleSepolia.proving.l1BlockAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.mantleSepolia.proving.outputRootVersionNumber,
+      provingTimeSeconds: networks.mantleSepolia.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.mantleSepolia.proving.finalityDelaySeconds,
+    },
+  },
 }
 
 const deploymentChainConfigs = {
@@ -400,18 +421,28 @@ const deploymentChainConfigs = {
     deploymentConfigs.baseSepoliaCannon,
     deploymentConfigs.optimismSepoliaCannon,
     deploymentConfigs.ecoTestnetBedrock,
+    deploymentConfigs.mantleSepoliaBedrock,
   ],
   optimismSepolia: [
     deploymentConfigs.sepoliaSettlement,
     deploymentConfigs.baseSepoliaCannon,
     deploymentConfigs.ecoTestnetBedrock,
     deploymentConfigs.optimismSepoliaCannon,
+    deploymentConfigs.mantleSepoliaBedrock,
   ],
   ecoTestnet: [
     deploymentConfigs.sepoliaSettlementL3,
     deploymentConfigs.baseSepoliaSettlement,
     deploymentConfigs.optimismSepoliaCannon,
     deploymentConfigs.ecoTestnetBedrock,
+    deploymentConfigs.mantleSepoliaBedrock,
+  ],
+  mantleSepolia: [
+    deploymentConfigs.sepoliaSettlement,
+    deploymentConfigs.baseSepoliaCannon,
+    deploymentConfigs.ecoTestnetBedrock,
+    deploymentConfigs.optimismSepoliaCannon,
+    deploymentConfigs.mantleSepoliaBedrock,
   ],
 }
 

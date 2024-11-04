@@ -10,7 +10,7 @@ import {
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET-JW3'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET-JW4'))
 
 console.log('Deploying to Network: ', network.name)
 let proverAddress = ''
@@ -33,10 +33,19 @@ switch (networkName) {
     config = networks.ecoTestnet
     chainConfig = deploymentChainConfigs.ecoTestnet
     break
+  case 'mantleSepolia':
+    config = networks.mantleSepolia
+    chainConfig = deploymentChainConfigs.mantleSepolia
+    break
+  case 'arbitrumSepolia':
+    config = networks.arbitrumSepolia
+    chainConfig = deploymentChainConfigs.arbitrumSepolia
+    break
   default:
     break
 }
-// console.log('chainConfig: ', chainConfig)
+console.log('chainConfig: ', chainConfig)
+console.log('config: ', config)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
