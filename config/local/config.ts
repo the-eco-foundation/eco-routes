@@ -156,7 +156,7 @@ const networks: any = {
         id: networkIds.sepolia,
         // Dispute Game Factory address
         contract: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
-        // Old L2 Ourput Oracle Address
+        // Old L2 Output Oracle Address
         // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
       },
       provingTimeSeconds: 302400,
