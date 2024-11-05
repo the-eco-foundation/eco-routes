@@ -36,7 +36,7 @@ A `User` initiates a cross-chain transaction by creating an intent. Put simply, 
 
 ## Components
 
-Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox` and `Prover`.
+Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox`, and `Prover`s.
 
 ### Intent Creation / Settlement
 
@@ -48,13 +48,13 @@ Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `
 
 ### Intent Proving
 
-Intent proving lives on the `Prover`, which is on the source chain. `Provers` are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it.
+Intent proving lives on the `Prover` contracts, which live on the source chain. `Provers` are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it. There are currently two types of provers: StorageProvers (`Prover.sol`), which use storage proofs to verify the fulfillment of an intent, and HyperProvers(`HyperProver.sol`), which utilize a Hyperlane bridge in verifying intent fulfillment. 
 
 **See [contracts](/contracts) for a detailed API documentation**
 
 ## Future Work
 
-Fully-operational end-to-end tests are currently under development. We are also working on services for streamlining proving and solving functionalities. Additionally, we intend to build out support for additional chains.
+Fully-operational end-to-end tests are currently under development. We are also working on services for streamlining and batching prover and solver functionalities. Additionally, we intend to build out support for additional chains. 
 
 ## Usage
 
