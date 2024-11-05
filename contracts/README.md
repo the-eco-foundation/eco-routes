@@ -19,7 +19,7 @@ Attributes:
 
 ## Intent Creation / Settlement
 
-Intent creation and filler settlement processes both exist on `IntentSource.sol` on the source chain, and is where the full intent lifecycle will start and end. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
+This contract is where the intent lifecycle will start and end. Intent creation and settlement processes both exist on `IntentSource.sol` on the source chain. Both `Users` and `Fillers` interact with this contract, Users to create intents and `Fillers` to claim their reward after fulfillment has been proven.
 
 ### Events
 
@@ -36,6 +36,7 @@ Attributes:
 - `_rewardTokens` (address[]) the addresses of reward tokens
 - `_rewardAmounts` (uint256[]) the amounts of reward tokens
 - `_expiryTime` (uint256) the time by which the storage proof must have been created in order for the filler to redeem rewards.
+- `_prover` (address) the prover that will verify whether or not this intent has been fulfilled on the destination chain.
 
 <h4><ins>Withdrawal</ins></h4>
 <h5>Emitted on a successful call to withdrawReward</h5>
@@ -69,11 +70,11 @@ Attributes:
 
 - `_hash` (bytes32) the hash of the intent on which withdraw is being attempted
 
-<ins>Security:</ins> This method can be called by anyone, but the caller has no specific rights. Whether or not this method succeeds and who receives the funds if it does depend solely on the intent's proven status and expiry time.
+<ins>Security:</ins> This method can be called by anyone, but the caller has no specific rights. Whether or not this method succeeds and who receives the funds if it does depend solely on the intent's proven status and expiry time, as well as the claimant address specified by the solver on the Inbox contract on fulfillment.
 
 ## Intent Fulfillment / Execution
 
-Intent fulfillment lives on `Inbox.sol`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
+Intent fulfillment lives on `Inbox.sol`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders. `Fillers` may have to call different fulfill methods depending on the prover address specified in the intent - a HyperProver address necessitates a call to either FulfillHyperInstant or FulfillHyperBatched, and a StorageProver necessitates a call to fulfillStorage. See the Intent Proving section for more information.
 
 ### Events
 

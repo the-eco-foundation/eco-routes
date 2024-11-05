@@ -139,6 +139,7 @@ contract Inbox is IInbox, Ownable {
      * @param _prover The address of the hyperprover on the source chain
      * @dev solvers can expect this proof to be considerably less expensive than hyperinstant, but it will take longer. 
      * @dev the batch will only be dispatched when sendBatch is called
+     * @dev this method is not currently supported by Eco's solver services, but is included for completeness. 
      */
     function fulfillHyperBatched(
         uint256 _sourceChainID,
