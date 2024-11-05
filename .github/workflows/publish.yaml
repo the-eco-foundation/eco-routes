@@ -99,7 +99,10 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install
-
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: versionPackage #need to reset the version to the latest tag or it'll fail to deploy
       # - name: Build Project
       #   uses: borales/actions-yarn@v4
       #   with:
