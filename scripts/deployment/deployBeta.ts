@@ -4,13 +4,14 @@ import {
   networks,
   deploymentChainConfigs,
 } from '../../config/testnet/config'
+import { chain } from 'lodash'
 
 // TODO: remove the await tx.wait() and update queries for deployed contracts
 // Notes: Singleton Factory address (all chains): 0xce0042B868300000d44A59004Da54A005ffdcf9f
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET-JW4'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('TESTNET-JW8'))
 
 console.log('Deploying to Network: ', network.name)
 let proverAddress = ''
@@ -76,10 +77,11 @@ async function main() {
   // ])
   if (proverAddress === '') {
     const proverReceipt = await singletonDeployer.deploy(proverTx.data, salt, {
-      gaslimit: 1000000,
+      gaslimit: chainConfig.gasLimit,
     })
     await proverReceipt.wait()
     console.log('prover deployed')
+    console.log('proverReceipt: ', proverReceipt)
 
     proverAddress = (
       await singletonDeployer.queryFilter(
@@ -149,10 +151,10 @@ async function main() {
 
   // Deploy the hyperProver
   if (hyperProverAddress === '') {
-    console.log(
-      'config.hyperlaneMailboxAddress: ',
-      config.hyperlaneMailboxAddress,
-    )
+    // console.log(
+    //   'config.hyperlaneMailboxAddress: ',
+    //   config.hyperlaneMailboxAddress,
+    // )
     console.log('inboxAddress: ', inboxAddress)
     const hyperProverTx = await hyperProverFactory.getDeployTransaction(
       config.hyperlaneMailboxAddress,
