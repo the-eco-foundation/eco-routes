@@ -130,7 +130,7 @@ jobs:
           retention-days: 1
   publish:
     name: Publish to NPM
-    needs: prepack
+    needs: deploy
     runs-on: ubuntu-latest
     permissions:
       contents: read
