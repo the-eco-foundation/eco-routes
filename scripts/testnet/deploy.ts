@@ -96,7 +96,7 @@ let protocolDeploy : ProtocolDeploy = {
   intentSourceAddress: zeroAddress,
   inboxAddress: zeroAddress,
   hyperProverAddress: zeroAddress,
-  initialSalt: 'HANDOFFstoyan4'
+  initialSalt: 'HANDOFFstoyan5'
 }
 
 if (process.env.DEPLOY_CI === 'true') {
