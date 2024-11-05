@@ -1,3 +1,6 @@
+import { zeroAddress } from "viem"
+import { DeployNetwork } from "../../scripts/deloyProtocol"
+
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0,
@@ -70,17 +73,19 @@ const intent: any = {
   duration: 3600,
 }
 
-const networks: any = {
-  sepolia: {
-    network: 'sepolia',
-    chainId: networkIds.sepolia,
-    // The following settlement contracts are useful for event listening
-    settlementContracts: {
-      optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
-      baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
-      // arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia Rollup Admin Contract
-    },
-  },
+
+
+const networks: Record<any, DeployNetwork> = {
+  // sepolia: {
+  //   network: 'sepolia',
+  //   chainId: networkIds.sepolia,
+  //   // The following settlement contracts are useful for event listening
+  //   settlementContracts: {
+  //     optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
+  //     baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
+  //     // arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia Rollup Admin Contract
+  //   },
+  // },
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
@@ -246,7 +251,7 @@ const networks: any = {
       },
     },
     usdcAddress: '',
-    hyperlaneMailboxAddress: '',
+    hyperlaneMailboxAddress: zeroAddress,
     gasLimit: 25000000000,
   },
 }

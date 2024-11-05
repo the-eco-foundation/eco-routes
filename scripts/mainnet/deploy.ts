@@ -128,7 +128,7 @@ async function main() {
       optimismChainConfiguration,
       helixChainConfiguration,
       //   arbitrumChainConfiguration,
-      mantleChainConfiguration,
+      // mantleChainConfiguration,
     ])
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
       gasLimit: localGasLimit,
@@ -188,7 +188,7 @@ async function main() {
       inboxOwnerSigner,
     )
 
-    inbox
+    await inbox
       .connect(inboxOwnerSigner)
       .setMailbox(deployNetwork.hyperlaneMailboxAddress)
   }
@@ -234,7 +234,7 @@ async function main() {
             optimismChainConfiguration,
             helixChainConfiguration,
             // arbitrumChainConfiguration,
-            mantleChainConfiguration,
+            // mantleChainConfiguration,
           ],
         ],
       })
