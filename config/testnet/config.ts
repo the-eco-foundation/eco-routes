@@ -558,6 +558,50 @@ const routes: any = [
       duration: intent.duration,
     },
   },
+  // ecoTestnet to mantleSepolia
+  {
+    source: {
+      chainId: networkIds.ecoTestnet,
+      providerName: 'ecoTestnetProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.ecoTestnet.intentSource.address,
+          variableName: 'ecoTestnetIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.ecoTestnet.proverContract.address,
+          variableName: 'ecoTestnetProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.mantleSepolia,
+      providerName: 'mantleSepoliaProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.mantleSepolia.inbox.address,
+          variableName: 'mantleSepoliaInboxContractSolver',
+        },
+      },
+      provingMechanism: provingMechanisms.Bedrock,
+      settlementTypes: settlementTypes.finalized,
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.ecoTestnet.usdcAddress,
+          variableName: 'ecoTestnetUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.mantleSepolia.usdcAddress,
+          variableName: 'mantleSepoliaUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // baseSepolia to optimismSepolia
   {
     source: {
@@ -646,6 +690,50 @@ const routes: any = [
       duration: intent.duration,
     },
   },
+  // baseSepolia to mantleSepolia
+  {
+    source: {
+      chainId: networkIds.baseSepolia,
+      providerName: 'baseSepoliaProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.baseSepolia.intentSource.address,
+          variableName: 'baseSepoliaIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.baseSepolia.proverContract.address,
+          variableName: 'baseSepoliaProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.mantleSepolia,
+      providerName: 'mantleSepoliaProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.mantleSepolia.inbox.address,
+          variableName: 'mantleSepoliaInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Bedrock,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.baseSepolia.usdcAddress,
+          variableName: 'baseSepoliaUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.mantleSepolia.usdcAddress,
+          variableName: 'mantleSepoliaUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // optimismSepolia to ecoTestnet
   {
     source: {
@@ -727,6 +815,182 @@ const routes: any = [
         targetToken: {
           address: networks.baseSepolia.usdcAddress,
           variableName: 'baseSepoliaUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+  // optimismSepolia to mantleSepolia
+  {
+    source: {
+      chainId: networkIds.optimismSepolia,
+      providerName: 'optimismSepoliaProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.optimismSepolia.intentSource.address,
+          variableName: 'optimismSepoliaIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.optimismSepolia.proverContract.address,
+          variableName: 'optimismSepoliaProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.mantleSepolia,
+      providerName: 'mantleSepoliaProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.mantleSepolia.inbox.address,
+          variableName: 'mantleSepoliaInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Bedrock,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.optimismSepolia.usdcAddress,
+          variableName: 'optimismSepoliaUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.mantleSepolia.usdcAddress,
+          variableName: 'mantleSepoliaUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+  // mantleSepolia to ecoTestnet
+  {
+    source: {
+      chainId: networkIds.mantleSepolia,
+      providerName: 'mantleSepoliaProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.mantleSepolia.intentSource.address,
+          variableName: 'mantleSepoliaIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.mantleSepolia.proverContract.address,
+          variableName: 'mantleSepoliaProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.ecoTestnet,
+      providerName: 'ecoTestnetProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.ecoTestnet.inbox.address,
+          variableName: 'ecoTestnetInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Bedrock,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.mantleSepolia.usdcAddress,
+          variableName: 'mantleSepoliaUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.ecoTestnet.usdcAddress,
+          variableName: 'ecoTestnetUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+  // mantleSepolia to baseSepolia
+  {
+    source: {
+      chainId: networkIds.mantleSepolia,
+      providerName: 'mantleSepoliaProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.mantleSepolia.intentSource.address,
+          variableName: 'mantleSepoliaIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.mantleSepolia.proverContract.address,
+          variableName: 'mantleSepoliaProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.baseSepolia,
+      providerName: 'baseSepoliaProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.baseSepolia.inbox.address,
+          variableName: 'baseSepoliaInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Cannon,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.mantleSepolia.usdcAddress,
+          variableName: 'mantleSepoliaUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.baseSepolia.usdcAddress,
+          variableName: 'baseSepoliaUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
+  // mantleSepolia to optimismSepolia
+  {
+    source: {
+      chainId: networkIds.mantleSepolia,
+      providerName: 'mantleSepoliaProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.mantleSepolia.intentSource.address,
+          variableName: 'mantleSepoliaIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.mantleSepolia.proverContract.address,
+          variableName: 'mantleSepoliaProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.optimismSepolia,
+      providerName: 'optimismSepoliaProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.optimismSepolia.inbox.address,
+          variableName: 'optimismSepoliaInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Cannon,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.mantleSepolia.usdcAddress,
+          variableName: 'mantleSepoliaUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.optimismSepolia.usdcAddress,
+          variableName: 'optimismSepoliaUSDCContractSolver',
         },
       },
       rewardAmounts: intent.rewardAmounts,

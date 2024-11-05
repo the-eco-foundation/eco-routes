@@ -663,7 +663,7 @@ const routes: any = [
       contracts: {
         inboxContract: {
           address: networks.mantle.inbox.address,
-          variableName: 'optimismInboxContractSolver',
+          variableName: 'mantleInboxContractSolver',
         },
         provingMechanism: provingMechanisms.Bedrock,
         settlementTypes: settlementTypes.finalized,
