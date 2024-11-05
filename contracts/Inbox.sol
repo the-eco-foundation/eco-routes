@@ -198,7 +198,7 @@ contract Inbox is IInbox, Ownable {
     /**
      * @notice wrapper method for the mailbox's quoteDispatch method
      * @param _sourceChainID the chainID of the source chain
-     * @param _messageBody the message body
+     * @param _messageBody the message body being sent over the bridge
      * @param _prover the address of the hyperprover on the source chain
      * @dev this method is used to determine the fee required for fulfillHyperInstant or sendBatch
      */

@@ -74,7 +74,7 @@ Attributes:
 
 ## Intent Fulfillment / Execution
 
-Intent fulfillment lives on `Inbox.sol`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders. `Fillers` may have to call different fulfill methods depending on the prover address specified in the intent - a HyperProver address necessitates a call to either FulfillHyperInstant or FulfillHyperBatched, and a StorageProver necessitates a call to fulfillStorage. See the Intent Proving section for more information.
+Intent fulfillment lives on `Inbox.sol`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders. `Fillers` may have to call different fulfill methods depending on the prover address specified in the intent - a HyperProver address necessitates a call to either FulfillHyperInstant or FulfillHyperBatched, and a StorageProver necessitates a call to fulfillStorage. See [Intent Proving](#Intent-Proving) for more information.
 
 ### Events
 
@@ -87,10 +87,38 @@ Attributes:
 - `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
 - `_claimant` (address) the address (on the source chain) that will receive the fulfilled intent's reward
 
+<h4><ins>ToBeProven</ins></h4>
+<h5>Emitted when an intent is ready to be proven via a storage prover</h5>
+
+Attributes:
+
+- `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
+- `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
+- `_claimant` (address) the address (on the source chain) that will receive the fulfilled intent's reward
+
+<h4><ins>HyperInstantFulfillment</ins></h4>
+<h5>Emitted when an intent is fulfilled with the instant hyperprover path</h5>
+
+Attributes:
+
+- `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
+- `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
+- `_claimant` (address) the address (on the source chain) that will receive the fulfilled intent's reward
+
+<h4><ins>AddToBatch</ins></h4>
+<h5>Emitted when an intent is added to a batch to be proven with the hyperprover</h5>
+
+Attributes:
+
+- `_hash` (bytes32) the hash of the intent, also the key to the intents mapping
+- `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
+- `_claimant` (address) the address (on the source chain) that will receive the fulfilled intent's reward
+- `_prover` (address) the address of the HyperProver these intents will be proven on
+
 ### Methods
 
-<h4><ins>fulfill</ins></h4>
-<h5> Allows a filler to fulfill an intent on its destination chain. The filler also gets to predetermine the address on the destination chain that will receive the reward on the intent's fulfillment and subsequent proof</h5>
+<h4><ins>fulfillStorage</ins></h4>
+<h5> Allows a filler to fulfill an intent on its destination chain to be proven by the StorageProver specified in the intent. The filler also gets to predetermine the address on the destination chain that will receive the reward tokens.</h5>
 
 Attributes:
 
@@ -103,6 +131,90 @@ Attributes:
 - `_expectedHash` (bytes32) the hash of the intent. Used to verify that the correct data is being input
 
 <ins>Security:</ins> This method can be called by anyone, but cannot be called again for the same intent, thus preventing a double fulfillment. This method executes arbitrary calls written by the intent creator on behalf of the Inbox contract - it is important that the caller be aware of what they are executing. The Inbox will be the msg.sender for these calls. \_sourceChainID, the destination's chainID, the inbox address, \_targets, \_data, \_expiryTime, and \_nonce are hashed together to form the intent's hash on the IntentSource - any incorrect inputs will result in a hash that differs from the original, and will prevent the intent's reward from being withdrawn (as this means the intent fulfilled differed from the one created). The \_expectedHash input exists only to help prevent this before fulfillment.
+
+<h4><ins>fulfillHyperInstant</ins></h4>
+<h5> Allows a filler to fulfill an intent on its destination chain to be proven by the HyperProver specified in the intent. After fulfilling the intent, this method packs the intentHash and claimant into a message and sends it over the Hyperlane bridge to the HyperProver on the source chain. The filler also gets to predetermine the address on the destination chain that will receive the reward tokens.</h5>
+
+Attributes:
+
+- `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
+- `_targets` (address[]) the address on the destination chain at which the instruction sets need to be executed
+- `_data` (bytes[]) the instructions to be executed on \_targets
+- `_expiryTime` (uint256) the timestamp at which the intent expires
+- `_nonce` (bytes32) the nonce of the calldata. Composed of the hash on the source chain of the global nonce and chainID
+- `_claimant` (address) the address that can claim the fulfilled intent's fee on the source chain
+- `_expectedHash` (bytes32) the hash of the intent. Used to verify that the correct data is being input
+- `_prover` (address) the address of the hyperProver on the source chain
+
+<ins>Security:</ins> This method inherits all of the security features in fulfillstorage. This method is also payable, as funds are required to use the hyperlane bridge.
+
+<h4><ins>fulfillHyperBatched</ins></h4>
+<h5> Allows a filler to fulfill an intent on its destination chain to be proven by the HyperProver specified in the intent. After fulfilling the intent, this method emits an event that indicates which intent was fulfilled. Fillers of hyperprover-destined intents will listen to these events and batch process them later on. The filler also gets to predetermine the address on the destination chain that will receive the reward tokens. Note: this method is currently not supported by Eco's solver services, but has been included for completeness. Work on services for this method is ongoing.</h5>
+
+Attributes:
+
+- `_sourceChainID` (uint256) the ID of the chain where the fulfilled intent originated
+- `_targets` (address[]) the address on the destination chain at which the instruction sets need to be executed
+- `_data` (bytes[]) the instructions to be executed on \_targets
+- `_expiryTime` (uint256) the timestamp at which the intent expires
+- `_nonce` (bytes32) the nonce of the calldata. Composed of the hash on the source chain of the global nonce and chainID
+- `_claimant` (address) the address that can claim the fulfilled intent's fee on the source chain
+- `_expectedHash` (bytes32) the hash of the intent. Used to verify that the correct data is being input
+- `_prover` (address) the address of the hyperProver on the source chain
+
+<ins>Security:</ins> This method inherits all of the security features in fulfillstorage.
+
+<h4><ins>sendBatch</ins></h4>
+
+<h5> Allows a filler to send a batch of HyperProver-destined intents over the HyperLane bridge. This reduces the cost per intent proven, as intents that would have had to be sent in separate messages are now consolidated into one. </h5>
+
+Attributes:
+
+- `_sourceChainID` (uint256) the chainID of the source chain
+- `_prover` (address) the address of the hyperprover on the source chain
+- `_intentHashes` (bytes32[]) the hashes of the intents to be proven
+
+<ins>Security:</ins> This method inherits all of the security features in fulfillstorage. This method is also payable, as funds are required to use the hyperlane bridge.
+
+<h4><ins>fetchFee</ins></h4>
+
+<h5> A passthrough method that calls the HyperLane Mailbox and fetches the cost of sending a given message. This method is used inside both the fulfillHyperInstant and sendBatch methods to ensure that the user has enough gas to send the message over HyperLane's bridge.</h5>
+
+Attributes:
+
+- `_sourceChainID` (uint256) the chainID of the source chain
+- `_messageBody` (bytes) the message body being sent over the bridge
+- `_prover` (address) the address of the hyperprover on the source chain
+
+<ins>Security:</ins> This method inherits all of the security features in fulfillstorage. This method is also payable, as funds are required to use the hyperlane bridge.
+
+<h4><ins>setMailbox</ins></h4>
+
+<h5>Sets the HyperLane Mailbox address to be used for all HyperProving fulfills.</h5>
+
+Attributes:
+
+- `_mailbox` (address) the address of the mailbox.
+
+<ins>Security:</ins> This method can only be called by the owner of the Inbox, and can only be called if the current mailbox address is the zero address. It is intended to be called at time of construction.
+
+<h4><ins>makeSolvingPublic</ins></h4>
+
+<h5>Opens up solving functionality to all addresses if it is currently restricted to a whitelist.</h5>
+
+<ins>Security:</ins> This method can only be called by the owner of the Inbox, and can only be called if solving is not currently public. There is no function to re-restrict solving - once it is public it cannot become private again. 
+
+<h4><ins>changeSolverWhitelist</ins></h4>
+
+<h5>Changes the solving permissions for a given address.</h5>
+
+Attributes:
+
+- `_solver` (address) the address of the solver whose permissions are being changed
+- `_canSolve`(bool) whether or not _solver will be able to solve after this method is called
+
+<ins>Security:</ins> This method can only be called by the owner of the Inbox. This method has no tangible effect if isSolvingPublic is true.
+
 
 ## Intent Proving
 
