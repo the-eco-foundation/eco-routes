@@ -132,7 +132,7 @@ async function main() {
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
       gasLimit: localGasLimit,
     })
-    // console.log(receipt.blockHash)
+
     proverAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,

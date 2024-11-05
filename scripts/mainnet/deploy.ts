@@ -95,8 +95,6 @@ const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
 
 console.log('Deploying to Network: ', network.name)
 
-// console.log(network)
-
 async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)

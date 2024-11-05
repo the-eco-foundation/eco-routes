@@ -106,7 +106,7 @@ const config: HardhatUserConfig = {
     },
     mantleSepolia: {
       chainId: 5003,
-      url: `https://mantle-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      url: `https://rpc.sepolia.mantle.xyz`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
   },
