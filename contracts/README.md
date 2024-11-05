@@ -115,6 +115,17 @@ Attributes:
 - `_claimant` (address) the address (on the source chain) that will receive the fulfilled intent's reward
 - `_prover` (address) the address of the HyperProver these intents will be proven on
 
+<h4><ins>SolvingIsPublic</ins></h4>
+<h5>Emitted when solving is made public</h5>
+
+<h4><ins>SolverWhitelistChanged</ins></h4>
+<h5>Emitted when the solver whitelist permissions are changed</h5>
+
+Attributes:
+
+- `_solver` (address) the address of the solver whose permissions are being changed
+- `_canSolve`(bool) whether or not _solver will be able to solve after this method is called
+
 ### Methods
 
 <h4><ins>fulfillStorage</ins></h4>
@@ -215,10 +226,54 @@ Attributes:
 
 <ins>Security:</ins> This method can only be called by the owner of the Inbox. This method has no tangible effect if isSolvingPublic is true.
 
+<h4><ins>drain</ins></h4>
+
+<h5>Transfers excess gas token out of the contract.</h5>
+
+Attributes:
+
+- `_destination` (address) the destination of the transferred funds
+
+<ins>Security:</ins> This method can only be called by the owner of the Inbox. This method is primarily for testing purposes.
+
 
 ## Intent Proving
 
-Intent proving lives on `Prover.sol`, which is on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` reads state from it. The methods in this contract are complex and require inputs that can be difficult to generate. In the future we will be building out services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. Please see the scripts directory for usage examples.
+Intent proving lives on `Prover.sol` and `HyperProver.sol`, which are on the source chain. `Prover`s are the parties that should be interacting with the `Prover` contract, but the `IntentSource` reads state from it. The methods in this contract are complex and require inputs that can be difficult to generate. In the future we will be building out services to assist with proving, as well as publishing an SDK for input generation and/or spinning up independent proving services. The `HyperProver` contract requires no `Prover` entity to interact with it, but is also read by the `IntentSource`. Please see the scripts directory for usage examples.
+
+## HyperProver (HyperProver.sol)
+
+### Events
+
+<h4><ins>IntentProven</ins></h4>
+<h5> emitted when an intent has been successfully proven</h5>
+
+Attributes:
+
+- `_hash` (bytes32) the hash of the intent
+- `_claimant` (address) the address that can claim this intent's rewards
+
+<h4><ins>IntentAlreadyProven</ins></h4>
+<h5> emitted when an attempt is made to re-prove an already-proven intent</h5>
+
+Attributes:
+
+- `_hash` (bytes32) the hash of the intent
+
+### Methods
+
+<h4><ins>handle</ins></h4>
+<h5>Called by the HyperLane Mailbox contract to finish the HyperProving process. This method parses the message sent via HyperLane into intent hashes and their corresponding claimant addresses, then writes them to the provenIntents mapping so that the IntentSource can read from them when a reward withdrawal is attempted.</h5>
+
+Attributes:
+
+- ` ` (uint32) this variable is not used, but is required by the interface. it is the chain ID of the intent's origin chain.
+- `_sender` (bytes32) the address that called dispatch() on the HyperLane Mailbox on the destination chain
+- `_messageBody` (bytes) the message body containing intent hashes and their corresponding claimants
+
+<ins>Security:</ins> This method is public but there are checks in place to ensure that it reverts unless msg.sender is the local hyperlane mailbox and _sender is the destination chain's inbox. This method has direct write access to the provenIntents mapping and, therefore, gates access to the rewards for hyperproven intents. 
+
+## Storage Prover (Prover.sol)
 
 ### Events
 
