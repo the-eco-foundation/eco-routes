@@ -124,7 +124,7 @@ Attributes:
 Attributes:
 
 - `_solver` (address) the address of the solver whose permissions are being changed
-- `_canSolve`(bool) whether or not _solver will be able to solve after this method is called
+- `_canSolve`(bool) whether or not \_solver will be able to solve after this method is called
 
 ### Methods
 
@@ -213,7 +213,7 @@ Attributes:
 
 <h5>Opens up solving functionality to all addresses if it is currently restricted to a whitelist.</h5>
 
-<ins>Security:</ins> This method can only be called by the owner of the Inbox, and can only be called if solving is not currently public. There is no function to re-restrict solving - once it is public it cannot become private again. 
+<ins>Security:</ins> This method can only be called by the owner of the Inbox, and can only be called if solving is not currently public. There is no function to re-restrict solving - once it is public it cannot become private again.
 
 <h4><ins>changeSolverWhitelist</ins></h4>
 
@@ -222,7 +222,7 @@ Attributes:
 Attributes:
 
 - `_solver` (address) the address of the solver whose permissions are being changed
-- `_canSolve`(bool) whether or not _solver will be able to solve after this method is called
+- `_canSolve`(bool) whether or not \_solver will be able to solve after this method is called
 
 <ins>Security:</ins> This method can only be called by the owner of the Inbox. This method has no tangible effect if isSolvingPublic is true.
 
@@ -235,7 +235,6 @@ Attributes:
 - `_destination` (address) the destination of the transferred funds
 
 <ins>Security:</ins> This method can only be called by the owner of the Inbox. This method is primarily for testing purposes.
-
 
 ## Intent Proving
 
@@ -271,7 +270,7 @@ Attributes:
 - `_sender` (bytes32) the address that called dispatch() on the HyperLane Mailbox on the destination chain
 - `_messageBody` (bytes) the message body containing intent hashes and their corresponding claimants
 
-<ins>Security:</ins> This method is public but there are checks in place to ensure that it reverts unless msg.sender is the local hyperlane mailbox and _sender is the destination chain's inbox. This method has direct write access to the provenIntents mapping and, therefore, gates access to the rewards for hyperproven intents. 
+<ins>Security:</ins> This method is public but there are checks in place to ensure that it reverts unless msg.sender is the local hyperlane mailbox and \_sender is the destination chain's inbox. This method has direct write access to the provenIntents mapping and, therefore, gates access to the rewards for hyperproven intents.
 
 ## Storage Prover (Prover.sol)
 
