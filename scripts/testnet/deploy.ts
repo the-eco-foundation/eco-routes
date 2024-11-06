@@ -1,41 +1,14 @@
-import { ethers, network } from 'hardhat'
+import { network } from 'hardhat'
 import { networks, actors } from '../../config/testnet/config'
 import { zeroAddress } from 'viem'
-import { isZeroAddress } from '../utils'
 import {
-  deployHyperProver,
-  deployInbox,
-  deployIntentSource,
-  DeployNetwork,
-  deployProver,
+  deployProtocol,
+  getDeployNetwork,
   ProtocolDeploy,
 } from '../deloyProtocol'
 import { getGitHash } from '../publish/gitUtils'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
-const networkName = network.name
-console.log('Deploying to Network: ', network.name)
-let deployNetwork: DeployNetwork
-switch (networkName) {
-  case 'baseSepolia':
-    deployNetwork = networks.baseSepolia
-    break
-  case 'optimismSepolia':
-    deployNetwork = networks.optimismSepolia
-    break
-  case 'optimismSepoliaBlockscout':
-    deployNetwork = networks.optimismSepolia
-    break
-  case 'ecoTestnet':
-    deployNetwork = networks.ecoTestnet
-    break
-  case 'arbitrumSepolia':
-    deployNetwork = networks.arbitrumSepolia
-    break
-  case 'mantleSepolia':
-    deployNetwork = networks.mantleSepolia
-    break
-}
 const baseSepoliaChainConfiguration = {
   chainId: networks.baseSepolia.chainId, // chainId
   chainConfiguration: {
@@ -103,77 +76,20 @@ const protocolDeploy: ProtocolDeploy = {
   intentSourceAddress: zeroAddress,
   inboxAddress: zeroAddress,
   hyperProverAddress: zeroAddress,
-  initialSalt: getGitHash(),
+  initialSalt: getGitHash(),// + Math.random().toString(),
 }
 
-if (process.env.DEPLOY_CI === 'true') {
-  console.log('Deploying for CI')
-}
-
-console.log(
-  `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${protocolDeploy.initialSalt})`,
-)
-const salt = ethers.keccak256(ethers.toUtf8Bytes(protocolDeploy.initialSalt))
-console.log('Deploying to Network: ', network.name)
-
-async function main() {
-  const [deployer] = await ethers.getSigners()
-  console.log('Deploying contracts with the account:', deployer.address)
-
-  const singletonDeployer = await ethers.getContractAt(
-    'Deployer',
-    '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
-  )
-
-  console.log('gasLimit:', deployNetwork.gasLimit)
-
-  console.log(`***************************************************`)
-  console.log(`** Deploying contracts to ${networkName} network **`)
-  console.log(`***************************************************`)
-
-  if (isZeroAddress(protocolDeploy.proverAddress)) {
-    await deployProver(salt, deployNetwork, singletonDeployer, [
-      baseSepoliaChainConfiguration,
-      optimismSepoliaChainConfiguration,
-      ecoTestnetChainConfiguration,
-      //   arbitrumSepoliaChainConfiguration,
-      // mantleSepoliaChainConfiguration,
-    ])
-  }
-
-  if (isZeroAddress(protocolDeploy.intentSourceAddress)) {
-    protocolDeploy.intentSourceAddress = await deployIntentSource(
-      deployNetwork,
-      salt,
-      singletonDeployer,
-    )
-  }
-
-  if (isZeroAddress(protocolDeploy.inboxAddress)) {
-    protocolDeploy.inboxAddress = await deployInbox(
-      deployNetwork,
-      deployer,
-      false,
-      [actors.solver],
-      salt,
-      singletonDeployer,
-    )
-  }
-
-  if (
-    isZeroAddress(protocolDeploy.hyperProverAddress) &&
-    !isZeroAddress(protocolDeploy.inboxAddress)
-  ) {
-    protocolDeploy.hyperProverAddress = await deployHyperProver(
-      deployNetwork,
-      protocolDeploy.inboxAddress,
-      salt,
-      singletonDeployer,
-    )
-  }
-}
-
-main().catch((error) => {
-  console.error(error)
-  process.exitCode = 1
-})
+deployProtocol(
+  protocolDeploy,
+  getDeployNetwork(network.name),
+  actors.solver,
+  [
+    baseSepoliaChainConfiguration,
+    optimismSepoliaChainConfiguration,
+    ecoTestnetChainConfiguration,
+    //   arbitrumSepoliaChainConfiguration,
+    // mantleSepoliaChainConfiguration,
+  ]).catch((error) => {
+    console.error(error)
+    process.exitCode = 1
+  })

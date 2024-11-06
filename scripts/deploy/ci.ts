@@ -12,9 +12,9 @@ const mainnetDep = [
 const sepoliaDep = mainnetDep.map((dep) => dep + 'Sepolia')
 
 export function deployContracts() {
-  // for (const dep of mainnetDep) {
-  //   callYarnCmd(dep)
-  // }
+  for (const dep of mainnetDep) {
+    callYarnCmd(dep)
+  }
   for (const dep of sepoliaDep) {
     callYarnCmd(dep)
   }
