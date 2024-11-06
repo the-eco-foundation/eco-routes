@@ -100,10 +100,10 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "yarn"
-      # - name: Install dependencies
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: install
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
       # - name: Install dependencies
       #   uses: borales/actions-yarn@v4
       #   with:
