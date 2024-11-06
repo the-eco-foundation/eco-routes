@@ -4,28 +4,10 @@
   "description": "The Ecoism protocol is a decentralized intent based system that allows users to submit their intent to the network and have it fulfilled by a solver on the destination rollup of their choise.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "module": "./dist/index.js",
-      "node": "./dist/index.js",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./contracts": {
-      "module": "./src",
-      "node": "./src",
-      "import": "./src",
-      "require": "./src",
-      "types": "./srcs"
-    },
-    "./package.json": {
-      "module": "./package.json",
-      "node": "./package.json",
-      "import": "./package.json",
-      "require": "./package.json"
-    }
-  },
+  "files": [
+    "dist",
+    "src"
+  ],
   "engines": {
     "node": ">=v22.10.0"
   },
