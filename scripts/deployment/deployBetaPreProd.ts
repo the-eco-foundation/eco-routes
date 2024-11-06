@@ -9,7 +9,7 @@ import {
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD-JW116'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD-JW123'))
 let deployNetwork: any
 let counter: number = 0
 let minimumDuration: number = 0
@@ -73,14 +73,18 @@ async function main() {
   const hyperProverFactory = await ethers.getContractFactory('HyperProver')
   // Deploy the prover
   const proverTx = await proverFactory.getDeployTransaction(chainConfig)
+  const proverDeploymentBlockBefore = await ethers.provider.getBlockNumber()
+  let proverDeploymentBlockAfter = proverDeploymentBlockBefore
   if (proverAddress === '') {
-    const proverDeploymentBlockBefore = await ethers.provider.getBlockNumber()
     const proverReceipt = await singletonDeployer.deploy(proverTx.data, salt, {
       gasLimit: localGasLimit,
     })
     await proverReceipt.wait()
-    const proverDeploymentBlockAfter = await ethers.provider.getBlockNumber()
+    proverDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('prover deployed')
+    console.log('proverReceipt.blockNumber: ', proverReceipt.blockNumber)
+    console.log('proverDeploymentBlockBefore: ', proverDeploymentBlockBefore)
+    console.log('proverDeploymentBlockAfter: ', proverDeploymentBlockAfter)
     proverAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -94,10 +98,10 @@ async function main() {
     console.log('prover already deployed at:', proverAddress)
   }
 
+  const intentSourceDeploymentBlockBefore = proverDeploymentBlockAfter + 1
+  let intentSourceDeploymentBlockAfter = intentSourceDeploymentBlockBefore
   // Deploy the intent source
   if (intentSourceAddress === '') {
-    const intentSourceDeploymentBlockBefore =
-      await ethers.provider.getBlockNumber()
     const intentSourceTx = await intentSourceFactory.getDeployTransaction(
       minimumDuration,
       counter,
@@ -110,12 +114,19 @@ async function main() {
       },
     )
     await intentSourcereceipt.wait()
-    const intentSourceDeploymentBlockAfter =
-      await ethers.provider.getBlockNumber()
+    intentSourceDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('IntentSource deployed')
     console.log(
       'intentSourcereceipt.blockNumber: ',
       intentSourcereceipt.blockNumber,
+    )
+    console.log(
+      'intentSourceDeploymentBlockBefore: ',
+      intentSourceDeploymentBlockBefore,
+    )
+    console.log(
+      'intentSourceDeploymentBlockAfter: ',
+      intentSourceDeploymentBlockAfter,
     )
 
     intentSourceAddress = (
@@ -132,7 +143,8 @@ async function main() {
   }
 
   // Deploy the inbox
-  const inboxDeploymentBlockBefore = await ethers.provider.getBlockNumber()
+  const inboxDeploymentBlockBefore = intentSourceDeploymentBlockAfter + 1
+  let inboxDeploymentBlockAfter = inboxDeploymentBlockBefore
   if (inboxAddress === '') {
     const inboxTx = await inboxFactory.getDeployTransaction(
       deployer.address,
@@ -143,9 +155,11 @@ async function main() {
       gasLimit: localGasLimit / 2,
     })
     await inboxReceipt.wait()
-    const inboxDeploymentBlockAfter = await ethers.provider.getBlockNumber()
+    inboxDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('inbox deployed')
     console.log('inboxReceipt.blockNumber: ', inboxReceipt.blockNumber)
+    console.log('inboxDeploymentBlockBefore: ', inboxDeploymentBlockBefore)
+    console.log('inboxDeploymentBlockAfter: ', inboxDeploymentBlockAfter)
     inboxAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -160,8 +174,8 @@ async function main() {
   }
 
   // Deploy the hyperProver
-  const hyperProverDeploymentBlockBefore =
-    await ethers.provider.getBlockNumber()
+  const hyperProverDeploymentBlockBefore = inboxDeploymentBlockAfter + 1
+  let hyperProverDeploymentBlockAfter = hyperProverDeploymentBlockBefore
   if (hyperProverAddress === '') {
     const hyperProverTx = await hyperProverFactory.getDeployTransaction(
       deployNetwork.hyperlaneMailboxAddress,
@@ -176,9 +190,20 @@ async function main() {
       },
     )
     await hyperProverReceipt.wait()
-    const hyperProverDeploymentBlockAfter =
-      await ethers.provider.getBlockNumber()
+    hyperProverDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('hyperProver deployed')
+    console.log(
+      'hyperProverReceipt.blockNumber: ',
+      hyperProverReceipt.blockNumber,
+    )
+    console.log(
+      'hyperProverDeploymentBlockBefore: ',
+      hyperProverDeploymentBlockBefore,
+    )
+    console.log(
+      'hyperProverDeploymentBlockAfter: ',
+      hyperProverDeploymentBlockAfter,
+    )
     hyperProverAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
