@@ -82,9 +82,6 @@ async function main() {
     await proverReceipt.wait()
     proverDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('prover deployed')
-    console.log('proverReceipt.blockNumber: ', proverReceipt.blockNumber)
-    console.log('proverDeploymentBlockBefore: ', proverDeploymentBlockBefore)
-    console.log('proverDeploymentBlockAfter: ', proverDeploymentBlockAfter)
     proverAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -116,18 +113,6 @@ async function main() {
     await intentSourcereceipt.wait()
     intentSourceDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('IntentSource deployed')
-    console.log(
-      'intentSourcereceipt.blockNumber: ',
-      intentSourcereceipt.blockNumber,
-    )
-    console.log(
-      'intentSourceDeploymentBlockBefore: ',
-      intentSourceDeploymentBlockBefore,
-    )
-    console.log(
-      'intentSourceDeploymentBlockAfter: ',
-      intentSourceDeploymentBlockAfter,
-    )
 
     intentSourceAddress = (
       await singletonDeployer.queryFilter(
@@ -157,9 +142,6 @@ async function main() {
     await inboxReceipt.wait()
     inboxDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('inbox deployed')
-    console.log('inboxReceipt.blockNumber: ', inboxReceipt.blockNumber)
-    console.log('inboxDeploymentBlockBefore: ', inboxDeploymentBlockBefore)
-    console.log('inboxDeploymentBlockAfter: ', inboxDeploymentBlockAfter)
     inboxAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -192,18 +174,6 @@ async function main() {
     await hyperProverReceipt.wait()
     hyperProverDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('hyperProver deployed')
-    console.log(
-      'hyperProverReceipt.blockNumber: ',
-      hyperProverReceipt.blockNumber,
-    )
-    console.log(
-      'hyperProverDeploymentBlockBefore: ',
-      hyperProverDeploymentBlockBefore,
-    )
-    console.log(
-      'hyperProverDeploymentBlockAfter: ',
-      hyperProverDeploymentBlockAfter,
-    )
     hyperProverAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
