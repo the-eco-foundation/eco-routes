@@ -292,11 +292,11 @@ export namespace s {
   )
   // mantle
   // Providers
-  // export const mantleProvider = getDefaultProvider(networks.mantle.rpcUrl)
-  export const mantleProvider = new AlchemyProvider(
-    networks.mantle.network,
-    ALCHEMY_API_KEY,
-  )
+  export const mantleProvider = getDefaultProvider(networks.mantle.rpcUrl)
+  // export const mantleProvider = new AlchemyProvider(
+  //   networks.mantle.network,
+  //   ALCHEMY_API_KEY,
+  // )
   // Signers
   export const mantleDeployer: Signer = new Wallet(
     DEPLOYER_PRIVATE_KEY,

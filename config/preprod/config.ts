@@ -1,5 +1,8 @@
 /* eslint-disable no-magic-numbers */
 import { ethers } from 'hardhat'
+import * as dotenv from 'dotenv'
+dotenv.config()
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const networkIds: any = {
   noChain: 0,
@@ -256,6 +259,7 @@ const networks: any = {
     network: networkIds[5000],
     chainId: networkIds.mantle,
     alchemyNetwork: 'mantle',
+    rpcUrl: `https://mantle-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
     sourceChains: [networkIds[10], networkIds[8453], networkIds[8921733]],
     proverContract: {
       address: '0x558E075071348C1BD06E5f7e429BA7e4d0F1611D',
@@ -457,93 +461,93 @@ const deploymentChainConfigs = {
 }
 const routes: any = [
   // helix to base
-  // {
-  //   source: {
-  //     chainId: networkIds.helix,
-  //     providerName: 'helixProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.helix.intentSource.address,
-  //         variableName: 'helixIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.helix.proverContract.address,
-  //         variableName: 'helixProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.base,
-  //     providerName: 'baseProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.base.inbox.address,
-  //         variableName: 'baseInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.SettlementL3,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.helix.usdcAddress,
-  //         variableName: 'helixUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.base.usdcAddress,
-  //         variableName: 'baseUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.helix,
+      providerName: 'helixProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.helix.intentSource.address,
+          variableName: 'helixIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.helix.proverContract.address,
+          variableName: 'helixProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.base.inbox.address,
+          variableName: 'baseInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.SettlementL3,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.helix.usdcAddress,
+          variableName: 'helixUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // helix to optimism
-  // {
-  //   source: {
-  //     chainId: networkIds.helix,
-  //     providerName: 'helixProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.helix.intentSource.address,
-  //         variableName: 'helixIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.helix.proverContract.address,
-  //         variableName: 'helixProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.optimism,
-  //     providerName: 'optimismProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.optimism.inbox.address,
-  //         variableName: 'optimismInboxContractSolver',
-  //       },
-  //     },
-  //     provingMechanism: provingMechanisms.Cannon,
-  //     settlementTypes: settlementTypes.finalized,
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.helix.usdcAddress,
-  //         variableName: 'helixUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.optimism.usdcAddress,
-  //         variableName: 'optimismUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.helix,
+      providerName: 'helixProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.helix.intentSource.address,
+          variableName: 'helixIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.helix.proverContract.address,
+          variableName: 'helixProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.optimism.inbox.address,
+          variableName: 'optimismInboxContractSolver',
+        },
+      },
+      provingMechanism: provingMechanisms.Cannon,
+      settlementTypes: settlementTypes.finalized,
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.helix.usdcAddress,
+          variableName: 'helixUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // helix to mantle
   {
     source: {
@@ -589,401 +593,401 @@ const routes: any = [
     },
   },
   // base to optimism
-  // {
-  //   source: {
-  //     chainId: networkIds.base,
-  //     providerName: 'baseProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.base.intentSource.address,
-  //         variableName: 'baseIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.base.proverContract.address,
-  //         variableName: 'baseProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.optimism,
-  //     providerName: 'optimismProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.optimism.inbox.address,
-  //         variableName: 'optimismInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.Cannon,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.base.usdcAddress,
-  //         variableName: 'baseUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.optimism.usdcAddress,
-  //         variableName: 'optimismUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.base.intentSource.address,
+          variableName: 'baseIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.base.proverContract.address,
+          variableName: 'baseProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.optimism.inbox.address,
+          variableName: 'optimismInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Cannon,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // base to helix
-  // {
-  //   source: {
-  //     chainId: networkIds.base,
-  //     providerName: 'baseProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.base.intentSource.address,
-  //         variableName: 'baseIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.base.proverContract.address,
-  //         variableName: 'baseProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.helix,
-  //     providerName: 'helixProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.helix.inbox.address,
-  //         variableName: 'helixInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.Bedrock,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.base.usdcAddress,
-  //         variableName: 'baseUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.helix.usdcAddress,
-  //         variableName: 'helixUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.base.intentSource.address,
+          variableName: 'baseIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.base.proverContract.address,
+          variableName: 'baseProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.helix,
+      providerName: 'helixProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.helix.inbox.address,
+          variableName: 'helixInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Bedrock,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.helix.usdcAddress,
+          variableName: 'helixUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // base to mantle
-  // {
-  //   source: {
-  //     chainId: networkIds.base,
-  //     providerName: 'baseProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.base.intentSource.address,
-  //         variableName: 'baseIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.base.proverContract.address,
-  //         variableName: 'baseProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.mantle,
-  //     providerName: 'mantleProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.mantle.inbox.address,
-  //         variableName: 'mantleInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.Bedrock,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.base.usdcAddress,
-  //         variableName: 'baseUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.mantle.usdcAddress,
-  //         variableName: 'mantleUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.base.intentSource.address,
+          variableName: 'baseIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.base.proverContract.address,
+          variableName: 'baseProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.mantle,
+      providerName: 'mantleProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.mantle.inbox.address,
+          variableName: 'mantleInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Bedrock,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.mantle.usdcAddress,
+          variableName: 'mantleUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // optimism to helix
-  // {
-  //   source: {
-  //     chainId: networkIds.optimism,
-  //     providerName: 'optimismProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.optimism.intentSource.address,
-  //         variableName: 'optimismIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.optimism.proverContract.address,
-  //         variableName: 'optimismProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.helix,
-  //     providerName: 'helixProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.helix.inbox.address,
-  //         variableName: 'helixInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.Bedrock,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.optimism.usdcAddress,
-  //         variableName: 'optimismUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.helix.usdcAddress,
-  //         variableName: 'helixUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.optimism.intentSource.address,
+          variableName: 'optimismIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.optimism.proverContract.address,
+          variableName: 'optimismProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.helix,
+      providerName: 'helixProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.helix.inbox.address,
+          variableName: 'helixInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Bedrock,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.helix.usdcAddress,
+          variableName: 'helixUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // optimism to base
-  // {
-  //   source: {
-  //     chainId: networkIds.optimism,
-  //     providerName: 'optimismProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.optimism.intentSource.address,
-  //         variableName: 'optimismIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.optimism.proverContract.address,
-  //         variableName: 'optimismProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.base,
-  //     providerName: 'baseProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.base.inbox.address,
-  //         variableName: 'baseInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.Cannon,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.optimism.usdcAddress,
-  //         variableName: 'optimismUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.base.usdcAddress,
-  //         variableName: 'baseUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.optimism.intentSource.address,
+          variableName: 'optimismIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.optimism.proverContract.address,
+          variableName: 'optimismProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.base.inbox.address,
+          variableName: 'baseInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Cannon,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // optimism to mantle
-  // {
-  //   source: {
-  //     chainId: networkIds.optimism,
-  //     providerName: 'optimismProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.optimism.intentSource.address,
-  //         variableName: 'optimismIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.optimism.proverContract.address,
-  //         variableName: 'optimismProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.mantle,
-  //     providerName: 'mantleProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.mantle.inbox.address,
-  //         variableName: 'mantleInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.Bedrock,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.optimism.usdcAddress,
-  //         variableName: 'optimismUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.mantle.usdcAddress,
-  //         variableName: 'mantleUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.optimism.intentSource.address,
+          variableName: 'optimismIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.optimism.proverContract.address,
+          variableName: 'optimismProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.mantle,
+      providerName: 'mantleProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.mantle.inbox.address,
+          variableName: 'mantleInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Bedrock,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.mantle.usdcAddress,
+          variableName: 'mantleUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // mantle to helix
-  // {
-  //   source: {
-  //     chainId: networkIds.mantle,
-  //     providerName: 'mantleProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.mantle.intentSource.address,
-  //         variableName: 'mantleIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.mantle.proverContract.address,
-  //         variableName: 'mantleProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.helix,
-  //     providerName: 'helixProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.helix.inbox.address,
-  //         variableName: 'helixInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.Bedrock,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.mantle.usdcAddress,
-  //         variableName: 'mantleUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.helix.usdcAddress,
-  //         variableName: 'helixUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.mantle,
+      providerName: 'mantleProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.mantle.intentSource.address,
+          variableName: 'mantleIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.mantle.proverContract.address,
+          variableName: 'mantleProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.helix,
+      providerName: 'helixProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.helix.inbox.address,
+          variableName: 'helixInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Bedrock,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.mantle.usdcAddress,
+          variableName: 'mantleUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.helix.usdcAddress,
+          variableName: 'helixUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // mantle to base
-  // {
-  //   source: {
-  //     chainId: networkIds.mantle,
-  //     providerName: 'mantleProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.mantle.intentSource.address,
-  //         variableName: 'mantleIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.mantle.proverContract.address,
-  //         variableName: 'mantleProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.base,
-  //     providerName: 'baseProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.base.inbox.address,
-  //         variableName: 'baseInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.Cannon,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.mantle.usdcAddress,
-  //         variableName: 'mantleUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.base.usdcAddress,
-  //         variableName: 'baseUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.mantle,
+      providerName: 'mantleProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.mantle.intentSource.address,
+          variableName: 'mantleIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.mantle.proverContract.address,
+          variableName: 'mantleProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.base,
+      providerName: 'baseProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.base.inbox.address,
+          variableName: 'baseInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Cannon,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.mantle.usdcAddress,
+          variableName: 'mantleUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.base.usdcAddress,
+          variableName: 'baseUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
   // mantle to optimism
-  // {
-  //   source: {
-  //     chainId: networkIds.mantle,
-  //     providerName: 'mantleProvider',
-  //     contracts: {
-  //       intentSourceContract: {
-  //         address: networks.mantle.intentSource.address,
-  //         variableName: 'mantleIntentSourceContractIntentCreator',
-  //       },
-  //       proverContract: {
-  //         address: networks.mantle.proverContract.address,
-  //         variableName: 'mantleProverContract',
-  //       },
-  //     },
-  //   },
-  //   destination: {
-  //     chainId: networkIds.optimism,
-  //     providerName: 'optimismProvider',
-  //     contracts: {
-  //       inboxContract: {
-  //         address: networks.optimism.inbox.address,
-  //         variableName: 'optimismInboxContractSolver',
-  //       },
-  //       provingMechanism: provingMechanisms.Cannon,
-  //       settlementTypes: settlementTypes.finalized,
-  //     },
-  //   },
-  //   intent: {
-  //     contracts: {
-  //       rewardToken: {
-  //         address: networks.mantle.usdcAddress,
-  //         variableName: 'mantleUSDCContractIntentCreator',
-  //       },
-  //       targetToken: {
-  //         address: networks.optimism.usdcAddress,
-  //         variableName: 'optimismUSDCContractSolver',
-  //       },
-  //     },
-  //     rewardAmounts: intent.rewardAmounts,
-  //     targetAmounts: intent.targetAmounts,
-  //     duration: intent.duration,
-  //   },
-  // },
+  {
+    source: {
+      chainId: networkIds.mantle,
+      providerName: 'mantleProvider',
+      contracts: {
+        intentSourceContract: {
+          address: networks.mantle.intentSource.address,
+          variableName: 'mantleIntentSourceContractIntentCreator',
+        },
+        proverContract: {
+          address: networks.mantle.proverContract.address,
+          variableName: 'mantleProverContract',
+        },
+      },
+    },
+    destination: {
+      chainId: networkIds.optimism,
+      providerName: 'optimismProvider',
+      contracts: {
+        inboxContract: {
+          address: networks.optimism.inbox.address,
+          variableName: 'optimismInboxContractSolver',
+        },
+        provingMechanism: provingMechanisms.Cannon,
+        settlementTypes: settlementTypes.finalized,
+      },
+    },
+    intent: {
+      contracts: {
+        rewardToken: {
+          address: networks.mantle.usdcAddress,
+          variableName: 'mantleUSDCContractIntentCreator',
+        },
+        targetToken: {
+          address: networks.optimism.usdcAddress,
+          variableName: 'optimismUSDCContractSolver',
+        },
+      },
+      rewardAmounts: intent.rewardAmounts,
+      targetAmounts: intent.targetAmounts,
+      duration: intent.duration,
+    },
+  },
 ]
 
 export {
