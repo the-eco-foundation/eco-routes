@@ -78,9 +78,8 @@ jobs:
         with:
           name: workspace
           path: |
-            . #upload the entire workspace
-            .nvmrc #upload hidden file manually
-            !./node_modules #exclude node_modules
+            . 
+            .nvmrc
           retention-days: 1
   deploy:
     name: Deploy Contracts
