@@ -99,7 +99,10 @@
     "EndMainnetCannon": "-------- End Cannon scripts  --------",
     "versionPackage": "npx ts-node scripts/publish/version.ts",
     "prepack": "rimraf build &&  yarn run versionPackage && bash scripts/publish/prepack.sh",
-    "deployCI": "hardhat run scripts/deploy/deployCI.ts"
+    "deployCI": "hardhat run scripts/deploy/deployCI.ts",
+    "pub:build": "cd build && tsc",
+    "pub:clean": "rimraf build/dist",
+    "pub:prepack": "yarn pub:clean && yarn pub:build"
   },
   "devDependencies": {
     "@eth-optimism/contracts-bedrock": "^0.17.2",
