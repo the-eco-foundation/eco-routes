@@ -5,12 +5,11 @@ import {
   deploymentChainConfigs,
 } from '../../config/preprod/config'
 
-// TODO: remove the await tx.wait() and update queries for deployed contracts
 // Notes: Singleton Factory address (all chains): 0xce0042B868300000d44A59004Da54A005ffdcf9f
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD-JW108'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD-JW116'))
 let deployNetwork: any
 let counter: number = 0
 let minimumDuration: number = 0
@@ -47,9 +46,6 @@ switch (networkName) {
   default:
     break
 }
-// consozle.log('chainConfig: ', chainConfig)
-// console.log('deployNetwork: ', deployNetwork)
-// throw new Error('Done for now')
 
 async function main() {
   localGasLimit = deployNetwork.gasLimit
@@ -63,9 +59,6 @@ async function main() {
   localGasLimit = deployNetwork.gasLimit
   counter = deployNetwork.intentSource.counter
   minimumDuration = deployNetwork.intentSource.minimumDuration
-  // console.log('localGasLimit: ', localGasLimit)
-  // console.log('counter: ', counter)
-  // console.log('minimumDuration: ', minimumDuration)
   // throw new Error('Done for now')
   console.log('Deploying contracts with the account:', deployer.address)
   console.log(
@@ -80,23 +73,19 @@ async function main() {
   const hyperProverFactory = await ethers.getContractFactory('HyperProver')
   // Deploy the prover
   const proverTx = await proverFactory.getDeployTransaction(chainConfig)
-  //   [
-  //   baseChainConfiguration,
-  //   optimismChainConfiguration,
-  //   helixChainConfiguration,
-  // ])
   if (proverAddress === '') {
+    const proverDeploymentBlockBefore = await ethers.provider.getBlockNumber()
     const proverReceipt = await singletonDeployer.deploy(proverTx.data, salt, {
       gasLimit: localGasLimit,
     })
     await proverReceipt.wait()
+    const proverDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('prover deployed')
-    // console.log('proverReceipt: ', proverReceipt)
-
     proverAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
-        proverReceipt.blockNumber,
+        proverDeploymentBlockBefore,
+        proverDeploymentBlockAfter,
       )
     )[0].args.addr
 
@@ -107,6 +96,8 @@ async function main() {
 
   // Deploy the intent source
   if (intentSourceAddress === '') {
+    const intentSourceDeploymentBlockBefore =
+      await ethers.provider.getBlockNumber()
     const intentSourceTx = await intentSourceFactory.getDeployTransaction(
       minimumDuration,
       counter,
@@ -119,12 +110,19 @@ async function main() {
       },
     )
     await intentSourcereceipt.wait()
+    const intentSourceDeploymentBlockAfter =
+      await ethers.provider.getBlockNumber()
     console.log('IntentSource deployed')
+    console.log(
+      'intentSourcereceipt.blockNumber: ',
+      intentSourcereceipt.blockNumber,
+    )
 
     intentSourceAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
-        intentSourcereceipt.blockNumber,
+        intentSourceDeploymentBlockBefore,
+        intentSourceDeploymentBlockAfter,
       )
     )[0].args.addr
 
@@ -134,23 +132,25 @@ async function main() {
   }
 
   // Deploy the inbox
+  const inboxDeploymentBlockBefore = await ethers.provider.getBlockNumber()
   if (inboxAddress === '') {
     const inboxTx = await inboxFactory.getDeployTransaction(
       deployer.address,
       true,
       [],
-      // deployNetwork.hyperlaneMailboxAddress,
     )
     const inboxReceipt = await singletonDeployer.deploy(inboxTx.data, salt, {
       gasLimit: localGasLimit / 2,
     })
     await inboxReceipt.wait()
+    const inboxDeploymentBlockAfter = await ethers.provider.getBlockNumber()
     console.log('inbox deployed')
-
+    console.log('inboxReceipt.blockNumber: ', inboxReceipt.blockNumber)
     inboxAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
-        inboxReceipt.blockNumber,
+        inboxDeploymentBlockBefore,
+        inboxDeploymentBlockAfter,
       )
     )[0].args.addr
 
@@ -160,12 +160,9 @@ async function main() {
   }
 
   // Deploy the hyperProver
+  const hyperProverDeploymentBlockBefore =
+    await ethers.provider.getBlockNumber()
   if (hyperProverAddress === '') {
-    // console.log(
-    //   'deployNetwork.hyperlaneMailboxAddress: ',
-    //   deployNetwork.hyperlaneMailboxAddress,
-    // )
-    console.log('inboxAddress: ', inboxAddress)
     const hyperProverTx = await hyperProverFactory.getDeployTransaction(
       deployNetwork.hyperlaneMailboxAddress,
       inboxAddress,
@@ -179,12 +176,14 @@ async function main() {
       },
     )
     await hyperProverReceipt.wait()
+    const hyperProverDeploymentBlockAfter =
+      await ethers.provider.getBlockNumber()
     console.log('hyperProver deployed')
-
     hyperProverAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
-        hyperProverReceipt.blockNumber,
+        hyperProverDeploymentBlockBefore,
+        hyperProverDeploymentBlockAfter,
       )
     )[0].args.addr
 

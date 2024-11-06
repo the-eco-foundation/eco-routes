@@ -95,20 +95,20 @@ const networks: any = {
     alchemyNetwork: 'optimism',
     sourceChains: [networkIds[8543], networkIds[8921733], networkIds[5000]],
     proverContract: {
-      address: '0xbABB17c866aC6ae03E3dd716C3B609B7eF7c9763',
+      address: '0x5C8c551074638A5e034f5A4cd51d7dbe5dC192cb',
       deploymentBlock: 127658118n, // '0x79be886'
     },
     intentSource: {
-      address: '0x141D21D684aeE355f2c0fab4F92e8a3751b9285A',
+      address: '0x3e5180ad5cEfc939A9325196404Aa5b5e3556e58',
       deploymentBlock: 127658118n, // '0x79be886'
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xEB5AFc529D9d7F05Cc445c8aBD81FD06c822feC4',
+      address: '0x2700895B9eaA3C0FBfe6846ce5450e062DEa89f9',
       deploymentBlock: 127658118n, // '0x79be886'
     },
-    hyperproverContractAddress: '0xD66F4bf0aDeA715b54B0394374aFD931485Dab05',
+    hyperproverContractAddress: '0xc9bdb21aF131d3D4953D725aF4771167f278bcA6',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -133,20 +133,20 @@ const networks: any = {
     alchemyNetwork: 'base',
     sourceChains: [networkIds[10], networkIds[8921733], networkIds[5000]],
     proverContract: {
-      address: '0xA928752DEC135589DCdF7631cf7BD9C527C46664',
+      address: '0x528f086C4DdCb8e43B7acC9354052D6aD7736453',
       deploymentBlock: 22062818n, // '0x150a6e2',
     },
     intentSource: {
-      address: '0x141D21D684aeE355f2c0fab4F92e8a3751b9285A',
+      address: '0x3e5180ad5cEfc939A9325196404Aa5b5e3556e58',
       deploymentBlock: 22062818n, // '0x150a6e2',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xEB5AFc529D9d7F05Cc445c8aBD81FD06c822feC4',
+      address: '0x2700895B9eaA3C0FBfe6846ce5450e062DEa89f9',
       deploymentBlock: 22062818n, // '0x150a6e2',
     },
-    hyperproverContractAddress: '0xa22E0FF3D6B3ba9beF24795164cD6212Fd6dc52B',
+    hyperproverContractAddress: '0xae8c151980a574135b7141Fa1c47f7c7E5f64dc2',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -179,20 +179,20 @@ const networks: any = {
     rpcUrl: 'https://helix-test.calderachain.xyz/http',
     settlementNetwork: 'base',
     proverContract: {
-      address: '0x097112f489342F82936DbfC959CE406660E99ef7',
+      address: '0x27d66500c1245f5cc1B818e1D2f766eF9ffdBEf3',
       deploymentBlock: 4640823n, // 0x46d037
     },
     intentSource: {
-      address: '0x141D21D684aeE355f2c0fab4F92e8a3751b9285A',
+      address: '0x3e5180ad5cEfc939A9325196404Aa5b5e3556e58',
       deploymentBlock: 4640823n, // 0x46d037
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xEB5AFc529D9d7F05Cc445c8aBD81FD06c822feC4',
+      address: '0x2700895B9eaA3C0FBfe6846ce5450e062DEa89f9',
       deploymentBlock: 4640823n, // 0x46d037
     },
-    hyperproverContractAddress: '0xAa1c53Cdac6B4dB56577FF9DEBc37baAFE8c6271',
+    hyperproverContractAddress: '0x4b626B3aDb5992a1D028612A6C629428e0Cd2E08',
     proving: {
       mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -219,17 +219,17 @@ const networks: any = {
     sourceChains: [],
     settlementNetwork: networkIds[1],
     proverContract: {
-      address: '0xbABB17c866aC6ae03E3dd716C3B609B7eF7c9763',
+      address: '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
       deploymentBlock: 271706508n, // '0xe1031e98c',
     },
     intentSource: {
-      address: '0x141D21D684aeE355f2c0fab4F92e8a3751b9285A',
+      address: '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
       deploymentBlock: 271706508n, // '0xe1031e98c',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xEB5AFc529D9d7F05Cc445c8aBD81FD06c822feC4',
+      address: '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
       deploymentBlock: 271706508n, // '0xe1031e98c',
     },
     hyperProverContractAddress: '0xCb0aF7B2458776699cc9a7d91566bF4Ff12112aD',
@@ -258,20 +258,20 @@ const networks: any = {
     alchemyNetwork: 'mantle',
     sourceChains: [networkIds[10], networkIds[8453], networkIds[8921733]],
     proverContract: {
-      address: '0xbABB17c866aC6ae03E3dd716C3B609B7eF7c9763',
+      address: '0x5C8c551074638A5e034f5A4cd51d7dbe5dC192cb',
       deploymentBlock: 71392367n, // '0x4415c6f',
     },
     intentSource: {
-      address: '0x141D21D684aeE355f2c0fab4F92e8a3751b9285A',
+      address: '0x3e5180ad5cEfc939A9325196404Aa5b5e3556e58',
       deploymentBlock: 71392367n, // '0x4415c6f',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xEB5AFc529D9d7F05Cc445c8aBD81FD06c822feC4',
+      address: '0x2700895B9eaA3C0FBfe6846ce5450e062DEa89f9',
       deploymentBlock: 71392367n, // '0x4415c6f',
     },
-    hyperProverContractAddress: '0xddf12ba146f50a2886bf1f52E213001eff0c93EA',
+    hyperProverContractAddress: '0x24a8aA3d8bE67dB834Ec6BECd3516960c8A990f9',
     proving: {
       mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
