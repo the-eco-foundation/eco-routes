@@ -27,7 +27,7 @@
     }
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=v22.11.0"
   },
   "homepage": "https://github.com/eco/ecoism#readme",
   "bugs": {
