@@ -69,16 +69,16 @@ const helixChainConfiguration = {
 //         networks.arbitrum.proving.outputRootVersionNumber, // outputRootVersionNumber
 //     },
 //   }
-const mantleChainConfiguration = {
-  chainId: networks.mantle.chainId, // chainId
-  chainConfiguration: {
-    provingMechanism: networks.mantle.proving.mechanism, // provingMechanism
-    settlementChainId: networks.mantle.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.mantle.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.mantle.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber: networks.mantle.proving.outputRootVersionNumber, // outputRootVersionNumber
-  },
-}
+// const mantleChainConfiguration = {
+//   chainId: networks.mantle.chainId, // chainId
+//   chainConfiguration: {
+//     provingMechanism: networks.mantle.proving.mechanism, // provingMechanism
+//     settlementChainId: networks.mantle.proving.settlementChain.id, // settlementChainId
+//     settlementContract: networks.mantle.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//     blockhashOracle: networks.mantle.proving.l1BlockAddress, // blockhashOracle
+//     outputRootVersionNumber: networks.mantle.proving.outputRootVersionNumber, // outputRootVersionNumber
+//   },
+// }
 const initialSalt: string = 'HANDOFF0'
 // const initialSalt: string = 'PROD'
 

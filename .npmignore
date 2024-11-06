@@ -22,3 +22,9 @@ coverage/
 .gitignore
 .vscode/
 .idea/
+scripts/
+test/
+utils/
+config/
+hardhat.config.ts
+executeInstructions.ts

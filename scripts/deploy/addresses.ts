@@ -34,27 +34,36 @@ export function transformAddresses() {
  * @module index
 */
 `
-  const outputContent = comments  +`export const ${name} = \n${formatObjectWithoutQuotes(addresses)} as const\n`
+  const outputContent =
+    comments +
+    `export const ${name} = \n${formatObjectWithoutQuotes(addresses)} as const\n`
   fs.writeFileSync(tsFilePath, outputContent, 'utf-8')
 }
 
-export function deleteAddressesJson(){
+export function deleteAddressesJson() {
   fs.unlinkSync(jsonFilePath)
 }
 
 // This function formats an object without quotes around the keys and indents per level by 2 spaces
-function formatObjectWithoutQuotes(obj: Record<string, any>, indentLevel = 0): string {
+function formatObjectWithoutQuotes(
+  obj: Record<string, any>,
+  indentLevel = 0,
+): string {
   const indent = ' '.repeat(indentLevel * 2) // 2 spaces per level
   const nestedIndent = ' '.repeat((indentLevel + 1) * 2)
 
   const formatValue = (value: any): string => {
     // if (typeof value === 'string') return value; // Print strings without quotes
-    if (typeof value === 'object' && value !== null) return formatObjectWithoutQuotes(value, indentLevel + 1) // Recursive with increased indent
+    if (typeof value === 'object' && value !== null)
+      return formatObjectWithoutQuotes(value, indentLevel + 1) // Recursive with increased indent
     return JSON.stringify(value) // For numbers, arrays, etc.
   }
 
   const entries = Object.entries(obj)
-    .map(([key, value]) => `${nestedIndent}${toCamelCase(key)}: ${formatValue(value)}`)
+    .map(
+      ([key, value]) =>
+        `${nestedIndent}${toCamelCase(key)}: ${formatValue(value)}`,
+    )
     .join(',\n')
 
   return `{\n${entries}\n${indent}}`

@@ -25,7 +25,12 @@ export type ProtocolDeploy = {
   initialSalt: string
 }
 
-export async function deployProver(deploySalt: string, deployNetwork: DeployNetwork, singletonDeployer: Deployer, deployArgs: Prover.ChainConfigurationConstructorStruct[]) {
+export async function deployProver(
+  deploySalt: string,
+  deployNetwork: DeployNetwork,
+  singletonDeployer: Deployer,
+  deployArgs: Prover.ChainConfigurationConstructorStruct[],
+) {
   const contractName = 'Prover'
   const proverFactory = await ethers.getContractFactory(contractName)
   const proverTx = await proverFactory.getDeployTransaction(deployArgs)
@@ -45,14 +50,28 @@ export async function deployProver(deploySalt: string, deployNetwork: DeployNetw
   return proverAddress
 }
 
-export async function deployIntentSource(deployNetwork: DeployNetwork, deploySalt: string, singletonDeployer: Deployer) {
+export async function deployIntentSource(
+  deployNetwork: DeployNetwork,
+  deploySalt: string,
+  singletonDeployer: Deployer,
+) {
   const contractName = 'IntentSource'
   const intentSourceFactory = await ethers.getContractFactory(contractName)
-  const args = [deployNetwork.intentSource.minimumDuration, deployNetwork.intentSource.counter]
-  const intentSourceTx = await intentSourceFactory.getDeployTransaction(args[0], args[1])
-  const receipt = await singletonDeployer.deploy(intentSourceTx.data, deploySalt, {
-    gasLimit: deployNetwork.gasLimit / 2,
-  })
+  const args = [
+    deployNetwork.intentSource.minimumDuration,
+    deployNetwork.intentSource.counter,
+  ]
+  const intentSourceTx = await intentSourceFactory.getDeployTransaction(
+    args[0],
+    args[1],
+  )
+  const receipt = await singletonDeployer.deploy(
+    intentSourceTx.data,
+    deploySalt,
+    {
+      gasLimit: deployNetwork.gasLimit / 2,
+    },
+  )
 
   const intentSourceAddress = (
     await singletonDeployer.queryFilter(
@@ -67,7 +86,14 @@ export async function deployIntentSource(deployNetwork: DeployNetwork, deploySal
   return intentSourceAddress
 }
 
-export async function deployInbox(deployNetwork: DeployNetwork, inboxOwnerSigner: Signer, isSolvingPublic: boolean, solvers: Hex[], deploySalt: string, singletonDeployer: Deployer) {
+export async function deployInbox(
+  deployNetwork: DeployNetwork,
+  inboxOwnerSigner: Signer,
+  isSolvingPublic: boolean,
+  solvers: Hex[],
+  deploySalt: string,
+  singletonDeployer: Deployer,
+) {
   const contractName = 'Inbox'
   const inboxFactory = await ethers.getContractFactory(contractName)
   const args = [await inboxOwnerSigner.getAddress(), isSolvingPublic, solvers]
@@ -106,7 +132,12 @@ export async function deployInbox(deployNetwork: DeployNetwork, inboxOwnerSigner
   return inboxAddress
 }
 
-export async function deployHyperProver(deployNetwork: DeployNetwork, inboxAddress: Hex, deploySalt: string, singletonDeployer: Deployer) {
+export async function deployHyperProver(
+  deployNetwork: DeployNetwork,
+  inboxAddress: Hex,
+  deploySalt: string,
+  singletonDeployer: Deployer,
+) {
   const contractName = 'HyperProver'
   const hyperProverFactory = await ethers.getContractFactory(contractName)
   const args = [deployNetwork.hyperlaneMailboxAddress, inboxAddress]
@@ -115,9 +146,13 @@ export async function deployHyperProver(deployNetwork: DeployNetwork, inboxAddre
     args[1],
   )
 
-  const receipt = await singletonDeployer.deploy(hyperProverTx.data, deploySalt, {
-    gasLimit: deployNetwork.gasLimit / 4,
-  })
+  const receipt = await singletonDeployer.deploy(
+    hyperProverTx.data,
+    deploySalt,
+    {
+      gasLimit: deployNetwork.gasLimit / 4,
+    },
+  )
 
   console.log(`${contractName} deployed`)
 
@@ -134,7 +169,11 @@ export async function deployHyperProver(deployNetwork: DeployNetwork, inboxAddre
   return hyperProverAddress
 }
 
-export async function verifyContract(contractName: string, address: Hex, args: any[]) {
+export async function verifyContract(
+  contractName: string,
+  address: Hex,
+  args: any[],
+) {
   try {
     await run('verify:verify', {
       address,

@@ -2,7 +2,14 @@ import { ethers, network } from 'hardhat'
 import { networks, actors } from '../../config/testnet/config'
 import { zeroAddress } from 'viem'
 import { isZeroAddress } from '../utils'
-import { deployHyperProver, deployInbox, deployIntentSource, DeployNetwork, deployProver, ProtocolDeploy } from '../deloyProtocol'
+import {
+  deployHyperProver,
+  deployInbox,
+  deployIntentSource,
+  DeployNetwork,
+  deployProver,
+  ProtocolDeploy,
+} from '../deloyProtocol'
 import { getGitHash } from '../publish/gitUtils'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
@@ -79,24 +86,24 @@ const ecoTestnetChainConfiguration = {
 //   },
 // }
 
-const mantleSepoliaChainConfiguration = {
-  chainId: networks.mantleSepolia.chainId, // chainId
-  chainConfiguration: {
-    provingMechanism: networks.mantleSepolia.proving.mechanism, // provingMechanism
-    settlementChainId: networks.mantleSepolia.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.mantleSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.mantleSepolia.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
-  },
-}
+// const mantleSepoliaChainConfiguration = {
+//   chainId: networks.mantleSepolia.chainId, // chainId
+//   chainConfiguration: {
+//     provingMechanism: networks.mantleSepolia.proving.mechanism, // provingMechanism
+//     settlementChainId: networks.mantleSepolia.proving.settlementChain.id, // settlementChainId
+//     settlementContract: networks.mantleSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//     blockhashOracle: networks.mantleSepolia.proving.l1BlockAddress, // blockhashOracle
+//     outputRootVersionNumber:
+//       networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+//   },
+// }
 
-let protocolDeploy : ProtocolDeploy = {
+const protocolDeploy: ProtocolDeploy = {
   proverAddress: zeroAddress,
   intentSourceAddress: zeroAddress,
   inboxAddress: zeroAddress,
   hyperProverAddress: zeroAddress,
-  initialSalt: getGitHash()
+  initialSalt: getGitHash(),
 }
 
 if (process.env.DEPLOY_CI === 'true') {
@@ -135,15 +142,34 @@ async function main() {
   }
 
   if (isZeroAddress(protocolDeploy.intentSourceAddress)) {
-    protocolDeploy.intentSourceAddress = await deployIntentSource(deployNetwork, salt, singletonDeployer)
+    protocolDeploy.intentSourceAddress = await deployIntentSource(
+      deployNetwork,
+      salt,
+      singletonDeployer,
+    )
   }
 
   if (isZeroAddress(protocolDeploy.inboxAddress)) {
-    protocolDeploy.inboxAddress = await deployInbox(deployNetwork, deployer, false, [actors.solver], salt, singletonDeployer)
+    protocolDeploy.inboxAddress = await deployInbox(
+      deployNetwork,
+      deployer,
+      false,
+      [actors.solver],
+      salt,
+      singletonDeployer,
+    )
   }
 
-  if (isZeroAddress(protocolDeploy.hyperProverAddress) && !isZeroAddress(protocolDeploy.inboxAddress)) {
-    protocolDeploy.hyperProverAddress = await deployHyperProver(deployNetwork, protocolDeploy.inboxAddress, salt, singletonDeployer)
+  if (
+    isZeroAddress(protocolDeploy.hyperProverAddress) &&
+    !isZeroAddress(protocolDeploy.inboxAddress)
+  ) {
+    protocolDeploy.hyperProverAddress = await deployHyperProver(
+      deployNetwork,
+      protocolDeploy.inboxAddress,
+      salt,
+      singletonDeployer,
+    )
   }
 }
 

@@ -1,5 +1,5 @@
-import { zeroAddress } from "viem"
-import { DeployNetwork } from "../../scripts/deloyProtocol"
+import { zeroAddress } from 'viem'
+import { DeployNetwork } from '../../scripts/deloyProtocol'
 
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
@@ -72,8 +72,6 @@ const intent: any = {
   targetAmounts: [1000],
   duration: 3600,
 }
-
-
 
 const networks: Record<any, DeployNetwork> = {
   // sepolia: {

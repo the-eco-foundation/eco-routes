@@ -41,7 +41,7 @@ jobs:
           path: ./artifacts
           retention-days: 1
   prepack:
-    name: Prepack 
+    name: Prepack
     needs: buildAndTest
     runs-on: ubuntu-latest
     permissions:
@@ -88,10 +88,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # - uses: actions/checkout@v4
-      
+
       - name: Download build artifact from prepack job
         uses: actions/download-artifact@v4
-        with: 
+        with:
           name: workspace
           path: .
       - name: List Files
@@ -173,7 +173,7 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: publish # --provenance --access public
-          dir: 'build'
+          dir: "build"
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm registry
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # scope registry
