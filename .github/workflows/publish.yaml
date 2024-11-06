@@ -129,6 +129,10 @@ jobs:
           ARBSCAN_API_KEY: ${{ secrets.ARBSCAN_API_KEY }}
           CALDERA_SCAN_API_KEY: ${{ secrets.CALDERA_SCAN_API_KEY }}
           MANTLESCAN_API_KEY: ${{ secrets.MANTLESCAN_API_KEY }}
+      - name: Publish prepack build directory
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: pub:prepack
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:

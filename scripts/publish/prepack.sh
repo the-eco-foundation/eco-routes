@@ -33,9 +33,7 @@ cp .npmignore build/
 cp tsconfig.json build/
 cp README.md build/
 cp LICENSE build/
-echo "Build the dist package"
-yarn pub:prepack
-echo "Finished building the dist package"
+
 
 
 

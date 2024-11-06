@@ -82,8 +82,8 @@
     "versionPackage": "npx ts-node scripts/publish/version.ts",
     "prepack": "rimraf build &&  yarn run versionPackage && bash scripts/publish/prepack.sh",
     "deployCI": "hardhat run scripts/deploy/deployCI.ts",
-    "pub:build": "cd build && tsc",
     "pub:clean": "rimraf build/dist",
+    "pub:build": "cd build && tsc",
     "pub:prepack": "yarn pub:clean && yarn pub:build"
   },
   "devDependencies": {
