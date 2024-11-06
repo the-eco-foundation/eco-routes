@@ -5,6 +5,14 @@
   "engines": {
     "node": ">=18.17.0"
   },
+  "exports": {
+    ".": "./build/src/index.ts",
+    "./abi": "./build/src/abi/index.ts",
+    "./interfaces/*": "./build/src/interfaces/*",
+    "./types/*": "./build/src/types/*",
+    "./contracts/*": "./build/src/contracts/*",
+    "./package.json": "./package.json"
+  },
   "homepage": "https://github.com/eco/ecoism#readme",
   "bugs": {
     "url": "https://github.com/eco/ecoism/issues"
