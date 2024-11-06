@@ -73,13 +73,14 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: prepack
+      - name: Remove node_modules
+        run: rm -rf node_modules
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: workspace
-          path: |
-            . 
-            .nvmrc
+          include-hidden-files: true
+          path: .
           retention-days: 1
   deploy:
     name: Deploy Contracts
