@@ -85,10 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "yarn"
+      
       - name: Download build artifact from prepack job
         uses: actions/download-artifact@v4
         with: 
@@ -96,6 +93,10 @@ jobs:
           path: .
       - name: List Files
         run: ls -R
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
       # - name: Install dependencies
       #   uses: borales/actions-yarn@v4
       #   with:
