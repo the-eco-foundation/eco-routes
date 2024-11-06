@@ -3,14 +3,18 @@ import {
   // networkIds,
   networks,
   deploymentChainConfigs,
-} from '../../config/testnet/config'
+} from '../../config/preprod/config'
 
 // TODO: remove the await tx.wait() and update queries for deployed contracts
 // Notes: Singleton Factory address (all chains): 0xce0042B868300000d44A59004Da54A005ffdcf9f
 // Note: Singleton Factory Deployer : 0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3
 
 const networkName = network.name
-const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD-JW3'))
+const salt = ethers.keccak256(ethers.toUtf8Bytes('PREPROD-JW108'))
+let deployNetwork: any
+let counter: number = 0
+let minimumDuration: number = 0
+let localGasLimit: number = 0
 
 console.log('Deploying to Network: ', network.name)
 let proverAddress = ''
@@ -18,27 +22,37 @@ let intentSourceAddress = ''
 let inboxAddress = ''
 let hyperProverAddress = ''
 // Set the config for the chain we are deploying to
-let config
 let chainConfig
 switch (networkName) {
-  case 'baseSepolia':
-    config = networks.baseSepolia
-    chainConfig = deploymentChainConfigs.baseSepolia
+  case 'base':
+    deployNetwork = networks.base
+    chainConfig = deploymentChainConfigs.base
     break
-  case 'optimismSepolia':
-    config = networks.optimismSepolia
-    chainConfig = deploymentChainConfigs.optimismSepolia
+  case 'optimism':
+    deployNetwork = networks.optimism
+    chainConfig = deploymentChainConfigs.optimism
     break
-  case 'ecoTestnet':
-    config = networks.ecoTestnet
-    chainConfig = deploymentChainConfigs.ecoTestnet
+  case 'helix':
+    deployNetwork = networks.helix
+    chainConfig = deploymentChainConfigs.helix
+    break
+  case 'mantle':
+    deployNetwork = networks.mantle
+    chainConfig = deploymentChainConfigs.mantle
+    break
+  case 'arbitrum':
+    deployNetwork = networks.arbitrum
+    chainConfig = deploymentChainConfigs.arbitrum
     break
   default:
     break
 }
-// console.log('chainConfig: ', chainConfig)
+// consozle.log('chainConfig: ', chainConfig)
+// console.log('deployNetwork: ', deployNetwork)
+// throw new Error('Done for now')
 
 async function main() {
+  localGasLimit = deployNetwork.gasLimit
   const [deployer] = await ethers.getSigners()
 
   // Get the singleton deployer
@@ -46,7 +60,13 @@ async function main() {
     'Deployer',
     '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
   )
-
+  localGasLimit = deployNetwork.gasLimit
+  counter = deployNetwork.intentSource.counter
+  minimumDuration = deployNetwork.intentSource.minimumDuration
+  // console.log('localGasLimit: ', localGasLimit)
+  // console.log('counter: ', counter)
+  // console.log('minimumDuration: ', minimumDuration)
+  // throw new Error('Done for now')
   console.log('Deploying contracts with the account:', deployer.address)
   console.log(
     'Deploying contracts with the singleton deployer:',
@@ -61,16 +81,17 @@ async function main() {
   // Deploy the prover
   const proverTx = await proverFactory.getDeployTransaction(chainConfig)
   //   [
-  //   baseSepoliaChainConfiguration,
-  //   optimismSepoliaChainConfiguration,
-  //   ecoTestnetChainConfiguration,
+  //   baseChainConfiguration,
+  //   optimismChainConfiguration,
+  //   helixChainConfiguration,
   // ])
   if (proverAddress === '') {
     const proverReceipt = await singletonDeployer.deploy(proverTx.data, salt, {
-      gaslimit: 1000000,
+      gasLimit: localGasLimit,
     })
     await proverReceipt.wait()
     console.log('prover deployed')
+    // console.log('proverReceipt: ', proverReceipt)
 
     proverAddress = (
       await singletonDeployer.queryFilter(
@@ -87,14 +108,14 @@ async function main() {
   // Deploy the intent source
   if (intentSourceAddress === '') {
     const intentSourceTx = await intentSourceFactory.getDeployTransaction(
-      config.intentSource.minimumDuration,
-      config.intentSource.counter,
+      minimumDuration,
+      counter,
     )
     const intentSourcereceipt = await singletonDeployer.deploy(
       intentSourceTx.data,
       salt,
       {
-        gaslimit: 1000000,
+        gasLimit: localGasLimit / 2,
       },
     )
     await intentSourcereceipt.wait()
@@ -118,10 +139,10 @@ async function main() {
       deployer.address,
       true,
       [],
-      // config.hyperlaneMailboxAddress,
+      // deployNetwork.hyperlaneMailboxAddress,
     )
     const inboxReceipt = await singletonDeployer.deploy(inboxTx.data, salt, {
-      gaslimit: 1000000,
+      gasLimit: localGasLimit / 2,
     })
     await inboxReceipt.wait()
     console.log('inbox deployed')
@@ -140,13 +161,13 @@ async function main() {
 
   // Deploy the hyperProver
   if (hyperProverAddress === '') {
-    console.log(
-      'config.hyperlaneMailboxAddress: ',
-      config.hyperlaneMailboxAddress,
-    )
+    // console.log(
+    //   'deployNetwork.hyperlaneMailboxAddress: ',
+    //   deployNetwork.hyperlaneMailboxAddress,
+    // )
     console.log('inboxAddress: ', inboxAddress)
     const hyperProverTx = await hyperProverFactory.getDeployTransaction(
-      config.hyperlaneMailboxAddress,
+      deployNetwork.hyperlaneMailboxAddress,
       inboxAddress,
     )
 
@@ -154,7 +175,7 @@ async function main() {
       hyperProverTx.data,
       salt,
       {
-        gasLimit: 1000000,
+        gasLimit: localGasLimit / 4,
       },
     )
     await hyperProverReceipt.wait()
@@ -188,10 +209,7 @@ async function main() {
   try {
     await run('verify:verify', {
       address: intentSourceAddress,
-      constructorArguments: [
-        config.intentSource.minimumDuration,
-        config.intentSource.counter,
-      ],
+      constructorArguments: [minimumDuration, counter],
     })
     console.log('intentSource verified at:', inboxAddress)
   } catch (e) {
@@ -205,7 +223,7 @@ async function main() {
         deployer.address,
         true,
         [],
-        // config.hyperlaneMailboxAddress,
+        // deployNetwork.hyperlaneMailboxAddress,
       ],
     })
     console.log('inbox verified at:', inboxAddress)
@@ -216,7 +234,10 @@ async function main() {
   try {
     await run('verify:verify', {
       address: hyperProverAddress,
-      constructorArguments: [config.hyperlaneMailboxAddress, inboxAddress],
+      constructorArguments: [
+        deployNetwork.hyperlaneMailboxAddress,
+        inboxAddress,
+      ],
     })
     console.log('hyperProver verified at:', hyperProverAddress)
   } catch (e) {

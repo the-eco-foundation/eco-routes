@@ -1,5 +1,4 @@
 /* eslint-disable no-magic-numbers */
-import { mantle } from '@hyperlane-xyz/registry'
 import { ethers } from 'hardhat'
 
 const networkIds: any = {
@@ -218,7 +217,8 @@ const networks: any = {
     network: networkIds[421614],
     chainId: networkIds.arbitrumSepolia,
     alchemyNetwork: 'arbitrum-sepolia',
-    settlementNetwork: 'sepolia',
+    sourceChains: [],
+    settlementNetwork: networkIds[11155111],
     proverContract: {
       address: '0x39F49d1ac7A6EE02e0dFE0B9E431b1B8751177c3',
       deploymentBlock: 14812482n, // '0xe20542',
@@ -240,7 +240,7 @@ const networks: any = {
       l2l1MessageParserAddress: '',
       outputRootVersionNumber: 0,
       settlementChain: {
-        network: 'sepolia',
+        network: networkIds[11155111],
         id: networkIds.sepolia,
         // Dispute Game Factory address
         contract: '',

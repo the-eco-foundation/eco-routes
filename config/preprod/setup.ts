@@ -290,4 +290,74 @@ export namespace s {
     ERC20__factory.abi,
     helixSolver,
   )
+  // mantle
+  // Providers
+  export const mantleProvider = getDefaultProvider(networks.mantle.rpcUrl)
+  // Signers
+  export const mantleDeployer: Signer = new Wallet(
+    DEPLOYER_PRIVATE_KEY,
+    mantleProvider,
+  )
+  export const mantleIntentCreator: Signer = new Wallet(
+    INTENT_CREATOR_PRIVATE_KEY,
+    mantleProvider,
+  )
+  export const mantleSolver: Signer = new Wallet(
+    SOLVER_PRIVATE_KEY,
+    mantleProvider,
+  )
+  export const mantleIntentProver: Signer = new Wallet(
+    PROVER_PRIVATE_KEY,
+    mantleProvider,
+  )
+  export const mantleClaimant: Signer = new Wallet(
+    CLAIMANT_PRIVATE_KEY,
+    mantleProvider,
+  )
+  // Contracts
+  // Settlement Contracts for other Chains
+
+  // System Proving Contracts
+  export const mantlel1Block = new Contract(
+    networks.mantle.proving.l1BlockAddress,
+    IL1Block__factory.abi,
+    mantleProvider,
+  )
+  export const mantleL2L1MessageParserContract = new Contract(
+    networks.mantle.proving.l2l1MessageParserAddress,
+    L2ToL1MessagePasserArtifact.abi,
+    mantleProvider,
+  )
+  // ECO PROTOCOL Contracts
+  export const mantleIntentSourceContractIntentCreator = new Contract(
+    networks.mantle.intentSource.address,
+    IntentSource__factory.abi,
+    mantleIntentCreator,
+  )
+
+  export const mantleIntentSourceContractClaimant = new Contract(
+    networks.mantle.intentSource.address,
+    IntentSource__factory.abi,
+    mantleClaimant,
+  )
+  export const mantleProverContract = new Contract(
+    networks.mantle.proverContract.address,
+    Prover__factory.abi,
+    mantleIntentProver, // Use deployer as prover as we need to do privileged operations
+  )
+  export const mantleInboxContractSolver = new Contract(
+    networks.mantle.inbox.address,
+    Inbox__factory.abi,
+    mantleSolver,
+  )
+  export const mantleUSDCContractIntentCreator = new Contract(
+    networks.mantle.usdcAddress,
+    ERC20__factory.abi,
+    mantleIntentCreator,
+  )
+  export const mantleUSDCContractSolver = new Contract(
+    networks.mantle.usdcAddress,
+    ERC20__factory.abi,
+    mantleSolver,
+  )
 }

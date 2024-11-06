@@ -120,9 +120,12 @@ const networks: any = {
         id: networkIds.mainnet,
         contract: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
       },
+      provingTimeSeconds: 604800,
+      finalityDelaySeconds: 0,
     },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
     hyperlaneMailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D',
+    gasLimit: 8000000,
   },
   base: {
     network: networkIds[8453],
@@ -130,20 +133,20 @@ const networks: any = {
     alchemyNetwork: 'base',
     sourceChains: [networkIds[10], networkIds[8921733], networkIds[5000]],
     proverContract: {
-      address: '0xa7411320887c5a4C8BD9ED7c54fDbeDEb93bFee4',
+      address: '0xCAF30ABEb85037C70fc5cec26F9bd94bB056A558',
       deploymentBlock: 21159000n, // '0x142dc58',
     },
     intentSource: {
-      address: '0xB78Edd10Bf8Dc630cEEBE77aE0e32B6cAAdE3Fbe',
+      address: '0x4D171482353718C0E65B6eF8581eC3017C39226c',
       deploymentBlock: 21159000n, // '0x142dc58',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x3886f2550364C9A59F4b329984745f346Da38990',
+      address: '0x9b16976B3a60803F9939c68796612Da994900968',
       deploymentBlock: 21159000n, // '0x142dc58',
     },
-    hyperproverContractAddress: '0x9d532072e79D578Ea7C83F340b86E7148333CAaA',
+    hyperproverContractAddress: '0x3886910F51d7938AF0fFc5da336E778551b867e3',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -157,6 +160,8 @@ const networks: any = {
         // Dispute Game Factory
         contract: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e',
       },
+      provingTimeSeconds: 302400,
+      finalityDelaySeconds: 604800,
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
@@ -164,6 +169,7 @@ const networks: any = {
     },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     hyperlaneMailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
+    gasLimit: 8000000,
   },
   helix: {
     network: networkIds[8921733],
@@ -173,20 +179,20 @@ const networks: any = {
     rpcUrl: 'https://helix-test.calderachain.xyz/http',
     settlementNetwork: 'base',
     proverContract: {
-      address: '0xa7411320887c5a4C8BD9ED7c54fDbeDEb93bFee4',
+      address: '0x8aCA9a5F11dF8732705415Cc54988123638B0169',
       deploymentBlock: 2828800n, // 0x2b2a00
     },
     intentSource: {
-      address: '0xB78Edd10Bf8Dc630cEEBE77aE0e32B6cAAdE3Fbe',
+      address: '0x4D171482353718C0E65B6eF8581eC3017C39226c',
       deploymentBlock: 2828800n, // 0x2b2a00
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0x2c71758fC4D224E5426C5700c6e599E515254D05',
+      address: '0x9b16976B3a60803F9939c68796612Da994900968',
       deploymentBlock: 2828800n, // 0x2b2a00
     },
-    hyperproverContractAddress: '0x6A9901b8Ecf763FC6A0Dd9ced9C7D597A0f68394',
+    hyperproverContractAddress: '0x1C95157564B128FdD7E5F0346981D40d3Be5d867',
     proving: {
       mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -199,25 +205,36 @@ const networks: any = {
         id: 8453,
         contract: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d',
       },
+      provingTimeSeconds: 604800,
+      finalityDelaySeconds: 0,
     },
     usdcAddress: '0x44D5B1DacCB7E8a7341c1AE0b17Dc65a659B1aCA',
     hyperlaneMailboxAddress: '0x4B216a3012DD7a2fD4bd3D05908b98C668c63a8d',
+    gasLimit: 8000000,
   },
   arbitrum: {
     network: 'arbitrum',
     chainId: networkIds.arbitrum,
     alchemyNetwork: 'arbitrum',
     sourceChains: [],
-    proverContractAddress: '0xE275b0635C3783EFA4F1A299879145a407C81f48',
-    hyperProverContractAddress: '0xB1017F865c6306319C65266158979278F7f50118',
-    intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
-    inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
+    settlementNetwork: networkIds[1],
+    proverContract: {
+      address: '0x7a6F8851CEbf709C62A99199019d3EBF6f44a580',
+      deploymentBlock: 14812482n, // '0xe20542',
+    },
     intentSource: {
+      address: '0x62a2324Fa89C44625d1152e362600Fa20b439a10',
+      deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
+    inbox: {
+      address: '0x29a7490df0E44fF69912f0C63f6a379d696292cc',
+      deploymentBlock: 14812488n, // '0xe20548',
+    },
+    hyperProverContractAddress: '0x45509D6f3020a099456B865deF46807724b39222',
     proving: {
-      mechanism: provingMechanisms.arbitrumNitro,
+      mechanism: provingMechanisms.ArbitrumNitro,
       l1BlockAddress: ethers.ZeroAddress,
       l2l1MessageParserAddress: ethers.ZeroAddress,
       l2OutputOracleSlotNumber: 0,
@@ -228,24 +245,33 @@ const networks: any = {
         // L2 Output Oracle Address
         contract: ethers.ZeroAddress,
       },
+      provingTimeSeconds: 604800,
+      finalityDelaySeconds: 0,
     },
     usdcAddress: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
     hyperlaneMailboxAddress: '0x979Ca5202784112f4738403dBec5D0F3B9daabB9',
-    gasLimit: 8000000,
+    gasLimit: 15000000,
   },
   mantle: {
     network: networkIds[5000],
     chainId: networkIds.mantle,
     alchemyNetwork: 'mantle',
     sourceChains: [networkIds[10], networkIds[8453], networkIds[8921733]],
-    proverContractAddress: '0xE275b0635C3783EFA4F1A299879145a407C81f48',
-    hyperProverContractAddress: '0xaf034DD5eaeBB49Dc476402C6650e85Cc22a0f1a',
-    intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
-    inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
+    proverContract: {
+      address: '0x7a6F8851CEbf709C62A99199019d3EBF6f44a580',
+      deploymentBlock: 14812482n, // '0xe20542',
+    },
     intentSource: {
+      address: '0x4D171482353718C0E65B6eF8581eC3017C39226c',
+      deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
+    inbox: {
+      address: '0x9b16976B3a60803F9939c68796612Da994900968',
+      deploymentBlock: 14812488n, // '0xe20548',
+    },
+    hyperProverContractAddress: '0x6B2677549fFDdB4AD499b156bE890D535471aAc9',
     proving: {
       mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -258,10 +284,12 @@ const networks: any = {
         // L2 Output Oracle Address
         contract: '0x31d543e7BE1dA6eFDc2206Ef7822879045B9f481',
       },
+      provingTimeSeconds: 604800,
+      finalityDelaySeconds: 604800,
     },
     usdcAddress: '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9',
     hyperlaneMailboxAddress: '0x398633D19f4371e1DB5a8EFE90468eB70B1176AA',
-    gasLimit: 25000000000,
+    gasLimit: 30000000000,
   },
 }
 
@@ -413,6 +441,13 @@ const deploymentChainConfigs = {
     deploymentConfigs.mantleBedrock,
   ],
   mantle: [
+    deploymentConfigs.mainnetSettlement,
+    deploymentConfigs.baseCannon,
+    deploymentConfigs.helixBedrock,
+    deploymentConfigs.optimismCannon,
+    deploymentConfigs.mantleBedrock,
+  ],
+  arbitrum: [
     deploymentConfigs.mainnetSettlement,
     deploymentConfigs.baseCannon,
     deploymentConfigs.helixBedrock,
@@ -663,7 +698,7 @@ const routes: any = [
       contracts: {
         inboxContract: {
           address: networks.mantle.inbox.address,
-          variableName: 'optimismInboxContractSolver',
+          variableName: 'mantleInboxContractSolver',
         },
         provingMechanism: provingMechanisms.Bedrock,
         settlementTypes: settlementTypes.finalized,
