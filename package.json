@@ -2,16 +2,32 @@
   "name": "@ecoinc/ecoism",
   "version": "v0.0.3-beta",
   "description": "The Ecoism protocol is a decentralized intent based system that allows users to submit their intent to the network and have it fulfilled by a solver on the destination rollup of their choise.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "module": "./dist/index.js",
+      "node": "./dist/index.js",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./contracts": {
+      "module": "./src",
+      "node": "./src",
+      "import": "./src",
+      "require": "./src",
+      "types": "./srcs"
+    },
+    "./package.json": {
+      "module": "./package.json",
+      "node": "./package.json",
+      "import": "./package.json",
+      "require": "./package.json"
+    }
+  },
   "engines": {
     "node": ">=18.17.0"
-  },
-  "exports": {
-    ".": "./build/src/index.ts",
-    "./abi": "./build/src/abi/index.ts",
-    "./interfaces/*": "./build/src/interfaces/*",
-    "./types/*": "./build/src/types/*",
-    "./contracts/*": "./build/src/contracts/*",
-    "./package.json": "./package.json"
   },
   "homepage": "https://github.com/eco/ecoism#readme",
   "bugs": {
@@ -82,12 +98,9 @@
     "MainnetCannon": "-------- Cannon scripts below --------",
     "EndMainnetCannon": "-------- End Cannon scripts  --------",
     "versionPackage": "npx ts-node scripts/publish/version.ts",
-    "prepack": "yarn run versionPackage && bash scripts/publish/prepack.sh",
+    "prepack": "rimraf build &&  yarn run versionPackage && bash scripts/publish/prepack.sh",
     "deployCI": "hardhat run scripts/deploy/deployCI.ts"
   },
-  "files": [
-    "build/**"
-  ],
   "devDependencies": {
     "@eth-optimism/contracts-bedrock": "^0.17.2",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
@@ -129,6 +142,7 @@
     "hardhat-gas-reporter": "^1.0.9",
     "lodash": "^4.17.21",
     "prettier": "^3.1.1",
+    "rimraf": "^6.0.1",
     "solhint": "^4.0.0",
     "solhint-plugin-eco": "^0.1.0",
     "solidity-coverage": "^0.8.5",

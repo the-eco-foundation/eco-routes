@@ -1,0 +1,24 @@
+# Ignore configuration and setup files
+tsconfig.json
+tsconfig.*.json
+.eslintrc.json
+.prettierrc
+.prettierignore
+jest.config.js
+
+# Ignore test files and directories
+tests/
+*.test.ts
+*.spec.ts
+
+# Ignore local environment files
+.env
+.env.*
+
+# Ignore other unnecessary files
+node_modules/
+coverage/
+.npmignore
+.gitignore
+.vscode/
+.idea/

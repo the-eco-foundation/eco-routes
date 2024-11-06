@@ -3,7 +3,7 @@ import { networks, actors } from '../../config/testnet/config'
 import { zeroAddress } from 'viem'
 import { isZeroAddress } from '../utils'
 import { deployHyperProver, deployInbox, deployIntentSource, DeployNetwork, deployProver, ProtocolDeploy } from '../deloyProtocol'
-import { getGitHash } from '../publish/utils'
+import { getGitHash } from '../publish/gitUtils'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const networkName = network.name
