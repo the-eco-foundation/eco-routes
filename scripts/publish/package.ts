@@ -12,6 +12,9 @@ fs.readFile(packageJsonPath, 'utf8', (err, data) => {
 
   const packageJson = JSON.parse(data)
   const rimrafVersion = packageJson.devDependencies.rimraf
+  const deps = packageJson.dependencies
+
+  delete packageJson.dependencies
   delete packageJson.devDependencies
   delete packageJson.scripts
   delete packageJson.files
@@ -23,6 +26,7 @@ fs.readFile(packageJsonPath, 'utf8', (err, data) => {
     "prepack": "yarn clean && yarn build"
   }
 
+  packageJson.dependencies = deps
   packageJson.devDependencies = {
     "rimraf": rimrafVersion
   }
