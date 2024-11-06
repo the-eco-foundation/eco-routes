@@ -50,7 +50,7 @@ Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `
 
 ### Intent Proving
 
-Intent proving lives on the `Prover` and `HyperProver` contracts, which exist on the source chain. `Provers` are the parties that should be interacting with prover contracts, but the `IntentSource` does read state from it. There are currently two types of provers: StorageProvers (`Prover.sol`), which use storage proofs to verify the fulfillment of an intent, and HyperProvers(`HyperProver.sol`), which utilize a [Hyperlane](https://hyperlane.xyz/) bridge in verifying intent fulfillment.
+Intent proving lives on the `Prover` and `HyperProver` contracts, which exist on the source chain. `Provers` are the parties that should be interacting with prover contracts, but the `IntentSource` does read state from it. There are currently two types of provers: StorageProvers (`Prover.sol`), which use storage proofs to verify the fulfillment of an intent, and HyperProvers(`HyperProver.sol`), which utilize a <a href="https://hyperlane.xyz/" target="_blank">Hyperlane</a> bridge in verifying intent fulfillment.
 
 **See [contracts](/contracts) for a detailed API documentation**
 
