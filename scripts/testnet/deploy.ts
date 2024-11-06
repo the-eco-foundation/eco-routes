@@ -3,7 +3,7 @@ import { networks, actors } from '../../config/testnet/config'
 import { zeroAddress } from 'viem'
 import { isZeroAddress } from '../utils'
 import { deployHyperProver, deployInbox, deployIntentSource, DeployNetwork, deployProver, ProtocolDeploy } from '../deloyProtocol'
-import { deleteAddressesJson, transformAddresses } from '../deploy/addresses'
+import { getGitHash } from '../publish/utils'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const networkName = network.name
@@ -96,7 +96,7 @@ let protocolDeploy : ProtocolDeploy = {
   intentSourceAddress: zeroAddress,
   inboxAddress: zeroAddress,
   hyperProverAddress: zeroAddress,
-  initialSalt: 'HANDOFFstoyan5'
+  initialSalt: getGitHash()
 }
 
 if (process.env.DEPLOY_CI === 'true') {
