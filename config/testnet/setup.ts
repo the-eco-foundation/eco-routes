@@ -296,4 +296,77 @@ export namespace s {
     ERC20__factory.abi,
     ecoTestnetSolver,
   )
+
+  // mantleSepolia
+  // Providers
+  export const mantleSepoliaProvider = getDefaultProvider(
+    networks.mantleSepolia.rpcUrl,
+  )
+  // Signers
+  export const mantleSepoliaDeployer: Signer = new Wallet(
+    DEPLOYER_PRIVATE_KEY,
+    mantleSepoliaProvider,
+  )
+  export const mantleSepoliaIntentCreator: Signer = new Wallet(
+    INTENT_CREATOR_PRIVATE_KEY,
+    mantleSepoliaProvider,
+  )
+  export const mantleSepoliaSolver: Signer = new Wallet(
+    SOLVER_PRIVATE_KEY,
+    mantleSepoliaProvider,
+  )
+  export const mantleSepoliaIntentProver: Signer = new Wallet(
+    PROVER_PRIVATE_KEY,
+    mantleSepoliaProvider,
+  )
+  export const mantleSepoliaClaimant: Signer = new Wallet(
+    CLAIMANT_PRIVATE_KEY,
+    mantleSepoliaProvider,
+  )
+  // Contracts
+  // Settlement Contracts for other Chains
+
+  // System Proving Contracts
+  export const mantleSepolial1Block = new Contract(
+    networks.mantleSepolia.proving.l1BlockAddress,
+    IL1Block__factory.abi,
+    mantleSepoliaProvider,
+  )
+  export const mantleSepoliaL2L1MessageParserContract = new Contract(
+    networks.mantleSepolia.proving.l2l1MessageParserAddress,
+    L2ToL1MessagePasserArtifact.abi,
+    mantleSepoliaProvider,
+  )
+  // ECO PROTOCOL Contracts
+  export const mantleSepoliaIntentSourceContractIntentCreator = new Contract(
+    networks.mantleSepolia.intentSource.address,
+    IntentSource__factory.abi,
+    mantleSepoliaIntentCreator,
+  )
+
+  export const mantleSepoliaIntentSourceContractClaimant = new Contract(
+    networks.mantleSepolia.intentSource.address,
+    IntentSource__factory.abi,
+    mantleSepoliaClaimant,
+  )
+  export const mantleSepoliaProverContract = new Contract(
+    networks.mantleSepolia.proverContract.address,
+    Prover__factory.abi,
+    mantleSepoliaIntentProver, // Use deployer as prover as we need to do privileged operations
+  )
+  export const mantleSepoliaInboxContractSolver = new Contract(
+    networks.mantleSepolia.inbox.address,
+    Inbox__factory.abi,
+    mantleSepoliaSolver,
+  )
+  export const mantleSepoliaUSDCContractIntentCreator = new Contract(
+    networks.mantleSepolia.usdcAddress,
+    ERC20__factory.abi,
+    mantleSepoliaIntentCreator,
+  )
+  export const mantleSepoliaUSDCContractSolver = new Contract(
+    networks.mantleSepolia.usdcAddress,
+    ERC20__factory.abi,
+    mantleSepoliaSolver,
+  )
 }

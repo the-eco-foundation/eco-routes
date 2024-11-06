@@ -1,4 +1,5 @@
 /* eslint-disable no-magic-numbers */
+import { mantle } from '@hyperlane-xyz/registry'
 import { ethers } from 'hardhat'
 
 const networkIds: any = {
@@ -93,7 +94,7 @@ const networks: any = {
     network: networkIds[11155420],
     chainId: networkIds.optimismSepolia,
     alchemyNetwork: 'optimism-sepolia',
-    sourceChains: ['baseSepolia', 'ecoTestnet'],
+    sourceChains: ['baseSepolia', 'ecoTestnet', 'mantleSepolia'],
     proverContract: {
       address: '0x39F49d1ac7A6EE02e0dFE0B9E431b1B8751177c3',
       deploymentBlock: 16795390n, // '0x10046Fe'
@@ -131,7 +132,7 @@ const networks: any = {
     network: networkIds[84532],
     chainId: networkIds.baseSepolia,
     alchemyNetwork: 'base-sepolia',
-    sourceChains: ['optimismSepolia', 'ecoTestnet'],
+    sourceChains: ['optimismSepolia', 'ecoTestnet', 'mantleSepolia'],
     proverContract: {
       address: '0xFA693a838DE0922Bc863a53Ff658D8384EC703FC',
       deploymentBlock: 14812482n, // '0xe20542',
@@ -176,7 +177,7 @@ const networks: any = {
     network: networkIds[471923],
     chainId: networkIds.ecoTestnet,
     alchemyNetwork: 'eco-testnet',
-    sourceChains: ['baseSepolia', 'optimismSepolia'],
+    sourceChains: ['baseSepolia', 'optimismSepolia', 'mantleSepolia'],
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContract: {
@@ -262,6 +263,8 @@ const networks: any = {
   mantleSepolia: {
     network: 'mantleSepolia',
     chainId: networkIds.mantleSepolia,
+    sourceChains: ['baseSepolia', 'optimismSepolia', 'ecoTestnet'],
+    rpcUrl: 'https://rpc.sepolia.mantle.xyz',
     proverContract: {
       address: '0x39F49d1ac7A6EE02e0dFE0B9E431b1B8751177c3',
       deploymentBlock: 14812482n, // '0xe20542',
@@ -292,7 +295,7 @@ const networks: any = {
       provingTimeSeconds: 302400,
       finalityDelaySeconds: 604800,
     },
-    usdcAddress: '',
+    usdcAddress: '0x26F232C215d535309FDAcCe68340af3c039A452f',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
     gasLimit: 250000000000,
   },
