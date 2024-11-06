@@ -77,7 +77,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: workspace
-          path: . #upload the entire workspace
+          path: |
+            . #upload the entire workspace
+            .nvmrc #upload hidden file manually
+            !/node_modules #exclude node_modules
           retention-days: 1
   deploy:
     name: Deploy Contracts
