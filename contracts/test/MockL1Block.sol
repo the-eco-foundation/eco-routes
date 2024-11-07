@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.28;
 
-import {IL1Block} from "../interfaces/IL1Block.sol";
+// import {IL1Block} from "../interfaces/IL1Block.sol";
+// import {Semver} from "../libs/Semver.sol";
 
 /// @custom:proxied
 /// @custom:predeploy 0x4200000000000000000000000000000000000015

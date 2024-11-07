@@ -225,7 +225,7 @@ async function proveIntent(intentHash, endBatchBlockData) {
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
   )
   const intentInboxProof = await s.baseProvider.send('eth_getProof', [
-    networks.base.inboxAddress,
+    networks.base.inbox.address,
     [inboxStorageSlot],
     endBatchBlockData.number,
   ])
@@ -254,7 +254,7 @@ async function proveIntent(intentHash, endBatchBlockData) {
     const proveIntentTx = await s.optimismProverContract.proveIntent(
       networkIds.base,
       actors.claimant,
-      networks.base.inboxAddress,
+      networks.base.inbox.address,
       intermediateHash,
       intentInboxProof.storageProof[0].proof,
       await s.optimismProverContract.rlpEncodeDataLibList([
