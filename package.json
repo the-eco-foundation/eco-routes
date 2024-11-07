@@ -53,6 +53,7 @@
     "deployOptimismSepolia": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/deploy.ts",
     "deployArbitrumSepolia": "hardhat run --network arbitrumSepolia scripts/testnet/deploy.ts",
     "deployMantleSepolia": "hardhat run --network mantleSepolia scripts/testnet/deploy.ts",
+    "deployTestnet": "yarn deployEcoTestnet &&  yarn deployBaseSepolia && yarn deployOptimismSepolia && yarn deployMantleSepolia && yarn deployArbitrumSepolia",
     "proverDeployEcoTestnet": "hardhat run --network ecoTestnet scripts/testnet/proverDeploy.ts",
     "proverDeployBaseSepolia": "hardhat run --network baseSepolia scripts/testnet/proverDeploy.ts",
     "proverDeployOptimismSepolia": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/proverDeploy.ts",

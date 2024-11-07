@@ -1,5 +1,5 @@
 <div id="top"></div>
-<h1>Cross-L2 Actions</h1>
+<h1>Eco Routes</h1>
 
 </div>
 
@@ -46,7 +46,7 @@ Intent creation and filler settlement processes both exist on the `IntentSource`
 
 ### Intent Fulfillment / Execution
 
-Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
+Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch solving may be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
 
 ### Intent Proving
 
@@ -132,7 +132,7 @@ nvm ls
 1. Clone the repo
 
 ```bash
- git clone git@github.com:ecoinc/Cross-L2-Actions.git
+ git clone git@github.com:the-eco-foundation/eco-routes.git
 ```
 
 2. Install and build using yarn
@@ -191,6 +191,6 @@ This section is under development. While the tests are not yet operational, the 
 
 ## Contact
 
-Project Link: [https://github.com/ecoinc/Cross-L2-Actions](https://github.com/ecoinc/Cross-L2-Actions)
+Project Link: [https://github.com/the-eco-foundation/eco-routes](https://github.com/the-eco-foundation/eco-routes)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
