@@ -34,7 +34,6 @@ const optimismSepoliaChainConfiguration = {
   },
 }
 
-<<<<<<< HEAD
 const ecoTestnetChainConfiguration = {
   chainId: networks.ecoTestnet.chainId, // chainId
   chainConfiguration: {
@@ -44,17 +43,6 @@ const ecoTestnetChainConfiguration = {
     blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
-=======
-const ecoTestnetChainConfiguration = {
-  chainId: networks.ecoTestnet.chainId, // chainId
-  chainConfiguration: {
-    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
-    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
->>>>>>> ECO-BETA
   },
 }
 // Set the config for the chain we are deploying to
@@ -66,13 +54,8 @@ switch (networkName) {
   case 'optimismSepolia':
     config = networks.optimismSepolia
     break
-<<<<<<< HEAD
   case 'ecoTestnet':
     config = networks.ecoTestnet
-=======
-  case 'ecoTestnet':
-    config = networks.ecoTestnet
->>>>>>> ECO-BETA
     break
   default:
     break
@@ -104,11 +87,7 @@ async function main() {
   const proverTx = await proverFactory.getDeployTransaction([
     baseSepoliaChainConfiguration,
     optimismSepoliaChainConfiguration,
-<<<<<<< HEAD
     ecoTestnetChainConfiguration,
-=======
-    ecoTestnetChainConfiguration,
->>>>>>> ECO-BETA
   ])
   const proverReceipt = await singletonDeployer.deploy(proverTx.data, salt, {
     gaslimit: 1000000,
@@ -206,11 +185,7 @@ async function main() {
         [
           baseSepoliaChainConfiguration,
           optimismSepoliaChainConfiguration,
-<<<<<<< HEAD
           ecoTestnetChainConfiguration,
-=======
-          ecoTestnetChainConfiguration,
->>>>>>> ECO-BETA
         ],
       ],
     })
