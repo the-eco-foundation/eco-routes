@@ -189,9 +189,9 @@ async function main() {
     )
 
     receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
-      gasLimit: localGasLimit,
+      gasLimit: localGasLimit / 4,
     })
-    await receipt.wait()
+    console.log('hyperProver deployed')
 
     hyperProverAddress = (
       await singletonDeployer.queryFilter(
@@ -230,7 +230,7 @@ async function main() {
             baseSepoliaChainConfiguration,
             optimismSepoliaChainConfiguration,
             // ecoTestnetChainConfiguration,
-            //   arbitrumSepoliaChainConfiguration,
+            // arbitrumSepoliaChainConfiguration,
             mantleSepoliaChainConfiguration,
           ],
         ],
