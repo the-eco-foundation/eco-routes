@@ -15,6 +15,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 12,
   },
+
   rules: {
     'no-useless-constructor': 0,
     'no-unused-expressions': 0,

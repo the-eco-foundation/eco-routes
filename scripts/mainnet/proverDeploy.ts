@@ -55,7 +55,6 @@ async function main() {
     optimismChainConfiguration,
   ])
   console.log('prover implementation deployed to: ', await prover.getAddress())
-
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   try {
