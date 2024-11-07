@@ -2,25 +2,26 @@ import {
   AbiCoder,
   Block,
   Contract,
-  encodeRlp,
   getAddress,
   getBytes,
-  hexlify,
+  // hexlify,
   keccak256,
   solidityPackedKeccak256,
   stripZerosLeft,
   toQuantity,
   toNumber,
   toBeHex,
+  toBigInt,
 } from 'ethers'
 import {
   networkIds,
   networks,
   actors,
+  settlementTypes,
   // intent,
 } from '../../config/preprod/config'
 import { s } from '../../config/preprod/setup'
-// import { intent } from '../../test/testData'
+import { utils } from '../common/utils'
 
 type SourceChainInfo = {
   sourceChain: number
@@ -40,7 +41,7 @@ export async function getIntentsToProve(
   // settlementBlockNumber: BigInt,
   proveAll: boolean,
 ) {
-  // get base Last Optimimsm BlockNumber from WorldState
+  // get Base Last OptimimsmSepolia BlockNumber from WorldState
 
   // const sourceChainConfig = networks.helix.sourceChains
   const sourceChainConfig = [networkIds[8921733]]
@@ -50,7 +51,7 @@ export async function getIntentsToProve(
   const sourceChains: Record<number, SourceChainInfo> = {}
   // get the starting block to scan for intents
   let helixProvenState
-  let scanAllIntentsForInbox = true
+  let scanAllIntentsForInbox = false
   // TODO change to use contract factory for deploys then can use ethers deploymentTransaction to get the blockNumber
   let startingBlockNumber = networks.base.inbox.deploymentBlock || 0n
   const inboxDeploymentBlock = networks.base.inbox.deploymentBlock || 0n
@@ -125,9 +126,10 @@ export async function getIntentsToProve(
       console.log('intentToProve.sourceChain: ', intentToProve.sourceChain)
       console.log('networkIds.helix: ', networkIds.helix)
       if (intentToProve.sourceChain !== networkIds.helix) {
-        console.log('intentToProve.sourceChain !== networkIds.helix')
         return false
       } else {
+        console.log('intentToProve: ', intentToProve)
+        console.log('sourceChains: ', sourceChains)
         if (
           intentToProve.blockNumber >
             sourceChains[intentToProve.sourceChain].lastProvenBlock &&
@@ -135,13 +137,6 @@ export async function getIntentsToProve(
         ) {
           sourceChains[intentToProve.sourceChain].needNewProvenState = true
         } else {
-          console.log('intentToProve.sourceChain  blockNumber being rejected')
-          console.log('intentToProve.blockNumber: ', intentToProve.blockNumber)
-          console.log(
-            'sourceChains[intentToProve.sourceChain]: ',
-            sourceChains[intentToProve.sourceChain],
-          )
-          console.log('settlementBlockNumber: ', settlementBlockNumber)
           sourceChains[intentToProve.sourceChain].needNewProvenState = false
         }
       }
@@ -154,13 +149,13 @@ export async function getIntentsToProve(
   // return [chainId, intentHash, intentFulfillTransaction]
 }
 
-async function proveSettlementChainInstantbasehelix() {
-  console.log('In proveSettlementChainInstantbasehelix')
+async function proveSettlementChainInstantBaseHelix() {
+  console.log('In proveSettlementChainInstantBaseHelix')
   let provedSettlementState = false
   let errorCount = 0
   while (!provedSettlementState) {
     const setlementBlock = await s.helixl1Block.number()
-    console.log('setlementBlock: ', setlementBlock)
+    // console.log('setlementBlock: ', setlementBlock)
     const settlementBlockNumberLatest = toQuantity(setlementBlock)
 
     const block: Block = await s.baseProvider.send('eth_getBlockByNumber', [
@@ -171,32 +166,11 @@ async function proveSettlementChainInstantbasehelix() {
     let tx
     let settlementWorldStateRootLatest
     try {
-      const rlpEncodedBlockData = encodeRlp([
-        block.parentHash,
-        block.sha3Uncles,
-        block.miner,
-        block.stateRoot,
-        block.transactionsRoot,
-        block.receiptsRoot,
-        block.logsBloom,
-        stripZerosLeft(toBeHex(block.difficulty)), // Add stripzeros left here
-        toBeHex(block.number),
-        toBeHex(block.gasLimit),
-        toBeHex(block.gasUsed),
-        block.timestamp,
-        block.extraData,
-        block.mixHash,
-        block.nonce,
-        toBeHex(block.baseFeePerGas),
-        block.withdrawalsRoot,
-        stripZerosLeft(toBeHex(block.blobGasUsed)),
-        stripZerosLeft(toBeHex(block.excessBlobGas)),
-        block.parentBeaconBlockRoot,
-      ])
-      tx = await s.helixProverContract.proveSettlementLayerState(
-        getBytes(hexlify(rlpEncodedBlockData)),
-        // networkIds.base,
-      )
+      const rlpEncodedBlockData = await utils.getRLPEncodedBlock(block)
+      tx =
+        await s.helixProverContract.proveSettlementLayerState(
+          rlpEncodedBlockData,
+        )
       await tx.wait()
       console.log('Prove Settlement world state tx: ', tx.hash)
       settlementWorldStateRootLatest = block.stateRoot
@@ -217,18 +191,20 @@ async function proveSettlementChainInstantbasehelix() {
     } catch (e) {
       errorCount += 1
       console.log('ProveSettlementState errorCount: ', errorCount)
-      // if (e.data && s.baseProverContract) {
-      //   const decodedError = s.baseProverContract.interface.parseError(
-      //     e.data,
-      //   )
-      //   console.log(`Transaction failed: ${decodedError?.name}`)
-      //   console.log(
-      //     `Error in proveSettlementLayerState helix:`,
-      //     e.shortMessage,
-      //   )
-      // } else {
-      //   console.log(`Error in proveSettlementLayerState helix:`, e)
-      // }
+      console.log('settlementBlock            : ', setlementBlock)
+      console.log(
+        'settlementBlockNumberLatest: ',
+        toBigInt(settlementBlockNumberLatest),
+      )
+      // console.log('ErrorDescription: ', e)
+      if (e.data && s.baseProverContract) {
+        const decodedError = s.baseProverContract.interface.parseError(e.data)
+        console.log(`Transaction failed: ${decodedError?.name}`)
+        console.log(`Error in proveSettlementLayerState Helix:`, e.shortMessage)
+        // console.log('Full error: ', e)
+      } else {
+        console.log(`Error in proveSettlementLayerState Helix:`, e)
+      }
     }
   }
 }
@@ -271,6 +247,7 @@ async function proveIntentHelix(
   try {
     const proveIntentTx = await s.helixProverContract.proveIntent(
       networkIds.base,
+      settlementTypes.Confirmed,
       actors.claimant,
       networks.base.inbox.address,
       intermediateHash,
@@ -310,11 +287,11 @@ export async function proveIntents(
   for (const intent of intentsToProve) {
     switch (intent.sourceChain) {
       case networkIds.base: {
-        // await proveIntentbase(intent.intentHash, endBatchBlockData)
+        // await proveIntentBase(intent.intentHash, endBatchBlockData)
         break
       }
-      case networkIds.optimism: {
-        // await proveIntentOptimism(intent.intentHash, endBatchBlockData)
+      case networkIds.optimismSepolia: {
+        // await proveIntentOptimismSepolia(intent.intentHash, endBatchBlockData)
         break
       }
       case networkIds.helix: {
@@ -329,7 +306,7 @@ export async function proveIntents(
   }
 }
 
-async function withdrawRewardhelix(intentHash) {
+async function withdrawRewardHelix(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
@@ -358,11 +335,11 @@ export async function withdrawFunds(intentsToProve) {
       case networkIds.base: {
         break
       }
-      case networkIds.optimism: {
+      case networkIds.optimismSepolia: {
         break
       }
       case networkIds.helix: {
-        await withdrawRewardhelix(intent.intentHash)
+        await withdrawRewardHelix(intent.intentHash)
         break
       }
     }
@@ -370,13 +347,13 @@ export async function withdrawFunds(intentsToProve) {
 }
 
 async function main() {
-  const proveAll: boolean = true
+  const proveAll: boolean = false
   // define the variables used for each state of the intent lifecycle
   // Point in time proving for latest batch
   // let intentHash, intentFulfillTransaction
   try {
     console.log('In Main')
-    console.log('Instant Settle of Base Sepolia to helix')
+    console.log('Instant Settle of Base Sepolia to Helix')
 
     // Get all the intents that can be proven for the batch by destination chain
     const { intentsToProve } = await getIntentsToProve(
@@ -386,7 +363,7 @@ async function main() {
     console.log('intentsToProve: ', intentsToProve)
     // Prove the latest batch settled
     const { settlementBlockNumberLatest, settlementWorldStateRootLatest } =
-      await proveSettlementChainInstantbasehelix()
+      await proveSettlementChainInstantBaseHelix()
     // Prove all the intents
     console.log('intentsToProve: ', intentsToProve)
     await proveIntents(
