@@ -45,15 +45,15 @@ const ecoTestnetChainConfiguration = {
     outputRootVersionNumber:
       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
 =======
-const ecoTestNetChainConfiguration = {
-  chainId: networks.ecoTestNet.chainId, // chainId
+const ecoTestnetChainConfiguration = {
+  chainId: networks.ecoTestnet.chainId, // chainId
   chainConfiguration: {
-    provingMechanism: networks.ecoTestNet.proving.mechanism, // provingMechanism
-    settlementChainId: networks.ecoTestNet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestNet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestNet.proving.l1BlockAddress, // blockhashOracle
+    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
-      networks.ecoTestNet.proving.outputRootVersionNumber, // outputRootVersionNumber
+      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
 >>>>>>> ECO-BETA
   },
 }
@@ -70,8 +70,8 @@ switch (networkName) {
   case 'ecoTestnet':
     config = networks.ecoTestnet
 =======
-  case 'ecoTestNet':
-    config = networks.ecoTestNet
+  case 'ecoTestnet':
+    config = networks.ecoTestnet
 >>>>>>> ECO-BETA
     break
   default:
@@ -107,7 +107,7 @@ async function main() {
 <<<<<<< HEAD
     ecoTestnetChainConfiguration,
 =======
-    ecoTestNetChainConfiguration,
+    ecoTestnetChainConfiguration,
 >>>>>>> ECO-BETA
   ])
   const proverReceipt = await singletonDeployer.deploy(proverTx.data, salt, {
@@ -209,7 +209,7 @@ async function main() {
 <<<<<<< HEAD
           ecoTestnetChainConfiguration,
 =======
-          ecoTestNetChainConfiguration,
+          ecoTestnetChainConfiguration,
 >>>>>>> ECO-BETA
         ],
       ],

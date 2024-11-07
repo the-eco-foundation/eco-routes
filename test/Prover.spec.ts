@@ -520,6 +520,7 @@ describe('Prover L3 Settlement Layer Tests', () => {
       // }
     }
     const proverContract = await ethers.getContractFactory('Prover')
+    console.log('deploymentChains: ', deploymentChains)
     prover = await proverContract.deploy(deploymentChains)
   })
 
@@ -589,13 +590,13 @@ describe('Prover L3 Settlement Layer Tests', () => {
     const hardhatChainConfiguration = {
       chainId: networkIds.hardhat,
       chainConfiguration: {
-        provingMechanism: networks.ecoTestNet.proving.mechanism, // provingMechanism
-        settlementChainId: networks.ecoTestNet.proving.settlementChain.id, // settlementChainId
+        provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+        settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
         settlementContract:
-          networks.ecoTestNet.proving.settlementChain.contract, // settlementContract
+          networks.ecoTestnet.proving.settlementChain.contract, // settlementContract
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
-          networks.ecoTestNet.proving.outputRootVersionNumber, // outputRootVersionNumber
+          networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
       },
     }
 
@@ -625,16 +626,16 @@ describe('Prover L3 Settlement Layer Tests', () => {
       },
     }
 
-    const ecoTestNetChainConfiguration = {
-      chainId: networks.ecoTestNet.chainId,
+    const ecoTestnetChainConfiguration = {
+      chainId: networks.ecoTestnet.chainId,
       chainConfiguration: {
-        provingMechanism: networks.ecoTestNet.proving.mechanism,
-        settlementChainId: networks.ecoTestNet.proving.settlementChain.id,
+        provingMechanism: networks.ecoTestnet.proving.mechanism,
+        settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
         settlementContract:
-          networks.ecoTestNet.proving.settlementChain.contract,
+          networks.ecoTestnet.proving.settlementChain.contract,
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
-          networks.ecoTestNet.proving.outputRootVersionNumber,
+          networks.ecoTestnet.proving.outputRootVersionNumber,
       },
     }
     const proverContract = await ethers.getContractFactory('Prover')
@@ -642,7 +643,7 @@ describe('Prover L3 Settlement Layer Tests', () => {
       hardhatChainConfiguration,
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-      ecoTestNetChainConfiguration,
+      ecoTestnetChainConfiguration,
     ])
   })
   it('test l1l3 StorageProof', async () => {
