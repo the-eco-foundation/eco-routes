@@ -55,17 +55,17 @@ const optimismSepoliaChainConfiguration = {
   },
 }
 
-const ecoTestnetChainConfiguration = {
-  chainId: networks.ecoTestnet.chainId, // chainId
-  chainConfiguration: {
-    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
-    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
-  },
-}
+// const ecoTestnetChainConfiguration = {
+//   chainId: networks.ecoTestnet.chainId, // chainId
+//   chainConfiguration: {
+//     provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+//     settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+//     settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//     blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
+//     outputRootVersionNumber:
+//       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+//   },
+// }
 
 const mantleSepoliaChainConfiguration = {
   chainId: networks.mantleSepolia.chainId, // chainId
