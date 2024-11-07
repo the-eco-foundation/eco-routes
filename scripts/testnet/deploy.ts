@@ -7,6 +7,29 @@ export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
 let deployNetwork: any
+let counter: number = 0
+let minimumDuration: number = 0
+let localGasLimit: number = 0
+switch (networkName) {
+  case 'baseSepolia':
+    deployNetwork = networks.baseSepolia
+    break
+  case 'optimismSepolia':
+    deployNetwork = networks.optimismSepolia
+    break
+  case 'optimismSepoliaBlockscout':
+    deployNetwork = networks.optimismSepolia
+    break
+  case 'ecoTestnet':
+    deployNetwork = networks.ecoTestnet
+    break
+  case 'arbitrumSepolia':
+    deployNetwork = networks.arbitrumSepolia
+    break
+  case 'mantleSepolia':
+    deployNetwork = networks.mantleSepolia
+    break
+}
 const baseSepoliaChainConfiguration = {
   chainId: networks.baseSepolia.chainId, // chainId
   chainConfiguration: {
@@ -43,43 +66,38 @@ const ecoTestnetChainConfiguration = {
       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
-let counter: number = 0
-let minimumDuration: number = 0
-switch (networkName) {
-  case 'baseSepolia':
-    counter = networks.baseSepolia.intentSource.counter
-    minimumDuration = networks.baseSepolia.intentSource.minimumDuration
-    deployNetwork = networks.baseSepolia
-    break
-  case 'optimismSepolia':
-    counter = networks.optimismSepolia.intentSource.counter
-    minimumDuration = networks.optimismSepolia.intentSource.minimumDuration
-    deployNetwork = networks.optimismSepolia
-    break
-  case 'optimismSepoliaBlockscout':
-    counter = networks.optimismSepolia.intentSource.counter
-    minimumDuration = networks.optimismSepolia.intentSource.minimumDuration
-    deployNetwork = networks.optimismSepolia
-    break
-  case 'ecoTestnet':
-    counter = networks.ecoTestnet.intentSource.counter
-    minimumDuration = networks.ecoTestnet.intentSource.minimumDuration
-    deployNetwork = networks.ecoTestnet
-    break
-  default:
-    counter = 0
-    minimumDuration = 0
-    break
+
+// const arbitrumSepoliaChainConfiguration = {
+//   chainId: networks.arbitrumSepolia.chainId, // chainId
+//   chainConfiguration: {
+//     provingMechanism: networks.arbitrumSepolia.proving.mechanism, // provingMechanism
+//     settlementChainId: networks.arbitrumSepolia.proving.settlementChain.id, // settlementChainId
+//     settlementContract:
+//       networks.arbitrumSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//     blockhashOracle: networks.arbitrumSepolia.proving.l1BlockAddress, // blockhashOracle
+//     outputRootVersionNumber:
+//       networks.arbitrumSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+//   },
+// }
+
+const mantleSepoliaChainConfiguration = {
+  chainId: networks.mantleSepolia.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.mantleSepolia.proving.mechanism, // provingMechanism
+    settlementChainId: networks.mantleSepolia.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.mantleSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.mantleSepolia.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber:
+      networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
 }
-console.log('Counter: ', counter)
-console.log('Minimum duration: ', minimumDuration)
+const initialSalt: string = 'HANDOFF0'
+// const initialSalt: string = 'PROD'
 
-const initialSalt: string = 'TESTNET6'
-
-let proverAddress = ''
-let intentSourceAddress = ''
-let inboxAddress = '0x200b2417A9d0F79133C2b05b2C028B8A70392e66'
-
+let proverAddress: string = ''
+let intentSourceAddress: string = ''
+let inboxAddress: string = ''
+let hyperProverAddress: string = ''
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
 )
@@ -95,6 +113,10 @@ async function main() {
     'Deployer',
     '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
   )
+  localGasLimit = deployNetwork.gasLimit
+  counter = deployNetwork.intentSource.counter
+  minimumDuration = deployNetwork.intentSource.minimumDuration
+  console.log('localGasLimit:', localGasLimit)
 
   console.log(`**************************************************`)
   let receipt
@@ -104,11 +126,13 @@ async function main() {
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
       ecoTestnetChainConfiguration,
+      //   arbitrumSepoliaChainConfiguration,
+      mantleSepoliaChainConfiguration,
     ])
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: localGasLimit,
     })
-    // console.log(receipt.blockHash)
+
     proverAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -125,7 +149,7 @@ async function main() {
       counter,
     )
     receipt = await singletonDeployer.deploy(intentSourceTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: localGasLimit / 2,
     })
     intentSourceAddress = (
       await singletonDeployer.queryFilter(
@@ -146,7 +170,7 @@ async function main() {
       [],
     )
     receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: localGasLimit / 2,
     })
     inboxAddress = (
       await singletonDeployer.queryFilter(
@@ -154,20 +178,46 @@ async function main() {
         receipt.blockNumber,
       )
     )[0].args.addr
-
-    // on testnet inboxOwner is the deployer, just to make things easier
-    const inboxOwnerSigner = deployer
-    const inbox: Inbox = await ethers.getContractAt(
-      'Inbox',
-      inboxAddress,
-      inboxOwnerSigner,
-    )
-
-    inbox
-      .connect(inboxOwnerSigner)
-      .setMailbox(deployNetwork.hyperlaneMailboxAddress)
   }
   console.log('Inbox deployed to:', inboxAddress)
+
+  if (hyperProverAddress === '' && inboxAddress !== '') {
+    const hyperProverFactory = await ethers.getContractFactory('HyperProver')
+
+    const hyperProverTx = await hyperProverFactory.getDeployTransaction(
+      deployNetwork.hyperlaneMailboxAddress,
+      inboxAddress,
+    )
+
+    receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
+      gasLimit: localGasLimit / 4,
+    })
+    console.log('hyperProver deployed')
+
+    hyperProverAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber,
+      )
+    )[0].args.addr
+
+    console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+  }
+
+  // on testnet inboxOwner is the deployer, just to make things easier
+  const inboxOwnerSigner = deployer
+  const inbox: Inbox = await ethers.getContractAt(
+    'Inbox',
+    inboxAddress,
+    inboxOwnerSigner,
+  )
+
+  receipt = await inbox
+    .connect(inboxOwnerSigner)
+    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+
+  await receipt.wait()
+  console.log('Inbox mailbox set')
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
@@ -183,6 +233,8 @@ async function main() {
             baseSepoliaChainConfiguration,
             optimismSepoliaChainConfiguration,
             ecoTestnetChainConfiguration,
+            //   arbitrumSepoliaChainConfiguration,
+            mantleSepoliaChainConfiguration,
           ],
         ],
       })
@@ -207,6 +259,18 @@ async function main() {
       console.log('Inbox verified at:', inboxAddress)
     } catch (e) {
       console.log(`Error verifying inbox`, e)
+    }
+    try {
+      await run('verify:verify', {
+        address: hyperProverAddress,
+        constructorArguments: [
+          deployNetwork.hyperlaneMailboxAddress,
+          inboxAddress,
+        ],
+      })
+      console.log('hyperProver verified at:', hyperProverAddress)
+    } catch (e) {
+      console.log(`Error verifying hyperProver`, e)
     }
   }
 }

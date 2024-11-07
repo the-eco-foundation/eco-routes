@@ -8,39 +8,92 @@ console.log('Deploying to Network: ', network.name)
 let deployNetwork: any
 let counter: number = 0
 let minimumDuration: number = 0
-switch (networkName) {
-  case 'base':
-    counter = networks.base.intentSource.counter
-    minimumDuration = networks.base.intentSource.minimumDuration
-    deployNetwork = networks.base
-    break
-  case 'optimism':
-    counter = networks.optimism.intentSource.counter
-    minimumDuration = networks.optimism.intentSource.minimumDuration
-    deployNetwork = networks.optimism
-    break
-  case 'helix':
-    counter = networks.helix.intentSource.counter
-    minimumDuration = networks.helix.intentSource.minimumDuration
-    deployNetwork = networks.helix
-    break
-}
-console.log('Counter: ', counter)
+let localGasLimit: number = 0
+
 const initialSalt: string = 'HANDOFF0'
 // const initialSalt: string = 'PROD'
 
-let proverAddress = ''
-let intentSourceAddress = ''
-let inboxAddress = ''
+let proverAddress: string = ''
+let intentSourceAddress: string = ''
+let inboxAddress: string = ''
+let hyperProverAddress: string = ''
 const isSolvingPublic = initialSalt !== 'PROD'
+switch (networkName) {
+  case 'base':
+    deployNetwork = networks.base
+    break
+  case 'optimism':
+    deployNetwork = networks.optimism
+    break
+  case 'helix':
+    deployNetwork = networks.helix
+    break
+  case 'arbitrum':
+    deployNetwork = networks.arbitrum
+    break
+  case 'mantle':
+    deployNetwork = networks.mantle
+}
+
+const baseChainConfiguration = {
+  chainId: networks.base.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.base.proving.mechanism, // provingMechanism
+    settlementChainId: networks.base.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.base.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.base.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber: networks.base.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
+
+const optimismChainConfiguration = {
+  chainId: networks.optimism.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.optimism.proving.mechanism, // provingMechanism
+    settlementChainId: networks.optimism.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.optimism.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.     blockhashOracle: networks.optimism.proving.l1BlockAddress,
+    blockhashOracle: networks.optimism.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber: networks.optimism.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
+const helixChainConfiguration = {
+  chainId: networks.helix.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.helix.proving.mechanism, // provingMechanism
+    settlementChainId: networks.helix.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.helix.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.helix.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber: networks.helix.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
+//   const arbitrumChainConfiguration = {
+//     chainId: networks.arbitrum.chainId, // chainId
+//     chainConfiguration: {
+//       provingMechanism: networks.arbitrum.proving.mechanism, // provingMechanism
+//       settlementChainId: networks.arbitrum.proving.settlementChain.id, // settlementChainId
+//       settlementContract: networks.arbitrum.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//       blockhashOracle: networks.arbitrum.proving.l1BlockAddress, // blockhashOracle
+//       outputRootVersionNumber:
+//         networks.arbitrum.proving.outputRootVersionNumber, // outputRootVersionNumber
+//     },
+//   }
+const mantleChainConfiguration = {
+  chainId: networks.mantle.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.mantle.proving.mechanism, // provingMechanism
+    settlementChainId: networks.mantle.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.mantle.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.mantle.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber: networks.mantle.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
+
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
 )
 const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
 
 console.log('Deploying to Network: ', network.name)
-
-// console.log(network)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -50,51 +103,24 @@ async function main() {
     'Deployer',
     '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
   )
+  localGasLimit = deployNetwork.gasLimit
+  counter = deployNetwork.intentSource.counter
+  minimumDuration = deployNetwork.intentSource.minimumDuration
 
   console.log(`**************************************************`)
-  const baseChainConfiguration = {
-    chainId: networks.base.chainId, // chainId
-    chainConfiguration: {
-      provingMechanism: networks.base.proving.mechanism, // provingMechanism
-      settlementChainId: networks.base.proving.settlementChain.id, // settlementChainId
-      settlementContract: networks.base.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-      blockhashOracle: networks.base.proving.l1BlockAddress, // blockhashOracle
-      outputRootVersionNumber: networks.base.proving.outputRootVersionNumber, // outputRootVersionNumber
-    },
-  }
 
-  const optimismChainConfiguration = {
-    chainId: networks.optimism.chainId, // chainId
-    chainConfiguration: {
-      provingMechanism: networks.optimism.proving.mechanism, // provingMechanism
-      settlementChainId: networks.optimism.proving.settlementChain.id, // settlementChainId
-      settlementContract: networks.optimism.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.     blockhashOracle: networks.optimism.proving.l1BlockAddress,
-      blockhashOracle: networks.optimism.proving.l1BlockAddress, // blockhashOracle
-      outputRootVersionNumber:
-        networks.optimism.proving.outputRootVersionNumber, // outputRootVersionNumber
-    },
-  }
-  const helixChainConfiguration = {
-    chainId: networks.helix.chainId, // chainId
-    chainConfiguration: {
-      provingMechanism: networks.helix.proving.mechanism, // provingMechanism
-      settlementChainId: networks.helix.proving.settlementChain.id, // settlementChainId
-      settlementContract: networks.helix.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-      blockhashOracle: networks.helix.proving.l1BlockAddress, // blockhashOracle
-      outputRootVersionNumber: networks.helix.proving.outputRootVersionNumber, // outputRootVersionNumber
-    },
-  }
   let receipt
-
   if (proverAddress === '') {
     const proverFactory = await ethers.getContractFactory('Prover')
     const proverTx = await proverFactory.getDeployTransaction([
       baseChainConfiguration,
       optimismChainConfiguration,
       helixChainConfiguration,
+      //   arbitrumChainConfiguration,
+      mantleChainConfiguration,
     ])
     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: localGasLimit,
     })
     proverAddress = (
       await singletonDeployer.queryFilter(
@@ -112,7 +138,7 @@ async function main() {
       counter,
     )
     receipt = await singletonDeployer.deploy(intentSourceTx.data, salt, {
-      gasLimit: 5000000,
+      gasLimit: localGasLimit / 2,
     })
     intentSourceAddress = (
       await singletonDeployer.queryFilter(
@@ -122,7 +148,6 @@ async function main() {
     )[0].args.addr
   }
   console.log('intentSource deployed to:', intentSourceAddress)
-
   if (inboxAddress === '') {
     const inboxFactory = await ethers.getContractFactory('Inbox')
 
@@ -132,7 +157,7 @@ async function main() {
       [actors.solver],
     )
     receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
-      gasLimit: 3000000,
+      gasLimit: localGasLimit / 2,
     })
     await receipt.wait()
     inboxAddress = (
@@ -156,6 +181,30 @@ async function main() {
   }
   console.log('Inbox deployed to:', inboxAddress)
 
+  if (hyperProverAddress === '' && inboxAddress !== '') {
+    const hyperProverFactory = await ethers.getContractFactory('HyperProver')
+
+    const hyperProverTx = await hyperProverFactory.getDeployTransaction(
+      deployNetwork.hyperlaneMailboxAddress,
+      inboxAddress,
+    )
+
+    receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
+      gasLimit: localGasLimit / 4,
+    })
+    await receipt.wait()
+    console.log('hyperProver deployed')
+
+    hyperProverAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber,
+      )
+    )[0].args.addr
+
+    console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+  }
+
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
   if (network.name !== 'hardhat') {
@@ -169,6 +218,8 @@ async function main() {
             baseChainConfiguration,
             optimismChainConfiguration,
             helixChainConfiguration,
+            // arbitrumChainConfiguration,
+            mantleChainConfiguration,
           ],
         ],
       })
@@ -197,6 +248,18 @@ async function main() {
       console.log('Inbox verified at:', inboxAddress)
     } catch (e) {
       console.log(`Error verifying inbox`, e)
+    }
+    try {
+      await run('verify:verify', {
+        address: hyperProverAddress,
+        constructorArguments: [
+          deployNetwork.hyperlaneMailboxAddress,
+          inboxAddress,
+        ],
+      })
+      console.log('hyperProver verified at:', hyperProverAddress)
+    } catch (e) {
+      console.log(`Error verifying hyperProver`, e)
     }
   }
 }
