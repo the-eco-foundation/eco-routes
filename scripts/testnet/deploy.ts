@@ -48,7 +48,7 @@ const optimismSepoliaChainConfiguration = {
     provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
     settlementChainId: networks.optimismSepolia.proving.settlementChain.id, // settlementChainId
     settlementContract:
-      networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+      networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputeGameFactory or L2OutputOracle.
     blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
@@ -67,6 +67,17 @@ const ecoTestnetChainConfiguration = {
   },
 }
 
+const mantleSepoliaChainConfiguration = {
+  chainId: networks.mantleSepolia.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.mantleSepolia.proving.mechanism, // provingMechanism
+    settlementChainId: networks.mantleSepolia.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.mantleSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.mantleSepolia.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber:
+      networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
 // const arbitrumSepoliaChainConfiguration = {
 //   chainId: networks.arbitrumSepolia.chainId, // chainId
 //   chainConfiguration: {
@@ -79,19 +90,7 @@ const ecoTestnetChainConfiguration = {
 //       networks.arbitrumSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
 //   },
 // }
-
-const mantleSepoliaChainConfiguration = {
-  chainId: networks.mantleSepolia.chainId, // chainId
-  chainConfiguration: {
-    provingMechanism: networks.mantleSepolia.proving.mechanism, // provingMechanism
-    settlementChainId: networks.mantleSepolia.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.mantleSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.mantleSepolia.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
-  },
-}
-const initialSalt: string = 'HANDOFF0'
+const initialSalt: string = 'nishaad0'
 // const initialSalt: string = 'PROD'
 
 let proverAddress: string = ''
@@ -125,7 +124,7 @@ async function main() {
     const proverTx = await proverFactory.getDeployTransaction([
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-      ecoTestnetChainConfiguration,
+      //   ecoTestnetChainConfiguration,
       //   arbitrumSepoliaChainConfiguration,
       mantleSepoliaChainConfiguration,
     ])
@@ -178,18 +177,6 @@ async function main() {
         receipt.blockNumber,
       )
     )[0].args.addr
-
-    // on testnet inboxOwner is the deployer, just to make things easier
-    const inboxOwnerSigner = deployer
-    const inbox: Inbox = await ethers.getContractAt(
-      'Inbox',
-      inboxAddress,
-      inboxOwnerSigner,
-    )
-
-    inbox
-      .connect(inboxOwnerSigner)
-      .setMailbox(deployNetwork.hyperlaneMailboxAddress)
   }
   console.log('Inbox deployed to:', inboxAddress)
 
@@ -202,9 +189,9 @@ async function main() {
     )
 
     receipt = await singletonDeployer.deploy(hyperProverTx.data, salt, {
-      gasLimit: localGasLimit / 4,
+      gasLimit: localGasLimit,
     })
-    console.log('hyperProver deployed')
+    await receipt.wait()
 
     hyperProverAddress = (
       await singletonDeployer.queryFilter(
@@ -212,9 +199,22 @@ async function main() {
         receipt.blockNumber,
       )
     )[0].args.addr
-
-    console.log(`hyperProver deployed to: ${hyperProverAddress}`)
   }
+  console.log(`hyperProver deployed to: ${hyperProverAddress}`)
+
+  // on testnet inboxOwner is the deployer, just to make things easier
+  const inboxOwnerSigner = deployer
+  const inbox: Inbox = await ethers.getContractAt(
+    'Inbox',
+    inboxAddress,
+    inboxOwnerSigner,
+  )
+
+  receipt = await inbox
+    .connect(inboxOwnerSigner)
+    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+  await receipt.wait()
+  console.log('Inbox mailbox set')
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
@@ -229,7 +229,7 @@ async function main() {
           [
             baseSepoliaChainConfiguration,
             optimismSepoliaChainConfiguration,
-            ecoTestnetChainConfiguration,
+            // ecoTestnetChainConfiguration,
             //   arbitrumSepoliaChainConfiguration,
             mantleSepoliaChainConfiguration,
           ],
@@ -251,7 +251,7 @@ async function main() {
     try {
       await run('verify:verify', {
         address: inboxAddress,
-        constructorArguments: [deployer.address, false, [actors.solver]],
+        constructorArguments: [deployer.address, true, []],
       })
       console.log('Inbox verified at:', inboxAddress)
     } catch (e) {

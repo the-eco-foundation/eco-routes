@@ -65,10 +65,10 @@ Intent proving lives on the `Prover` and `HyperProver` contracts, which exist on
 
 | **Testnet Chains** | IntentSource                               | Inbox                                      | StorageProver                              | HyperProver                                |
 | :----------------- | :----------------------------------------- | :----------------------------------------- | :----------------------------------------- | :----------------------------------------- |
-| OptimismSepolia    | WIP                                        | WIP                                        | WIP                                        | WIP                                        |
-| BaseSepolia        | WIP                                        | WIP                                        | WIP                                        | WIP                                        |
-| MantleSepolia      | WIP                                        | WIP                                        | WIP                                        | WIP                                        |
-| ArbitrumSepolia    | WIP                                        | WIP                                        | WIP                                        | WIP                                        |
+| OptimismSepolia    | 0x734a3d5a8D691d9b911674E682De5f06517c79ec | 0xB73fD43C293b250Cb354c4631292A318248FB33E | 0xDcbe9977821a2565a153b5c3622a999F7BeDcdD9 | 0x39cBD6e1C0E6a30dF33428a54Ac3940cF33B23D6 |
+| BaseSepolia        | 0x734a3d5a8D691d9b911674E682De5f06517c79ec | 0xB73fD43C293b250Cb354c4631292A318248FB33E | 0xDcbe9977821a2565a153b5c3622a999F7BeDcdD9 | 0x39cBD6e1C0E6a30dF33428a54Ac3940cF33B23D6 |
+| MantleSepolia      | 0x734a3d5a8D691d9b911674E682De5f06517c79ec | 0xB73fD43C293b250Cb354c4631292A318248FB33E | 0xDcbe9977821a2565a153b5c3622a999F7BeDcdD9 | WIP                                        |
+| ArbitrumSepolia    | 0x734a3d5a8D691d9b911674E682De5f06517c79ec | 0xB73fD43C293b250Cb354c4631292A318248FB33E | WIP                                        | 0x6D6556B3a199cbbdcFE4E7Ba3FA6330D066A31a9 |
 
 ## Future Work
 
