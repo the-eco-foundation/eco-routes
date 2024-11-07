@@ -30,9 +30,9 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
   try {
     const intentTx =
       await s.baseSepoliaIntentSourceContractIntentCreator.createIntent(
-        networkIds.ecoTestNet, // desination chainId
-        networks.ecoTestNet.inboxAddress, // destination inbox address
-        [networks.ecoTestNet.usdcAddress], // target Tokens
+        networkIds.ecoTestnet, // desination chainId
+        networks.ecoTestnet.inboxAddress, // destination inbox address
+        [networks.ecoTestnet.usdcAddress], // target Tokens
         data, // calldata for destination chain
         [networks.baseSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
@@ -76,16 +76,16 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
       await s.baseSepoliaIntentSourceContractIntentCreator.getIntent(intentHash)
 
     // transfer the intent tokens to the Inbox Contract
-    const targetToken = s.ecoTestNetUSDCContractSolver
+    const targetToken = s.ecoTestnetUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.ecoTestNet.inboxAddress,
+      networks.ecoTestnet.inboxAddress,
       intent.targetAmounts[0],
     )
     await fundTx.wait()
 
     // fulfill the intent
 
-    const fulfillTx = await s.ecoTestNetInboxContractSolver.fulfill(
+    const fulfillTx = await s.ecoTestnetInboxContractSolver.fulfillStorage(
       networkIds.baseSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
@@ -102,18 +102,18 @@ export async function baseSepoliaEcoTestNetIntentSolve() {
   }
 }
 
-export async function ecoTestNetBaseSepoliaIntentSolve() {
+export async function ecoTestnetBaseSepoliaIntentSolve() {
   console.log('In createIntent EcoTestNetBaseSepolia')
   // approve lockup
-  const rewardToken = s.ecoTestNetUSDCContractIntentCreator
+  const rewardToken = s.ecoTestnetUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.ecoTestNet.intentSourceAddress,
+    networks.ecoTestnet.intentSourceAddress,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
 
   // get the block before creating the intent
-  const latestBlock = await s.ecoTestNetProvider.getBlock('latest')
+  const latestBlock = await s.ecoTestnetProvider.getBlock('latest')
   const latestBlockNumberHex = toQuantity(latestBlock.number)
   // create intent
   const data: BytesLike[] = [
@@ -123,22 +123,22 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
   let intentHash
   try {
     const intentTx =
-      await s.ecoTestNetIntentSourceContractIntentCreator.createIntent(
+      await s.ecoTestnetIntentSourceContractIntentCreator.createIntent(
         networkIds.baseSepolia, // desination chainId
         networks.baseSepolia.inboxAddress, // destination inbox address
         [networks.baseSepolia.usdcAddress], // target Tokens
         data, // calldata for destination chain
-        [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
+        [networks.ecoTestnet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
+        networks.ecoTestnet.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
-      await s.ecoTestNetIntentSourceContractIntentCreator.queryFilter(
-        s.ecoTestNetIntentSourceContractIntentCreator.getEvent('IntentCreated'),
+      await s.ecoTestnetIntentSourceContractIntentCreator.queryFilter(
+        s.ecoTestnetIntentSourceContractIntentCreator.getEvent('IntentCreated'),
         latestBlockNumberHex,
       )
     for (const intentHashEvent of intentHashEvents) {
@@ -150,9 +150,9 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
     console.log('Created Intent Hash: ', intentHash)
     console.log('Intent Creation tx: ', intentTx.hash)
   } catch (e) {
-    if (e.data && s.ecoTestNetIntentSourceContractIntentCreator) {
+    if (e.data && s.ecoTestnetIntentSourceContractIntentCreator) {
       const decodedError =
-        s.ecoTestNetIntentSourceContractIntentCreator.interface.parseError(
+        s.ecoTestnetIntentSourceContractIntentCreator.interface.parseError(
           e.data,
         )
       console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
@@ -165,7 +165,7 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
   try {
     // get intent Information
     const thisIntent =
-      await s.ecoTestNetIntentSourceContractIntentCreator.getIntent(intentHash)
+      await s.ecoTestnetIntentSourceContractIntentCreator.getIntent(intentHash)
 
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.baseSepoliaUSDCContractSolver
@@ -177,8 +177,8 @@ export async function ecoTestNetBaseSepoliaIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfill(
-      networkIds.ecoTestNet, // source chainId
+    const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfillStorage(
+      networkIds.ecoTestnet, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
       thisIntent.expiryTime, // expiry time
@@ -271,7 +271,7 @@ export async function baseSepoliaOptimismSepoliaIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfill(
+    const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfillStorage(
       networkIds.baseSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
@@ -367,7 +367,7 @@ export async function optimismSepoliaBaseSepoliaIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfill(
+    const fulfillTx = await s.baseSepoliaInboxContractSolver.fulfillStorage(
       networkIds.optimismSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
@@ -406,9 +406,9 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
   try {
     const intentTx =
       await s.optimismSepoliaIntentSourceContractIntentCreator.createIntent(
-        networkIds.ecoTestNet, // desination chainId
-        networks.ecoTestNet.inboxAddress, // destination inbox address
-        [networks.ecoTestNet.usdcAddress], // target Tokens
+        networkIds.ecoTestnet, // desination chainId
+        networks.ecoTestnet.inboxAddress, // destination inbox address
+        [networks.ecoTestnet.usdcAddress], // target Tokens
         data, // calldata for destination chain
         [networks.optimismSepolia.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
@@ -454,16 +454,16 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
       )
 
     // transfer the intent tokens to the Inbox Contract
-    const targetToken = s.ecoTestNetUSDCContractSolver
+    const targetToken = s.ecoTestnetUSDCContractSolver
     const fundTx = await targetToken.transfer(
-      networks.ecoTestNet.inboxAddress,
+      networks.ecoTestnet.inboxAddress,
       intent.targetAmounts[0],
     )
     await fundTx.wait()
 
     // fulfill the intent
 
-    const fulfillTx = await s.ecoTestNetInboxContractSolver.fulfill(
+    const fulfillTx = await s.ecoTestnetInboxContractSolver.fulfillStorage(
       networkIds.optimismSepolia, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
@@ -480,18 +480,18 @@ export async function optimismSepoliaEcoTestNetIntentSolve() {
   }
 }
 
-export async function ecoTestNetOptimismSepoliaIntentSolve() {
-  console.log('In createIntent ecoTestNetOptimismSepolia')
+export async function ecoTestnetOptimismSepoliaIntentSolve() {
+  console.log('In createIntent ecoTestnetOptimismSepolia')
   // approve lockup
-  const rewardToken = s.ecoTestNetUSDCContractIntentCreator
+  const rewardToken = s.ecoTestnetUSDCContractIntentCreator
   const approvalTx = await rewardToken.approve(
-    networks.ecoTestNet.intentSourceAddress,
+    networks.ecoTestnet.intentSourceAddress,
     intent.rewardAmounts[0],
   )
   await approvalTx.wait()
 
   // get the block before creating the intent
-  const latestBlock = await s.ecoTestNetProvider.getBlock('latest')
+  const latestBlock = await s.ecoTestnetProvider.getBlock('latest')
   const latestBlockNumberHex = toQuantity(latestBlock.number)
   // create intent
   const data: BytesLike[] = [
@@ -501,22 +501,22 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
   let intentHash
   try {
     const intentTx =
-      await s.ecoTestNetIntentSourceContractIntentCreator.createIntent(
+      await s.ecoTestnetIntentSourceContractIntentCreator.createIntent(
         networkIds.optimismSepolia, // desination chainId
         networks.optimismSepolia.inboxAddress, // destination inbox address
         [networks.optimismSepolia.usdcAddress], // target Tokens
         data, // calldata for destination chain
-        [networks.ecoTestNet.usdcAddress], // reward Tokens on source chain
+        [networks.ecoTestnet.usdcAddress], // reward Tokens on source chain
         intent.rewardAmounts, // reward amounts on source chain
         expiryTime, // intent expiry time
-        networks.ecoTestNet.proverContractAddress, // prover contract address on the sourceChain
+        networks.ecoTestnet.proverContractAddress, // prover contract address on the sourceChain
       )
     await intentTx.wait()
 
     // Get the event from the latest Block checking transaction hash
     const intentHashEvents =
-      await s.ecoTestNetIntentSourceContractIntentCreator.queryFilter(
-        s.ecoTestNetIntentSourceContractIntentCreator.getEvent('IntentCreated'),
+      await s.ecoTestnetIntentSourceContractIntentCreator.queryFilter(
+        s.ecoTestnetIntentSourceContractIntentCreator.getEvent('IntentCreated'),
         latestBlockNumberHex,
       )
     for (const intentHashEvent of intentHashEvents) {
@@ -528,9 +528,9 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
     console.log('Created Intent Hash: ', intentHash)
     console.log('Intent Creation tx: ', intentTx.hash)
   } catch (e) {
-    if (e.data && s.ecoTestNetIntentSourceContractIntentCreator) {
+    if (e.data && s.ecoTestnetIntentSourceContractIntentCreator) {
       const decodedError =
-        s.ecoTestNetIntentSourceContractIntentCreator.interface.parseError(
+        s.ecoTestnetIntentSourceContractIntentCreator.interface.parseError(
           e.data,
         )
       console.log(`Transaction failed in createIntent : ${decodedError?.name}`)
@@ -543,7 +543,7 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
   try {
     // get intent Information
     const thisIntent =
-      await s.ecoTestNetIntentSourceContractIntentCreator.getIntent(intentHash)
+      await s.ecoTestnetIntentSourceContractIntentCreator.getIntent(intentHash)
 
     // transfer the intent tokens to the Inbox Contract
     const targetToken = s.optimismSepoliaUSDCContractSolver
@@ -555,8 +555,8 @@ export async function ecoTestNetOptimismSepoliaIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfill(
-      networkIds.ecoTestNet, // source chainId
+    const fulfillTx = await s.optimismSepoliaInboxContractSolver.fulfillStorage(
+      networkIds.ecoTestnet, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // calldata
       thisIntent.expiryTime, // expiry time
@@ -577,11 +577,11 @@ async function main() {
   try {
     console.log('In Main')
     await baseSepoliaEcoTestNetIntentSolve()
-    await ecoTestNetBaseSepoliaIntentSolve()
+    await ecoTestnetBaseSepoliaIntentSolve()
     await baseSepoliaOptimismSepoliaIntentSolve()
     await optimismSepoliaBaseSepoliaIntentSolve()
     await optimismSepoliaEcoTestNetIntentSolve()
-    await ecoTestNetOptimismSepoliaIntentSolve()
+    await ecoTestnetOptimismSepoliaIntentSolve()
   } catch (e) {
     console.log(e)
   }

@@ -51,6 +51,9 @@
     "deployEcoTestnet": "hardhat run --network ecoTestnet scripts/testnet/deploy.ts",
     "deployBaseSepolia": "hardhat run --network baseSepolia scripts/testnet/deploy.ts",
     "deployOptimismSepolia": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/deploy.ts",
+    "deployArbitrumSepolia": "hardhat run --network arbitrumSepolia scripts/testnet/deploy.ts",
+    "deployMantleSepolia": "hardhat run --network mantleSepolia scripts/testnet/deploy.ts",
+    "deployTestnet": "yarn deployEcoTestnet &&  yarn deployBaseSepolia && yarn deployOptimismSepolia && yarn deployMantleSepolia && yarn deployArbitrumSepolia",
     "proverDeployEcoTestnet": "hardhat run --network ecoTestnet scripts/testnet/proverDeploy.ts",
     "proverDeployBaseSepolia": "hardhat run --network baseSepolia scripts/testnet/proverDeploy.ts",
     "proverDeployOptimismSepolia": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/proverDeploy.ts",
@@ -66,6 +69,8 @@
     "deployBaseOpen": "hardhat run --network base scripts/mainnet/deployOpen.ts",
     "deployOptimism": "hardhat run --network optimism scripts/mainnet/deploy.ts",
     "deployOptimismOpen": "hardhat run --network optimism scripts/mainnet/deployOpen.ts",
+    "deployHyperProverBase": "hardhat run --network base scripts/deployHyperProver.ts",
+    "deployHyperProverOptimism": "hardhat run --network optimism scripts/deployHyperProver.ts",
     "MainnetBedrock": "-------- Bedrock scripts below --------",
     "intentSolveMainnet": "hardhat run scripts/mainnet/intentSolve.ts",
     "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdrawOpBase.ts",
@@ -126,6 +131,7 @@
     "viem": "^2.0.0"
   },
   "dependencies": {
+    "@hyperlane-xyz/registry": "^4.2.0",
     "@hyperlane-xyz/sdk": "^5.1.0",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2"

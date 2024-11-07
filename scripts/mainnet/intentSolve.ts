@@ -87,7 +87,7 @@ export async function optimismBaseIntentSolve() {
 
     // fulfill the intent
 
-    const fulfillTx = await s.baseInboxContractSolver.fulfill(
+    const fulfillTx = await s.baseInboxContractSolver.fulfillStorage(
       networkIds.optimism, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // call Data
@@ -186,7 +186,7 @@ export async function baseOptimismIntentSolve() {
     optimismSolverNonceManager.increment()
     // fulfill the intent
 
-    const fulfillTx = await s.optimismInboxContractSolver.fulfill(
+    const fulfillTx = await s.optimismInboxContractSolver.fulfillStorage(
       networkIds.base, // source chainId
       thisIntent.targets.toArray(), // target  token addresses
       thisIntent.data.toArray(), // call Data

@@ -5,7 +5,6 @@ import "@hyperlane-xyz/core/contracts/libs/Message.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 
-
 contract TestMailbox {
 
     using TypeCasts for bytes32;
@@ -29,7 +28,7 @@ contract TestMailbox {
         uint32 _destinationDomain,
         bytes32 _recipientAddress,
         bytes calldata _messageBody
-    ) public returns (bytes32) {
+    ) public payable returns (bytes32) {
         destinationDomain = _destinationDomain;
         recipientAddress = _recipientAddress;
         messageBody = _messageBody;
@@ -43,5 +42,13 @@ contract TestMailbox {
 
     function process(bytes calldata _msg) public {
         IMessageRecipient(recipientAddress.bytes32ToAddress()).handle(uint32(block.chainid), msg.sender.addressToBytes32(), _msg);
+    }
+
+    function quoteDispatch(
+        uint32,
+        bytes32,
+        bytes calldata
+    ) public pure returns (bytes32) {
+        return bytes32(uint256(100000));
     }
 }
