@@ -165,15 +165,23 @@ const networks: any = {
     intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
     inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
     intentSource: {
+      address: '',
+      deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
+    inbox: {
+      address: '',
+      deploymentBlock: 14812488n, // '0xe20548',
+    },
+    hyperproverContractAddress: '',
     proving: {
       mechanism: provingMechanisms.bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
+      l1BlockSlotNumber: 2,
       settlementChain: {
         network: 'base',
         id: networkIds.base,

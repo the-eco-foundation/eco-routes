@@ -57,7 +57,7 @@ const config: HardhatUserConfig = {
       url: `https://base-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
-    ecoTestnet: {
+    ecoTestNet: {
       chainId: 471923,
       url: `https://eco-testnet.rpc.caldera.xyz/http`,
       accounts: [DEPLOYER_PRIVATE_KEY],
@@ -131,7 +131,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: 'ecoTestnet',
+        network: 'ecoTestNet',
         chainId: 471923,
         urls: {
           apiURL: 'https://eco-testnet.explorer.caldera.xyz/api',

@@ -19,7 +19,6 @@ import {
   networks,
   provingMechanisms,
   settlementTypes,
-  deploymentChainConfig,
   deploymentChainConfigs,
 } from '../config/local/config'
 import {
@@ -29,6 +28,7 @@ import {
 } from '../config/local/testData'
 
 import { utils } from '../scripts/common/utils'
+// import { s } from '../config/mainnet/setup'
 
 // Unit Tests
 describe('Prover Unit Tests', () => {
@@ -523,6 +523,128 @@ describe('Prover L3 Settlement Layer Tests', () => {
     prover = await proverContract.deploy(deploymentChains)
   })
 
+  it('test l1l3 StorageProof', async () => {
+    await prover.proveStorage(
+      l1l3SettlementLayerState.storageProof.l2BlockHashSlot,
+      l1l3SettlementLayerState.storageProof.rlpL1BlockHash,
+      l1l3SettlementLayerState.storageProof.storageProof,
+      l1l3SettlementLayerState.storageProof.storageHash,
+    )
+  })
+  it('test l1l3 AccountProof', async () => {
+    await prover.proveAccount(
+      l1l3SettlementLayerState.accountProof.l1BlockAddress,
+      l1l3SettlementLayerState.accountProof.RLPEncodedl2l1BlockContractData,
+      l1l3SettlementLayerState.accountProof.accountProof,
+      l1l3SettlementLayerState.accountProof.stateRoot,
+    )
+  })
+  it('test l1l3SettlementState', async () => {
+    await prover.proveL1L3SettlementLayerState(
+      l1l3SettlementLayerState.parameters.l1RlpEncodedBlockData,
+      l1l3SettlementLayerState.parameters.l2RlpEncodedBlockData,
+      l1l3SettlementLayerState.parameters.l2l1StorageProof,
+      l1l3SettlementLayerState.parameters.rlpEncodedL2L1BlockData,
+      l1l3SettlementLayerState.parameters.l2AccountProof,
+      l1l3SettlementLayerState.parameters.l2WorldStateRoot,
+    )
+  })
+})
+
+// proveL1L3SettlementLayerState
+describe('Prover L3 Settlement Layer Tests', () => {
+  let deployerSigner: SignerWithAddress
+  let intentCreatorSigner: SignerWithAddress
+  let solverSigner: SignerWithAddress
+  let claimantSigner: SignerWithAddress
+  let proverSigner: SignerWithAddress
+  let recipientSigner: SignerWithAddress
+  let prover: Prover
+  let blockhashOracle
+
+  before(async () => {
+    ;[
+      deployerSigner,
+      intentCreatorSigner,
+      solverSigner,
+      claimantSigner,
+      proverSigner,
+      recipientSigner,
+    ] = await ethers.getSigners()
+  })
+
+  beforeEach(async () => {
+    blockhashOracle = await deploy(deployerSigner, MockL1Block__factory)
+    // only the number and hash matters here
+    await blockhashOracle.setL1BlockValues(
+      l1l3SettlementLayerState.l2BlockTag,
+      0,
+      0,
+      l1l3SettlementLayerState.l2BlockHash,
+      0,
+      '0x' + '00'.repeat(32),
+      0,
+      0,
+    )
+    const hardhatChainConfiguration = {
+      chainId: networkIds.hardhat,
+      chainConfiguration: {
+        provingMechanism: networks.ecoTestNet.proving.mechanism, // provingMechanism
+        settlementChainId: networks.ecoTestNet.proving.settlementChain.id, // settlementChainId
+        settlementContract:
+          networks.ecoTestNet.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+        outputRootVersionNumber:
+          networks.ecoTestNet.proving.outputRootVersionNumber, // outputRootVersionNumber
+      },
+    }
+
+    const baseSepoliaChainConfiguration = {
+      chainId: networks.baseSepolia.chainId, // chainId
+      chainConfiguration: {
+        provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
+        settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+        settlementContract:
+          networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+        blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
+        outputRootVersionNumber:
+          networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      },
+    }
+
+    const optimismSepoliaChainConfiguration = {
+      chainId: networks.optimismSepolia.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.optimismSepolia.proving.mechanism,
+        settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
+        settlementContract:
+          networks.optimismSepolia.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.optimismSepolia.proving.outputRootVersionNumber,
+      },
+    }
+
+    const ecoTestNetChainConfiguration = {
+      chainId: networks.ecoTestNet.chainId,
+      chainConfiguration: {
+        provingMechanism: networks.ecoTestNet.proving.mechanism,
+        settlementChainId: networks.ecoTestNet.proving.settlementChain.id,
+        settlementContract:
+          networks.ecoTestNet.proving.settlementChain.contract,
+        blockhashOracle: await blockhashOracle.getAddress(),
+        outputRootVersionNumber:
+          networks.ecoTestNet.proving.outputRootVersionNumber,
+      },
+    }
+    const proverContract = await ethers.getContractFactory('Prover')
+    prover = await proverContract.deploy([
+      hardhatChainConfiguration,
+      baseSepoliaChainConfiguration,
+      optimismSepoliaChainConfiguration,
+      ecoTestNetChainConfiguration,
+    ])
+  })
   it('test l1l3 StorageProof', async () => {
     await prover.proveStorage(
       l1l3SettlementLayerState.storageProof.l2BlockHashSlot,

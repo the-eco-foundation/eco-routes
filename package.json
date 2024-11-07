@@ -149,7 +149,6 @@
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@types/lodash": "^4.17.12",
-    "loadash": "^1.0.0",
     "lodash": "^4.17.21"
   }
 }
