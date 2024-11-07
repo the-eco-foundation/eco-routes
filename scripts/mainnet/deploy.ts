@@ -14,9 +14,9 @@ const initialSalt: string = 'HANDOFF0'
 // const initialSalt: string = 'PROD'
 
 let proverAddress: string = ''
-let intentSourceAddress: string = '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905'
-let inboxAddress: string = '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0'
-let hyperProverAddress: string = '0xB1017F865c6306319C65266158979278F7f50118'
+let intentSourceAddress: string = ''
+let inboxAddress: string = ''
+let hyperProverAddress: string = ''
 const isSolvingPublic = initialSalt !== 'PROD'
 switch (networkName) {
   case 'base':

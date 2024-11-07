@@ -178,18 +178,6 @@ async function main() {
         receipt.blockNumber,
       )
     )[0].args.addr
-
-    // on testnet inboxOwner is the deployer, just to make things easier
-    const inboxOwnerSigner = deployer
-    const inbox: Inbox = await ethers.getContractAt(
-      'Inbox',
-      inboxAddress,
-      inboxOwnerSigner,
-    )
-
-    inbox
-      .connect(inboxOwnerSigner)
-      .setMailbox(deployNetwork.hyperlaneMailboxAddress)
   }
   console.log('Inbox deployed to:', inboxAddress)
 
@@ -215,6 +203,21 @@ async function main() {
 
     console.log(`hyperProver deployed to: ${hyperProverAddress}`)
   }
+
+  // on testnet inboxOwner is the deployer, just to make things easier
+  const inboxOwnerSigner = deployer
+  const inbox: Inbox = await ethers.getContractAt(
+    'Inbox',
+    inboxAddress,
+    inboxOwnerSigner,
+  )
+
+  receipt = await inbox
+    .connect(inboxOwnerSigner)
+    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+
+  await receipt.wait()
+  console.log('Inbox mailbox set')
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
