@@ -45,10 +45,10 @@ contract TestMailbox {
     }
 
     function quoteDispatch(
-        uint32 _destinationDomain,
-        bytes32 _recipientAddress,
-        bytes calldata _messageBody
-    ) public view returns (bytes32) {
+        uint32,
+        bytes32,
+        bytes calldata
+    ) public pure returns (bytes32) {
         return bytes32(uint256(100000));
     }
 }

@@ -9,7 +9,7 @@ interface IDeployer {
 contract Deployer {
   IDeployer public immutable deployer;
 
-  constructor(IDeployer _deployer) public {
+  constructor(IDeployer _deployer) {
     // Use EIP-2470 SingletonFactory address by default
     deployer = address(_deployer) == address(0) ? IDeployer(0xce0042B868300000d44A59004Da54A005ffdcf9f) : _deployer;
     emit Deployed(tx.origin, address(this));

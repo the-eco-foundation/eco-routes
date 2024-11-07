@@ -1,4 +1,7 @@
+// SPDX-License-Identifier: MIT
+// EIP-2470
 pragma solidity ^0.8.26; // originally 0.6.2
+
 
 
 /**

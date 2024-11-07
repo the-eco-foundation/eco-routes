@@ -48,35 +48,22 @@ const optimismSepoliaChainConfiguration = {
     provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
     settlementChainId: networks.optimismSepolia.proving.settlementChain.id, // settlementChainId
     settlementContract:
-      networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+      networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputeGameFactory or L2OutputOracle.
     blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
 
-const ecoTestnetChainConfiguration = {
-  chainId: networks.ecoTestnet.chainId, // chainId
-  chainConfiguration: {
-    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
-    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
-  },
-}
-
-// const arbitrumSepoliaChainConfiguration = {
-//   chainId: networks.arbitrumSepolia.chainId, // chainId
+// const ecoTestnetChainConfiguration = {
+//   chainId: networks.ecoTestnet.chainId, // chainId
 //   chainConfiguration: {
-//     provingMechanism: networks.arbitrumSepolia.proving.mechanism, // provingMechanism
-//     settlementChainId: networks.arbitrumSepolia.proving.settlementChain.id, // settlementChainId
-//     settlementContract:
-//       networks.arbitrumSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-//     blockhashOracle: networks.arbitrumSepolia.proving.l1BlockAddress, // blockhashOracle
+//     provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+//     settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+//     settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//     blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
 //     outputRootVersionNumber:
-//       networks.arbitrumSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+//       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
 //   },
 // }
 
@@ -91,7 +78,19 @@ const mantleSepoliaChainConfiguration = {
       networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
-const initialSalt: string = 'HANDOFF0'
+// const arbitrumSepoliaChainConfiguration = {
+//   chainId: networks.arbitrumSepolia.chainId, // chainId
+//   chainConfiguration: {
+//     provingMechanism: networks.arbitrumSepolia.proving.mechanism, // provingMechanism
+//     settlementChainId: networks.arbitrumSepolia.proving.settlementChain.id, // settlementChainId
+//     settlementContract:
+//       networks.arbitrumSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//     blockhashOracle: networks.arbitrumSepolia.proving.l1BlockAddress, // blockhashOracle
+//     outputRootVersionNumber:
+//       networks.arbitrumSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+//   },
+// }
+const initialSalt: string = 'nishaad0'
 // const initialSalt: string = 'PROD'
 
 let proverAddress: string = ''
@@ -125,7 +124,7 @@ async function main() {
     const proverTx = await proverFactory.getDeployTransaction([
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-      ecoTestnetChainConfiguration,
+      //   ecoTestnetChainConfiguration,
       //   arbitrumSepoliaChainConfiguration,
       mantleSepoliaChainConfiguration,
     ])
@@ -200,9 +199,8 @@ async function main() {
         receipt.blockNumber,
       )
     )[0].args.addr
-
-    console.log(`hyperProver deployed to: ${hyperProverAddress}`)
   }
+  console.log(`hyperProver deployed to: ${hyperProverAddress}`)
 
   // on testnet inboxOwner is the deployer, just to make things easier
   const inboxOwnerSigner = deployer
@@ -215,7 +213,6 @@ async function main() {
   receipt = await inbox
     .connect(inboxOwnerSigner)
     .setMailbox(deployNetwork.hyperlaneMailboxAddress)
-
   await receipt.wait()
   console.log('Inbox mailbox set')
 
@@ -232,8 +229,8 @@ async function main() {
           [
             baseSepoliaChainConfiguration,
             optimismSepoliaChainConfiguration,
-            ecoTestnetChainConfiguration,
-            //   arbitrumSepoliaChainConfiguration,
+            // ecoTestnetChainConfiguration,
+            // arbitrumSepoliaChainConfiguration,
             mantleSepoliaChainConfiguration,
           ],
         ],
@@ -254,7 +251,7 @@ async function main() {
     try {
       await run('verify:verify', {
         address: inboxAddress,
-        constructorArguments: [deployer.address, false, [actors.solver]],
+        constructorArguments: [deployer.address, true, []],
       })
       console.log('Inbox verified at:', inboxAddress)
     } catch (e) {
