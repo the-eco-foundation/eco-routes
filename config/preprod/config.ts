@@ -209,7 +209,7 @@ const networks: any = {
         contract: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d',
       },
       provingTimeSeconds: 604800,
-      finalityDelaySeconds: 0,
+      finalityDelaySeconds: 604800,
     },
     usdcAddress: '0x44D5B1DacCB7E8a7341c1AE0b17Dc65a659B1aCA',
     hyperlaneMailboxAddress: '0x4B216a3012DD7a2fD4bd3D05908b98C668c63a8d',

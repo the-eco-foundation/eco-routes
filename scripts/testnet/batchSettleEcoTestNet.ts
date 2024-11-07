@@ -342,7 +342,35 @@ async function proveWorldStateBaseSepoliaOnOptimismSepolia(
   const faultDisputeGameL2BlockNumberChallenged = false
   const faultDisputeGameL2BlockNumber =
     await faultDisputeGameContract.l2BlockNumber()
-  const endBatchBlockHex = toQuantity(faultDisputeGameL2BlockNumber)
+
+  let endBatchBlockHex = toQuantity(faultDisputeGameL2BlockNumber)
+  // check if the batch has already been proven on Optimism Sepolia
+  const BaseSepoliaLastProvenBlockOnOptimismSepolia =
+    await s.optimismSepoliaProverContract.provenStates(
+      networkIds.baseSepolia,
+      settlementTypes.Finalized,
+    )
+  console.log(
+    'BaseSepoliaLastProvenBlockOnOptimismSepolia: ',
+    BaseSepoliaLastProvenBlockOnOptimismSepolia,
+  )
+  console.log('endBatchBlockHex: ', endBatchBlockHex)
+  console.log('endBatchBlockHex: ', endBatchBlockHex)
+  if (
+    BaseSepoliaLastProvenBlockOnOptimismSepolia.blockNumber >= endBatchBlockHex
+  ) {
+    endBatchBlockHex = toQuantity(
+      BaseSepoliaLastProvenBlockOnOptimismSepolia.blockNumber,
+    )
+    console.log('updated endBatchBlockHex: ', endBatchBlockHex)
+    const endBatchBlockData = await s.baseSepoliaProvider.send(
+      'eth_getBlockByNumber',
+      [endBatchBlockHex, false],
+    )
+    return endBatchBlockData
+  }
+  // TODO if BaseSepoliaLastProvenBlockOnOptimismSepolia > settlementBlockTag then return sendBatchBlockData from the BaseSepoliaLastProvenBlockOnOptimismSepolia
+
   const endBatchBlockData = await s.baseSepoliaProvider.send(
     'eth_getBlockByNumber',
     [endBatchBlockHex, false],
@@ -657,6 +685,7 @@ async function proveWorldStatesBedrockL3L2Op(
   )
   // Prove ECO Testnet World State on Optimism Sepolia
   console.log('Base endBatchBlockData.number: ', endBatchBlockDataL2.number)
+
   console.log(
     'Base endBatchBlockData.stateRoot: ',
     endBatchBlockDataL2.stateRoot,
@@ -681,15 +710,15 @@ export async function proveDestinationChainBatchSettled(
 ) {
   let endBatchBlockData
   console.log('In proveDestinationChainBatchSettled')
-  // console.log('Testing Only to be removed')
-  // endBatchBlockData = await proveWorldStatesBedrockL3L2Op(
-  //   faultDisputeGameAddress,
-  //   faultDisputeGameContract,
-  //   gameIndex,
-  //   l3OutputIndex,
-  //   l3BlockNumber,
-  // )
-  // console.log('endTesting')
+  console.log('Testing Only to be removed')
+  endBatchBlockData = await proveWorldStatesBedrockL3L2Op(
+    faultDisputeGameAddress,
+    faultDisputeGameContract,
+    gameIndex,
+    l3OutputIndex,
+    l3BlockNumber,
+  )
+  console.log('endTesting')
   await Promise.all(
     await Object.entries(sourceChains).map(
       async ([sourceChainkey, sourceChain]) => {
