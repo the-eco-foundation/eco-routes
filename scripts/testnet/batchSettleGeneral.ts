@@ -288,8 +288,8 @@ async function proveSepoliaSettlementLayerStateOnBaseSepolia() {
   //   have successfully proven L1 state
 }
 
-async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
-  console.log('In proveSepoliaSettlementLayerStateOnEcoTestNet')
+async function proveSepoliaSettlementLayerStateOnEcoTestnet() {
+  console.log('In proveSepoliaSettlementLayerStateOnEcoTestnet')
   const setlementBlock = await s.baseSepolial1Block.number()
   const settlementBlockTag = toQuantity(setlementBlock)
 
@@ -324,7 +324,7 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
       block.parentBeaconBlockRoot,
     ])
     // console.log('rlpEncodedBlockData: ', rlpEncodedBlockData)
-    tx = await s.ecoTestNetProverContract.proveSettlementLayerStatePriveleged(
+    tx = await s.ecoTestnetProverContract.proveSettlementLayerStatePriveleged(
       getBytes(hexlify(rlpEncodedBlockData)),
       networkIds.sepolia,
     )
@@ -345,24 +345,24 @@ async function proveSepoliaSettlementLayerStateOnEcoTestNet() {
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
       console.log(
-        `Error in proveSettlementLayerState EcoTestNet:`,
+        `Error in proveSettlementLayerState EcoTestnet:`,
         e.shortMessage,
       )
     } else {
-      console.log(`Error in proveSettlementLayerState EcoTestNet:`, e)
+      console.log(`Error in proveSettlementLayerState EcoTestnet:`, e)
     }
   }
   //   have successfully proven L1 state
 }
 
-async function proveWorldStateOptimismSepoliaOnEcoTestNet(
+async function proveWorldStateOptimismSepoliaOnEcoTestnet(
   settlementBlockTag,
   settlementStateRoot,
   faultDisputeGameAddress,
   faultDisputeGameContract,
   gameIndex,
 ) {
-  console.log('In proveWorldStateCannonBaseToEcoTestNet')
+  console.log('In proveWorldStateCannonBaseToEcoTestnet')
   // For more information on how DisputeGameFactory utility functions, see the following code
   // https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L82
   // get the endBatchBlockData
@@ -398,7 +398,7 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
   )
 
   // Get the DisputeGameFactory data GameId
-  const faultDisputeGameId = await s.ecoTestNetProverContract.pack(
+  const faultDisputeGameId = await s.ecoTestnetProverContract.pack(
     faultDisputeGameData.gameType_,
     faultDisputeGameCreatedAt,
     faultDisputeGameAddress,
@@ -434,7 +434,7 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     disputeGameFactoryProof.codeHash, // CodeHash
   ]
   const RLPEncodedDisputeGameFactoryData =
-    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+    await s.ecoTestnetProverContract.rlpEncodeDataLibList(
       disputeGameFactoryContractData,
     )
   // populate fields for the DisputeGameFactory proof
@@ -489,7 +489,7 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     faultDisputeGameRootClaimProof.codeHash, // CodeHash
   ]
   const RLPEncodedFaultDisputeGameContractData =
-    await s.ecoTestNetProverContract.rlpEncodeDataLibList(
+    await s.ecoTestnetProverContract.rlpEncodeDataLibList(
       faultDisputeGameContractData,
     )
   const faultDisputeGameProofData = {
@@ -513,11 +513,11 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
 
   // try {
   // Note: ProveStorage and ProveAccount are pure functions and included here just for unit testing
-  const { gameProxy_ } = await s.ecoTestNetProverContract.unpack(
+  const { gameProxy_ } = await s.ecoTestnetProverContract.unpack(
     disputeGameFactoryProofData.gameId,
   )
   // proveStorageDisputeGameFactory
-  await s.ecoTestNetProverContract.proveStorage(
+  await s.ecoTestnetProverContract.proveStorage(
     disputeGameFactoryStorageSlot,
     encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameId))),
     // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
@@ -525,14 +525,14 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     disputeGameFactoryProof.storageHash,
   )
   // proveAccountDisputeGameFactory
-  await s.ecoTestNetProverContract.proveAccount(
+  await s.ecoTestnetProverContract.proveAccount(
     networks.sepolia.settlementContracts.optimismSepolia,
     disputeGameFactoryProofData.rlpEncodedDisputeGameFactoryData,
     disputeGameFactoryProofData.disputeGameFactoryAccountProof,
     settlementStateRoot,
   )
   // proveStorageFaultDisputeGameRootClaim
-  await s.ecoTestNetProverContract.proveStorage(
+  await s.ecoTestnetProverContract.proveStorage(
     faultDisputeGameRootClaimStorageSlot,
     encodeRlp(toBeHex(stripZerosLeft(faultDisputeGameData.rootClaim_))),
     // encodeRlp(cannon.faultDisputeGameRootClaimStorage),
@@ -544,9 +544,9 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     'faultDisputeGameResolvedStorageSlot: ',
     faultDisputeGameResolvedStorageSlot,
   )
-  await s.ecoTestNetProverContract.proveStorage(
+  await s.ecoTestnetProverContract.proveStorage(
     faultDisputeGameResolvedStorageSlot,
-    await s.ecoTestNetProverContract.assembleGameStatusStorage(
+    await s.ecoTestnetProverContract.assembleGameStatusStorage(
       faultDisputeGameCreatedAt,
       faultDisputeGameResolvedAt,
       faultDisputeGameGameStatus,
@@ -557,7 +557,7 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     faultDisputeGameRootResolvedProof.storageHash,
   )
   // proveAccountFaultDisputeGame
-  await s.ecoTestNetProverContract.proveAccount(
+  await s.ecoTestnetProverContract.proveAccount(
     // faultDisputeGameAddress,
     // '0x4D664dd0f78673034b29E4A51177333D1131Ac44',
     gameProxy_,
@@ -568,7 +568,7 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
   try {
     // console.log('proveWorldStateCannon')
     const proveWorldStateCannonTx =
-      await s.ecoTestNetProverContract.proveWorldStateCannon(
+      await s.ecoTestnetProverContract.proveWorldStateCannon(
         networkIds.optimismSepolia,
         rlpEncodedEndBatchBlockData,
         endBatchBlockData.stateRoot,
@@ -580,14 +580,14 @@ async function proveWorldStateOptimismSepoliaOnEcoTestNet(
     console.log('ProveWorldStateCannon Base to Optimism')
     return endBatchBlockData
   } catch (e) {
-    if (e.data && s.ecoTestNetProverContract) {
-      const decodedError = s.ecoTestNetProverContract.interface.parseError(
+    if (e.data && s.ecoTestnetProverContract) {
+      const decodedError = s.ecoTestnetProverContract.interface.parseError(
         e.data,
       )
       console.log(`Transaction failed: ${decodedError?.name}`)
-      console.log(`Error in ProveWorldStateCannon ecoTestNet:`, e.shortMessage)
+      console.log(`Error in ProveWorldStateCannon ecoTestnet:`, e.shortMessage)
     } else {
-      console.log(`Error in ProveWorldStateCannon ecoTestNet:`, e)
+      console.log(`Error in ProveWorldStateCannon ecoTestnet:`, e)
     }
   }
 }
@@ -836,9 +836,9 @@ async function proveWorldStatesCannonL2L3(
 ) {
   console.log('In proveWorldStatesCannonL2L3')
   const { settlementBlockTag, settlementWorldStateRoot } =
-    await proveSepoliaSettlementLayerStateOnEcoTestNet() // Prove the Sepolia Settlement Layer State
+    await proveSepoliaSettlementLayerStateOnEcoTestnet() // Prove the Sepolia Settlement Layer State
 
-  const endBatchBlockData = await proveWorldStateOptimismSepoliaOnEcoTestNet(
+  const endBatchBlockData = await proveWorldStateOptimismSepoliaOnEcoTestnet(
     settlementBlockTag,
     settlementWorldStateRoot,
     faultDisputeGameAddress,
@@ -899,14 +899,14 @@ export async function proveDestinationChainBatchSettled(
               )
               break
             }
-            case networkIds.ecoTestNet: {
-              console.log('In ecoTestNet')
+            case networkIds.ecoTestnet: {
+              console.log('In ecoTestnet')
               endBatchBlockData = await proveWorldStatesCannonL2L3(
                 faultDisputeGameAddress,
                 faultDisputeGameContract,
                 gameIndex,
               )
-              console.log('ecoTestNet endBatchBlockData: ', endBatchBlockData)
+              console.log('ecoTestnet endBatchBlockData: ', endBatchBlockData)
               break
             }
             default: {
@@ -1013,8 +1013,8 @@ async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
   }
 }
 
-async function proveIntentEcoTestNet(intentHash, endBatchBlockData) {
-  console.log('In proveIntentEcoTestNet')
+async function proveIntentEcoTestnet(intentHash, endBatchBlockData) {
+  console.log('In proveIntentEcoTestnet')
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
@@ -1035,14 +1035,14 @@ async function proveIntentEcoTestNet(intentHash, endBatchBlockData) {
   )
 
   const intentInfo =
-    await s.ecoTestNetIntentSourceContractClaimant.getIntent(intentHash)
+    await s.ecoTestnetIntentSourceContractClaimant.getIntent(intentHash)
 
   const abiCoder = AbiCoder.defaultAbiCoder()
   const intermediateHash = keccak256(
     abiCoder.encode(
       ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
       [
-        networkIds.ecoTestNet, // sourceChainID
+        networkIds.ecoTestnet, // sourceChainID
         intentInfo[1], // destinationChainID
         intentInfo[2], // targetTokens
         intentInfo[3], // callData
@@ -1067,7 +1067,7 @@ async function proveIntentEcoTestNet(intentHash, endBatchBlockData) {
     )
     console.log(
       'baseProverContract.rlpEncodeDataLibList: ',
-      await s.ecoTestNetProverContract.rlpEncodeDataLibList([
+      await s.ecoTestnetProverContract.rlpEncodeDataLibList([
         toBeHex(intentInboxProof.nonce), // nonce
         stripZerosLeft(toBeHex(intentInboxProof.balance)),
         intentInboxProof.storageHash,
@@ -1075,13 +1075,13 @@ async function proveIntentEcoTestNet(intentHash, endBatchBlockData) {
       ]),
     )
     console.log('endBatchBlockData.stateRoot: ', endBatchBlockData.stateRoot)
-    const proveIntentTx = await s.ecoTestNetProverContract.proveIntent(
+    const proveIntentTx = await s.ecoTestnetProverContract.proveIntent(
       networkIds.optimismSepolia,
       actors.claimant,
       networks.optimismSepolia.inbox.address,
       intermediateHash,
       intentInboxProof.storageProof[0].proof,
-      await s.ecoTestNetProverContract.rlpEncodeDataLibList([
+      await s.ecoTestnetProverContract.rlpEncodeDataLibList([
         toBeHex(intentInboxProof.nonce), // nonce
         stripZerosLeft(toBeHex(intentInboxProof.balance)),
         intentInboxProof.storageHash,
@@ -1094,8 +1094,8 @@ async function proveIntentEcoTestNet(intentHash, endBatchBlockData) {
     console.log('Prove Intent tx:', proveIntentTx.hash)
     return proveIntentTx.hash
   } catch (e) {
-    if (e.data && s.ecoTestNetProverContract) {
-      const decodedError = s.ecoTestNetProverContract.interface.parseError(
+    if (e.data && s.ecoTestnetProverContract) {
+      const decodedError = s.ecoTestnetProverContract.interface.parseError(
         e.data,
       )
       console.log(`Transaction failed in proveIntent : ${decodedError?.name}`)
@@ -1124,8 +1124,8 @@ export async function proveIntents(intentsToProve, endBatchBlockData) {
       case networkIds.optimismSepolia: {
         break
       }
-      case networkIds.ecoTestNet: {
-        await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
+      case networkIds.ecoTestnet: {
+        await proveIntentEcoTestnet(intent.intentHash, endBatchBlockData)
         break
       }
     }
@@ -1157,18 +1157,18 @@ async function withdrawRewardBaseSepolia(intentHash) {
   }
 }
 
-async function withdrawRewardEcoTestNet(intentHash) {
+async function withdrawRewardEcoTestnet(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
-      await s.ecoTestNetIntentSourceContractClaimant.withdrawRewards(intentHash)
+      await s.ecoTestnetIntentSourceContractClaimant.withdrawRewards(intentHash)
     await withdrawTx.wait()
     console.log('Withdrawal tx: ', withdrawTx.hash)
     return withdrawTx.hash
   } catch (e) {
-    if (e.data && s.ecoTestNetIntentSourceContractClaimant) {
+    if (e.data && s.ecoTestnetIntentSourceContractClaimant) {
       const decodedError =
-        s.ecoTestNetIntentSourceContractClaimant.interface.parseError(e.data)
+        s.ecoTestnetIntentSourceContractClaimant.interface.parseError(e.data)
       console.log(
         `Transaction failed in withdrawReward : ${decodedError?.name}`,
       )
@@ -1192,8 +1192,8 @@ export async function withdrawFunds(intentsToProve) {
       case networkIds.optimismSepolia: {
         break
       }
-      case networkIds.ecoTestNet: {
-        await withdrawRewardEcoTestNet(intent.intentHash)
+      case networkIds.ecoTestnet: {
+        await withdrawRewardEcoTestnet(intent.intentHash)
         break
       }
     }

@@ -19,6 +19,7 @@ import {
   networkIds,
   networks,
   actors,
+  settlementTypes,
   // intent,
 } from '../../config/preprod/config'
 import { s } from '../../config/preprod/setup'
@@ -106,6 +107,7 @@ export async function getIntentsToProve(
       optimismProvenState = await proverContract.provenStates(
         // await s.[sourceChain]ProverContract.provenStates(
         networkIds.optimism,
+        settlementTypes.Finalized,
       )
       sourceChainInfo.lastProvenBlock = optimismProvenState.blockNumber
       if (proveAll) {

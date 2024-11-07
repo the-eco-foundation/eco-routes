@@ -589,7 +589,7 @@ async function proveWorldStatesBedrockL3L2Optimism(
     settlementBlockTag,
     settlementWorldStateRoot,
   )
-  // Prove ECO TestNet World State on Optimism Mainnet
+  // Prove ECO Testnet World State on Optimism Mainnet
   console.log('Base endBatchBlockData.number: ', l2endBatchBlockData.number)
   console.log(
     'Base endBatchBlockData.stateRoot: ',

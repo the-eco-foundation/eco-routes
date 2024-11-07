@@ -48,16 +48,17 @@
     "vulnerability": "slither . --exclude-informational --exclude-low --exclude-medium 2>&1 | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' | tee  ./docs/slither/vulnerability.txt",
     "contractSummary": "slither --print contract-summary . 2>&1 | tee ./docs/slither/contract-summary.txt",
     "Testnet": "-------- Testnet scripts below",
-    "deployEcoTestNet": "hardhat run --network ecoTestNet scripts/deployment/deploy.ts",
+    "deployEcoTestnet": "hardhat run --network ecoTestnet scripts/deployment/deploy.ts",
     "deployBaseSepolia": "hardhat run --network baseSepolia scripts/deployment/deploy.ts",
     "deployOptimismSepolia": "hardhat run --network optimismSepolia scripts/deployment/deploy.ts",
+    "deployTestnet": "yarn deployEcoTestnet &&  yarn deployBaseSepolia && yarn deployOptimismSepolia",
     "proverDeployOptimismSepolia": "hardhat run --network optimismSepoliaBlockscout scripts/testnet/proverDeploy.ts",
     "intentSolve": "hardhat run scripts/testnet/intentSolve.ts",
-    "instantSettleBaseSepoliaEcoTestNet": "hardhat run scripts/testnet/instantSettleBaseSepoliaEcoTestNet.ts",
-    "settleEcoTestNetBaseSepolia": "hardhat run scripts/testnet/batchSettleEcoTestNetBaseSepolia.ts",
+    "instantSettleEcoTestnetBaseSepolia": "hardhat run scripts/testnet/instantSettleEcoTestNetBaseSepolia.ts",
+    "settleBaseSepoliaEcoTestnet": "hardhat run scripts/testnet/batchSettleBaseSepoliaEcoTestnet.ts",
     "settleOpSepolia": "hardhat run scripts/testnet/batchSettleOpSepolia.ts",
     "settleBaseSepolia": "hardhat run scripts/testnet/batchSettleBaseSepolia.ts",
-    "settleEcoTestNet": "hardhat run scripts/testnet/batchSettleEcoTestNet.ts",
+    "settleEcoTestnet": "hardhat run scripts/testnet/batchSettleEcoTestnet.ts",
     "settleGeneral": "hardhat run scripts/testnet/batchSettleGeneral.ts",
     "intentWithdraw": "hardhat run scripts/testnet/intentWithdraw.ts",
     "TestnetBedrock": "-------- Bedrock scripts below --------",
@@ -81,6 +82,8 @@
     "deployBaseOpen": "hardhat run --network base scripts/mainnet/deployOpen.ts",
     "deployOptimism": "hardhat run --network optimism scripts/mainnet/deploy.ts",
     "deployOptimismOpen": "hardhat run --network optimism scripts/mainnet/deployOpen.ts",
+    "deployHyperProverBase": "hardhat run --network base scripts/deployHyperProver.ts",
+    "deployHyperProverOptimism": "hardhat run --network optimism scripts/deployHyperProver.ts",
     "MainnetBedrock": "-------- Bedrock scripts below --------",
     "intentSolveMainnet": "hardhat run scripts/mainnet/intentSolve.ts",
     "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdrawOpBase.ts",
@@ -141,9 +144,11 @@
     "viem": "^2.0.0"
   },
   "dependencies": {
+    "@hyperlane-xyz/registry": "^4.2.0",
     "@hyperlane-xyz/sdk": "^5.1.0",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
-    "loadash": "^1.0.0"
+    "@types/lodash": "^4.17.12",
+    "lodash": "^4.17.21"
   }
 }

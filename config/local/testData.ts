@@ -1,157 +1,8 @@
-/* eslint-disable no-magic-numbers */
-const provingMechanisms: any = {
-  self: 0,
-  bedrock: 1,
-  cannon: 2,
-  nitro: 3,
-  hyperProver: 4,
-  0: 'self',
-  1: 'bedrock',
-  2: 'cannon',
-  3: 'nitro',
-  4: 'hyperProver',
-}
-const networkIds: any = {
-  sepolia: 11155111,
-  optimismSepolia: 11155420,
-  baseSepolia: 84532,
-  ecoTestNet: 471923,
-  arbitrumSepolia: 421614,
-  hardhat: 31337,
-  11155111: 'sepolia',
-  11155420: 'optimismSepolia',
-  84532: 'baseSepolia',
-  471923: 'ecoTestNet',
-  421614: 'arbitrumSepolia',
-  31337: 'hardhat',
-}
-
-const actors: any = {
-  deployer: '0x6cae25455BF5fCF19cE737Ad50Ee3BC481fCDdD4',
-  intentCreator: '0x448729e46C442B55C43218c6DB91c4633D36dFC0',
-  solver: '0x7b65Dd8dad147C5DBa896A7c062a477a11a5Ed5E',
-  claimant: '0xB4e2a27ed497E2D1aD0C8fB3a47803c934457C58',
-  prover: '0x923d4fDfD0Fb231FDA7A71545953Acca41123652',
-  recipient: '0xC0Bc9bA69aCD4806c4c48dD6FdFC1677212503e9',
-}
-
-// Note intents currently being used are for USDC with a common set of actors
-// the other data coming from the network
-// Here we store a minimal set of addtional fieds
-const intent: any = {
-  rewardAmounts: [1001],
-  targetAmounts: [1000],
-  duration: 3600,
-}
-
-const networks: any = {
-  sepolia: {
-    network: 'sepolia',
-    chainId: networkIds.sepolia,
-    // The following settlement contracts are useful for event listening
-    settlementContracts: {
-      baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
-      optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
-      // arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia Rollup Admin Contract
-    },
-  },
-  optimismSepolia: {
-    network: 'optimism-sepolia',
-    chainId: networkIds.optimismSepolia,
-    intentSourceAddress: '0xA52662AAef7370bf029d78eb9D9CdD66dc474F75',
-    proverContractAddress: '0x87898EbfaA6fCa5c4dFF901C27f5D702b697f64b', // implementation 0x3d00187B8B66d54A642e1efce811242886141202
-    inboxAddress: '0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7',
-    intentSource: {
-      minimumDuration: 1000,
-      counter: 0,
-    },
-    proving: {
-      mechanism: provingMechanisms.cannon,
-      l1BlockAddress: '0x4200000000000000000000000000000000000015',
-      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
-      outputRootVersionNumber: 0,
-      settlementChain: {
-        network: 'sepolia',
-        id: networkIds.sepolia,
-        contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
-      },
-    },
-    usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
-  },
-  baseSepolia: {
-    network: 'base-sepolia',
-    chainId: networkIds.baseSepolia,
-    intentSourceAddress: '0x5C9346960AFa8F810529DFcd95394B1a3CEb10b6',
-    proverContractAddress: '0xe25003c99Fd00E455F87D999Faa0825f87A27De6', // immplementation 0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72
-    inboxAddress: '0x5ACc1a4b80a659F037498336C695D25f889ea33b',
-    intentSource: {
-      minimumDuration: 1000,
-      counter: 0,
-    },
-    proving: {
-      mechanism: provingMechanisms.cannon,
-      l1BlockAddress: '0x4200000000000000000000000000000000000015',
-      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
-      outputRootVersionNumber: 0,
-      settlementChain: {
-        network: 'sepolia',
-        id: networkIds.sepolia,
-        // Dispute Game Factory address
-        contract: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
-      },
-    },
-    // The following settlement contracts are useful for event listening
-    settlementContracts: {
-      ecoTestNet: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951', // ecoTestNet L2 Output Oracle
-    },
-    usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
-  },
-  ecoTestNet: {
-    network: 'eco-testnet',
-    chainId: networkIds.ecoTestNet,
-    rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
-    settlementNetwork: 'baseSepolia',
-    intentSourceAddress: '0x37dCBB8C3B8f2ee7B8737b3642023026C311D1B8',
-    proverContractAddress: '0x4eE5C3a97D61B5698E04601B75Cde8D152C4Cc2c', // implementation 0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4
-    inboxAddress: '0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1',
-    intentSource: {
-      minimumDuration: 1000,
-      counter: 0,
-    },
-    proving: {
-      mechanism: 1,
-      l1BlockAddress: '0x4200000000000000000000000000000000000015',
-      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
-      outputRootVersionNumber: 0,
-      settlementChain: {
-        network: 'baseSepolia',
-        id: 84532,
-        contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
-      },
-    },
-    usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
-    arbitrumSepolia: {
-      network: 'arbitrum-sepolia',
-      chainId: 421614,
-      settlementNetwork: 'sepolia',
-      intentSourceAddress: '',
-      proverContractAddress: '',
-      inboxAddress: '',
-      intentSource: {
-        minimumDuration: 1000,
-        counter: 0,
-      },
-      proving: {
-        mechanism: 3,
-      },
-      usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
-    },
-  },
-}
-// TODO Update Bedrock with from BaseSepolia to ECOTestNet
+import { actors, networkIds, networks, intent } from './config'
+// TODO Update Bedrock with from BaseSepolia to ECOTestnet
 // Need to Prove Sepolia Settlement World State
 // Need to Prove BaseSepolia Settlement World State Using Cannon
-// Need to Prove ECOTestNet Destination World State Using Bedrock
+// Need to Prove ECOTestnet Destination World State Using Bedrock
 // Need to Prove Intent
 const bedrock: any = {
   settlementChain: {
@@ -355,7 +206,7 @@ const bedrock: any = {
   },
   intent: {
     creator: actors.intentCreator,
-    destinationChainId: networkIds.ecoTestNet,
+    destinationChainId: networkIds.ecoTestnet,
     intentHash:
       '0x527060a732792b125122358a61ba70055678e24dd2490c85616fa932fa30fc24',
     intermediateHash:
@@ -388,7 +239,7 @@ const bedrock: any = {
     // recipient: actors.recipient,
     // targetTokens: [networks.baseSepolia.usdcAddress],
     // targetAmounts: intent.targetAmounts,
-    // rewardTokens: [networks.ecoTestNet.usdcAddress],
+    // rewardTokens: [networks.ecoTestnet.usdcAddress],
     // rewardAmounts: intent.rewardAmounts,
     // duration: intent.duration,
     // expiryTime: 1722568357,
@@ -566,7 +417,7 @@ const cannon: any = {
     recipient: actors.recipient,
     targetTokens: [networks.baseSepolia.usdcAddress],
     targetAmounts: intent.targetAmounts,
-    rewardTokens: [networks.ecoTestNet.usdcAddress],
+    rewardTokens: [networks.ecoTestnet.usdcAddress],
     rewardAmounts: intent.rewardAmounts,
     duration: intent.duration,
     expiryTime: 1722568357,
@@ -669,14 +520,4 @@ const l1l3SettlementLayerState = {
   l3l1SettlementChainId: 11155111,
 }
 
-export {
-  provingMechanisms,
-  networkIds,
-  intent,
-  // enshrined,
-  actors,
-  networks,
-  bedrock,
-  cannon,
-  l1l3SettlementLayerState,
-}
+export { bedrock, cannon, l1l3SettlementLayerState }

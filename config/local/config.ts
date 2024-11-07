@@ -1,10 +1,13 @@
 /* eslint-disable no-magic-numbers */
+import { ethers } from 'hardhat'
+
 const networkIds: any = {
   noChain: 0,
   sepolia: 11155111,
   optimismSepolia: 11155420,
   baseSepolia: 84532,
   ecoTestnet: 471923,
+  hardhat: 31337,
   // arbitrumSepolia: 421614,
   0: 'noChain',
   11155111: 'sepolia',
@@ -12,6 +15,7 @@ const networkIds: any = {
   84532: 'baseSepolia',
   471923: 'ecoTestnet',
   // 421614: 'arbitrumSepolia',
+  31337: 'hardhat',
 }
 
 const actors: any = {
@@ -88,20 +92,20 @@ const networks: any = {
     alchemyNetwork: 'optimism-sepolia',
     sourceChains: ['baseSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0xA272826F809887F14927326Bc025Fc5BD1e91a51',
+      address: '0xed84b971657F5B182cc8Bb521EB09C959C215dCC',
       deploymentBlock: 16795390n, // '0x10046Fe'
     },
     intentSource: {
-      address: '0x4cDd986f8134479D26C045554257Ca1CCaCAeDe5',
+      address: '0x65E1BB1752AE3b6EA7E1c1531fb565Aa4724BFBB',
       deploymentBlock: 16795394n, // '0x1004702
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xde4D35C228ea00CA5e6eA3D17fA516FfC69874eb',
+      address: '0x64Fff610959159Df6bad6402017BfD73Fd233380',
       deploymentBlock: 18354796n, // '0x118126c
     },
-    hyperProverContractAddress: '0xf8C16D8fe93A7ea598521bc7750699400ffF2E16',
+    hyperProverContractAddress: '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -125,20 +129,20 @@ const networks: any = {
     alchemyNetwork: 'base-sepolia',
     sourceChains: ['optimismSepolia', 'ecoTestnet'],
     proverContract: {
-      address: '0x9c53462346ff338f082B4c8f1a2D7Eb796DBf44c',
+      address: '0x5900FF69924Bce8Bb8Cb0718afC23eBE5131315B',
       deploymentBlock: 14812482n, // '0xe20542',
     },
     intentSource: {
-      address: '0x4cDd986f8134479D26C045554257Ca1CCaCAeDe5',
+      address: '0x2Abddc1F15cCB2E71264a7C32E46873e11302D5b',
       deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xde4D35C228ea00CA5e6eA3D17fA516FfC69874eb',
+      address: '0x9f73f5b9dA2eC4165638851664D3A9d9302BeBEc',
       deploymentBlock: 14812488n, // '0xe20548',
     },
-    hyperProverContractAddress: '0xf8C16D8fe93A7ea598521bc7750699400ffF2E16',
+    hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
     proving: {
       mechanism: provingMechanisms.Cannon,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -171,20 +175,20 @@ const networks: any = {
     rpcUrl: 'https://eco-testnet.rpc.caldera.xyz/http',
     settlementNetwork: 'baseSepolia',
     proverContract: {
-      address: '0x189573DdA1779c4d93e0313366a01a8428e7A949',
+      address: '0x5900FF69924Bce8Bb8Cb0718afC23eBE5131315B',
       deploymentBlock: '0x35dc32', // 3529778n
     },
     intentSource: {
-      address: '0x4cDd986f8134479D26C045554257Ca1CCaCAeDe5',
+      address: '0x2Abddc1F15cCB2E71264a7C32E46873e11302D5b',
       deploymentBlock: 3529780n, // '0x35dc34',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
-      address: '0xde4D35C228ea00CA5e6eA3D17fA516FfC69874eb',
+      address: '0x9f73f5b9dA2eC4165638851664D3A9d9302BeBEc',
       deploymentBlock: 3529786n, // '0x35dc3a',
     },
-    hyperProverContractAddress: '0xf8C16D8fe93A7ea598521bc7750699400ffF2E16',
+    hyperProverContractAddress: '0xe3aCb913834Fd062E2B4517f971e6469543434ce',
     proving: {
       mechanism: provingMechanisms.Bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
@@ -194,7 +198,7 @@ const networks: any = {
       l1BlockSlotNumber: 2,
       settlementChain: {
         network: 'baseSepolia',
-        id: 84532,
+        id: networkIds.baseSepolia,
         contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
       },
       provingTimeSeconds: 3600,
@@ -237,7 +241,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.sepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.sepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: networks.sepolia.proving.l1BlockAddress, // blockhashOracle
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
       outputRootVersionNumber: networks.sepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.sepolia.proving.provingTimeSeconds,
       finalityDelaySeconds: networks.sepolia.proving.finalityDelaySeconds,
@@ -252,7 +256,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.sepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.sepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: networks.sepolia.proving.l1BlockAddress, // blockhashOracle
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
       outputRootVersionNumber: networks.sepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.sepolia.proving.provingTimeSeconds,
       finalityDelaySeconds: networks.sepolia.proving.finalityDelaySeconds,
@@ -267,7 +271,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
@@ -283,7 +287,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
@@ -299,7 +303,7 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
       settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
-      blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
       provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
@@ -316,7 +320,7 @@ const deploymentConfigs = {
       settlementChainId: networks.optimismSepolia.proving.settlementChain.id,
       settlementContract:
         networks.optimismSepolia.proving.settlementChain.contract,
-      blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.optimismSepolia.proving.outputRootVersionNumber,
       provingTimeSeconds: networks.optimismSepolia.proving.provingTimeSeconds,
@@ -333,303 +337,80 @@ const deploymentConfigs = {
       exists: true,
       settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
       settlementContract: networks.ecoTestnet.proving.settlementChain.contract,
-      blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
       outputRootVersionNumber:
         networks.ecoTestnet.proving.outputRootVersionNumber,
       provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
       finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
     },
   },
+  hardhatSelf: {
+    chainConfigurationKey: {
+      chainId: networkIds.hardhat,
+      provingMechanism: provingMechanisms.Self, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
+    },
+  },
+  hardhatBedrock: {
+    chainConfigurationKey: {
+      chainId: networkIds.hardhat,
+      provingMechanism: provingMechanisms.Bedrock, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
+      settlementContract: networks.ecoTestnet.proving.settlementChain.contract,
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.ecoTestnet.proving.outputRootVersionNumber,
+      provingTimeSeconds: networks.ecoTestnet.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
+    },
+  },
+  hardhatCannon: {
+    chainConfigurationKey: {
+      chainId: networkIds.hardhat,
+      provingMechanism: provingMechanisms.Cannon, // provingMechanism
+    },
+    chainConfiguration: {
+      exists: true,
+      settlementChainId: networks.baseSepolia.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.baseSepolia.proving.settlementChain.contract, // settlementContract
+      blockhashOracle: ethers.ZeroAddress, // blockhashOracle
+      outputRootVersionNumber:
+        networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+      provingTimeSeconds: networks.baseSepolia.proving.provingTimeSeconds,
+      finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
+    },
+  },
 }
 
 const deploymentChainConfigs = {
-  baseSepolia: [
-    deploymentConfigs.sepoliaSettlement,
-    deploymentConfigs.baseSepoliaSelf,
-    deploymentConfigs.baseSepoliaCannon,
-    deploymentConfigs.optimismSepoliaCannon,
-    deploymentConfigs.ecoTestnetBedrock,
-  ],
-  optimismSepolia: [
+  unitTests: [],
+  selfStateTests: [deploymentConfigs.hardhatSelf],
+  endToEndTests: [
     deploymentConfigs.sepoliaSettlement,
     deploymentConfigs.baseSepoliaCannon,
     deploymentConfigs.ecoTestnetBedrock,
-    deploymentConfigs.optimismSepoliaCannon,
+    deploymentConfigs.hardhatCannon,
   ],
-  ecoTestnet: [
+  l3SettlementTests: [
     deploymentConfigs.sepoliaSettlementL3,
     deploymentConfigs.baseSepoliaSettlement,
     deploymentConfigs.optimismSepoliaCannon,
     deploymentConfigs.ecoTestnetBedrock,
+    deploymentConfigs.hardhatBedrock,
   ],
 }
-
-const routes: any = [
-  // ecoTestnet to baseSepolia
-  {
-    source: {
-      chainId: networkIds.ecoTestnet,
-      providerName: 'ecoTestnetProvider',
-      contracts: {
-        intentSourceContract: {
-          address: networks.ecoTestnet.intentSource.address,
-          variableName: 'ecoTestnetIntentSourceContractIntentCreator',
-        },
-        proverContract: {
-          address: networks.ecoTestnet.proverContract.address,
-          variableName: 'ecoTestnetProverContract',
-        },
-      },
-    },
-    destination: {
-      chainId: networkIds.baseSepolia,
-      providerName: 'baseSepoliaProvider',
-      contracts: {
-        inboxContract: {
-          address: networks.baseSepolia.inbox.address,
-          variableName: 'baseSepoliaInboxContractSolver',
-        },
-        provingMechanism: provingMechanisms.settlementL3,
-        provingState: settlementTypes.finalized,
-      },
-    },
-    intent: {
-      contracts: {
-        rewardToken: {
-          address: networks.ecoTestnet.usdcAddress,
-          variableName: 'ecoTestnetUSDCContractIntentCreator',
-        },
-        targetToken: {
-          address: networks.baseSepolia.usdcAddress,
-          variableName: 'baseSepoliaUSDCContractSolver',
-        },
-      },
-      rewardAmounts: intent.rewardAmounts,
-      targetAmounts: intent.targetAmounts,
-      duration: intent.duration,
-    },
-  },
-  // ecoTestnet to optimismSepolia
-  {
-    source: {
-      chainId: networkIds.ecoTestnet,
-      providerName: 'ecoTestnetProvider',
-      contracts: {
-        intentSourceContract: {
-          address: networks.ecoTestnet.intentSource.address,
-          variableName: 'ecoTestnetIntentSourceContractIntentCreator',
-        },
-        proverContract: {
-          address: networks.ecoTestnet.proverContract.address,
-          variableName: 'ecoTestnetProverContract',
-        },
-      },
-    },
-    destination: {
-      chainId: networkIds.optimismSepolia,
-      providerName: 'optimismSepoliaProvider',
-      contracts: {
-        inboxContract: {
-          address: networks.optimismSepolia.inbox.address,
-          variableName: 'optimismSepoliaInboxContractSolver',
-        },
-      },
-      provingMechanism: provingMechanisms.cannonL3L2,
-      provingState: settlementTypes.finalized,
-    },
-    intent: {
-      contracts: {
-        rewardToken: {
-          address: networks.ecoTestnet.usdcAddress,
-          variableName: 'ecoTestnetUSDCContractIntentCreator',
-        },
-        targetToken: {
-          address: networks.optimismSepolia.usdcAddress,
-          variableName: 'optimismSepoliaUSDCContractSolver',
-        },
-      },
-      rewardAmounts: intent.rewardAmounts,
-      targetAmounts: intent.targetAmounts,
-      duration: intent.duration,
-    },
-  },
-  // baseSepolia to optimismSepolia
-  {
-    source: {
-      chainId: networkIds.baseSepolia,
-      providerName: 'baseSepoliaProvider',
-      contracts: {
-        intentSourceContract: {
-          address: networks.baseSepolia.intentSource.address,
-          variableName: 'baseSepoliaIntentSourceContractIntentCreator',
-        },
-        proverContract: {
-          address: networks.baseSepolia.proverContract.address,
-          variableName: 'baseSepoliaProverContract',
-        },
-      },
-    },
-    destination: {
-      chainId: networkIds.optimismSepolia,
-      providerName: 'optimismSepoliaProvider',
-      contracts: {
-        inboxContract: {
-          address: networks.optimismSepolia.inbox.address,
-          variableName: 'optimismSepoliaInboxContractSolver',
-        },
-        provingMechanism: provingMechanisms.cannon,
-        provingState: settlementTypes.finalized,
-      },
-    },
-    intent: {
-      contracts: {
-        rewardToken: {
-          address: networks.baseSepolia.usdcAddress,
-          variableName: 'baseSepoliaUSDCContractIntentCreator',
-        },
-        targetToken: {
-          address: networks.optimismSepolia.usdcAddress,
-          variableName: 'optimismSepoliaUSDCContractSolver',
-        },
-      },
-      rewardAmounts: intent.rewardAmounts,
-      targetAmounts: intent.targetAmounts,
-      duration: intent.duration,
-    },
-  },
-  // baseSepolia to ecoTestnet
-  {
-    source: {
-      chainId: networkIds.baseSepolia,
-      providerName: 'baseSepoliaProvider',
-      contracts: {
-        intentSourceContract: {
-          address: networks.baseSepolia.intentSource.address,
-          variableName: 'baseSepoliaIntentSourceContractIntentCreator',
-        },
-        proverContract: {
-          address: networks.baseSepolia.proverContract.address,
-          variableName: 'baseSepoliaProverContract',
-        },
-      },
-    },
-    destination: {
-      chainId: networkIds.ecoTestnet,
-      providerName: 'ecoTestnetProvider',
-      contracts: {
-        inboxContract: {
-          address: networks.ecoTestnet.inbox.address,
-          variableName: 'ecoTestnetInboxContractSolver',
-        },
-        provingMechanism: provingMechanisms.bedrockL2Settlement,
-        provingState: settlementTypes.finalized,
-      },
-    },
-    intent: {
-      contracts: {
-        rewardToken: {
-          address: networks.baseSepolia.usdcAddress,
-          variableName: 'baseSepoliaUSDCContractIntentCreator',
-        },
-        targetToken: {
-          address: networks.ecoTestnet.usdcAddress,
-          variableName: 'ecoTestnetUSDCContractSolver',
-        },
-      },
-      rewardAmounts: intent.rewardAmounts,
-      targetAmounts: intent.targetAmounts,
-      duration: intent.duration,
-    },
-  },
-  // optimismSepolia to ecoTestnet
-  {
-    source: {
-      chainId: networkIds.optimismSepolia,
-      providerName: 'optimismSepoliaProvider',
-      contracts: {
-        intentSourceContract: {
-          address: networks.optimismSepolia.intentSource.address,
-          variableName: 'optimismSepoliaIntentSourceContractIntentCreator',
-        },
-        proverContract: {
-          address: networks.optimismSepolia.proverContract.address,
-          variableName: 'optimismSepoliaProverContract',
-        },
-      },
-    },
-    destination: {
-      chainId: networkIds.ecoTestnet,
-      providerName: 'ecoTestnetProvider',
-      contracts: {
-        inboxContract: {
-          address: networks.ecoTestnet.inbox.address,
-          variableName: 'ecoTestnetInboxContractSolver',
-        },
-        provingMechanism: provingMechanisms.bedrockL2L3,
-        provingState: settlementTypes.finalized,
-      },
-    },
-    intent: {
-      contracts: {
-        rewardToken: {
-          address: networks.optimismSepolia.usdcAddress,
-          variableName: 'optimismSepoliaUSDCContractIntentCreator',
-        },
-        targetToken: {
-          address: networks.ecoTestnet.usdcAddress,
-          variableName: 'ecoTestnetUSDCContractSolver',
-        },
-      },
-      rewardAmounts: intent.rewardAmounts,
-      targetAmounts: intent.targetAmounts,
-      duration: intent.duration,
-    },
-  },
-  // optimismSepolia to baseSepolia
-  {
-    source: {
-      chainId: networkIds.optimismSepolia,
-      providerName: 'optimismSepoliaProvider',
-      contracts: {
-        intentSourceContract: {
-          address: networks.optimismSepolia.intentSource.address,
-          variableName: 'optimismSepoliaIntentSourceContractIntentCreator',
-        },
-        proverContract: {
-          address: networks.optimismSepolia.proverContract.address,
-          variableName: 'optimismSepoliaProverContract',
-        },
-      },
-    },
-    destination: {
-      chainId: networkIds.baseSepolia,
-      providerName: 'baseSepoliaProvider',
-      contracts: {
-        inboxContract: {
-          address: networks.baseSepolia.inbox.address,
-          variableName: 'baseSepoliaInboxContractSolver',
-        },
-        provingMechanism: provingMechanisms.cannon,
-        provingState: settlementTypes.finalized,
-      },
-    },
-    intent: {
-      contracts: {
-        rewardToken: {
-          address: networks.optimismSepolia.usdcAddress,
-          variableName: 'optimismSepoliaUSDCContractIntentCreator',
-        },
-        targetToken: {
-          address: networks.baseSepolia.usdcAddress,
-          variableName: 'baseSepoliaUSDCContractSolver',
-        },
-      },
-      rewardAmounts: intent.rewardAmounts,
-      targetAmounts: intent.targetAmounts,
-      duration: intent.duration,
-    },
-  },
-]
 
 export {
   networkIds,
@@ -640,5 +421,4 @@ export {
   networks,
   deploymentConfigs,
   deploymentChainConfigs,
-  routes,
 }

@@ -22,43 +22,27 @@ const actors: any = {
 }
 
 const provingMechanisms: any = {
-  // self: 0, // Destination is Self
-  // settlement: 10, // Source Chain is an L2, Destination is A L1 Settlement Chain
-  settlementL3: 11, // Source Chain is an L3, Destination is a L2 Settlement Chain
-  bedrock: 20, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
-  // bedrockL2L3: 21, // Source Chain is an L2, Destination Chain is an L3 using Bedrock
-  bedrockL3L2: 22, // Source Chain is an L3, Destination Chain is an L2 using Bedrock
-  // bedrockL1Settlement: 23, // Source Chain is an L1, settlement chain for the Destination Chain which is an L2 using Bedrock
-  bedrockL2Settlement: 24, // Source Chain is the L2, settlement chain for the Destination Chain which is an L3 using Bedrock
-  cannon: 30, // Source Chain is an L2, Destination Chain is an L2 using Cannon
-  cannonL2L3: 31, // Source Chain is an L2, Destination Chain is an L3 using Cannon
-  cannonL3L2: 32, // Source Chain is an L3, Destination Chain is an L2 using Cannon
-  // cannonL1Settlement: 33, // Source Chain is an L1 settlement chain for the Destination Chain which is an L2 using Cannon
-  // cannonL2Settlement: 34, // Source Chain is the L2 settlement chain for the Destination Chain which is an L3 using Cannon
-  hyperProver: 40, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
-  // 0: 'self',
-  // 10: 'settlement',
-  11: 'settlementL3',
-  // 20: 'bedrock',
-  // 21: 'bedrockL2L3',
-  22: 'bedrockL3L2',
-  // 23: 'bedrockL1Settlement',
-  24: 'bedrockL2Settlement',
-  30: 'cannon',
-  31: 'cannonL2L3',
-  // 32: 'cannonL3L2',
-  // 33: 'cannonL1Settlement',
-  // 34: 'cannonL2Settlement',
-  40: 'hyperProver',
+  Self: 0, // Destination is Self
+  Settlement: 1, // Source Chain is an L2, Destination is A L1 Settlement Chain
+  SettlementL3: 2, // Source Chain is an L3, Destination is a L2 Settlement Chain
+  Bedrock: 3, // Source Chain is an L2, Destination Chain is an L2 using Bedrock
+  Cannon: 4, // Source Chain is an L2, Destination Chain is an L2 using Cannon
+  HyperProver: 5, // Source Chain is an L2 Destination Chain is an L2 using HyperProver
+  0: 'Self',
+  1: 'Settlement',
+  2: 'SettlementL3',
+  3: 'Bedrock',
+  4: 'Cannon',
+  5: 'HyperProver',
 }
 
-const provingState: any = {
-  finalized: 0,
-  posted: 1,
-  confirmed: 2,
-  0: 'finalized', // Finalized on Settlement Chain
-  1: 'posted', // Posted to Settlement Chain
-  2: 'confirmed', // Confirmed Locally
+const settlementTypes: any = {
+  Finalized: 0,
+  Posted: 1,
+  Confirmed: 2,
+  0: 'Finalized', // Finalized on Settlement Chain
+  1: 'Posted', // Posted to Settlement Chain
+  2: 'Confirmed', // Confirmed Locally
 }
 
 // Note intents currently being used are for USDC with a common set of actors
@@ -223,7 +207,7 @@ const routes: any = [
           variableName: 'baseInboxContractSolver',
         },
         provingMechanism: provingMechanisms.settlementL3,
-        provingState: provingState.finalized,
+        settlementTypes: settlementTypes.finalized,
       },
     },
     intent: {
@@ -268,7 +252,7 @@ const routes: any = [
         },
       },
       provingMechanism: provingMechanisms.cannonL3L2,
-      provingState: provingState.finalized,
+      settlementTypes: settlementTypes.finalized,
     },
     intent: {
       contracts: {
@@ -311,7 +295,7 @@ const routes: any = [
           variableName: 'optimismInboxContractSolver',
         },
         provingMechanism: provingMechanisms.cannon,
-        provingState: provingState.finalized,
+        settlementTypes: settlementTypes.finalized,
       },
     },
     intent: {
@@ -355,7 +339,7 @@ const routes: any = [
           variableName: 'helixInboxContractSolver',
         },
         provingMechanism: provingMechanisms.bedrockL2SettlementL2Settlement,
-        provingState: provingState.finalized,
+        settlementTypes: settlementTypes.finalized,
       },
     },
     intent: {
@@ -399,7 +383,7 @@ const routes: any = [
           variableName: 'helixInboxContractSolver',
         },
         provingMechanism: provingMechanisms.bedrockL2L3,
-        provingState: provingState.finalized,
+        settlementTypes: settlementTypes.finalized,
       },
     },
     intent: {
@@ -443,7 +427,7 @@ const routes: any = [
           variableName: 'baseInboxContractSolver',
         },
         provingMechanism: provingMechanisms.bedrock,
-        provingState: provingState.finalized,
+        settlementTypes: settlementTypes.finalized,
       },
     },
     intent: {
@@ -466,7 +450,7 @@ const routes: any = [
 
 export {
   provingMechanisms,
-  provingState,
+  settlementTypes,
   networkIds,
   intent,
   actors,

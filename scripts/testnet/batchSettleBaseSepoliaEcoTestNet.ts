@@ -19,6 +19,7 @@ import {
   networkIds,
   networks,
   actors,
+  settlementTypes,
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
@@ -71,10 +72,11 @@ export async function getBatchSettled() {
   // // Get the Output Index and Block Number from L2 OUTPUT ORACLE that was sent before this block
   // // Get the event from the latest Block checking transaction hash
   const blockNumber = BigInt(await s.baseSepoliaProvider.getBlockNumber())
+  const L2OutputOracleEventsBlocksToRetrieve = 200000n // ECO Testnet is only 12 seconds so can look at all blocks
   const l2OutputOracleEvents =
-    await s.baseSepoliaSettlementContractEcoTestNet.queryFilter(
-      s.baseSepoliaSettlementContractEcoTestNet.getEvent('OutputProposed'),
-      toQuantity(blockNumber - 2000n),
+    await s.baseSepoliaSettlementContractEcoTestnet.queryFilter(
+      s.baseSepoliaSettlementContractEcoTestnet.getEvent('OutputProposed'),
+      toQuantity(blockNumber - L2OutputOracleEventsBlocksToRetrieve),
       toQuantity(blockNumber),
     )
   console.log(
@@ -84,12 +86,32 @@ export async function getBatchSettled() {
   const endBatchBlockDataL2 = await s.baseSepoliaProvider.getBlock(
     l2OutputOracleEvents[l2OutputOracleEvents.length - 1].blockNumber,
   )
-  const l3OutputIndex = toNumber(
-    l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[2],
-  )
-  const l3BlockNumber = BigInt(
-    l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[3],
-  )
+  // const l3OutputIndex = toNumber(
+  //   l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[2],
+  // )
+  // const l3BlockNumber = BigInt(
+  //   l2OutputOracleEvents[l2OutputOracleEvents.length - 1].topics[3],
+  // )
+  let eventIndex = l2OutputOracleEvents.length - 1
+  let l3OutputIndex, l3BlockNumber
+  while (eventIndex >= 0) {
+    const dateInSeconds = Math.floor(Date.now() / 1000)
+    const l3EndBatchblock = await s.ecoTestnetProvider.send(
+      'eth_getBlockByNumber',
+      [toQuantity(l2OutputOracleEvents[eventIndex].topics[3]), false],
+    )
+
+    if (
+      dateInSeconds >
+      toNumber(l3EndBatchblock.timestamp) +
+        networks.ecoTestnet.proving.finalityDelaySeconds
+    ) {
+      l3OutputIndex = toNumber(l2OutputOracleEvents[eventIndex].topics[2])
+      l3BlockNumber = BigInt(l2OutputOracleEvents[eventIndex].topics[3])
+      break
+    }
+    eventIndex -= 1
+  }
 
   return {
     endBatchBlockDataL2,
@@ -121,6 +143,7 @@ export async function getIntentsToProve(
       const proverContract = s[`${sourceChain}ProverContract`] as Contract
       ecoTestnetProvenState = await proverContract.provenStates(
         networkIds.ecoTestnet,
+        settlementTypes.Finalized,
       )
       sourceChainInfo.lastProvenBlock = ecoTestnetProvenState.blockNumber
       if (proveAll) {
@@ -315,13 +338,13 @@ async function proveSelfStateBaseSepolia(
   }
 }
 
-async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
+async function proveWorldStateBedrockOnBaseSepoliaforEcoTestnet(
   l3OutputIndex,
   l3BlockNumber,
   baseBlockTag,
   baseWorldStateRoot,
 ) {
-  console.log('In proveWorldStateBedrockOnBaseSepoliaforEcoTestNet')
+  console.log('In proveWorldStateBedrockOnBaseSepoliaforEcoTestnet')
   const endBatchBlockHex = toQuantity(l3BlockNumber)
   // const endBatchBlockHex = l3BlockNumber
   const endBatchBlockData = await s.ecoTestnetProvider.send(
@@ -354,7 +377,7 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
     32,
   )
 
-  const layer1EcoTestNetOutputOracleProof = await s.baseSepoliaProvider.send(
+  const layer1EcoTestnetOutputOracleProof = await s.baseSepoliaProvider.send(
     'eth_getProof',
     [
       networks.baseSepolia.settlementContracts.ecoTestnet,
@@ -362,11 +385,11 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
       baseBlockTag,
     ],
   )
-  const layer1EcoTestNetOutputOracleContractData = [
-    toBeHex(layer1EcoTestNetOutputOracleProof.nonce), // nonce
-    stripZerosLeft(toBeHex(layer1EcoTestNetOutputOracleProof.balance)), // balance
-    layer1EcoTestNetOutputOracleProof.storageHash, // storageHash
-    layer1EcoTestNetOutputOracleProof.codeHash, // CodeHash
+  const layer1EcoTestnetOutputOracleContractData = [
+    toBeHex(layer1EcoTestnetOutputOracleProof.nonce), // nonce
+    stripZerosLeft(toBeHex(layer1EcoTestnetOutputOracleProof.balance)), // balance
+    layer1EcoTestnetOutputOracleProof.storageHash, // storageHash
+    layer1EcoTestnetOutputOracleProof.codeHash, // CodeHash
   ]
   try {
     const proveOutputTX =
@@ -377,11 +400,11 @@ async function proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
         l2MesagePasserProof.storageHash,
         // endBatchBlockData.hash,
         l1BatchIndex,
-        layer1EcoTestNetOutputOracleProof.storageProof[0].proof,
+        layer1EcoTestnetOutputOracleProof.storageProof[0].proof,
         await s.baseSepoliaProverContract.rlpEncodeDataLibList(
-          layer1EcoTestNetOutputOracleContractData,
+          layer1EcoTestnetOutputOracleContractData,
         ),
-        layer1EcoTestNetOutputOracleProof.accountProof,
+        layer1EcoTestnetOutputOracleProof.accountProof,
         baseWorldStateRoot,
       )
     await proveOutputTX.wait()
@@ -423,8 +446,8 @@ async function proveWorldStatesBedrockL3L2Base(
     settlementWorldStateRoot,
     endBatchBlockDataL2,
   )
-  // Prove ECO TestNet World State on Base Sepolia
-  await proveWorldStateBedrockOnBaseSepoliaforEcoTestNet(
+  // Prove ECO Testnet World State on Base Sepolia
+  await proveWorldStateBedrockOnBaseSepoliaforEcoTestnet(
     l3OutputIndex,
     l3BlockNumber,
     baseBlockTag,
@@ -506,6 +529,7 @@ async function proveIntentBaseSepolia(intentHash, l3BlockNumber) {
   try {
     const proveIntentTx = await s.baseSepoliaProverContract.proveIntent(
       networkIds.ecoTestnet,
+      settlementTypes.Finalized,
       actors.claimant,
       networks.ecoTestnet.inbox.address,
       intermediateHash,
@@ -535,8 +559,8 @@ async function proveIntentBaseSepolia(intentHash, l3BlockNumber) {
   }
 }
 
-async function proveIntentEcoTestNet(intentHash, endBatchBlockData) {
-  console.log('In proveIntentEcoTestNet')
+async function proveIntentEcoTestnet(intentHash, endBatchBlockData) {
+  console.log('In proveIntentEcoTestnet')
   const inboxStorageSlot = solidityPackedKeccak256(
     ['bytes'],
     [s.abiCoder.encode(['bytes32', 'uint256'], [intentHash, 1])],
@@ -612,7 +636,7 @@ export async function proveIntents(intentsToProve, l3BlockNumber) {
         break
       }
       case networkIds.ecoTestnet: {
-        await proveIntentEcoTestNet(intent.intentHash, l3BlockNumber)
+        await proveIntentEcoTestnet(intent.intentHash, l3BlockNumber)
         break
       }
     }
@@ -642,7 +666,7 @@ async function withdrawRewardBaseSepolia(intentHash) {
   }
 }
 
-async function withdrawRewardEcoTestNet(intentHash) {
+async function withdrawRewardEcoTestnet(intentHash) {
   console.log('In withdrawReward')
   try {
     const withdrawTx =
@@ -676,7 +700,7 @@ export async function withdrawFunds(intentsToProve) {
         break
       }
       case networkIds.ecoTestnet: {
-        await withdrawRewardEcoTestNet(intent.intentHash)
+        await withdrawRewardEcoTestnet(intent.intentHash)
         break
       }
     }

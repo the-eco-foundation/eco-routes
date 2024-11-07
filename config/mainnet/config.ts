@@ -114,7 +114,7 @@ const networks: any = {
       },
     },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
-    hyperlaneMailboxAddress: '',
+    hyperlaneMailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D',
   },
   base: {
     network: networkIds[8453],
@@ -155,32 +155,28 @@ const networks: any = {
       eco: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d', // eco L2 Output Oracle
     },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-    hyperlaneMailboxAddress: '',
+    hyperlaneMailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
   },
-  ecos: {
-    network: networkIds[8921733],
-    chainId: networkIds.eco,
-    alchemyNetwork: 'eco',
-    sourceChains: ['base', 'optimism'],
-    rpcUrl: 'https://helix-test.calderachain.xyz/http',
-    settlementNetwork: 'base',
-    proverContract: {
-      address: '',
-      deploymentBlock: '0x35dc32', // 3529778n
-    },
+  helix: {
+    network: 'helix',
+    chainId: networkIds.helix,
+    proverContractAddress: '0x1486388b81cBc2E8a75A7055c8a5053D04301826',
+    hyperProverContractAddress: '0x62e47c15BA93d5CfCF36c17cc1a2E5179616aa61',
+    intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
+    inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
     intentSource: {
       address: '',
-      deploymentBlock: 3529780n, // '0x35dc34',
+      deploymentBlock: 14812485n, // '0xe20545',
       minimumDuration: 1000,
       counter: 0,
     },
     inbox: {
       address: '',
-      deploymentBlock: 3529786n, // '0x35dc3a',
+      deploymentBlock: 14812488n, // '0xe20548',
     },
     hyperproverContractAddress: '',
     proving: {
-      mechanism: 1,
+      mechanism: provingMechanisms.bedrock,
       l1BlockAddress: '0x4200000000000000000000000000000000000015',
       l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
@@ -188,12 +184,13 @@ const networks: any = {
       l1BlockSlotNumber: 2,
       settlementChain: {
         network: 'base',
-        id: 8453,
+        id: networkIds.base,
+        // L2 Output Oracle Address
         contract: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d',
       },
     },
-    usdcAddress: '',
-    hyperlaneMailboxAddress: '',
+    usdcAddress: '0x44D5B1DacCB7E8a7341c1AE0b17Dc65a659B1aCA',
+    hyperlaneMailboxAddress: '0x4B216a3012DD7a2fD4bd3D05908b98C668c63a8d',
   },
 }
 

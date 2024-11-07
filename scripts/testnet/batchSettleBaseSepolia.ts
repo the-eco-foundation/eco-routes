@@ -19,6 +19,7 @@ import {
   networkIds,
   networks,
   actors,
+  settlementTypes,
   // intent,
 } from '../../config/testnet/config'
 import { s } from '../../config/testnet/setup'
@@ -129,6 +130,7 @@ export async function getIntentsToProve(
       const proverContract = s[`${sourceChain}ProverContract`] as Contract
       baseSepoliaProvenState = await proverContract.provenStates(
         networkIds.baseSepolia,
+        settlementTypes.Finalized,
       )
       sourceChainInfo.lastProvenBlock = baseSepoliaProvenState.blockNumber
       if (proveAll) {
@@ -514,6 +516,13 @@ export async function proveDestinationChainBatchSettled(
 ) {
   console.log('In proveDestinationChainBatchSettled')
   let endBatchBlockData
+  // console.log('Testing Only to be removed')
+  // endBatchBlockData = await proveWorldStatesCannon(
+  //   faultDisputeGameAddress,
+  //   faultDisputeGameContract,
+  //   gameIndex,
+  // )
+  // console.log('endTesting')
   await Promise.all(
     await Object.entries(sourceChains).map(
       async ([sourceChainkey, sourceChain]) => {
@@ -531,7 +540,7 @@ export async function proveDestinationChainBatchSettled(
               )
               break
             }
-            case networkIds.ecoTestNet: {
+            case networkIds.ecoTestnet: {
               // will use instantSettle for this
               // endBatchBlockData = await proveWorldStatesCannonL2L3(
               //   faultDisputeGameAddress,
@@ -587,6 +596,7 @@ async function proveIntentBaseSepolia(intentHash, endBatchBlockData) {
   try {
     const proveIntentTx = await s.baseSepoliaProverContract.proveIntent(
       networkIds.optimismSepolia,
+      settlementTypes.Finalized,
       actors.claimant,
       networks.optimismSepolia.inbox.address,
       intermediateHash,
@@ -649,6 +659,7 @@ async function proveIntentOptimismSepolia(intentHash, endBatchBlockData) {
   try {
     const proveIntentTx = await s.optimismSepoliaProverContract.proveIntent(
       networkIds.baseSepolia,
+      settlementTypes.Finalized,
       actors.claimant,
       networks.baseSepolia.inbox.address,
       intermediateHash,
@@ -692,9 +703,9 @@ export async function proveIntents(intentsToProve, endBatchBlockData) {
         await proveIntentOptimismSepolia(intent.intentHash, endBatchBlockData)
         break
       }
-      case networkIds.ecoTestNet: {
+      case networkIds.ecoTestnet: {
         // will use instantSettle for this
-        // await proveIntentEcoTestNet(intent.intentHash, endBatchBlockData)
+        // await proveIntentEcoTestnet(intent.intentHash, endBatchBlockData)
         break
       }
     }
@@ -762,9 +773,9 @@ export async function withdrawFunds(intentsToProve) {
         await withdrawRewardOptimismSepolia(intent.intentHash)
         break
       }
-      case networkIds.ecoTestNet: {
+      case networkIds.ecoTestnet: {
         // will use instantSettle for this
-        // await withdrawRewardEcoTestNet(intent.intentHash)
+        // await withdrawRewardEcoTestnet(intent.intentHash)
         break
       }
     }

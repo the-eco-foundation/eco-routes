@@ -19,6 +19,7 @@ import {
   networkIds,
   networks,
   actors,
+  settlementTypes,
   // intent,
 } from '../../config/preprod/config'
 import { s } from '../../config/preprod/setup'
@@ -118,7 +119,10 @@ export async function getIntentsToProve(
       sourceChainInfo.sourceChain = networkIds[sourceChain]
       // @ts-ignore
       const proverContract = s[`${sourceChain}ProverContract`] as Contract
-      helixProvenState = await proverContract.provenStates(networkIds.helix)
+      helixProvenState = await proverContract.provenStates(
+        networkIds.helix,
+        settlementTypes.Finalized,
+      )
       sourceChainInfo.lastProvenBlock = helixProvenState.blockNumber
       if (proveAll) {
         sourceChainInfo.lastProvenBlock = inboxDeploymentBlock
@@ -407,7 +411,7 @@ async function proveWorldStatesBedrockL3L2Base(
     settlementWorldStateRoot,
     endBatchBlockDataL2,
   )
-  // Prove ECO TestNet World State on Base
+  // Prove ECO Testnet World State on Base
   await proveWorldStateBedrockOnBaseforHelix(
     l3OutputIndex,
     l3BlockNumber,

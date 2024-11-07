@@ -1,36 +1,56 @@
 import { ethers, run, network } from 'hardhat'
-import { IntentSource, Inbox } from '../../typechain-types'
+import { Inbox } from '../../typechain-types'
 import { setTimeout } from 'timers/promises'
-// import { getAddress } from 'ethers'
-// import c from '../config/testnet/config'
-// import networks from '../config/testnet/config';
 import { networks, actors } from '../../config/mainnet/config'
 
 const networkName = network.name
 console.log('Deploying to Network: ', network.name)
+let deployNetwork: any
 let counter: number = 0
 let minimumDuration: number = 0
 switch (networkName) {
   case 'base':
     counter = networks.base.intentSource.counter
     minimumDuration = networks.base.intentSource.minimumDuration
+    deployNetwork = networks.base
     break
   case 'optimism':
     counter = networks.optimism.intentSource.counter
     minimumDuration = networks.optimism.intentSource.minimumDuration
+    deployNetwork = networks.optimism
     break
-  default:
-    counter = 0
-    minimumDuration = 0
+  case 'helix':
+    counter = networks.helix.intentSource.counter
+    minimumDuration = networks.helix.intentSource.minimumDuration
+    deployNetwork = networks.helix
     break
 }
 console.log('Counter: ', counter)
+const initialSalt: string = 'HANDOFF0'
+// const initialSalt: string = 'PROD'
+
+let proverAddress = ''
+let intentSourceAddress = ''
+let inboxAddress = ''
+const isSolvingPublic = initialSalt !== 'PROD'
+console.log(
+  `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
+)
+const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
 
 console.log('Deploying to Network: ', network.name)
+
+// console.log(network)
 
 async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
+
+  const singletonDeployer = await ethers.getContractAt(
+    'Deployer',
+    '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
+  )
+
   console.log(`**************************************************`)
   const baseChainConfiguration = {
     chainId: networks.base.chainId, // chainId
@@ -54,37 +74,87 @@ async function main() {
         networks.optimism.proving.outputRootVersionNumber, // outputRootVersionNumber
     },
   }
+  const helixChainConfiguration = {
+    chainId: networks.helix.chainId, // chainId
+    chainConfiguration: {
+      provingMechanism: networks.helix.proving.mechanism, // provingMechanism
+      settlementChainId: networks.helix.proving.settlementChain.id, // settlementChainId
+      settlementContract: networks.helix.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+      blockhashOracle: networks.helix.proving.l1BlockAddress, // blockhashOracle
+      outputRootVersionNumber: networks.helix.proving.outputRootVersionNumber, // outputRootVersionNumber
+    },
+  }
+  let receipt
 
-  const proverFactory = await ethers.getContractFactory('Prover')
-  const prover = await proverFactory.deploy([
-    baseChainConfiguration,
-    optimismChainConfiguration,
-  ])
-  console.log('prover implementation deployed to: ', await prover.getAddress())
+  if (proverAddress === '') {
+    const proverFactory = await ethers.getContractFactory('Prover')
+    const proverTx = await proverFactory.getDeployTransaction([
+      baseChainConfiguration,
+      optimismChainConfiguration,
+      helixChainConfiguration,
+    ])
+    receipt = await singletonDeployer.deploy(proverTx.data, salt, {
+      gasLimit: 5000000,
+    })
+    proverAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber,
+      )
+    )[0].args.addr
+  }
+  console.log('prover implementation deployed to: ', proverAddress)
 
-  const intentSourceFactory = await ethers.getContractFactory('IntentSource')
-  const intentSource: IntentSource = await intentSourceFactory.deploy(
-    minimumDuration,
-    counter,
-  )
-  console.log('intentSource deployed to:', await intentSource.getAddress())
+  if (intentSourceAddress === '') {
+    const intentSourceFactory = await ethers.getContractFactory('IntentSource')
+    const intentSourceTx = await intentSourceFactory.getDeployTransaction(
+      minimumDuration,
+      counter,
+    )
+    receipt = await singletonDeployer.deploy(intentSourceTx.data, salt, {
+      gasLimit: 5000000,
+    })
+    intentSourceAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber,
+      )
+    )[0].args.addr
+  }
+  console.log('intentSource deployed to:', intentSourceAddress)
 
-  const inboxFactory = await ethers.getContractFactory('Inbox')
+  if (inboxAddress === '') {
+    const inboxFactory = await ethers.getContractFactory('Inbox')
 
-  const inbox: Inbox = await inboxFactory.deploy(actors.inboxOwner, false, [
-    actors.solver,
-  ])
-  console.log('Inbox deployed to:', await inbox.getAddress())
+    const inboxTx = await inboxFactory.getDeployTransaction(
+      actors.deployer,
+      isSolvingPublic,
+      [actors.solver],
+    )
+    receipt = await singletonDeployer.deploy(inboxTx.data, salt, {
+      gasLimit: 3000000,
+    })
+    await receipt.wait()
+    inboxAddress = (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber,
+      )
+    )[0].args.addr
 
-  const inboxOwnerSigner = await new ethers.Wallet(
-    process.env.INBOX_OWNER_PRIVATE_KEY || '0x' + '11'.repeat(32),
-    ethers.getDefaultProvider(networkName),
-  )
-  const setSolverTx = await inbox
-    .connect(inboxOwnerSigner)
-    .changeSolverWhitelist(actors.solver, true)
-  await setSolverTx.wait()
-  console.log('Solver added to whitelist:', actors.solver)
+    const inboxOwnerSigner = deployer
+
+    const inbox: Inbox = await ethers.getContractAt(
+      'Inbox',
+      inboxAddress,
+      inboxOwnerSigner,
+    )
+
+    inbox
+      .connect(inboxOwnerSigner)
+      .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+  }
+  console.log('Inbox deployed to:', inboxAddress)
 
   // adding a try catch as if the contract has previously been deployed will get a
   // verification error when deploying the same bytecode to a new address
@@ -93,30 +163,38 @@ async function main() {
     await setTimeout(30000)
     try {
       await run('verify:verify', {
-        address: await prover.getAddress(),
-        // constructorArguments: [l1BlockAddressSepolia, deployer.address],
+        address: proverAddress,
         constructorArguments: [
-          [baseChainConfiguration, optimismChainConfiguration],
+          [
+            baseChainConfiguration,
+            optimismChainConfiguration,
+            helixChainConfiguration,
+          ],
         ],
       })
+      console.log('prover verified at:', proverAddress)
     } catch (e) {
       console.log(`Error verifying prover`, e)
     }
     try {
       await run('verify:verify', {
-        address: await intentSource.getAddress(),
+        address: intentSourceAddress,
         constructorArguments: [minimumDuration, counter],
       })
-      console.log('intentSource verified at:', await intentSource.getAddress())
+      console.log('intentSource verified at:', intentSourceAddress)
     } catch (e) {
       console.log(`Error verifying intentSource`, e)
     }
     try {
       await run('verify:verify', {
-        address: await inbox.getAddress(),
-        constructorArguments: [deployer.address, false, [actors.solver]],
+        address: inboxAddress,
+        constructorArguments: [
+          actors.inboxOwner,
+          isSolvingPublic,
+          [actors.solver],
+        ],
       })
-      console.log('Inbox verified at:', await inbox.getAddress())
+      console.log('Inbox verified at:', inboxAddress)
     } catch (e) {
       console.log(`Error verifying inbox`, e)
     }
