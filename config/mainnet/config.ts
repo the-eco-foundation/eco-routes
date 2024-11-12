@@ -84,7 +84,7 @@ const networks: any = {
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      base: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e', // base Dispute Game Factory
+      base: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e', // base dispute game factory
       optimism: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9', // optimism Dispute Game Factory
       mantle: '0x31d543e7BE1dA6eFDc2206Ef7822879045B9f481', // mantle L2 OUTPUT ORACLE
     },

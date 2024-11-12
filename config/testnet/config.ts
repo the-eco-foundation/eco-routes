@@ -1,3 +1,6 @@
+import { zeroAddress } from 'viem'
+import { DeployNetwork } from '../../scripts/deloyProtocol'
+
 /* eslint-disable no-magic-numbers */
 import { ethers } from 'hardhat'
 

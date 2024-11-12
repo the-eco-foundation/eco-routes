@@ -7,13 +7,13 @@ interface IInbox is ISemver {
     // Event emitted when an intent is succesfully fulfilled
     event Fulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
-    // Event emitted when an intent is succesfully fulfilled and ready to be slow-path proven
+    // Event emitted when an intent is ready to be proven via a storage prover
     event ToBeProven(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
-    // Event emitted when an intent is successfully fulfilled with the instant hyperprover path
+    // Event emitted when an intent is fulfilled with the instant hyperprover path
     event HyperInstantFulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
-    // Event emitted when an intent is fulfilled and added to a batch to be proven with the hyperprover
+    // Event emitted when an intent is added to a batch to be proven with the hyperprover
     event AddToBatch(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant, address _prover);
 
     // Event emitted when solving is made public
