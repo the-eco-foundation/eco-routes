@@ -24,13 +24,12 @@ rsync -av --include '*/*.sol' --exclude 'test' --exclude 'build' --exclude  'REA
 
 rm build/src/abi/contracts/*.dbg.json
 rm build/src/abi/interfaces/*.dbg.json
-echo "start ts node"
+echo "Start abi export and package.json generation"
 npx ts-node scripts/publish/abi-export.ts
 npx ts-node scripts/publish/package.ts
-echo "finish ts node"
+echo "Finished abi export and package.json generation"
+echo "Move .npmignore, tsconfig, README.md and LICENSE to build"
+cp .npmignore build/
+cp tsconfig.json build/
 cp README.md build/
 cp LICENSE build/
-
-
-
-
