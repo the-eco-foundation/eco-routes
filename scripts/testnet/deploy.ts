@@ -27,25 +27,36 @@ const optimismSepoliaChainConfiguration = {
     provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
     settlementChainId: networks.optimismSepolia.proving.settlementChain.id, // settlementChainId
     settlementContract:
-      networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+      networks.optimismSepolia.proving.settlementChain.contract, // settlementContract e.g DisputeGameFactory or L2OutputOracle.
     blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
 
-const ecoTestnetChainConfiguration = {
-  chainId: networks.ecoTestnet.chainId, // chainId
+// const ecoTestnetChainConfiguration = {
+//   chainId: networks.ecoTestnet.chainId, // chainId
+//   chainConfiguration: {
+//     provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
+//     settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
+//     settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+//     blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
+//     outputRootVersionNumber:
+//       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+//   },
+// }
+
+const mantleSepoliaChainConfiguration = {
+  chainId: networks.mantleSepolia.chainId, // chainId
   chainConfiguration: {
-    provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
-    settlementChainId: networks.ecoTestnet.proving.settlementChain.id, // settlementChainId
-    settlementContract: networks.ecoTestnet.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
+    provingMechanism: networks.mantleSepolia.proving.mechanism, // provingMechanism
+    settlementChainId: networks.mantleSepolia.proving.settlementChain.id, // settlementChainId
+    settlementContract: networks.mantleSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.mantleSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
-      networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+      networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
-
 // const arbitrumSepoliaChainConfiguration = {
 //   chainId: networks.arbitrumSepolia.chainId, // chainId
 //   chainConfiguration: {

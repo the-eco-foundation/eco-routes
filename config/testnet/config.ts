@@ -237,19 +237,19 @@ const networks: Record<any, DeployNetwork> = {
     },
     proving: {
       mechanism: provingMechanisms.bedrock,
-      l1BlockAddress: '',
-      l2l1MessageParserAddress: '',
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
       l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
       settlementChain: {
-        network: 'mainnet',
-        id: networkIds.mainnet,
+        network: 'sepolia',
+        id: networkIds.sepolia,
         // L2 Output Oracle Address
         contract: '0x4121dc8e48Bc6196795eb4867772A5e259fecE07',
       },
     },
     usdcAddress: '',
-    hyperlaneMailboxAddress: zeroAddress,
+    hyperlaneMailboxAddress: zeroAddress,// until they deploy the real one
     gasLimit: 25000000000,
   },
 }
