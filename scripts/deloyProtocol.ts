@@ -4,8 +4,9 @@ import { Signer } from 'ethers'
 import { Deployer, Inbox, Prover } from '../typechain-types'
 import { networks as mainnetNetworks } from '../config/mainnet/config'
 import { networks as sepoliaNetworks } from '../config/testnet/config'
-import { Address, Hex } from 'viem'
+import { Address, Hex, zeroAddress } from 'viem'
 import { isZeroAddress } from './utils'
+import { getGitHash } from './publish/gitUtils'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 export type DeployNetwork = {
@@ -28,7 +29,23 @@ export type ProtocolDeploy = {
   initialSalt: string
 }
 
-export async function deployProtocol(protocolDeploy: ProtocolDeploy, deployNetwork: DeployNetwork, solver: Hex, proverConfig: any, isSolvingPublic: boolean = true) {
+export function getEmptyProtocolDeploy(): ProtocolDeploy {
+  return {
+    proverAddress: zeroAddress,
+    intentSourceAddress: zeroAddress,
+    inboxAddress: zeroAddress,
+    hyperProverAddress: zeroAddress,
+    initialSalt: getGitHash(),
+  }
+}
+
+export async function deployProtocol(
+  protocolDeploy: ProtocolDeploy,
+  deployNetwork: DeployNetwork,
+  solver: Hex,
+  proverConfig: any,
+  isSolvingPublic: boolean = true,
+) {
   const networkName = deployNetwork.network
   const salt = ethers.keccak256(ethers.toUtf8Bytes(protocolDeploy.initialSalt))
   const [deployer] = await ethers.getSigners()
@@ -37,10 +54,10 @@ export async function deployProtocol(protocolDeploy: ProtocolDeploy, deployNetwo
     console.log('Deploying for CI')
   }
 
-  const singletonDeployer = await ethers.getContractAt(
+  const singletonDeployer = (await ethers.getContractAt(
     'Deployer',
     '0xfc91Ac2e87Cc661B674DAcF0fB443a5bA5bcD0a3',
-  )as any as Deployer
+  )) as any as Deployer
 
   console.log('gasLimit:', deployNetwork.gasLimit)
 
@@ -85,10 +102,10 @@ export async function deployProtocol(protocolDeploy: ProtocolDeploy, deployNetwo
 }
 
 export function getDeployNetwork(networkName: string): DeployNetwork {
-//mainnet
+  // mainnet
   switch (networkName) {
     case 'base':
-      return  mainnetNetworks.base
+      return mainnetNetworks.base
     case 'optimism':
       return mainnetNetworks.optimism
     case 'helix':
@@ -99,7 +116,7 @@ export function getDeployNetwork(networkName: string): DeployNetwork {
       return mainnetNetworks.mantle
   }
 
-  //sepolia
+  // sepolia
   switch (networkName) {
     case 'baseSepolia':
       return sepoliaNetworks.baseSepolia
@@ -208,11 +225,11 @@ export async function deployInbox(
   )[0].args.addr as Hex
 
   // on testnet inboxOwner is the deployer, just to make things easier
-  const inbox: Inbox = await ethers.getContractAt(
+  const inbox: Inbox = (await ethers.getContractAt(
     contractName,
     inboxAddress,
     inboxOwnerSigner,
-  ) as any as Inbox
+  )) as any as Inbox
 
   await inbox
     .connect(inboxOwnerSigner)

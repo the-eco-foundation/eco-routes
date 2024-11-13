@@ -201,17 +201,16 @@ const networks: Record<any, DeployNetwork> = {
       counter: 0,
     },
     proving: {
-      mechanism: '',
-      l1BlockAddress: '',
-      l2l1MessageParserAddress: '',
+      mechanism: provingMechanisms.bedrock,
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
       settlementChain: {
         network: 'sepolia',
         id: networkIds.sepolia,
-        // Dispute Game Factory address
-        contract: '',
-        // Old L2 Ourput Oracle Address
-        // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
+        // L2 Output Oracle Address
+        contract: '0x4121dc8e48Bc6196795eb4867772A5e259fecE07',
       },
     },
     // The following destination chains are useful for proving
@@ -249,7 +248,7 @@ const networks: Record<any, DeployNetwork> = {
       },
     },
     usdcAddress: '',
-    hyperlaneMailboxAddress: zeroAddress,// until they deploy the real one
+    hyperlaneMailboxAddress: zeroAddress, // until they deploy the real one
     gasLimit: 25000000000,
   },
 }
