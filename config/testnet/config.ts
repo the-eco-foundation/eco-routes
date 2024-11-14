@@ -114,7 +114,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 35000000,
+    gasLimit: 20000000,
   },
   baseSepolia: {
     network: 'base-sepolia',
@@ -153,7 +153,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 35000000,
+    gasLimit: 20000000,
   },
   ecoTestnet: {
     network: 'eco-testnet',
@@ -187,7 +187,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 35000000,
+    gasLimit: 20000000,
   },
   arbitrumSepolia: {
     network: 'arbitrum-sepolia',
@@ -221,7 +221,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
     hyperlaneMailboxAddress: '0xc756cFc1b7d0d4646589EDf10eD54b201237F5e8',
-    gasLimit: 35000000,
+    gasLimit: 20000000,
   },
   mantleSepolia: {
     network: 'mantleSepolia',
