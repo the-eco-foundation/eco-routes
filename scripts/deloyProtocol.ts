@@ -17,9 +17,15 @@ export type DeployNetwork = {
   }
   hyperlaneMailboxAddress: Hex
   network: string
+  pre: boolean // whether this is a pre deployment to a network, think preproduction
   chainId: number
   [key: string]: any
 }
+
+export type DeployNetworkConfig = Omit<
+  DeployNetwork,
+  'gasLimit' | 'intentSource' | 'hyperlaneMailboxAddress' | 'network' | 'pre'
+>
 
 export type ProtocolDeploy = {
   proverAddress: Hex
@@ -38,13 +44,17 @@ export function getEmptyProtocolDeploy(): ProtocolDeploy {
     initialSalt: getGitHash(),
   }
 }
+export type DeployProtocolOptions = {
+  isSolvingPublic: boolean
+  deployPreproduction?: boolean
+}
 
 export async function deployProtocol(
   protocolDeploy: ProtocolDeploy,
   deployNetwork: DeployNetwork,
   solver: Hex,
   proverConfig: any,
-  isSolvingPublic: boolean = true,
+  options: DeployProtocolOptions = { isSolvingPublic: true },
 ) {
   const networkName = deployNetwork.network
   const salt = ethers.keccak256(ethers.toUtf8Bytes(protocolDeploy.initialSalt))
@@ -81,7 +91,7 @@ export async function deployProtocol(
     protocolDeploy.inboxAddress = await deployInbox(
       deployNetwork,
       deployer,
-      isSolvingPublic,
+      options.isSolvingPublic,
       [solver],
       salt,
       singletonDeployer,
@@ -98,6 +108,11 @@ export async function deployProtocol(
       salt,
       singletonDeployer,
     )
+  }
+  // deploy preproduction contracts
+  if (options.deployPreproduction) {
+    deployNetwork.pre = true
+    deployProtocol(protocolDeploy, deployNetwork, solver, proverConfig)
   }
 }
 
@@ -146,15 +161,18 @@ export async function deployProver(
   const receipt = await singletonDeployer.deploy(proverTx.data, deploySalt, {
     gasLimit: deployNetwork.gasLimit,
   })
-  const proverAddress = (
-    await singletonDeployer.queryFilter(
-      singletonDeployer.filters.Deployed,
-      receipt.blockNumber || undefined,
-    )
-  )[0].args.addr as Address
+  const filter = await singletonDeployer.queryFilter(
+    singletonDeployer.filters.Deployed,
+    receipt.blockNumber || undefined,
+  )
+  const proverAddress = filter[0].args.addr as Address
 
   console.log(`${contractName} implementation deployed to: `, proverAddress)
-  updateAddresses(deployNetwork.network, `${contractName}`, proverAddress)
+  updateAddresses(
+    deployNetwork,
+    `${contractName}`,
+    proverAddress,
+  )
   verifyContract(contractName, proverAddress, [deployArgs])
   return proverAddress
 }
@@ -190,7 +208,11 @@ export async function deployIntentSource(
   )[0].args.addr as Address
 
   console.log(`${contractName} deployed to:`, intentSourceAddress)
-  updateAddresses(deployNetwork.network, `${contractName}`, intentSourceAddress)
+  updateAddresses(
+    deployNetwork,
+    `${contractName}`,
+    intentSourceAddress,
+  )
   verifyContract(contractName, intentSourceAddress, args)
   return intentSourceAddress
 }
@@ -236,7 +258,11 @@ export async function deployInbox(
     .setMailbox(deployNetwork.hyperlaneMailboxAddress)
 
   console.log(`${contractName} implementation deployed to: `, inboxAddress)
-  updateAddresses(deployNetwork.network, `${contractName}`, inboxAddress)
+  updateAddresses(
+    deployNetwork,
+    `${contractName}`,
+    inboxAddress,
+  )
   verifyContract(contractName, inboxAddress, args)
   return inboxAddress
 }
@@ -273,7 +299,11 @@ export async function deployHyperProver(
   )[0].args.addr as Hex
 
   console.log(`${contractName} deployed to: ${hyperProverAddress}`)
-  updateAddresses(deployNetwork.network, `${contractName}`, hyperProverAddress)
+  updateAddresses(
+    deployNetwork,
+    `${contractName}`,
+    hyperProverAddress,
+  )
   verifyContract(contractName, hyperProverAddress, args)
   return hyperProverAddress
 }

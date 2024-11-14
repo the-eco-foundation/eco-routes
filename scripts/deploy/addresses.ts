@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { DeployNetwork } from '../deloyProtocol'
 
 interface AddressBook {
   [network: string]: {
@@ -10,15 +11,21 @@ interface AddressBook {
 // const filePath = path.join(__dirname, 'addresses.ts');
 const jsonFilePath = path.join(__dirname, '../../build/jsonAddresses.json')
 
-export function updateAddresses(network: string, key: string, value: string) {
+export function updateAddresses(
+  deployNetwork: DeployNetwork,
+  key: string,
+  value: string,
+) {
   let addresses: AddressBook = {}
 
   if (fs.existsSync(jsonFilePath)) {
     const fileContent = fs.readFileSync(jsonFilePath, 'utf8')
     addresses = JSON.parse(fileContent)
   }
-  addresses[network] = addresses[network] || {}
-  addresses[network][key] = value
+  const ck = deployNetwork.chainId.toString()
+  const chainKey = deployNetwork.pre ? ck + '-pre' : ck
+  addresses[chainKey] = addresses[chainKey] || {}
+  addresses[chainKey][key] = value
   fs.writeFileSync(jsonFilePath, JSON.stringify(addresses), 'utf8')
 }
 

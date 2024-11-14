@@ -1,6 +1,7 @@
 import { networks } from '../../config/testnet/config'
+import { DeployNetworkConfig } from '../deloyProtocol'
 
-export const baseSepoliaChainConfiguration = {
+export const baseSepoliaChainConfiguration: DeployNetworkConfig = {
   chainId: networks.baseSepolia.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.baseSepolia.proving.mechanism, // provingMechanism
@@ -12,7 +13,7 @@ export const baseSepoliaChainConfiguration = {
   },
 }
 
-export const optimismSepoliaChainConfiguration = {
+export const optimismSepoliaChainConfiguration: DeployNetworkConfig = {
   chainId: networks.optimismSepolia.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.optimismSepolia.proving.mechanism, // provingMechanism
@@ -25,7 +26,7 @@ export const optimismSepoliaChainConfiguration = {
   },
 }
 
-export const ecoTestnetChainConfiguration = {
+export const ecoTestnetChainConfiguration: DeployNetworkConfig = {
   chainId: networks.ecoTestnet.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.ecoTestnet.proving.mechanism, // provingMechanism
@@ -37,7 +38,7 @@ export const ecoTestnetChainConfiguration = {
   },
 }
 
-export const mantleSepoliaChainConfiguration = {
+export const mantleSepoliaChainConfiguration: DeployNetworkConfig = {
   chainId: networks.mantleSepolia.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.mantleSepolia.proving.mechanism, // provingMechanism
@@ -48,7 +49,7 @@ export const mantleSepoliaChainConfiguration = {
       networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
-export const arbitrumSepoliaChainConfiguration = {
+export const arbitrumSepoliaChainConfiguration: DeployNetworkConfig = {
   chainId: networks.arbitrumSepolia.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.arbitrumSepolia.proving.mechanism, // provingMechanism

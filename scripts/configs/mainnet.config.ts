@@ -1,6 +1,7 @@
 import { networks } from '../../config/mainnet/config'
+import { DeployNetworkConfig } from '../deloyProtocol'
 
-export const baseChainConfiguration = {
+export const baseChainConfiguration: DeployNetworkConfig = {
   chainId: networks.base.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.base.proving.mechanism, // provingMechanism
@@ -11,7 +12,7 @@ export const baseChainConfiguration = {
   },
 }
 
-export const optimismChainConfiguration = {
+export const optimismChainConfiguration: DeployNetworkConfig = {
   chainId: networks.optimism.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.optimism.proving.mechanism, // provingMechanism
@@ -22,7 +23,7 @@ export const optimismChainConfiguration = {
   },
 }
 
-export const helixChainConfiguration = {
+export const helixChainConfiguration: DeployNetworkConfig = {
   chainId: networks.helix.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.helix.proving.mechanism, // provingMechanism
@@ -33,7 +34,7 @@ export const helixChainConfiguration = {
   },
 }
 
-export const arbitrumChainConfiguration = {
+export const arbitrumChainConfiguration: DeployNetworkConfig = {
   chainId: networks.arbitrum.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.arbitrum.proving.mechanism, // provingMechanism
@@ -44,7 +45,7 @@ export const arbitrumChainConfiguration = {
   },
 }
 
-export const mantleChainConfiguration = {
+export const mantleChainConfiguration: DeployNetworkConfig = {
   chainId: networks.mantle.chainId, // chainId
   chainConfiguration: {
     provingMechanism: networks.mantle.proving.mechanism, // provingMechanism

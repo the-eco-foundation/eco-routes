@@ -10,13 +10,19 @@ import { MainnetChainConfigs } from '../configs/chain.config'
 
 const protocolDeploy: ProtocolDeploy = getEmptyProtocolDeploy()
 
-deployProtocol(protocolDeploy, getDeployNetwork(network.name), actors.solver, [
-  MainnetChainConfigs.baseChainConfiguration,
-  MainnetChainConfigs.optimismChainConfiguration,
-  // MainnetChainConfigs.helixChainConfiguration,
-  MainnetChainConfigs.arbitrumChainConfiguration,
-  MainnetChainConfigs.mantleChainConfiguration,
-]).catch((error) => {
+deployProtocol(
+  protocolDeploy,
+  getDeployNetwork(network.name),
+  actors.solver,
+  [
+    MainnetChainConfigs.baseChainConfiguration,
+    MainnetChainConfigs.optimismChainConfiguration,
+    // MainnetChainConfigs.helixChainConfiguration,
+    MainnetChainConfigs.arbitrumChainConfiguration,
+    MainnetChainConfigs.mantleChainConfiguration,
+  ],
+  { isSolvingPublic: true, deployPreproduction: true },
+).catch((error) => {
   console.error(error)
   process.exitCode = 1
 })
