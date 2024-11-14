@@ -1,3 +1,5 @@
+import { DeployNetworkConfig } from '../../scripts/deloyProtocol'
+
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0,
@@ -65,7 +67,7 @@ const intent: any = {
   },
 }
 
-const networks: any = {
+const networks: Record<any, DeployNetworkConfig> = {
   mainnet: {
     network: 'mainnet',
     chainId: networkIds.mainnet,
@@ -212,7 +214,7 @@ const networks: any = {
     },
     usdcAddress: '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9',
     hyperlaneMailboxAddress: '0x398633D19f4371e1DB5a8EFE90468eB70B1176AA',
-    gasLimit: 25000000000,
+    gasLimit: 50000000000,
   },
 }
 

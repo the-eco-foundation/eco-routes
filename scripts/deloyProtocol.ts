@@ -41,7 +41,7 @@ export function getEmptyProtocolDeploy(): ProtocolDeploy {
     intentSourceAddress: zeroAddress,
     inboxAddress: zeroAddress,
     hyperProverAddress: zeroAddress,
-    initialSalt: getGitHash(),
+    initialSalt: getGitHash(), // + Math.random().toString(), //randomize the salt for development as singletonDeployer.deploy(..) will fail if salt is already used
   }
 }
 export type DeployProtocolOptions = {
@@ -57,7 +57,9 @@ export async function deployProtocol(
   options: DeployProtocolOptions = { isSolvingPublic: true },
 ) {
   const networkName = deployNetwork.network
-  const salt = ethers.keccak256(ethers.toUtf8Bytes(protocolDeploy.initialSalt + deployNetwork.pre || ''))
+  const salt = ethers.keccak256(
+    ethers.toUtf8Bytes(protocolDeploy.initialSalt + deployNetwork.pre || ''),
+  )
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
   if (process.env.DEPLOY_CI === 'true') {
@@ -112,7 +114,12 @@ export async function deployProtocol(
   // deploy preproduction contracts
   if (options.deployPre) {
     deployNetwork.pre = true
-    deployProtocol(getEmptyProtocolDeploy(), deployNetwork, solver, proverConfig)
+    await deployProtocol(
+      getEmptyProtocolDeploy(),
+      deployNetwork,
+      solver,
+      proverConfig,
+    )
   }
 }
 
@@ -161,6 +168,8 @@ export async function deployProver(
   const receipt = await singletonDeployer.deploy(proverTx.data, deploySalt, {
     gasLimit: deployNetwork.gasLimit,
   })
+  // wait to verify contract
+  await waitBlocks(5)
   const filter = await singletonDeployer.queryFilter(
     singletonDeployer.filters.Deployed,
     receipt.blockNumber || undefined,
@@ -168,12 +177,8 @@ export async function deployProver(
   const proverAddress = filter[0].args.addr as Address
 
   console.log(`${contractName} implementation deployed to: `, proverAddress)
-  updateAddresses(
-    deployNetwork,
-    `${contractName}`,
-    proverAddress,
-  )
-  verifyContract(contractName, proverAddress, [deployArgs])
+  updateAddresses(deployNetwork, `${contractName}`, proverAddress)
+  verifyContract(contractName, proverAddress, receipt.blockNumber, [deployArgs])
   return proverAddress
 }
 
@@ -199,7 +204,8 @@ export async function deployIntentSource(
       gasLimit: deployNetwork.gasLimit / 2,
     },
   )
-
+  // wait to verify contract
+  await waitBlocks(5)
   const intentSourceAddress = (
     await singletonDeployer.queryFilter(
       singletonDeployer.filters.Deployed,
@@ -208,12 +214,8 @@ export async function deployIntentSource(
   )[0].args.addr as Address
 
   console.log(`${contractName} deployed to:`, intentSourceAddress)
-  updateAddresses(
-    deployNetwork,
-    `${contractName}`,
-    intentSourceAddress,
-  )
-  verifyContract(contractName, intentSourceAddress, args)
+  updateAddresses(deployNetwork, `${contractName}`, intentSourceAddress)
+  verifyContract(contractName, intentSourceAddress, receipt.blockNumber, args)
   return intentSourceAddress
 }
 
@@ -238,6 +240,8 @@ export async function deployInbox(
   const receipt = await singletonDeployer.deploy(inboxTx.data, deploySalt, {
     gasLimit: deployNetwork.gasLimit / 2,
   })
+  // wait to verify contract
+  await waitBlocks(10)
 
   const inboxAddress = (
     await singletonDeployer.queryFilter(
@@ -258,12 +262,8 @@ export async function deployInbox(
     .setMailbox(deployNetwork.hyperlaneMailboxAddress)
 
   console.log(`${contractName} implementation deployed to: `, inboxAddress)
-  updateAddresses(
-    deployNetwork,
-    `${contractName}`,
-    inboxAddress,
-  )
-  verifyContract(contractName, inboxAddress, args)
+  updateAddresses(deployNetwork, `${contractName}`, inboxAddress)
+  verifyContract(contractName, inboxAddress, receipt.blockNumber, args)
   return inboxAddress
 }
 
@@ -288,7 +288,8 @@ export async function deployHyperProver(
       gasLimit: deployNetwork.gasLimit / 4,
     },
   )
-
+  // wait to verify contract
+  await waitBlocks(5)
   console.log(`${contractName} deployed`)
 
   const hyperProverAddress = (
@@ -299,20 +300,22 @@ export async function deployHyperProver(
   )[0].args.addr as Hex
 
   console.log(`${contractName} deployed to: ${hyperProverAddress}`)
-  updateAddresses(
-    deployNetwork,
-    `${contractName}`,
-    hyperProverAddress,
-  )
-  verifyContract(contractName, hyperProverAddress, args)
+  updateAddresses(deployNetwork, `${contractName}`, hyperProverAddress)
+  verifyContract(contractName, hyperProverAddress, receipt.blockNumber, args)
   return hyperProverAddress
 }
 
 export async function verifyContract(
   contractName: string,
   address: Hex,
+  receiptBlockNumber: number | null,
   args: any[],
 ) {
+  receiptBlockNumber =
+    receiptBlockNumber || (await ethers.provider.getBlockNumber())
+  // wait to verify contract
+  await waitBlocks(10, receiptBlockNumber)
+
   try {
     await run('verify:verify', {
       address,
@@ -320,6 +323,20 @@ export async function verifyContract(
     })
     console.log(`${contractName} verified at:`, address)
   } catch (e) {
-    console.log(`Error verifying ${contractName}`, e)
+    console.log(`Error verifying ${contractName}: `, e)
+  }
+}
+
+export async function waitBlocks(numBlocks: number, fromBlock?: number) {
+  fromBlock = fromBlock || (await ethers.provider.getBlockNumber())
+  while (true) {
+    const currentBlock = await ethers.provider.getBlockNumber()
+    if (currentBlock - fromBlock >= numBlocks) {
+      break
+    }
+    // console.log(
+    //   `Waiting for ${numBlocks} to be mined. Current block: ${currentBlock}.`,
+    // )
+    await new Promise((resolve) => setTimeout(resolve, 1000))
   }
 }

@@ -69,12 +69,10 @@ function formatObjectWithoutQuotes(
   }
 
   const entries = Object.entries(obj)
-    .map(
-      ([key, value]) =>{
-        key = key.includes('-') ? `"${key}"` : key
-        return `${nestedIndent}${key}: ${formatValue(value)}`
-      }
-    )
+    .map(([key, value]) => {
+      key = key.includes('-') ? `"${key}"` : key
+      return `${nestedIndent}${key}: ${formatValue(value)}`
+    })
     .join(',\n')
 
   return `{\n${entries}\n${indent}}`

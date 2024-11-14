@@ -1,5 +1,5 @@
 import { zeroAddress } from 'viem'
-import { DeployNetwork } from '../../scripts/deloyProtocol'
+import { DeployNetworkConfig } from '../../scripts/deloyProtocol'
 
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
@@ -73,7 +73,7 @@ const intent: any = {
   duration: 3600,
 }
 
-const networks: Record<any, DeployNetwork> = {
+const networks: Record<any, DeployNetworkConfig> = {
   // sepolia: {
   //   network: 'sepolia',
   //   chainId: networkIds.sepolia,
@@ -249,7 +249,7 @@ const networks: Record<any, DeployNetwork> = {
     },
     usdcAddress: '',
     hyperlaneMailboxAddress: zeroAddress, // until they deploy the real one
-    gasLimit: 25000000000,
+    gasLimit: 50000000000,
   },
 }
 // TODO Update Bedrock with from BaseSepolia to ECOTestNet

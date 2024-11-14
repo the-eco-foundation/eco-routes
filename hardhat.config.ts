@@ -123,8 +123,8 @@ const config: HardhatUserConfig = {
       base: process.env.BASE_SCAN_API_KEY || '',
       ecoTestnet: process.env.CALDERA_SCAN_API_KEY || '',
       helix: process.env.CALDERA_SCAN_API_KEY || '',
-      mantle: process.env.MANTLESCAN_API_KEY || '',
-      mantleSepolia: process.env.MANTLESCAN_API_KEY || '',
+      mantle: process.env.MANTLE_SCAN_API_KEY || '',
+      mantleSepolia: process.env.MANTLE_SCAN_API_KEY || '',
     },
     customChains: [
       {
