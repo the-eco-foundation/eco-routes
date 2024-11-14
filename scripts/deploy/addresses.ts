@@ -70,8 +70,10 @@ function formatObjectWithoutQuotes(
 
   const entries = Object.entries(obj)
     .map(
-      ([key, value]) =>
-        `${nestedIndent}${toCamelCase(key)}: ${formatValue(value)}`,
+      ([key, value]) =>{
+        key = key.includes('-') ? `"${key}"` : key
+        return `${nestedIndent}${key}: ${formatValue(value)}`
+      }
     )
     .join(',\n')
 

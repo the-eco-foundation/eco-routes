@@ -112,7 +112,7 @@ export async function deployProtocol(
   // deploy preproduction contracts
   if (options.deployPreproduction) {
     deployNetwork.pre = true
-    deployProtocol(protocolDeploy, deployNetwork, solver, proverConfig)
+    deployProtocol(getEmptyProtocolDeploy(), deployNetwork, solver, proverConfig)
   }
 }
 
