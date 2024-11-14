@@ -100,7 +100,7 @@ jobs:
           BASE_SCAN_API_KEY: ${{ secrets.BASE_SCAN_API_KEY }}
           ARBSCAN_API_KEY: ${{ secrets.ARBSCAN_API_KEY }}
           CALDERA_SCAN_API_KEY: ${{ secrets.CALDERA_SCAN_API_KEY }}
-          MANTLESCAN_API_KEY: ${{ secrets.MANTLESCAN_API_KEY }}
+          MANTLE_SCAN_API_KEY: ${{ secrets.MANTLE_SCAN_API_KEY }}
       - name: Publish prepack build directory
         uses: borales/actions-yarn@v4
         with:
