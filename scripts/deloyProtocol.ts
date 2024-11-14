@@ -46,7 +46,7 @@ export function getEmptyProtocolDeploy(): ProtocolDeploy {
 }
 export type DeployProtocolOptions = {
   isSolvingPublic: boolean
-  deployPreproduction?: boolean
+  deployPre?: boolean
 }
 
 export async function deployProtocol(
@@ -110,7 +110,7 @@ export async function deployProtocol(
     )
   }
   // deploy preproduction contracts
-  if (options.deployPreproduction) {
+  if (options.deployPre) {
     deployNetwork.pre = true
     deployProtocol(getEmptyProtocolDeploy(), deployNetwork, solver, proverConfig)
   }

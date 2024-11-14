@@ -21,7 +21,7 @@ deployProtocol(
     MainnetChainConfigs.arbitrumChainConfiguration,
     MainnetChainConfigs.mantleChainConfiguration,
   ],
-  { isSolvingPublic: true, deployPreproduction: true },
+  { isSolvingPublic: true, deployPre: true },
 ).catch((error) => {
   console.error(error)
   process.exitCode = 1

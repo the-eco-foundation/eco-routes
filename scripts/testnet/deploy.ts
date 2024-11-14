@@ -22,7 +22,7 @@ deployProtocol(
     SepoliaChainConfigs.arbitrumSepoliaChainConfiguration,
     SepoliaChainConfigs.mantleSepoliaChainConfiguration,
   ],
-  { isSolvingPublic: true, deployPreproduction: true },
+  { isSolvingPublic: true, deployPre: false },
 ).catch((error) => {
   console.error(error)
   process.exitCode = 1
