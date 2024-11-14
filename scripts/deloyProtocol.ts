@@ -57,7 +57,7 @@ export async function deployProtocol(
   options: DeployProtocolOptions = { isSolvingPublic: true },
 ) {
   const networkName = deployNetwork.network
-  const salt = ethers.keccak256(ethers.toUtf8Bytes(protocolDeploy.initialSalt))
+  const salt = ethers.keccak256(ethers.toUtf8Bytes(protocolDeploy.initialSalt + deployNetwork.pre || ''))
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
   if (process.env.DEPLOY_CI === 'true') {
