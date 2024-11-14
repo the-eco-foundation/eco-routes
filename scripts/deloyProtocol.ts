@@ -123,7 +123,7 @@ export async function deployProtocol(
   }
 }
 
-export function getDeployNetwork(networkName: string): DeployNetwork {
+export function getDeployNetwork(networkName: string): DeployNetworkConfig {
   // mainnet
   switch (networkName) {
     case 'base':
@@ -169,12 +169,14 @@ export async function deployProver(
     gasLimit: deployNetwork.gasLimit,
   })
   // wait to verify contract
-  await waitBlocks(5)
-  const filter = await singletonDeployer.queryFilter(
-    singletonDeployer.filters.Deployed,
-    receipt.blockNumber || undefined,
-  )
-  const proverAddress = filter[0].args.addr as Address
+  const proverAddress = (await waitBlocks(async () => {
+    return (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber || undefined,
+      )
+    )[0].args.addr
+  })) as unknown as Hex
 
   console.log(`${contractName} implementation deployed to: `, proverAddress)
   updateAddresses(deployNetwork, `${contractName}`, proverAddress)
@@ -205,13 +207,14 @@ export async function deployIntentSource(
     },
   )
   // wait to verify contract
-  await waitBlocks(5)
-  const intentSourceAddress = (
-    await singletonDeployer.queryFilter(
-      singletonDeployer.filters.Deployed,
-      receipt.blockNumber || undefined,
-    )
-  )[0].args.addr as Address
+  const intentSourceAddress = (await waitBlocks(async () => {
+    return (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber || undefined,
+      )
+    )[0].args.addr
+  })) as unknown as Hex
 
   console.log(`${contractName} deployed to:`, intentSourceAddress)
   updateAddresses(deployNetwork, `${contractName}`, intentSourceAddress)
@@ -241,14 +244,14 @@ export async function deployInbox(
     gasLimit: deployNetwork.gasLimit / 2,
   })
   // wait to verify contract
-  await waitBlocks(10)
-
-  const inboxAddress = (
-    await singletonDeployer.queryFilter(
-      singletonDeployer.filters.Deployed,
-      receipt.blockNumber || undefined,
-    )
-  )[0].args.addr as Hex
+  const inboxAddress = (await waitBlocks(async () => {
+    return (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber || undefined,
+      )
+    )[0].args.addr
+  })) as unknown as Hex
 
   // on testnet inboxOwner is the deployer, just to make things easier
   const inbox: Inbox = (await ethers.getContractAt(
@@ -289,16 +292,16 @@ export async function deployHyperProver(
     },
   )
   // wait to verify contract
-  await waitBlocks(5)
+  const hyperProverAddress = (await waitBlocks(async () => {
+    return (
+      await singletonDeployer.queryFilter(
+        singletonDeployer.filters.Deployed,
+        receipt.blockNumber || undefined,
+      )
+    )[0].args.addr
+  })) as unknown as Hex
+
   console.log(`${contractName} deployed`)
-
-  const hyperProverAddress = (
-    await singletonDeployer.queryFilter(
-      singletonDeployer.filters.Deployed,
-      receipt.blockNumber || undefined,
-    )
-  )[0].args.addr as Hex
-
   console.log(`${contractName} deployed to: ${hyperProverAddress}`)
   updateAddresses(deployNetwork, `${contractName}`, hyperProverAddress)
   verifyContract(contractName, hyperProverAddress, receipt.blockNumber, args)
@@ -308,18 +311,15 @@ export async function deployHyperProver(
 export async function verifyContract(
   contractName: string,
   address: Hex,
-  receiptBlockNumber: number | null,
   args: any[],
 ) {
-  receiptBlockNumber =
-    receiptBlockNumber || (await ethers.provider.getBlockNumber())
-  // wait to verify contract
-  await waitBlocks(10, receiptBlockNumber)
-
   try {
-    await run('verify:verify', {
-      address,
-      constructorArguments: args,
+    await waitBlocks(async () => {
+      await run('verify:verify', {
+        address,
+        constructorArguments: args,
+      })
+      return await ethers.provider.getCode(address)
     })
     console.log(`${contractName} verified at:`, address)
   } catch (e) {
@@ -327,16 +327,38 @@ export async function verifyContract(
   }
 }
 
-export async function waitBlocks(numBlocks: number, fromBlock?: number) {
-  fromBlock = fromBlock || (await ethers.provider.getBlockNumber())
-  while (true) {
+type AsyncFunction = () => Promise<any>
+
+/**
+ * This method waits on a function to return a non-falsy value for a certain number of blocks
+ *
+ * @param func the asyn function to call
+ * @param options options for the waitBlocks function
+ * @returns the result of the function
+ */
+export async function waitBlocks(
+  func: AsyncFunction,
+  options: { numBlocks: number; fromBlock?: number } = { numBlocks: 25 },
+) {
+  const fromBlock =
+    options.fromBlock || (await ethers.provider.getBlockNumber())
+  let ans
+  let err: Error = new Error('waiting on function failed')
+  while (!ans) {
+    try {
+      ans = await func()
+      if (ans) {
+        return ans
+      }
+    } catch (e) {
+      err = e
+    }
+
     const currentBlock = await ethers.provider.getBlockNumber()
-    if (currentBlock - fromBlock >= numBlocks) {
+    if (currentBlock - fromBlock >= options.numBlocks) {
       break
     }
-    // console.log(
-    //   `Waiting for ${numBlocks} to be mined. Current block: ${currentBlock}.`,
-    // )
+
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
 }

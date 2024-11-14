@@ -1,5 +1,6 @@
 import { network } from 'hardhat'
 import {
+  DeployNetwork,
   deployProtocol,
   getDeployNetwork,
   getEmptyProtocolDeploy,
@@ -12,7 +13,7 @@ const protocolDeploy: ProtocolDeploy = getEmptyProtocolDeploy()
 
 deployProtocol(
   protocolDeploy,
-  getDeployNetwork(network.name),
+  getDeployNetwork(network.name) as DeployNetwork,
   actors.solver,
   [
     MainnetChainConfigs.baseChainConfiguration,
