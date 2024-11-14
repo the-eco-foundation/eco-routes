@@ -78,6 +78,6 @@ function formatObjectWithoutQuotes(
   return `{\n${entries}\n${indent}}`
 }
 
-function toCamelCase(str: string): string {
-  return str.replace(/-([a-z]|[A-Z])/g, (_, letter) => letter.toUpperCase())
-}
+// function toCamelCase(str: string): string {
+//   return str.replace(/-([a-z]|[A-Z])/g, (_, letter) => letter.toUpperCase())
+// }
