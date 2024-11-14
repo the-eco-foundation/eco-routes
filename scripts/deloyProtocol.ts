@@ -180,7 +180,7 @@ export async function deployProver(
 
   console.log(`${contractName} implementation deployed to: `, proverAddress)
   updateAddresses(deployNetwork, `${contractName}`, proverAddress)
-  verifyContract(contractName, proverAddress, receipt.blockNumber, [deployArgs])
+  verifyContract(contractName, proverAddress, [deployArgs])
   return proverAddress
 }
 
@@ -218,7 +218,7 @@ export async function deployIntentSource(
 
   console.log(`${contractName} deployed to:`, intentSourceAddress)
   updateAddresses(deployNetwork, `${contractName}`, intentSourceAddress)
-  verifyContract(contractName, intentSourceAddress, receipt.blockNumber, args)
+  verifyContract(contractName, intentSourceAddress, args)
   return intentSourceAddress
 }
 
@@ -254,19 +254,23 @@ export async function deployInbox(
   })) as unknown as Hex
 
   // on testnet inboxOwner is the deployer, just to make things easier
-  const inbox: Inbox = (await ethers.getContractAt(
-    contractName,
-    inboxAddress,
-    inboxOwnerSigner,
-  )) as any as Inbox
+  const inbox: Inbox = (await waitBlocks(async () => {
+    return await ethers.getContractAt(
+      contractName,
+      inboxAddress,
+      inboxOwnerSigner,
+    )
+  })) as any as Inbox
 
-  await inbox
-    .connect(inboxOwnerSigner)
-    .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+  await waitBlocks(async () => {
+    return await inbox
+      .connect(inboxOwnerSigner)
+      .setMailbox(deployNetwork.hyperlaneMailboxAddress)
+  })
 
   console.log(`${contractName} implementation deployed to: `, inboxAddress)
   updateAddresses(deployNetwork, `${contractName}`, inboxAddress)
-  verifyContract(contractName, inboxAddress, receipt.blockNumber, args)
+  verifyContract(contractName, inboxAddress, args)
   return inboxAddress
 }
 
@@ -304,7 +308,7 @@ export async function deployHyperProver(
   console.log(`${contractName} deployed`)
   console.log(`${contractName} deployed to: ${hyperProverAddress}`)
   updateAddresses(deployNetwork, `${contractName}`, hyperProverAddress)
-  verifyContract(contractName, hyperProverAddress, receipt.blockNumber, args)
+  verifyContract(contractName, hyperProverAddress, args)
   return hyperProverAddress
 }
 
@@ -361,4 +365,5 @@ export async function waitBlocks(
 
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
+  console.log('Error waiting on function: ', err)
 }
