@@ -262,6 +262,7 @@ export async function deployInbox(
     )
   })) as any as Inbox
 
+  
   await waitBlocks(async () => {
     return await inbox
       .connect(inboxOwnerSigner)
