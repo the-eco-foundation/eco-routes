@@ -136,7 +136,7 @@ jobs:
       - name: Publish to NPM
         uses: borales/actions-yarn@v4
         with:
-          cmd: publish # --provenance --access public
+          cmd: publish --access public # --provenance --access public
           dir: "build"
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm registry
