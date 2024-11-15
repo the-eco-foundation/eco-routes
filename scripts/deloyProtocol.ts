@@ -1,6 +1,6 @@
 import { ethers, run } from 'hardhat'
 import { updateAddresses } from './deploy/addresses'
-import { Signer } from 'ethers'
+import { ContractTransactionResponse, Signer } from 'ethers'
 import { Deployer, Inbox, Prover } from '../typechain-types'
 import { networks as mainnetNetworks } from '../config/mainnet/config'
 import { networks as sepoliaNetworks } from '../config/testnet/config'
@@ -72,9 +72,9 @@ export async function deployProtocol(
   )) as any as Deployer
 
   console.log('gasLimit:', deployNetwork.gasLimit)
-
+  const pre = deployNetwork.pre ? ' Pre' : ''
   console.log(`***************************************************`)
-  console.log(`** Deploying contracts to ${networkName} network **`)
+  console.log(`** Deploying contracts to ${networkName + pre} network **`)
   console.log(`***************************************************`)
 
   if (isZeroAddress(protocolDeploy.proverAddress)) {
@@ -165,9 +165,11 @@ export async function deployProver(
   const contractName = 'Prover'
   const proverFactory = await ethers.getContractFactory(contractName)
   const proverTx = await proverFactory.getDeployTransaction(deployArgs)
-  const receipt = await singletonDeployer.deploy(proverTx.data, deploySalt, {
-    gasLimit: deployNetwork.gasLimit,
-  })
+  const receipt = (await waitBlocks(async () => {
+    return await singletonDeployer.deploy(proverTx.data, deploySalt, {
+      gasLimit: deployNetwork.gasLimit,
+    })
+  })) as ContractTransactionResponse
   // wait to verify contract
   const proverAddress = (await waitBlocks(async () => {
     return (
@@ -195,17 +197,23 @@ export async function deployIntentSource(
     deployNetwork.intentSource.minimumDuration,
     deployNetwork.intentSource.counter,
   ]
-  const intentSourceTx = await intentSourceFactory.getDeployTransaction(
-    args[0],
-    args[1],
-  )
-  const receipt = await singletonDeployer.deploy(
-    intentSourceTx.data,
-    deploySalt,
-    {
-      gasLimit: deployNetwork.gasLimit / 2,
-    },
-  )
+  const intentSourceTx = (await waitBlocks(async () => {
+    return await intentSourceFactory.getDeployTransaction(
+      args[0],
+      args[1],
+    )
+  })) as ContractTransactionResponse
+
+  const receipt = (await waitBlocks(async () => {
+    return await singletonDeployer.deploy(
+      intentSourceTx.data,
+      deploySalt,
+      {
+        gasLimit: deployNetwork.gasLimit / 2,
+      },
+    )
+  })) as ContractTransactionResponse
+
   // wait to verify contract
   const intentSourceAddress = (await waitBlocks(async () => {
     return (
@@ -234,15 +242,19 @@ export async function deployInbox(
   const inboxFactory = await ethers.getContractFactory(contractName)
   const args = [await inboxOwnerSigner.getAddress(), isSolvingPublic, solvers]
   // on testnet inboxOwner is the deployer, just to make things easier
-  const inboxTx = await inboxFactory.getDeployTransaction(
-    args[0] as Address,
-    args[1] as boolean,
-    args[2] as any,
-  )
+  const inboxTx = (await waitBlocks(async () => {
+    return await inboxFactory.getDeployTransaction(
+      args[0] as Address,
+      args[1] as boolean,
+      args[2] as any,
+    )
+  })) as ContractTransactionResponse
 
-  const receipt = await singletonDeployer.deploy(inboxTx.data, deploySalt, {
-    gasLimit: deployNetwork.gasLimit / 2,
-  })
+  const receipt = (await waitBlocks(async () => {
+    return await singletonDeployer.deploy(inboxTx.data, deploySalt, {
+      gasLimit: deployNetwork.gasLimit / 2,
+    })
+  })) as ContractTransactionResponse
   // wait to verify contract
   const inboxAddress = (await waitBlocks(async () => {
     return (
@@ -262,7 +274,7 @@ export async function deployInbox(
     )
   })) as any as Inbox
 
-  
+
   await waitBlocks(async () => {
     return await inbox
       .connect(inboxOwnerSigner)
@@ -284,18 +296,22 @@ export async function deployHyperProver(
   const contractName = 'HyperProver'
   const hyperProverFactory = await ethers.getContractFactory(contractName)
   const args = [deployNetwork.hyperlaneMailboxAddress, inboxAddress]
-  const hyperProverTx = await hyperProverFactory.getDeployTransaction(
-    args[0],
-    args[1],
-  )
+  const hyperProverTx = (await waitBlocks(async () => {
+    return await hyperProverFactory.getDeployTransaction(
+      args[0],
+      args[1],
+    )
+  })) as ContractTransactionResponse
 
-  const receipt = await singletonDeployer.deploy(
-    hyperProverTx.data,
-    deploySalt,
-    {
-      gasLimit: deployNetwork.gasLimit / 4,
-    },
-  )
+  const receipt = (await waitBlocks(async () => {
+    return await singletonDeployer.deploy(
+      hyperProverTx.data,
+      deploySalt,
+      {
+        gasLimit: deployNetwork.gasLimit / 4,
+      },
+    )
+  })) as ContractTransactionResponse
   // wait to verify contract
   const hyperProverAddress = (await waitBlocks(async () => {
     return (
