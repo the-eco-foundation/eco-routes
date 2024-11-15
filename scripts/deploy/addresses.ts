@@ -8,8 +8,15 @@ interface AddressBook {
   }
 }
 
-// const filePath = path.join(__dirname, 'addresses.ts');
-const jsonFilePath = path.join(__dirname, '../../build/jsonAddresses.json')
+export const jsonFilePath = path.join(
+  __dirname,
+  '../../build/jsonAddresses.json',
+)
+export const tsFilePath = path.join(__dirname, '../../build/src/index.ts')
+export const csvFilePath = path.join(
+  __dirname,
+  '../../build/deployAddresses.csv',
+)
 
 export function updateAddresses(
   deployNetwork: DeployNetwork,
@@ -30,7 +37,6 @@ export function updateAddresses(
 }
 
 export function transformAddresses() {
-  const tsFilePath = path.join(__dirname, '../../build/src/index.ts')
   const name = 'EcoProtocolAddresses'
   const addresses = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'))
   const abiImports = `export * from './abi'\n`
@@ -48,6 +54,8 @@ export function transformAddresses() {
     `export const ${name} = \n${formatObjectWithoutQuotes(addresses)} as const\n`
   fs.writeFileSync(tsFilePath, outputContent, 'utf-8')
 }
+
+export function createCsv() {}
 
 export function deleteAddressesJson() {
   fs.unlinkSync(jsonFilePath)

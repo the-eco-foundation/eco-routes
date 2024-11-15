@@ -198,20 +198,13 @@ export async function deployIntentSource(
     deployNetwork.intentSource.counter,
   ]
   const intentSourceTx = (await waitBlocks(async () => {
-    return await intentSourceFactory.getDeployTransaction(
-      args[0],
-      args[1],
-    )
+    return await intentSourceFactory.getDeployTransaction(args[0], args[1])
   })) as ContractTransactionResponse
 
   const receipt = (await waitBlocks(async () => {
-    return await singletonDeployer.deploy(
-      intentSourceTx.data,
-      deploySalt,
-      {
-        gasLimit: deployNetwork.gasLimit / 2,
-      },
-    )
+    return await singletonDeployer.deploy(intentSourceTx.data, deploySalt, {
+      gasLimit: deployNetwork.gasLimit / 2,
+    })
   })) as ContractTransactionResponse
 
   // wait to verify contract
@@ -274,7 +267,6 @@ export async function deployInbox(
     )
   })) as any as Inbox
 
-
   await waitBlocks(async () => {
     return await inbox
       .connect(inboxOwnerSigner)
@@ -297,20 +289,13 @@ export async function deployHyperProver(
   const hyperProverFactory = await ethers.getContractFactory(contractName)
   const args = [deployNetwork.hyperlaneMailboxAddress, inboxAddress]
   const hyperProverTx = (await waitBlocks(async () => {
-    return await hyperProverFactory.getDeployTransaction(
-      args[0],
-      args[1],
-    )
+    return await hyperProverFactory.getDeployTransaction(args[0], args[1])
   })) as ContractTransactionResponse
 
   const receipt = (await waitBlocks(async () => {
-    return await singletonDeployer.deploy(
-      hyperProverTx.data,
-      deploySalt,
-      {
-        gasLimit: deployNetwork.gasLimit / 4,
-      },
-    )
+    return await singletonDeployer.deploy(hyperProverTx.data, deploySalt, {
+      gasLimit: deployNetwork.gasLimit / 4,
+    })
   })) as ContractTransactionResponse
   // wait to verify contract
   const hyperProverAddress = (await waitBlocks(async () => {

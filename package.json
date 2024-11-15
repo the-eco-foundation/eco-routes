@@ -1,5 +1,5 @@
 {
-  "name": "@ecoinc/ecoism",
+  "name": "@eco-foundation/eco",
   "version": "v0.0.3-beta",
   "description": "The Ecoism protocol is a decentralized intent based system that allows users to submit their intent to the network and have it fulfilled by a solver on the destination rollup of their choise.",
   "main": "dist/index.js",
