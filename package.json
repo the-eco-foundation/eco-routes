@@ -1,9 +1,15 @@
 {
-  "name": "@eco/ecoism",
-  "version": "0.0.1",
+  "name": "@eco-foundation/eco",
+  "version": "v0.0.3-beta",
   "description": "The Ecoism protocol is a decentralized intent based system that allows users to submit their intent to the network and have it fulfilled by a solver on the destination rollup of their choise.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
   "engines": {
-    "node": ">=18.17.0"
+    "node": ">=v22.10.0"
   },
   "homepage": "https://github.com/eco/ecoism#readme",
   "bugs": {
@@ -41,7 +47,6 @@
     "debug": "hardhat test",
     "coverage": "SOLIDITY_COVERAGE=1 hardhat coverage",
     "coverageReport": "SOLIDITY_COVERAGE=1 hardhat coverage; cd coverage; python3 -m http.server 7800",
-    "prepack": "npm run build",
     "callGraph": "slither . --print call-graph; dot all_contracts.call-graph.dot -Tpng -o ./docs/slither/call-graph.png; rm *.call-graph.dot",
     "inheritanceGraph": "slither . --print inheritance-graph; dot inheritance-graph.dot -Tpng -o ./docs/slither/inheritance-graph.png; rm inheritance-graph.dot",
     "variableOrder": "slither --print variable-order . 2>&1 | sed -r 's/\\x1B\\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g' | tee  ./docs/slither/variable-order.txt",
@@ -69,6 +74,8 @@
     "deployBaseOpen": "hardhat run --network base scripts/mainnet/deployOpen.ts",
     "deployOptimism": "hardhat run --network optimism scripts/mainnet/deploy.ts",
     "deployOptimismOpen": "hardhat run --network optimism scripts/mainnet/deployOpen.ts",
+    "deployArbitrum": "hardhat run --network arbitrum scripts/mainnet/deploy.ts",
+    "deployMantle": "hardhat run --network mantle scripts/mainnet/deploy.ts",
     "deployHyperProverBase": "hardhat run --network base scripts/deployHyperProver.ts",
     "deployHyperProverOptimism": "hardhat run --network optimism scripts/deployHyperProver.ts",
     "MainnetBedrock": "-------- Bedrock scripts below --------",
@@ -76,12 +83,14 @@
     "intentWithdrawOpBase": "hardhat run scripts/mainnet/intentWithdrawOpBase.ts",
     "intentWithdrawBaseOp": "hardhat run scripts/mainnet/intentWithdrawBaseOp.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
-    "EndMainnetCannon": "-------- End Cannon scripts  --------"
+    "EndMainnetCannon": "-------- End Cannon scripts  --------",
+    "versionPackage": "npx ts-node scripts/publish/version.ts",
+    "prepack": "rimraf build &&  yarn run versionPackage && bash scripts/publish/prepack.sh",
+    "deployCI": "hardhat run scripts/deploy/deployCI.ts",
+    "pub:clean": "rimraf build/dist",
+    "pub:build": "cd build && tsc",
+    "pub:prepack": "yarn pub:clean && yarn pub:build"
   },
-  "files": [
-    "contracts/**.sol",
-    "build/contracts/**.json"
-  ],
   "devDependencies": {
     "@eth-optimism/contracts-bedrock": "^0.17.2",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
@@ -97,8 +106,9 @@
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.2.0",
+    "@types/lodash": "^4.17.13",
     "@types/mocha": ">=9.1.0",
-    "@types/node": ">=16.0.0",
+    "@types/node": "^22.9.0",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "@wagmi/cli": "^2.0.0-rc.3",
@@ -120,12 +130,14 @@
     "ethers": "^6.9.0",
     "hardhat": "^2.22.6",
     "hardhat-gas-reporter": "^1.0.9",
+    "lodash": "^4.17.21",
     "prettier": "^3.1.1",
+    "rimraf": "^6.0.1",
     "solhint": "^4.0.0",
     "solhint-plugin-eco": "^0.1.0",
     "solidity-coverage": "^0.8.5",
     "solidity-docgen": "^0.6.0-beta.36",
-    "ts-node": ">=8.0.0",
+    "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
     "typescript": ">=4.5.0",
     "viem": "^2.0.0"

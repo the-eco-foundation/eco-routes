@@ -1,3 +1,6 @@
+import { zeroAddress } from 'viem'
+import { DeployNetworkConfig } from '../../scripts/deloyProtocol'
+
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0,
@@ -70,17 +73,17 @@ const intent: any = {
   duration: 3600,
 }
 
-const networks: any = {
-  sepolia: {
-    network: 'sepolia',
-    chainId: networkIds.sepolia,
-    // The following settlement contracts are useful for event listening
-    settlementContracts: {
-      optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
-      baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
-      // arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia Rollup Admin Contract
-    },
-  },
+const networks: Record<any, DeployNetworkConfig> = {
+  // sepolia: {
+  //   network: 'sepolia',
+  //   chainId: networkIds.sepolia,
+  //   // The following settlement contracts are useful for event listening
+  //   settlementContracts: {
+  //     optimismSepolia: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1', // optimismSepolia Dispute Game Factory
+  //     baseSepolia: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1', // baseSepolia Dispute Game Factory
+  //     // arbitrumSepolia: '0xd80810638dbDF9081b72C1B33c65375e807281C8', // arbitrumSepolia Rollup Admin Contract
+  //   },
+  // },
   optimismSepolia: {
     network: 'optimism-sepolia',
     chainId: networkIds.optimismSepolia,
@@ -111,7 +114,7 @@ const networks: any = {
     // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 8000000,
+    gasLimit: 20000000,
   },
   baseSepolia: {
     network: 'base-sepolia',
@@ -150,7 +153,7 @@ const networks: any = {
     // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 8000000,
+    gasLimit: 20000000,
   },
   ecoTestnet: {
     network: 'eco-testnet',
@@ -184,7 +187,7 @@ const networks: any = {
     // ],
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 8000000,
+    gasLimit: 20000000,
   },
   arbitrumSepolia: {
     network: 'arbitrum-sepolia',
@@ -198,17 +201,16 @@ const networks: any = {
       counter: 0,
     },
     proving: {
-      mechanism: '',
-      l1BlockAddress: '',
-      l2l1MessageParserAddress: '',
+      mechanism: provingMechanisms.bedrock,
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      l2OutputOracleSlotNumber: 3,
       outputRootVersionNumber: 0,
       settlementChain: {
         network: 'sepolia',
         id: networkIds.sepolia,
-        // Dispute Game Factory address
-        contract: '',
-        // Old L2 Ourput Oracle Address
-        // contract: '0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254',
+        // L2 Output Oracle Address
+        contract: '0x4121dc8e48Bc6196795eb4867772A5e259fecE07',
       },
     },
     // The following destination chains are useful for proving
@@ -219,7 +221,7 @@ const networks: any = {
     // ],
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
     hyperlaneMailboxAddress: '0xc756cFc1b7d0d4646589EDf10eD54b201237F5e8',
-    gasLimit: 8000000,
+    gasLimit: 20000000,
   },
   mantleSepolia: {
     network: 'mantleSepolia',
@@ -246,8 +248,8 @@ const networks: any = {
       },
     },
     usdcAddress: '',
-    hyperlaneMailboxAddress: '0x0000000000000000000000000000000000000000', // until they deploy the real one
-    gasLimit: 25000000000,
+    hyperlaneMailboxAddress: zeroAddress, // until they deploy the real one
+    gasLimit: 50000000000,
   },
 }
 // TODO Update Bedrock with from BaseSepolia to ECOTestNet

@@ -39,13 +39,16 @@ contract HyperProver is IMessageRecipient, SimpleProver {
 
     /**
      * @notice constructor
-     * @param _mailbox the address of the local mailbox
-     * @param _inbox the address of the Inbox contract
+     * @dev the constructor sets the addresses of the local mailbox and the Inbox contract
+     * _mailbox the address of the local mailbox
+     * _inbox the address of the Inbox contract
      */
     constructor(address _mailbox, address _inbox) {
         MAILBOX = _mailbox;
         INBOX = _inbox;
     }
+
+    function version() external pure returns (string memory) { return "v0.0.3-beta"; }
 
     /**
      * @notice implementation of the handle method required by IMessageRecipient
