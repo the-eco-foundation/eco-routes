@@ -5,7 +5,7 @@ const mainnetDep = [
   'deployBase',
   'deployOptimism',
   'deployArbitrum',
-  'deployMantle',
+  // 'deployMantle',
 ]
 const sepoliaDep = mainnetDep.map((dep) => dep + 'Sepolia')
 
