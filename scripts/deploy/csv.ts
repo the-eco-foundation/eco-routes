@@ -32,6 +32,5 @@ export function addressesToCVS() {
   }
 
   appendToCSV(csvFilePath, jsonData)
-
   console.log('Data appended successfully from JSON!')
 }
