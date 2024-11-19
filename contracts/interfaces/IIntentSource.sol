@@ -3,7 +3,7 @@
 pragma solidity ^0.8.26;
 
 import {Intent} from "../types/Intent.sol";
-
+import "./ISemver.sol";
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
  *
@@ -11,7 +11,7 @@ import {Intent} from "../types/Intent.sol";
  * Its counterpart is the inbox contract that lives on the destination chain.
  * This contract makes a call to the prover contract (on the source chain) in order to verify intent fulfillment.
  */
-interface IIntentSource {
+interface IIntentSource is ISemver{
     /**
      * @notice emitted on a call to withdraw() by someone who is not entitled to the rewards for a
      * given intent.
