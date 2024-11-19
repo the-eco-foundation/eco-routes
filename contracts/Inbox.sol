@@ -43,9 +43,9 @@ contract Inbox is IInbox, Ownable {
 
     /**
      * constructor
-     * @param _owner the owner of the contract that gets access to privileged functions
-     * @param _isSolvingPublic whether or not solving is public at start
-     * @param _solvers the initial whitelist of solvers, only relevant if {_isSolvingPublic} is false
+     *  _owner the owner of the contract that gets access to privileged functions
+     *  _isSolvingPublic whether or not solving is public at start
+     *  _solvers the initial whitelist of solvers, only relevant if {_isSolvingPublic} is false
      * @dev privileged functions are made such that they can only make changes once
      */
     constructor(address _owner, bool _isSolvingPublic, address[] memory _solvers) Ownable(_owner){
@@ -54,6 +54,8 @@ contract Inbox is IInbox, Ownable {
             solverWhitelist[_solvers[i]] = true;
         }
     }
+
+    function version() external pure returns (string memory) { return "v0.0.3-beta"; }
 
     /** 
      * @notice fulfills an intent to be proven via storage proofs
