@@ -18,12 +18,14 @@ const networkIds: any = {
   helix: 8921733,
   arbitrum: 42161,
   mantle: 5000,
+  polygon: 137,
   1: 'mainnet',
   10: 'optimism',
   8453: 'base',
   8921733: 'helix',
   42161: 'arbitrum',
   5000: 'mantle',
+  137: 'polygon',
 }
 
 const actors: any = {
@@ -213,6 +215,34 @@ const networks: any = {
     usdcAddress: '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9',
     hyperlaneMailboxAddress: '0x398633D19f4371e1DB5a8EFE90468eB70B1176AA',
     gasLimit: 25000000000,
+  },
+  polygon: {
+    network: 'polygon',
+    chainId: networkIds.polygon,
+    proverContractAddress: '',
+    hyperProverContractAddress: '',
+    intentSourceAddress: '',
+    inboxAddress: '',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
+    // proving: {
+    //   mechanism: provingMechanisms.bedrock,
+    //   l1BlockAddress: '0x4200000000000000000000000000000000000015',
+    //   l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+    //   l2OutputOracleSlotNumber: 3,
+    //   outputRootVersionNumber: 0,
+    //   settlementChain: {
+    //     network: 'mainnet',
+    //     id: networkIds.mainnet,
+    //     // L2 Output Oracle Address
+    //     contract: '0x31d543e7BE1dA6eFDc2206Ef7822879045B9f481',
+    //   },
+    // },
+    usdcAddress: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
+    hyperlaneMailboxAddress: '0x5d934f4e2f797775e53561bB72aca21ba36B96BB',
+    gasLimit: 2000000,
   },
 }
 

@@ -109,6 +109,11 @@ const config: HardhatUserConfig = {
       url: `https://rpc.sepolia.mantle.xyz`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
+    polygon: {
+      chainId: 137,
+      url: `https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      accounts: [DEPLOYER_PRIVATE_KEY],
+    },
   },
   etherscan: {
     apiKey: {
@@ -125,6 +130,7 @@ const config: HardhatUserConfig = {
       helix: process.env.CALDERA_SCAN_API_KEY || '',
       mantle: process.env.MANTLESCAN_API_KEY || '',
       mantleSepolia: process.env.MANTLESCAN_API_KEY || '',
+      polygon: process.env.POLYGON_SCAN_API_KEY || '',
     },
     customChains: [
       {
@@ -189,6 +195,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://api-sepolia.arbiscan.io/api',
           browserURL: 'https://sepolia.arbiscan.io/',
+        },
+      },
+      {
+        network: 'polygon',
+        chainId: 137,
+        urls: {
+          apiURL: 'https://api.polygonscan.com/api',
+          browserURL: 'https://polygonscan.com/',
         },
       },
     ],

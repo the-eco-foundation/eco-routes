@@ -13,7 +13,7 @@ let localGasLimit: number = 0
 const initialSalt: string = 'HANDOFF0'
 // const initialSalt: string = 'PROD'
 
-let proverAddress: string = ''
+const proverAddress: string = 'a'
 let intentSourceAddress: string = ''
 let inboxAddress: string = ''
 let hyperProverAddress: string = ''
@@ -33,6 +33,9 @@ switch (networkName) {
     break
   case 'mantle':
     deployNetwork = networks.mantle
+    break
+  case 'polygon':
+    deployNetwork = networks.polygon
 }
 
 const baseChainConfiguration = {
@@ -91,11 +94,14 @@ const mantleChainConfiguration = {
 console.log(
   `Deploying with salt: ethers.keccak256(ethers.toUtf8bytes(${initialSalt})`,
 )
-const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
+// const salt = ethers.keccak256(ethers.toUtf8Bytes(initialSalt))
+const salt =
+  '0xc84b801475c3dd99d7e4fb95aaf02531ecf967d0e5fcad3256db7080c5956341'
 
 console.log('Deploying to Network: ', network.name)
 
 async function main() {
+  console.log('a)')
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
 
@@ -106,30 +112,31 @@ async function main() {
   localGasLimit = deployNetwork.gasLimit
   counter = deployNetwork.intentSource.counter
   minimumDuration = deployNetwork.intentSource.minimumDuration
+  console.log(localGasLimit, counter, minimumDuration)
 
   console.log(`**************************************************`)
 
   let receipt
-  if (proverAddress === '') {
-    const proverFactory = await ethers.getContractFactory('Prover')
-    const proverTx = await proverFactory.getDeployTransaction([
-      baseChainConfiguration,
-      optimismChainConfiguration,
-      helixChainConfiguration,
-      //   arbitrumChainConfiguration,
-      mantleChainConfiguration,
-    ])
-    receipt = await singletonDeployer.deploy(proverTx.data, salt, {
-      gasLimit: localGasLimit,
-    })
-    proverAddress = (
-      await singletonDeployer.queryFilter(
-        singletonDeployer.filters.Deployed,
-        receipt.blockNumber,
-      )
-    )[0].args.addr
-  }
-  console.log('prover implementation deployed to: ', proverAddress)
+  //   if (proverAddress === '') {
+  //     const proverFactory = await ethers.getContractFactory('Prover')
+  //     const proverTx = await proverFactory.getDeployTransaction([
+  //       baseChainConfiguration,
+  //       optimismChainConfiguration,
+  //       helixChainConfiguration,
+  //       //   arbitrumChainConfiguration,
+  //       mantleChainConfiguration,
+  //     ])
+  //     receipt = await singletonDeployer.deploy(proverTx.data, salt, {
+  //       gasLimit: localGasLimit,
+  //     })
+  //     proverAddress = (
+  //       await singletonDeployer.queryFilter(
+  //         singletonDeployer.filters.Deployed,
+  //         receipt.blockNumber,
+  //       )
+  //     )[0].args.addr
+  //   }
+  //   console.log('prover implementation deployed to: ', proverAddress)
 
   if (intentSourceAddress === '') {
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
@@ -138,8 +145,9 @@ async function main() {
       counter,
     )
     receipt = await singletonDeployer.deploy(intentSourceTx.data, salt, {
-      gasLimit: localGasLimit / 2,
+      gasLimit: localGasLimit,
     })
+    await receipt.wait()
     intentSourceAddress = (
       await singletonDeployer.queryFilter(
         singletonDeployer.filters.Deployed,
@@ -210,23 +218,23 @@ async function main() {
   if (network.name !== 'hardhat') {
     console.log('Waiting for 30 seconds for Bytecode to be on chain')
     await setTimeout(30000)
-    try {
-      await run('verify:verify', {
-        address: proverAddress,
-        constructorArguments: [
-          [
-            baseChainConfiguration,
-            optimismChainConfiguration,
-            helixChainConfiguration,
-            // arbitrumChainConfiguration,
-            mantleChainConfiguration,
-          ],
-        ],
-      })
-      console.log('prover verified at:', proverAddress)
-    } catch (e) {
-      console.log(`Error verifying prover`, e)
-    }
+    // try {
+    //   await run('verify:verify', {
+    //     address: proverAddress,
+    //     constructorArguments: [
+    //       [
+    //         baseChainConfiguration,
+    //         optimismChainConfiguration,
+    //         helixChainConfiguration,
+    //         // arbitrumChainConfiguration,
+    //         mantleChainConfiguration,
+    //       ],
+    //     ],
+    //   })
+    //   console.log('prover verified at:', proverAddress)
+    // } catch (e) {
+    //   console.log(`Error verifying prover`, e)
+    // }
     try {
       await run('verify:verify', {
         address: intentSourceAddress,
