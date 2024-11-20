@@ -242,7 +242,7 @@ const networks: any = {
     // },
     usdcAddress: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
     hyperlaneMailboxAddress: '0x5d934f4e2f797775e53561bB72aca21ba36B96BB',
-    gasLimit: 2000000,
+    gasLimit: 30000000,
   },
 }
 

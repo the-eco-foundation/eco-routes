@@ -2,23 +2,24 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { exec } from 'child_process'
 
-// Get the GITHUB_REF environment variable
-const githubRef = process.env.GITHUB_REF
+// // Get the GITHUB_REF environment variable
+// const githubRef = process.env.GITHUB_REF
 
-if (!githubRef) {
-  console.error('GITHUB_REF environment variable is not set.')
-  throw new Error('GITHUB_REF environment variable is not set.')
-}
+// if (!githubRef) {
+//   console.error('GITHUB_REF environment variable is not set.')
+//   throw new Error('GITHUB_REF environment variable is not set.')
+// }
 
-// Check if GITHUB_REF is a tag
-const tagPrefix = 'refs/tags/'
-if (!githubRef.startsWith(tagPrefix)) {
-  console.error('GITHUB_REF is not a tag.')
-  throw new Error('GITHUB_REF is not a tag.')
-}
+// // Check if GITHUB_REF is a tag
+// const tagPrefix = 'refs/tags/'
+// if (!githubRef.startsWith(tagPrefix)) {
+//   console.error('GITHUB_REF is not a tag.')
+//   throw new Error('GITHUB_REF is not a tag.')
+// }
 
 // Extract the tag name
-const tagName = githubRef.substring(tagPrefix.length)
+// const tagName = githubRef.substring(tagPrefix.length)
+const tagName = 'v0.0.4200-beta'
 
 // Directory containing Solidity contract files
 const contractsDir = path.join(__dirname, '../../contracts')

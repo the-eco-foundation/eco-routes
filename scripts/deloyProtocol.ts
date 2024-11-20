@@ -1,6 +1,6 @@
 import { ethers, run } from 'hardhat'
 import { updateAddresses } from './deploy/addresses'
-import { ContractTransactionResponse, Signer } from 'ethers'
+import { ContractTransactionResponse, getCreate2Address, Signer } from 'ethers'
 import { Deployer, Inbox, Prover } from '../typechain-types'
 import { networks as mainnetNetworks } from '../config/mainnet/config'
 import { networks as sepoliaNetworks } from '../config/testnet/config'
@@ -8,6 +8,8 @@ import { Address, Hex, zeroAddress } from 'viem'
 import { isZeroAddress } from './utils'
 import { getGitHash } from './publish/gitUtils'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
+
+const singletonFactoryAddress = '0xce0042B868300000d44A59004Da54A005ffdcf9f'
 
 export type DeployNetwork = {
   gasLimit: number
@@ -41,7 +43,9 @@ export function getEmptyProtocolDeploy(): ProtocolDeploy {
     intentSourceAddress: zeroAddress,
     inboxAddress: zeroAddress,
     hyperProverAddress: zeroAddress,
-    initialSalt: getGitHash(), // + Math.random().toString(), //randomize the salt for development as singletonDeployer.deploy(..) will fail if salt is already used
+    // initialSalt: getGitHash() + Math.random().toString(), // randomize the salt for development as singletonDeployer.deploy(..) will fail if salt is already used
+    initialSalt:
+      '0xc84b801475c3dd99d7e4fb95aaf02531ecf967d0e5fcad3256db7080c5956341',
   }
 }
 export type DeployProtocolOptions = {
@@ -60,6 +64,7 @@ export async function deployProtocol(
   const salt = ethers.keccak256(
     ethers.toUtf8Bytes(protocolDeploy.initialSalt + deployNetwork.pre || ''),
   )
+
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
   if (process.env.DEPLOY_CI === 'true') {
@@ -77,39 +82,39 @@ export async function deployProtocol(
   console.log(`** Deploying contracts to ${networkName + pre} network **`)
   console.log(`***************************************************`)
 
-  if (isZeroAddress(protocolDeploy.proverAddress)) {
-    await deployProver(salt, deployNetwork, singletonDeployer, proverConfig)
-  }
+  //   if (isZeroAddress(protocolDeploy.proverAddress)) {
+  //     await deployProver(salt, deployNetwork, singletonDeployer, proverConfig)
+  //   }
 
   if (isZeroAddress(protocolDeploy.intentSourceAddress)) {
-    protocolDeploy.intentSourceAddress = await deployIntentSource(
+    protocolDeploy.intentSourceAddress = (await deployIntentSource(
       deployNetwork,
       salt,
       singletonDeployer,
-    )
+    )) as Hex
   }
 
   if (isZeroAddress(protocolDeploy.inboxAddress)) {
-    protocolDeploy.inboxAddress = await deployInbox(
+    protocolDeploy.inboxAddress = (await deployInbox(
       deployNetwork,
       deployer,
       options.isSolvingPublic,
       [solver],
       salt,
       singletonDeployer,
-    )
+    )) as Hex
   }
 
   if (
     isZeroAddress(protocolDeploy.hyperProverAddress) &&
     !isZeroAddress(protocolDeploy.inboxAddress)
   ) {
-    protocolDeploy.hyperProverAddress = await deployHyperProver(
+    protocolDeploy.hyperProverAddress = (await deployHyperProver(
       deployNetwork,
       protocolDeploy.inboxAddress,
       salt,
       singletonDeployer,
-    )
+    )) as Hex
   }
   // deploy preproduction contracts
   if (options.deployPre) {
@@ -136,6 +141,8 @@ export function getDeployNetwork(networkName: string): DeployNetworkConfig {
       return mainnetNetworks.arbitrum
     case 'mantle':
       return mainnetNetworks.mantle
+    case 'polygon':
+      return mainnetNetworks.polygon
   }
 
   // sepolia
@@ -165,20 +172,17 @@ export async function deployProver(
   const contractName = 'Prover'
   const proverFactory = await ethers.getContractFactory(contractName)
   const proverTx = await proverFactory.getDeployTransaction(deployArgs)
-  const receipt = (await waitBlocks(async () => {
+  await waitBlocks(async () => {
     return await singletonDeployer.deploy(proverTx.data, deploySalt, {
       gasLimit: deployNetwork.gasLimit,
     })
-  })) as ContractTransactionResponse
+  })
   // wait to verify contract
-  const proverAddress = (await waitBlocks(async () => {
-    return (
-      await singletonDeployer.queryFilter(
-        singletonDeployer.filters.Deployed,
-        receipt.blockNumber || undefined,
-      )
-    )[0].args.addr
-  })) as unknown as Hex
+  const proverAddress = ethers.getCreate2Address(
+    singletonFactoryAddress,
+    deploySalt,
+    ethers.keccak256(proverTx.data),
+  )
 
   console.log(`${contractName} implementation deployed to: `, proverAddress)
   updateAddresses(deployNetwork, `${contractName}`, proverAddress)
@@ -201,21 +205,17 @@ export async function deployIntentSource(
     return await intentSourceFactory.getDeployTransaction(args[0], args[1])
   })) as ContractTransactionResponse
 
-  const receipt = (await waitBlocks(async () => {
+  await waitBlocks(async () => {
     return await singletonDeployer.deploy(intentSourceTx.data, deploySalt, {
       gasLimit: deployNetwork.gasLimit / 2,
     })
-  })) as ContractTransactionResponse
+  })
 
-  // wait to verify contract
-  const intentSourceAddress = (await waitBlocks(async () => {
-    return (
-      await singletonDeployer.queryFilter(
-        singletonDeployer.filters.Deployed,
-        receipt.blockNumber || undefined,
-      )
-    )[0].args.addr
-  })) as unknown as Hex
+  const intentSourceAddress = ethers.getCreate2Address(
+    singletonFactoryAddress,
+    deploySalt,
+    ethers.keccak256(intentSourceTx.data),
+  )
 
   console.log(`${contractName} deployed to:`, intentSourceAddress)
   updateAddresses(deployNetwork, `${contractName}`, intentSourceAddress)
@@ -243,20 +243,17 @@ export async function deployInbox(
     )
   })) as ContractTransactionResponse
 
-  const receipt = (await waitBlocks(async () => {
+  await waitBlocks(async () => {
     return await singletonDeployer.deploy(inboxTx.data, deploySalt, {
       gasLimit: deployNetwork.gasLimit / 2,
     })
-  })) as ContractTransactionResponse
+  })
   // wait to verify contract
-  const inboxAddress = (await waitBlocks(async () => {
-    return (
-      await singletonDeployer.queryFilter(
-        singletonDeployer.filters.Deployed,
-        receipt.blockNumber || undefined,
-      )
-    )[0].args.addr
-  })) as unknown as Hex
+  const inboxAddress = ethers.getCreate2Address(
+    singletonFactoryAddress,
+    deploySalt,
+    ethers.keccak256(inboxTx.data),
+  )
 
   // on testnet inboxOwner is the deployer, just to make things easier
   const inbox: Inbox = (await waitBlocks(async () => {
@@ -292,20 +289,17 @@ export async function deployHyperProver(
     return await hyperProverFactory.getDeployTransaction(args[0], args[1])
   })) as ContractTransactionResponse
 
-  const receipt = (await waitBlocks(async () => {
+  await waitBlocks(async () => {
     return await singletonDeployer.deploy(hyperProverTx.data, deploySalt, {
       gasLimit: deployNetwork.gasLimit / 4,
     })
-  })) as ContractTransactionResponse
+  })
   // wait to verify contract
-  const hyperProverAddress = (await waitBlocks(async () => {
-    return (
-      await singletonDeployer.queryFilter(
-        singletonDeployer.filters.Deployed,
-        receipt.blockNumber || undefined,
-      )
-    )[0].args.addr
-  })) as unknown as Hex
+  const hyperProverAddress = ethers.getCreate2Address(
+    singletonFactoryAddress,
+    deploySalt,
+    ethers.keccak256(hyperProverTx.data),
+  )
 
   console.log(`${contractName} deployed`)
   console.log(`${contractName} deployed to: ${hyperProverAddress}`)
