@@ -1,4 +1,4 @@
-name: Ecoism CI Tests
+name: Eco Routes Protocol CI Tests
 
 on: [push]
 
