@@ -1,13 +1,46 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.28;
+/**
+ * _____                    _____                   _______
+ *          /\    \                  /\    \                 /::\    \
+ *         /::\    \                /::\    \               /::::\    \
+ *        /::::\    \              /::::\    \             /::::::\    \
+ *       /::::::\    \            /::::::\    \           /::::::::\    \
+ *      /:::/\:::\    \          /:::/\:::\    \         /:::/~~\:::\    \
+ *     /:::/__\:::\    \        /:::/  \:::\    \       /:::/    \:::\    \
+ *    /::::\   \:::\    \      /:::/    \:::\    \     /:::/    / \:::\    \
+ *   /::::::\   \:::\    \    /:::/    / \:::\    \   /:::/____/   \:::\____\
+ *  /:::/\:::\   \:::\    \  /:::/    /   \:::\    \ |:::|    |     |:::|    |
+ * /:::/__\:::\   \:::\____\/:::/____/     \:::\____\|:::|____|     |:::|    |
+ * \:::\   \:::\   \::/    /\:::\    \      \::/    / \:::\    \   /:::/    /
+ *  \:::\   \:::\   \/____/  \:::\    \      \/____/   \:::\    \ /:::/    /
+ *   \:::\   \:::\    \       \:::\    \                \:::\    /:::/    /
+ *    \:::\   \:::\____\       \:::\    \                \:::\__/:::/    /
+ *     \:::\   \::/    /        \:::\    \                \::::::::/    /
+ *      \:::\   \/____/          \:::\    \                \::::::/    /
+ *       \:::\    \               \:::\    \                \::::/    /
+ *        \:::\____\               \:::\____\                \::/____/
+ *         \::/    /                \::/    /                 ~~
+ *          \/____/                  \/____/
+ *
+ */
 
-import '@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol';
+import "@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
-import './interfaces/SimpleProver.sol';
-
+import "./libs/SimpleProver.sol";
+import {Semver} from "./libs/Semver.sol";
 
 contract HyperProver is IMessageRecipient, SimpleProver {
     using TypeCasts for bytes32;
+
+    ProofType public constant PROOF_TYPE = ProofType.Hyperlane;
+
+    /**
+     * emitted on an attempt to register a claimant on an intent that has already been proven and has a claimant
+     * @dev this is an event rather than an error because the expected behavior is to ignore one intent but continue with the rest
+     * @param _intentHash the hash of the intent
+     */
+    event IntentAlreadyProven(bytes32 _intentHash);
 
     /**
      * emitted on an unauthorized call to the handle() method
@@ -20,22 +53,27 @@ contract HyperProver is IMessageRecipient, SimpleProver {
      * @param _sender the address that called the dispatch() method
      */
     error UnauthorizedDispatch(address _sender);
-        
+
     // local mailbox address
-    address immutable MAILBOX;
-    
+    address public immutable MAILBOX;
+
     // address of the Inbox contract
     // assumes that all Inboxes are deployed via ERC-2470 and hence have the same address
-    address immutable INBOX;
+    address public immutable INBOX;
 
     /**
      * @notice constructor
-     * @param _mailbox the address of the local mailbox
-     * @param _inbox the address of the Inbox contract
+     * @dev the constructor sets the addresses of the local mailbox and the Inbox contract
+     * _mailbox the address of the local mailbox
+     * _inbox the address of the Inbox contract
      */
     constructor(address _mailbox, address _inbox) {
         MAILBOX = _mailbox;
         INBOX = _inbox;
+    }
+
+    function version() external pure returns (string memory) {
+        return Semver.version();
     }
 
     /**
@@ -44,19 +82,29 @@ contract HyperProver is IMessageRecipient, SimpleProver {
      * @param _sender the address that called the dispatch() method
      * @param _messageBody the message body
      */
-    function handle(uint32, bytes32 _sender, bytes calldata _messageBody) public payable{
-        if(MAILBOX != msg.sender) {
+    function handle(uint32, bytes32 _sender, bytes calldata _messageBody) public payable {
+        if (MAILBOX != msg.sender) {
             revert UnauthorizedHandle(msg.sender);
         }
-        // message body is exactly what was sent into the mailbox on the inbox' chain
-        // encode(intentHash, claimant)
+
         address sender = _sender.bytes32ToAddress();
 
         if (INBOX != sender) {
             revert UnauthorizedDispatch(sender);
         }
-        (bytes32 intentHash, address claimant) = abi.decode(_messageBody, (bytes32, address));
-        provenIntents[intentHash] = claimant;
-        emit IntentProven(intentHash, claimant);
+        (bytes32[] memory hashes, address[] memory claimants) = abi.decode(_messageBody, (bytes32[], address[]));
+        for (uint256 i = 0; i < hashes.length; i++) {
+            (bytes32 intentHash, address claimant) = (hashes[i], claimants[i]);
+            if (provenIntents[intentHash] != address(0)) {
+                emit IntentAlreadyProven(intentHash);
+            } else {
+                provenIntents[intentHash] = claimant;
+                emit IntentProven(intentHash, claimant);
+            }
+        }
+    }
+
+    function getProofType() external pure override returns (ProofType) {
+        return PROOF_TYPE;
     }
 }

@@ -1,0 +1,143 @@
+name: Eco Publish
+
+on:
+  push:
+    tags:
+      - "v[0-9].[0-9]+.[0-9]+-[a-z]+"
+      # matches v0.12.123-alpha
+
+jobs:
+  buildAndTest:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Build Project
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: build
+      - name: Run Tests
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: test
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: ./artifacts
+          retention-days: 1
+  prepack:
+    name: Prepack
+    needs: buildAndTest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+      - name: Download build artifact from buildAndTest job
+        uses: actions/download-artifact@v4
+      - name: List Files
+        run: ls -R
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Prepack
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: prepack
+      - name: Remove node_modules
+        run: rm -rf node_modules
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace
+          include-hidden-files: true
+          path: .
+          retention-days: 1
+  deploy:
+    name: Deploy Contracts
+    needs: prepack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact from prepack job
+        uses: actions/download-artifact@v4
+        with:
+          name: workspace
+          path: .
+      - name: List Files
+        run: ls -R
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Deploy Contracts
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: deployCI
+        env:
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          OPTIMISM_SCAN_API_KEY: ${{ secrets.OPTIMISM_SCAN_API_KEY }}
+          OPTIMISM_BLOCKSCOUT_API_KEY: ${{ secrets.OPTIMISM_BLOCKSCOUT_API_KEY }}
+          BASE_SCAN_API_KEY: ${{ secrets.BASE_SCAN_API_KEY }}
+          ARBSCAN_API_KEY: ${{ secrets.ARBSCAN_API_KEY }}
+          CALDERA_SCAN_API_KEY: ${{ secrets.CALDERA_SCAN_API_KEY }}
+          MANTLESCAN_API_KEY: ${{ secrets.MANTLESCAN_API_KEY }}
+      - name: Publish prepack build directory
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: pub:prepack
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            ./build
+          retention-days: 1
+  publish:
+    name: Publish to NPM
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+      - name: Download build artifact from buildAndTest job
+        uses: actions/download-artifact@v4
+      - name: List Files
+        run: ls -R
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - name: Publish to NPM
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: publish # --provenance --access public
+          dir: "build"
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm registry
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # scope registry

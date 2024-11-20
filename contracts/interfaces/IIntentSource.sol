@@ -1,9 +1,8 @@
-/* -*- c-basic-offset: 4 -*- */
-// SPDX-License-hash: MIT
-pragma solidity ^0.8.26;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.28;
 
 import {Intent} from "../types/Intent.sol";
-
+import {ISemver} from "./ISemver.sol";
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
  *
@@ -11,7 +10,8 @@ import {Intent} from "../types/Intent.sol";
  * Its counterpart is the inbox contract that lives on the destination chain.
  * This contract makes a call to the prover contract (on the source chain) in order to verify intent fulfillment.
  */
-interface IIntentSource {
+
+interface IIntentSource is ISemver {
     /**
      * @notice emitted on a call to withdraw() by someone who is not entitled to the rewards for a
      * given intent.
@@ -51,6 +51,7 @@ interface IIntentSource {
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
+     * @param _prover the prover contract address for the intent
      */
     //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
     event IntentCreated(
@@ -61,8 +62,9 @@ interface IIntentSource {
         bytes[] _data,
         address[] _rewardTokens,
         uint256[] _rewardAmounts,
-        uint256 indexed _expiryTime,
-        bytes32 nonce
+        uint256 _expiryTime,
+        bytes32 nonce,
+        address indexed _prover
     );
 
     /**

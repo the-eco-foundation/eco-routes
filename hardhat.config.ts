@@ -13,7 +13,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: '0.8.26',
+        version: '0.8.28',
         settings: {
           viaIR: true,
           optimizer: {
@@ -78,7 +78,7 @@ const config: HardhatUserConfig = {
       gasPrice: 100000000,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
-    optimismBlockScout: {
+    optimismBlockscout: {
       chainId: 10,
       url: `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       gasPrice: 100000000,
@@ -89,9 +89,24 @@ const config: HardhatUserConfig = {
       url: `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
+    helix: {
+      chainId: 8921733,
+      url: `https://helix-test.calderachain.xyz/http`,
+      accounts: [DEPLOYER_PRIVATE_KEY],
+    },
     arbitrum: {
       chainId: 42161,
       url: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      accounts: [DEPLOYER_PRIVATE_KEY],
+    },
+    mantle: {
+      chainId: 5000,
+      url: `https://mantle-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      accounts: [DEPLOYER_PRIVATE_KEY],
+    },
+    mantleSepolia: {
+      chainId: 5003,
+      url: `https://rpc.sepolia.mantle.xyz`,
       accounts: [DEPLOYER_PRIVATE_KEY],
     },
   },
@@ -100,12 +115,16 @@ const config: HardhatUserConfig = {
       optimismSepolia: process.env.OPTIMISM_SCAN_API_KEY || '',
       optimismSepoliaBlockscout: process.env.OPTIMISM_BLOCKSCOUT_API_KEY || '',
       baseSepolia: process.env.BASE_SCAN_API_KEY || '',
-      arbitrumSepolia: process.env.ARBITRUM_SCAN_API_KEY || '',
+      arbitrumSepolia: process.env.ARBSCAN_API_KEY || '',
+      arbitrum: process.env.ARBSCAN_API_KEY || '',
       optimism: process.env.OPTIMISM_SCAN_API_KEY || '',
       optimismBlockscout: process.env.OPTIMISM_BLOCKSCOUT_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISM_SCAN_API_KEY || '',
       base: process.env.BASE_SCAN_API_KEY || '',
       ecoTestnet: process.env.CALDERA_SCAN_API_KEY || '',
+      helix: process.env.CALDERA_SCAN_API_KEY || '',
+      mantle: process.env.MANTLE_SCAN_API_KEY || '',
+      mantleSepolia: process.env.MANTLE_SCAN_API_KEY || '',
     },
     customChains: [
       {
@@ -130,6 +149,54 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'https://eco-testnet.explorer.caldera.xyz/api',
           browserURL: 'https://eco-testnet.explorer.caldera.xyz/',
+        },
+      },
+      {
+        network: 'optimismBlockscout',
+        chainId: 10,
+        urls: {
+          apiURL: 'https://optimism.blockscout.com/api',
+          browserURL: 'https://optimism.blockscout.com/',
+        },
+      },
+      {
+        network: 'helix',
+        chainId: 8921733,
+        urls: {
+          apiURL: 'https://helix-test.calderaexplorer.xyz/api',
+          browserURL: 'https://helix-test.calderaexplorer.xyz/',
+        },
+      },
+      {
+        network: 'mantle',
+        chainId: 5000,
+        urls: {
+          apiURL: 'https://api.mantlescan.xyz/api',
+          browserURL: 'https://mantlescan.xyz/',
+        },
+      },
+      {
+        network: 'mantleSepolia',
+        chainId: 5003,
+        urls: {
+          apiURL: 'https://api-sepolia.mantlescan.xyz/api',
+          browserURL: 'https://sepolia.mantlescan.xyz/',
+        },
+      },
+      {
+        network: 'arbitrum',
+        chainId: 42161,
+        urls: {
+          apiURL: 'https://api.arbiscan.io/api',
+          browserURL: 'https://arbiscan.io/',
+        },
+      },
+      {
+        network: 'arbitrumSepolia',
+        chainId: 421614,
+        urls: {
+          apiURL: 'https://api-sepolia.arbiscan.io/api',
+          browserURL: 'https://sepolia.arbiscan.io/',
         },
       },
     ],
