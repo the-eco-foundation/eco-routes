@@ -65,13 +65,4 @@ export const arbitrumSepoliaChainConfiguration: DeployNetworkConfig = {
 
 export const polygonSepoliaChainConfiguration: DeployNetworkConfig = {
   chainId: networks.polygonSepolia.chainId, // chainId
-  chainConfiguration: {
-    provingMechanism: networks.polygonSepolia.proving.mechanism, // provingMechanism
-    settlementChainId: networks.polygonSepolia.proving.settlementChain.id, // settlementChainId
-    settlementContract:
-      networks.polygonSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
-    blockhashOracle: networks.polygonSepolia.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber:
-      networks.polygonSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
-  },
 }

@@ -21,12 +21,14 @@ const networkIds: any = {
   ecoTestnet: 471923,
   arbitrumSepolia: 421614,
   mantleSepolia: 5003,
+  polygonSepolia: 80002,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
   471923: 'ecoTestnet',
   421614: 'arbitrumSepolia',
   5003: 'mantleSepolia',
+  80002: 'polygonSepolia',
 }
 
 // const enshrined: any = {
