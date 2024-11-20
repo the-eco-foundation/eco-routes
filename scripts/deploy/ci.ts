@@ -8,7 +8,9 @@ const mainnetDep = [
   'deployBase',
   'deployOptimism',
 ]
-const sepoliaDep = mainnetDep.map((dep) => dep + 'Sepolia')
+const sepoliaDep = mainnetDep.flatMap((dep) => {
+  return dep.toLocaleLowerCase().includes('polygon') ? [] : [dep + 'Sepolia']
+})
 
 export function deployContracts() {
   for (const dep of mainnetDep) {

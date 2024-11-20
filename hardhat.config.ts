@@ -211,7 +211,6 @@ const config: HardhatUserConfig = {
           browserURL: 'https://polygonscan.com/',
         },
       },
-      ,
       {
         network: 'polygonSepolia',
         chainId: 80002,
