@@ -1,6 +1,6 @@
 import { ethers, run } from 'hardhat'
 import { updateAddresses } from './deploy/addresses'
-import { ContractTransactionResponse, getCreate2Address, Signer } from 'ethers'
+import { ContractTransactionResponse, Signer } from 'ethers'
 import { Deployer, Inbox, Prover } from '../typechain-types'
 import { networks as mainnetNetworks } from '../config/mainnet/config'
 import { networks as sepoliaNetworks } from '../config/testnet/config'
@@ -43,9 +43,7 @@ export function getEmptyProtocolDeploy(): ProtocolDeploy {
     intentSourceAddress: zeroAddress,
     inboxAddress: zeroAddress,
     hyperProverAddress: zeroAddress,
-    // initialSalt: getGitHash() + Math.random().toString(), // randomize the salt for development as singletonDeployer.deploy(..) will fail if salt is already used
-    initialSalt:
-      '0xc84b801475c3dd99d7e4fb95aaf02531ecf967d0e5fcad3256db7080c5956341',
+    initialSalt: getGitHash(), // + Math.random().toString(), // randomize the salt for development as singletonDeployer.deploy(..) will fail if salt is already used
   }
 }
 export type DeployProtocolOptions = {
@@ -82,9 +80,9 @@ export async function deployProtocol(
   console.log(`** Deploying contracts to ${networkName + pre} network **`)
   console.log(`***************************************************`)
 
-  //   if (isZeroAddress(protocolDeploy.proverAddress)) {
-  //     await deployProver(salt, deployNetwork, singletonDeployer, proverConfig)
-  //   }
+  if (isZeroAddress(protocolDeploy.proverAddress)) {
+    await deployProver(salt, deployNetwork, singletonDeployer, proverConfig)
+  }
 
   if (isZeroAddress(protocolDeploy.intentSourceAddress)) {
     protocolDeploy.intentSourceAddress = (await deployIntentSource(
@@ -159,6 +157,8 @@ export function getDeployNetwork(networkName: string): DeployNetworkConfig {
       return sepoliaNetworks.arbitrumSepolia
     case 'mantleSepolia':
       return sepoliaNetworks.mantleSepolia
+    case 'polygonSepolia':
+      return sepoliaNetworks.polygonSepolia
   }
   throw new Error('Network not found')
 }
@@ -169,6 +169,10 @@ export async function deployProver(
   singletonDeployer: Deployer,
   deployArgs: Prover.ChainConfigurationConstructorStruct[],
 ) {
+  if (deployNetwork.network.includes('polygon')) {
+    console.log('Polygon network detected, skipping Prover deployment')
+    return
+  }
   const contractName = 'Prover'
   const proverFactory = await ethers.getContractFactory(contractName)
   const proverTx = await proverFactory.getDeployTransaction(deployArgs)
@@ -215,7 +219,7 @@ export async function deployIntentSource(
     singletonFactoryAddress,
     deploySalt,
     ethers.keccak256(intentSourceTx.data),
-  )
+  ) as Hex
 
   console.log(`${contractName} deployed to:`, intentSourceAddress)
   updateAddresses(deployNetwork, `${contractName}`, intentSourceAddress)
@@ -253,7 +257,7 @@ export async function deployInbox(
     singletonFactoryAddress,
     deploySalt,
     ethers.keccak256(inboxTx.data),
-  )
+  ) as Hex
 
   // on testnet inboxOwner is the deployer, just to make things easier
   const inbox: Inbox = (await waitBlocks(async () => {
@@ -299,9 +303,8 @@ export async function deployHyperProver(
     singletonFactoryAddress,
     deploySalt,
     ethers.keccak256(hyperProverTx.data),
-  )
+  ) as Hex
 
-  console.log(`${contractName} deployed`)
   console.log(`${contractName} deployed to: ${hyperProverAddress}`)
   updateAddresses(deployNetwork, `${contractName}`, hyperProverAddress)
   verifyContract(contractName, hyperProverAddress, args)

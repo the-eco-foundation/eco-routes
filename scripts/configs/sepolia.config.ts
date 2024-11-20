@@ -49,6 +49,7 @@ export const mantleSepoliaChainConfiguration: DeployNetworkConfig = {
       networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
+
 export const arbitrumSepoliaChainConfiguration: DeployNetworkConfig = {
   chainId: networks.arbitrumSepolia.chainId, // chainId
   chainConfiguration: {
@@ -59,5 +60,18 @@ export const arbitrumSepoliaChainConfiguration: DeployNetworkConfig = {
     blockhashOracle: networks.arbitrumSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.arbitrumSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+  },
+}
+
+export const polygonSepoliaChainConfiguration: DeployNetworkConfig = {
+  chainId: networks.polygonSepolia.chainId, // chainId
+  chainConfiguration: {
+    provingMechanism: networks.polygonSepolia.proving.mechanism, // provingMechanism
+    settlementChainId: networks.polygonSepolia.proving.settlementChain.id, // settlementChainId
+    settlementContract:
+      networks.polygonSepolia.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
+    blockhashOracle: networks.polygonSepolia.proving.l1BlockAddress, // blockhashOracle
+    outputRootVersionNumber:
+      networks.polygonSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
