@@ -104,7 +104,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
     hyperlaneMailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D',
-    gasLimit: 8000000,
+    gasLimit: 20000000,
   },
   base: {
     network: 'base',
@@ -132,7 +132,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     },
     usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     hyperlaneMailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
-    gasLimit: 8000000,
+    gasLimit: 20000000,
   },
   helix: {
     network: 'helix',
@@ -160,7 +160,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     },
     usdcAddress: '0x44D5B1DacCB7E8a7341c1AE0b17Dc65a659B1aCA',
     hyperlaneMailboxAddress: '0x4B216a3012DD7a2fD4bd3D05908b98C668c63a8d',
-    gasLimit: 8000000,
+    gasLimit: 20000000,
   },
   arbitrum: {
     network: 'arbitrum',
@@ -188,7 +188,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     },
     usdcAddress: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
     hyperlaneMailboxAddress: '0x979Ca5202784112f4738403dBec5D0F3B9daabB9',
-    gasLimit: 8000000,
+    gasLimit: 20000000,
   },
   mantle: {
     network: 'mantle',
@@ -244,7 +244,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // },
     usdcAddress: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
     hyperlaneMailboxAddress: '0x5d934f4e2f797775e53561bB72aca21ba36B96BB',
-    gasLimit: 30000000,
+    gasLimit: 20000000,
   },
 }
 
