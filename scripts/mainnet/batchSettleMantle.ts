@@ -110,12 +110,12 @@ async function getMantleRLPEncodedBlock(blockNumber) {
     block.mixHash,
     block.nonce,
     toBeHex(block.baseFeePerGas),
-    block.withdrawalsRoot ? block.withdrawalsRoot : fallBackDataValue, // Handle missing blobGasUsed
+    // block.withdrawalsRoot ? block.withdrawalsRoot : fallBackDataValue, // Handle missing blobGasUsed
     block.blobGasUsed ? block.blobGasUsed : fallbackNumberValue, // Handle missing blobGasUsed
     block.excessBlobGas ? block.excessBlobGas : fallbackNumberValue, // Handle missing blobGasUsed
-    block.parentBeaconBlockRoot
-      ? block.parentBeaconBlockRoot
-      : fallBackDataValue, // Handle missing blobGasUsed
+    // block.parentBeaconBlockRoot
+    //   ? block.parentBeaconBlockRoot
+    //   : fallBackDataValue, // Handle missing blobGasUsed
   ]
   console.log('block: ', block)
   console.log('blockHeader: ', blockHeader)
