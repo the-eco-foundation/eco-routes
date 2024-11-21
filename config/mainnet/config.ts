@@ -1,4 +1,5 @@
 import { DeployNetworkConfig } from '../../scripts/deloyProtocol'
+export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
@@ -81,7 +82,7 @@ const networks: Record<any, DeployNetworkConfig> = {
   optimism: {
     network: 'optimism',
     chainId: networkIds.optimism,
-    proverContractAddress: '0x1486388b81cBc2E8a75A7055c8a5053D04301826',
+    proverContractAddress: '0xE00c8FD8b50Fed6b652A5cC66c1d0C090fde037f',
     hyperProverContractAddress: '0xAfD3029f582455ed0f06F22AcD916B27bc9b3a55',
     intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
     inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
@@ -191,7 +192,8 @@ const networks: Record<any, DeployNetworkConfig> = {
   mantle: {
     network: 'mantle',
     chainId: networkIds.mantle,
-    proverContractAddress: '0xE275b0635C3783EFA4F1A299879145a407C81f48',
+    rpcUrl: 'https://mantle-mainnet.g.alchemy.com/v2/' + ALCHEMY_API_KEY,
+    proverContractAddress: '0xE00c8FD8b50Fed6b652A5cC66c1d0C090fde037f',
     hyperProverContractAddress: '0xaf034DD5eaeBB49Dc476402C6650e85Cc22a0f1a',
     intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
     inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',

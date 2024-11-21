@@ -1,4 +1,11 @@
-import { AbiCoder, AlchemyProvider, Contract, Wallet, Signer } from 'ethers'
+import {
+  getDefaultProvider,
+  AbiCoder,
+  AlchemyProvider,
+  Contract,
+  Wallet,
+  Signer,
+} from 'ethers'
 import {
   Inbox__factory,
   IntentSource__factory,
@@ -61,6 +68,12 @@ export namespace s {
   export const mainnetSettlementContractOptimism = new Contract(
     networks.mainnet.settlementContracts.optimism,
     DisputeGameFactoryArtifact.abi,
+    mainnetProvider,
+  )
+
+  export const mainnetSettlementContractMantle = new Contract(
+    networks.mainnet.settlementContracts.mantle,
+    L2OutputArtifact.abi,
     mainnetProvider,
   )
   // System Proving Contracts
@@ -205,5 +218,78 @@ export namespace s {
     networks.base.usdcAddress,
     ERC20__factory.abi,
     baseSolver,
+  )
+
+  // mantle
+  // Providers
+  // export const mantleProvider = new AlchemyProvider(
+  //   networks.mantle.network,
+  //   ALCHEMY_API_KEY,
+  // )
+  export const mantleProvider = getDefaultProvider(networks.mantle.rpcUrl)
+  // Signers
+  export const mantleDeployer: Signer = new Wallet(
+    DEPLOYER_PRIVATE_KEY,
+    mantleProvider,
+  )
+  export const mantleIntentCreator: Signer = new Wallet(
+    INTENT_CREATOR_PRIVATE_KEY,
+    mantleProvider,
+  )
+  export const mantleSolver: Signer = new Wallet(
+    SOLVER_PRIVATE_KEY,
+    mantleProvider,
+  )
+  export const mantleIntentProver: Signer = new Wallet(
+    PROVER_PRIVATE_KEY,
+    mantleProvider,
+  )
+  export const mantleClaimant: Signer = new Wallet(
+    CLAIMANT_PRIVATE_KEY,
+    mantleProvider,
+  )
+  // System Proving Contracts
+  export const mantlel1Block = new Contract(
+    networks.mantle.proving.l1BlockAddress,
+    IL1Block__factory.abi,
+    mantleProvider,
+  )
+  export const mantleL2L1MessageParserContract = new Contract(
+    networks.mantle.proving.l2l1MessageParserAddress,
+    L2ToL1MessagePasserArtifact.abi,
+    mantleProvider,
+  )
+
+  // ECO PROTOCOL Contracts
+  export const mantleIntentSourceContractIntentCreator = new Contract(
+    networks.mantle.intentSourceAddress,
+    IntentSource__factory.abi,
+    mantleIntentCreator,
+  )
+  export const mantleIntentSourceContractClaimant = new Contract(
+    networks.mantle.intentSourceAddress,
+    IntentSource__factory.abi,
+    mantleClaimant,
+  )
+
+  export const mantleProverContract = new Contract(
+    networks.mantle.proverContractAddress,
+    Prover__factory.abi,
+    mantleIntentProver,
+  )
+  export const mantleInboxContractSolver = new Contract(
+    networks.mantle.inboxAddress,
+    Inbox__factory.abi,
+    mantleSolver,
+  )
+  export const mantleUSDCContractIntentCreator = new Contract(
+    networks.mantle.usdcAddress,
+    ERC20__factory.abi,
+    mantleIntentCreator,
+  )
+  export const mantleUSDCContractSolver = new Contract(
+    networks.mantle.usdcAddress,
+    ERC20__factory.abi,
+    mantleSolver,
   )
 }
