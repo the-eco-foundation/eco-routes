@@ -223,7 +223,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
     hyperlaneMailboxAddress: '0xc756cFc1b7d0d4646589EDf10eD54b201237F5e8',
-    gasLimit: 20000000,
+    gasLimit: 30000000,
   },
   mantleSepolia: {
     network: 'mantleSepolia',

@@ -1,11 +1,14 @@
-import { ethers, run } from 'hardhat'
+import { ethers } from 'hardhat'
 import { updateAddresses } from './deploy/addresses'
 import { ContractTransactionResponse, Signer } from 'ethers'
 import { Deployer, Inbox, Prover } from '../typechain-types'
-import { networks as mainnetNetworks } from '../config/mainnet/config'
-import { networks as sepoliaNetworks } from '../config/testnet/config'
 import { Address, Hex, zeroAddress } from 'viem'
-import { isZeroAddress } from './utils'
+import {
+  isZeroAddress,
+  proverSupported,
+  retryFunction,
+  verifyContract,
+} from './utils'
 import { getGitHash } from './publish/gitUtils'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
@@ -126,71 +129,36 @@ export async function deployProtocol(
   }
 }
 
-export function getDeployNetwork(networkName: string): DeployNetworkConfig {
-  // mainnet
-  switch (networkName) {
-    case 'base':
-      return mainnetNetworks.base
-    case 'optimism':
-      return mainnetNetworks.optimism
-    case 'helix':
-      return mainnetNetworks.helix
-    case 'arbitrum':
-      return mainnetNetworks.arbitrum
-    case 'mantle':
-      return mainnetNetworks.mantle
-    case 'polygon':
-      return mainnetNetworks.polygon
-  }
-
-  // sepolia
-  switch (networkName) {
-    case 'baseSepolia':
-      return sepoliaNetworks.baseSepolia
-    case 'optimismSepolia':
-      return sepoliaNetworks.optimismSepolia
-    case 'optimismSepoliaBlockscout':
-      return sepoliaNetworks.optimismSepolia
-    case 'ecoTestnet':
-      return sepoliaNetworks.ecoTestnet
-    case 'arbitrumSepolia':
-      return sepoliaNetworks.arbitrumSepolia
-    case 'mantleSepolia':
-      return sepoliaNetworks.mantleSepolia
-    case 'polygonSepolia':
-      return sepoliaNetworks.polygonSepolia
-  }
-  throw new Error('Network not found')
-}
-
 export async function deployProver(
   deploySalt: string,
   deployNetwork: DeployNetwork,
   singletonDeployer: Deployer,
   deployArgs: Prover.ChainConfigurationConstructorStruct[],
 ) {
-  if (deployNetwork.network.includes('polygon')) {
-    console.log('Polygon network detected, skipping Prover deployment')
+  if (!proverSupported(deployNetwork.network)) {
+    console.log(
+      `Unsupported network ${deployNetwork.network} detected, skipping storage Prover deployment`,
+    )
     return
   }
   const contractName = 'Prover'
   const proverFactory = await ethers.getContractFactory(contractName)
   const proverTx = await proverFactory.getDeployTransaction(deployArgs)
-  await waitBlocks(async () => {
+  await retryFunction(async () => {
     return await singletonDeployer.deploy(proverTx.data, deploySalt, {
       gasLimit: deployNetwork.gasLimit,
     })
-  })
+  }, ethers.provider)
   // wait to verify contract
   const proverAddress = ethers.getCreate2Address(
     singletonFactoryAddress,
     deploySalt,
     ethers.keccak256(proverTx.data),
-  )
+  ) as Hex
 
   console.log(`${contractName} implementation deployed to: `, proverAddress)
   updateAddresses(deployNetwork, `${contractName}`, proverAddress)
-  verifyContract(contractName, proverAddress, [deployArgs])
+  verifyContract(ethers.provider, contractName, proverAddress, [deployArgs])
   return proverAddress
 }
 
@@ -205,15 +173,15 @@ export async function deployIntentSource(
     deployNetwork.intentSource.minimumDuration,
     deployNetwork.intentSource.counter,
   ]
-  const intentSourceTx = (await waitBlocks(async () => {
+  const intentSourceTx = (await retryFunction(async () => {
     return await intentSourceFactory.getDeployTransaction(args[0], args[1])
-  })) as ContractTransactionResponse
+  }, ethers.provider)) as unknown as ContractTransactionResponse
 
-  await waitBlocks(async () => {
+  await retryFunction(async () => {
     return await singletonDeployer.deploy(intentSourceTx.data, deploySalt, {
-      gasLimit: deployNetwork.gasLimit / 2,
+      gasLimit: deployNetwork.gasLimit,
     })
-  })
+  }, ethers.provider)
 
   const intentSourceAddress = ethers.getCreate2Address(
     singletonFactoryAddress,
@@ -223,7 +191,7 @@ export async function deployIntentSource(
 
   console.log(`${contractName} deployed to:`, intentSourceAddress)
   updateAddresses(deployNetwork, `${contractName}`, intentSourceAddress)
-  verifyContract(contractName, intentSourceAddress, args)
+  verifyContract(ethers.provider, contractName, intentSourceAddress, args)
   return intentSourceAddress
 }
 
@@ -239,19 +207,19 @@ export async function deployInbox(
   const inboxFactory = await ethers.getContractFactory(contractName)
   const args = [await inboxOwnerSigner.getAddress(), isSolvingPublic, solvers]
   // on testnet inboxOwner is the deployer, just to make things easier
-  const inboxTx = (await waitBlocks(async () => {
+  const inboxTx = (await retryFunction(async () => {
     return await inboxFactory.getDeployTransaction(
       args[0] as Address,
       args[1] as boolean,
-      args[2] as any,
+      args[2] as any
     )
-  })) as ContractTransactionResponse
+  }, ethers.provider)) as unknown as ContractTransactionResponse
 
-  await waitBlocks(async () => {
+  await retryFunction(async () => {
     return await singletonDeployer.deploy(inboxTx.data, deploySalt, {
-      gasLimit: deployNetwork.gasLimit / 2,
+      gasLimit: deployNetwork.gasLimit,
     })
-  })
+  }, ethers.provider)
   // wait to verify contract
   const inboxAddress = ethers.getCreate2Address(
     singletonFactoryAddress,
@@ -260,23 +228,25 @@ export async function deployInbox(
   ) as Hex
 
   // on testnet inboxOwner is the deployer, just to make things easier
-  const inbox: Inbox = (await waitBlocks(async () => {
+  const inbox: Inbox = (await retryFunction(async () => {
     return await ethers.getContractAt(
       contractName,
       inboxAddress,
       inboxOwnerSigner,
     )
-  })) as any as Inbox
+  }, ethers.provider)) as any as Inbox
 
-  await waitBlocks(async () => {
+  await retryFunction(async () => {
     return await inbox
       .connect(inboxOwnerSigner)
-      .setMailbox(deployNetwork.hyperlaneMailboxAddress)
-  })
+      .setMailbox(deployNetwork.hyperlaneMailboxAddress, {
+        gasLimit: deployNetwork.gasLimit,
+      })
+  }, ethers.provider)
 
   console.log(`${contractName} implementation deployed to: `, inboxAddress)
   updateAddresses(deployNetwork, `${contractName}`, inboxAddress)
-  verifyContract(contractName, inboxAddress, args)
+  verifyContract(ethers.provider, contractName, inboxAddress, args)
   return inboxAddress
 }
 
@@ -289,15 +259,15 @@ export async function deployHyperProver(
   const contractName = 'HyperProver'
   const hyperProverFactory = await ethers.getContractFactory(contractName)
   const args = [deployNetwork.hyperlaneMailboxAddress, inboxAddress]
-  const hyperProverTx = (await waitBlocks(async () => {
+  const hyperProverTx = (await retryFunction(async () => {
     return await hyperProverFactory.getDeployTransaction(args[0], args[1])
-  })) as ContractTransactionResponse
+  }, ethers.provider)) as any as ContractTransactionResponse
 
-  await waitBlocks(async () => {
+  await retryFunction(async () => {
     return await singletonDeployer.deploy(hyperProverTx.data, deploySalt, {
-      gasLimit: deployNetwork.gasLimit / 4,
+      gasLimit: deployNetwork.gasLimit,
     })
-  })
+  }, ethers.provider)
   // wait to verify contract
   const hyperProverAddress = ethers.getCreate2Address(
     singletonFactoryAddress,
@@ -307,63 +277,6 @@ export async function deployHyperProver(
 
   console.log(`${contractName} deployed to: ${hyperProverAddress}`)
   updateAddresses(deployNetwork, `${contractName}`, hyperProverAddress)
-  verifyContract(contractName, hyperProverAddress, args)
+  verifyContract(ethers.provider, contractName, hyperProverAddress, args)
   return hyperProverAddress
-}
-
-export async function verifyContract(
-  contractName: string,
-  address: Hex,
-  args: any[],
-) {
-  try {
-    // await waitBlocks(async () => {
-      await run('verify:verify', {
-        address,
-        constructorArguments: args,
-      })
-      
-    // })
-    console.log(`${contractName} verified at:`, address)
-    return await ethers.provider.getCode(address)
-  } catch (e) {
-    console.log(`Error verifying ${contractName}: `, e)
-  }
-}
-
-type AsyncFunction = () => Promise<any>
-
-/**
- * This method waits on a function to return a non-falsy value for a certain number of blocks
- *
- * @param func the asyn function to call
- * @param options options for the waitBlocks function
- * @returns the result of the function
- */
-export async function waitBlocks(
-  func: AsyncFunction,
-  options: { numBlocks: number; fromBlock?: number } = { numBlocks: 25 },
-) {
-  const fromBlock =
-    options.fromBlock || (await ethers.provider.getBlockNumber())
-  let ans
-  let err: Error = new Error('waiting on function failed')
-  while (!ans) {
-    try {
-      ans = await func()
-      if (ans) {
-        return ans
-      }
-    } catch (e) {
-      err = e
-    }
-
-    const currentBlock = await ethers.provider.getBlockNumber()
-    if (currentBlock - fromBlock >= options.numBlocks) {
-      break
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-  }
-  console.log('Error waiting on function: ', err)
 }
