@@ -211,7 +211,7 @@ export async function deployInbox(
     return await inboxFactory.getDeployTransaction(
       args[0] as Address,
       args[1] as boolean,
-      args[2] as any
+      args[2] as any,
     )
   }, ethers.provider)) as unknown as ContractTransactionResponse
 

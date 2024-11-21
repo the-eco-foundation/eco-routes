@@ -16,7 +16,7 @@ export async function waitBlocks(
   const tillBlock = (await provider.getBlockNumber()) + blocks
   await new Promise<void>((resolve) => {
     provider.on('block', (blockNumber) => {
-      if (blockNumber == tillBlock) {
+      if (blockNumber === tillBlock) {
         console.log(
           `finished block ${blockNumber}, after waiting for ${blocks} blocks`,
         )
@@ -107,7 +107,6 @@ export async function waitSeconds(seconds: number) {
     }, seconds * 1000)
   })
 }
-
 
 export function getDeployNetwork(networkName: string): DeployNetworkConfig {
   // mainnet
