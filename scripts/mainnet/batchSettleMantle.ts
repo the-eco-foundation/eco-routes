@@ -82,15 +82,24 @@ async function getMantleRLPEncodedBlock(blockNumber) {
     blockNumber,
     false,
   ])
+  // const previousblock: any = await s.mantleProvider.send(
+  //   'eth_getBlockByNumber',
+  //   [toQuantity(BigInt(blockNumber) - 1n), false],
+  // )
 
-  // console.log('  toBeHex(block.number),', toBeHex(block.number))
-  console.log(
-    'stripZerosLeft(toBeHex(block.number)),',
-    stripZerosLeft(toBeHex(block.number)),
-  )
-  const fallBackDataValue = '0x'
+  // const MinHash =
+  //   '0x0000000000000000000000000000000000000000000000000000000000000000'
+  // const MaxHash =
+  //   '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+
+  // const fallBackDataValue = MinHash
+  const fallBackDataValue = keccak256(toBeHex(0n))
+  // kecaak256 of null '0x290decd9548b62a8efc9dc743b29fc37f5c5e9a32c78c0b7fba39b9a7189a6d'
   const fallbackNumberValue = '0x00'
   console.log('toBeHex(0x0): ', toBeHex(0x0))
+  console.log('toBeHex(0n): ', toBeHex(0n))
+  console.log('fallBackDataValue: ', fallBackDataValue)
+  console.log('fallbackNumberValue: ', fallbackNumberValue)
   // const fallbackExcessBlobGas = '0x0'
 
   const blockHeader = [
@@ -112,11 +121,11 @@ async function getMantleRLPEncodedBlock(blockNumber) {
     block.nonce,
     toBeHex(block.baseFeePerGas),
     block.withdrawalsRoot ? block.withdrawalsRoot : fallBackDataValue, // Handle missing blobGasUsed
-    block.blobGasUsed ? block.blobGasUsed : fallbackNumberValue, // Handle missing blobGasUsed
-    block.excessBlobGas ? block.excessBlobGas : fallbackNumberValue, // Handle missing blobGasUsed
-    block.parentBeaconBlockRoot
-      ? block.parentBeaconBlockRoot
-      : fallBackDataValue, // Handle missing blobGasUsed
+    // block.blobGasUsed ? block.blobGasUsed : fallbackNumberValue, // Handle missing blobGasUsed
+    // block.excessBlobGas ? block.excessBlobGas : fallbackNumberValue, // Handle missing blobGasUsed
+    // block.parentBeaconBlockRoot
+    //   ? block.parentBeaconBlockRoot
+    //   : fallBackDataValue, // Handle missing blobGasUsed
   ]
   console.log('block: ', block)
   console.log('blockHeader: ', blockHeader)
