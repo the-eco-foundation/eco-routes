@@ -1,3 +1,5 @@
+import { DeployNetworkConfig } from '../../scripts/deloyProtocol'
+
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0,
@@ -67,7 +69,7 @@ const intent: any = {
   },
 }
 
-const networks: any = {
+const networks: Record<any, DeployNetworkConfig> = {
   mainnet: {
     network: 'mainnet',
     chainId: networkIds.mainnet,
