@@ -31,9 +31,9 @@ contract IntentSource is IIntentSource {
     mapping(bytes32 intenthash => Intent) public intents;
 
     /**
-     * @param _minimumDuration the minimum duration of an intent originating on this chain
-     * @param _counterStart the initial value of the counter
      * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs to be redeployed.
+     * _minimumDuration the minimum duration of an intent originating on this chain
+     * _counterStart the initial value of the counter
      */
     constructor(uint256 _minimumDuration, uint256 _counterStart) {
         CHAIN_ID = block.chainid;
@@ -41,6 +41,7 @@ contract IntentSource is IIntentSource {
         counter = _counterStart;
     }
 
+    function version() external pure returns (string memory) { return "v0.0.3-beta"; }
     /**
      * @notice Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets.
      * @dev If a proof ON THE SOURCE CHAIN is not completed by the expiry time, the reward funds will not be redeemable by the solver, REGARDLESS OF WHETHER THE INSTRUCTIONS WERE EXECUTED.
@@ -117,7 +118,8 @@ contract IntentSource is IIntentSource {
             _intent.rewardTokens,
             _intent.rewardAmounts,
             _intent.expiryTime,
-            _intent.nonce
+            _intent.nonce,
+            _intent.prover
         );
     }
 

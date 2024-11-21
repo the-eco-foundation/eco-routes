@@ -89,6 +89,12 @@ describe('Prover Unit Tests', () => {
     ])
   })
 
+  describe('on prover implements interface', () => {
+    it('should return the correct proof type', async () => {
+      expect(await prover.getProofType()).to.equal(0)
+    })
+  })
+
   it('test ethers functions', async () => {
     expect('0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254').to.equal(
       getAddress('0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254'),
@@ -247,16 +253,16 @@ describe('Prover End to End Tests', () => {
       },
     }
 
-    const ecoTestNetChainConfiguration = {
-      chainId: networks.ecoTestNet.chainId,
+    const ecoTestnetChainConfiguration = {
+      chainId: networks.ecoTestnet.chainId,
       chainConfiguration: {
-        provingMechanism: networks.ecoTestNet.proving.mechanism,
-        settlementChainId: networks.ecoTestNet.proving.settlementChain.id,
+        provingMechanism: networks.ecoTestnet.proving.mechanism,
+        settlementChainId: networks.ecoTestnet.proving.settlementChain.id,
         settlementContract:
-          networks.ecoTestNet.proving.settlementChain.contract,
+          networks.ecoTestnet.proving.settlementChain.contract,
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
-          networks.ecoTestNet.proving.outputRootVersionNumber,
+          networks.ecoTestnet.proving.outputRootVersionNumber,
       },
     }
     const proverContract = await ethers.getContractFactory('Prover')
@@ -264,7 +270,7 @@ describe('Prover End to End Tests', () => {
       hardhatChainConfiguration,
       baseSepoliaChainConfiguration,
       optimismSepoliaChainConfiguration,
-      ecoTestNetChainConfiguration,
+      ecoTestnetChainConfiguration,
     ])
   })
   it('test proveSettlementLayerState', async () => {
@@ -391,7 +397,7 @@ describe('Prover End to End Tests', () => {
       )
 
     const provenEcoTestNetLayerState = await prover.provenStates(
-      networkIds.ecoTestNet,
+      networkIds.ecoTestnet,
     )
     expect(provenEcoTestNetLayerState.blockNumber).to.equal(
       bedrock.destinationChain.endBatchBlock,
@@ -408,7 +414,7 @@ describe('Prover End to End Tests', () => {
     const calcintentHash = keccak256(
       abiCoder.encode(
         ['address', 'bytes32'],
-        [networks.ecoTestNet.inboxAddress, bedrock.intent.intermediateHash],
+        [networks.ecoTestnet.inboxAddress, bedrock.intent.intermediateHash],
       ),
     )
     // const intentStorageSlot = solidityPackedKeccak256(
@@ -418,7 +424,7 @@ describe('Prover End to End Tests', () => {
     await prover.proveIntent(
       bedrock.intent.destinationChainId,
       getAddress(actors.claimant),
-      networks.ecoTestNet.inboxAddress,
+      networks.ecoTestnet.inboxAddress,
       bedrock.intent.intermediateHash,
       bedrock.intent.storageProof,
       await prover.rlpEncodeDataLibList(bedrock.intent.inboxContractData),

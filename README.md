@@ -1,10 +1,12 @@
 <div id="top"></div>
-<h1>Cross-L2 Actions</h1>
+<h1>Eco Routes</h1>
 
 </div>
 
-- [Abstract](#Abstract)
-- [Components](#Components)
+- [Abstract](#abstract)
+- [Components](#components)
+- [Contract Addresses](#contract-addresses)
+- [Future Work](#future-work)
 - [Usage](#usage)
   - [Installation](#installation)
   - [Testing](#testing)
@@ -36,7 +38,7 @@ A `User` initiates a cross-chain transaction by creating an intent. Put simply, 
 
 ## Components
 
-Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox` and `Prover`.
+Within the following sections, the terms 'source chain' and 'destination chain' will be relative to any given intent. Each supported chain will have its own `IntentSource`, `Inbox`, and `Prover`s.
 
 ### Intent Creation / Settlement
 
@@ -44,17 +46,33 @@ Intent creation and filler settlement processes both exist on the `IntentSource`
 
 ### Intent Fulfillment / Execution
 
-Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch, solving will be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
+Intent fulfillment lives on the `Inbox`, which lives on the destination chain. `Fillers` interact with this contract to `fulfill` Users' intents. At time of launch solving may be private, restricted only to a whitelisted set of filler addresses while we live test the system, but it will soon become possible for anyone to fill orders.
 
 ### Intent Proving
 
-Intent proving lives on the `Prover`, which is on the source chain. `Provers` are the parties that should be interacting with the Prover contract, but the `IntentSource` does read state from it.
+Intent proving lives on the `Prover` and `HyperProver` contracts, which exist on the source chain. `Provers` are the parties that should be interacting with prover contracts, but the `IntentSource` does read state from it. There are currently two types of provers: StorageProvers (`Prover.sol`), which use storage proofs to verify the fulfillment of an intent, and HyperProvers(`HyperProver.sol`), which utilize a <a href="https://hyperlane.xyz/" target="_blank">Hyperlane</a> bridge in verifying intent fulfillment.
 
 **See [contracts](/contracts) for a detailed API documentation**
 
+## Contract Addresses
+
+| **Mainnet Chains** | IntentSource                               | Inbox                                      | StorageProver                              | HyperProver                                |
+| :----------------- | :----------------------------------------- | :----------------------------------------- | :----------------------------------------- | :----------------------------------------- |
+| Optimism           | 0xa6B316239015DFceAC5bc9c19092A9B6f59ed905 | 0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0 | 0xE00c8FD8b50Fed6b652A5cC66c1d0C090fde037f | 0xAfD3029f582455ed0f06F22AcD916B27bc9b3a55 |
+| Base               | 0xa6B316239015DFceAC5bc9c19092A9B6f59ed905 | 0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0 | 0xE00c8FD8b50Fed6b652A5cC66c1d0C090fde037f | 0xc8E7060Cd790A030164aCbE2Bd125A6c06C06f69 |
+| Mantle             | 0xa6B316239015DFceAC5bc9c19092A9B6f59ed905 | 0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0 | 0xE00c8FD8b50Fed6b652A5cC66c1d0C090fde037f | 0xaf034DD5eaeBB49Dc476402C6650e85Cc22a0f1a |
+| Arbitrum           | 0xa6B316239015DFceAC5bc9c19092A9B6f59ed905 | 0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0 | WIP                                        | 0xB1017F865c6306319C65266158979278F7f50118 |
+
+| **Testnet Chains** | IntentSource                               | Inbox                                      | StorageProver                              | HyperProver                                |
+| :----------------- | :----------------------------------------- | :----------------------------------------- | :----------------------------------------- | :----------------------------------------- |
+| OptimismSepolia    | 0x734a3d5a8D691d9b911674E682De5f06517c79ec | 0xB73fD43C293b250Cb354c4631292A318248FB33E | 0xDcbe9977821a2565a153b5c3622a999F7BeDcdD9 | 0x39cBD6e1C0E6a30dF33428a54Ac3940cF33B23D6 |
+| BaseSepolia        | 0x734a3d5a8D691d9b911674E682De5f06517c79ec | 0xB73fD43C293b250Cb354c4631292A318248FB33E | 0xDcbe9977821a2565a153b5c3622a999F7BeDcdD9 | 0x39cBD6e1C0E6a30dF33428a54Ac3940cF33B23D6 |
+| MantleSepolia      | 0x734a3d5a8D691d9b911674E682De5f06517c79ec | 0xB73fD43C293b250Cb354c4631292A318248FB33E | 0xDcbe9977821a2565a153b5c3622a999F7BeDcdD9 | WIP                                        |
+| ArbitrumSepolia    | 0x734a3d5a8D691d9b911674E682De5f06517c79ec | 0xB73fD43C293b250Cb354c4631292A318248FB33E | WIP                                        | 0x6D6556B3a199cbbdcFE4E7Ba3FA6330D066A31a9 |
+
 ## Future Work
 
-Fully-operational end-to-end tests are currently under development. We are also working on services for streamlining proving and solving functionalities. Additionally, we intend to build out support for additional chains.
+Fully-operational end-to-end tests are currently under development. We are also working on services for streamlining and batching prover and solver functionalities. Additionally, we intend to build out support for additional chains.
 
 ## Usage
 
@@ -114,7 +132,7 @@ nvm ls
 1. Clone the repo
 
 ```bash
- git clone git@github.com:ecoinc/Cross-L2-Actions.git
+ git clone git@github.com:the-eco-foundation/eco-routes.git
 ```
 
 2. Install and build using yarn
@@ -173,6 +191,6 @@ This section is under development. While the tests are not yet operational, the 
 
 ## Contact
 
-Project Link: [https://github.com/ecoinc/Cross-L2-Actions](https://github.com/ecoinc/Cross-L2-Actions)
+Project Link: [https://github.com/the-eco-foundation/eco-routes](https://github.com/the-eco-foundation/eco-routes)
 
 <p align="right">(<a href="#top">back to top</a>)</p>

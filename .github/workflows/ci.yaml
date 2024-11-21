@@ -1,4 +1,4 @@
-name: Ecoism CI Tests
+name: Eco Routes Protocol CI Tests
 
 on: [push]
 
@@ -9,13 +9,13 @@ jobs:
 
     steps:
       - name: checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: install node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-          cache: "npm"
+          cache: "yarn"
 
       - name: install dependencies
         uses: borales/actions-yarn@v4
@@ -38,10 +38,10 @@ jobs:
 
     steps:
       - name: checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: install node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
@@ -59,4 +59,4 @@ jobs:
       - name: Run Test
         uses: borales/actions-yarn@v4
         with:
-          cmd: test # will run `yarn build` command
+          cmd: test # will run `yarn test` command

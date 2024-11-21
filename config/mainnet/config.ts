@@ -1,3 +1,5 @@
+import { DeployNetworkConfig } from '../../scripts/deloyProtocol'
+
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
   self: 0,
@@ -15,9 +17,15 @@ const networkIds: any = {
   mainnet: 1,
   optimism: 10,
   base: 8453,
+  helix: 8921733,
+  arbitrum: 42161,
+  mantle: 5000,
   1: 'mainnet',
   10: 'optimism',
   8453: 'base',
+  8921733: 'helix',
+  42161: 'arbitrum',
+  5000: 'mantle',
 }
 
 const actors: any = {
@@ -59,22 +67,24 @@ const intent: any = {
   },
 }
 
-const networks: any = {
+const networks: Record<any, DeployNetworkConfig> = {
   mainnet: {
     network: 'mainnet',
     chainId: networkIds.mainnet,
     // The following settlement contracts are useful for event listening
     settlementContracts: {
-      base: '0x56315b90c40730925ec5485cf004d835058518A0', // base L2 OUTPUT ORACLE
+      base: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e', // base dispute game factory
       optimism: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9', // optimism Dispute Game Factory
+      mantle: '0x31d543e7BE1dA6eFDc2206Ef7822879045B9f481', // mantle L2 OUTPUT ORACLE
     },
   },
   optimism: {
     network: 'optimism',
     chainId: networkIds.optimism,
-    proverContractAddress: '0xDb2CF52d39Cdd2116bc66711cFc43cB16ce17A2b',
-    intentSourceAddress: '0x755e48140807D290916F2a2777d0eCD905Ce5a73',
-    inboxAddress: '0x4fFf766A3E4A77584AaE21EaB8B2C2241619D983',
+    proverContractAddress: '0x1486388b81cBc2E8a75A7055c8a5053D04301826',
+    hyperProverContractAddress: '0xAfD3029f582455ed0f06F22AcD916B27bc9b3a55',
+    intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
+    inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -91,13 +101,100 @@ const networks: any = {
       },
     },
     usdcAddress: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+    hyperlaneMailboxAddress: '0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D',
+    gasLimit: 20000000,
   },
   base: {
     network: 'base',
     chainId: networkIds.base,
-    proverContractAddress: '0x62fd344CE4E0e4c3d9C98D64390cA2739aF9021f',
-    intentSourceAddress: '0xB857982B58D1F544b47F0CA0a67FDDc893930Dc6',
-    inboxAddress: '0xc06CA8866586cF19bf22E102a3083673C4246629',
+    proverContractAddress: '0x1486388b81cBc2E8a75A7055c8a5053D04301826',
+    hyperProverContractAddress: '0xc8E7060Cd790A030164aCbE2Bd125A6c06C06f69',
+    intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
+    inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
+    proving: {
+      mechanism: provingMechanisms.cannon,
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      l2OutputOracleSlotNumber: 3,
+      outputRootVersionNumber: 0,
+      settlementChain: {
+        network: 'mainnet',
+        id: networkIds.mainnet,
+        // disputeGameFactory
+        contract: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e',
+      },
+    },
+    usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    hyperlaneMailboxAddress: '0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D',
+    gasLimit: 20000000,
+  },
+  helix: {
+    network: 'helix',
+    chainId: networkIds.helix,
+    proverContractAddress: '0x1486388b81cBc2E8a75A7055c8a5053D04301826',
+    hyperProverContractAddress: '0x62e47c15BA93d5CfCF36c17cc1a2E5179616aa61',
+    intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
+    inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
+    proving: {
+      mechanism: provingMechanisms.bedrock,
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      l2OutputOracleSlotNumber: 3,
+      outputRootVersionNumber: 0,
+      settlementChain: {
+        network: 'base',
+        id: networkIds.base,
+        // L2 Output Oracle Address
+        contract: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d',
+      },
+    },
+    usdcAddress: '0x44D5B1DacCB7E8a7341c1AE0b17Dc65a659B1aCA',
+    hyperlaneMailboxAddress: '0x4B216a3012DD7a2fD4bd3D05908b98C668c63a8d',
+    gasLimit: 20000000,
+  },
+  arbitrum: {
+    network: 'arbitrum',
+    chainId: networkIds.arbitrum,
+    proverContractAddress: '0xE275b0635C3783EFA4F1A299879145a407C81f48',
+    hyperProverContractAddress: '0xB1017F865c6306319C65266158979278F7f50118',
+    intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
+    inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
+    intentSource: {
+      minimumDuration: 1000,
+      counter: 0,
+    },
+    proving: {
+      mechanism: provingMechanisms.bedrock,
+      l1BlockAddress: '0x4200000000000000000000000000000000000015',
+      l2l1MessageParserAddress: '0x4200000000000000000000000000000000000016',
+      l2OutputOracleSlotNumber: 3,
+      outputRootVersionNumber: 0,
+      settlementChain: {
+        network: 'base',
+        id: networkIds.base,
+        // L2 Output Oracle Address
+        contract: '0xf3B21c72BFd684eC459697c48f995CDeb5E5DB9d',
+      },
+    },
+    usdcAddress: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+    hyperlaneMailboxAddress: '0x979Ca5202784112f4738403dBec5D0F3B9daabB9',
+    gasLimit: 20000000,
+  },
+  mantle: {
+    network: 'mantle',
+    chainId: networkIds.mantle,
+    proverContractAddress: '0xE275b0635C3783EFA4F1A299879145a407C81f48',
+    hyperProverContractAddress: '0xaf034DD5eaeBB49Dc476402C6650e85Cc22a0f1a',
+    intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
+    inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
     intentSource: {
       minimumDuration: 1000,
       counter: 0,
@@ -112,10 +209,12 @@ const networks: any = {
         network: 'mainnet',
         id: networkIds.mainnet,
         // L2 Output Oracle Address
-        contract: '0x56315b90c40730925ec5485cf004d835058518A0',
+        contract: '0x31d543e7BE1dA6eFDc2206Ef7822879045B9f481',
       },
     },
-    usdcAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    usdcAddress: '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9',
+    hyperlaneMailboxAddress: '0x398633D19f4371e1DB5a8EFE90468eB70B1176AA',
+    gasLimit: 50000000000,
   },
 }
 

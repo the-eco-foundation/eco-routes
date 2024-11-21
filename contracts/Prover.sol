@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
 import {SecureMerkleTrie} from "@eth-optimism/contracts-bedrock/src/libraries/trie/SecureMerkleTrie.sol";
@@ -9,6 +9,7 @@ import {SimpleProver} from "./interfaces/SimpleProver.sol";
 
 contract Prover is SimpleProver {
     // uint16 public constant NONCE_PACKING = 1;
+    ProofType public constant PROOF_TYPE = ProofType.Storage;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
     uint256 public constant L2_OUTPUT_SLOT_NUMBER = 3;
@@ -36,14 +37,6 @@ contract Prover is SimpleProver {
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
     // But optimism maintains a service that posts L1 block data on L2.
     IL1Block public l1BlockhashOracle;
-
-    enum ProvingMechanism {
-        Self, // Used for Ethereum and Sepolia (any chain that settles to itself)
-        Bedrock,
-        Cannon,
-        Arbitrum,
-        HyperProver
-    }
 
     struct ChainConfiguration {
         uint8 provingMechanism;
@@ -123,6 +116,12 @@ contract Prover is SimpleProver {
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
             _setChainConfiguration(_chainConfigurations[i].chainId, _chainConfigurations[i].chainConfiguration);
         }
+    }
+
+    function version() external pure returns (string memory) { return "v0.0.3-beta"; }
+
+    function getProofType() external pure override returns (ProofType) {
+        return PROOF_TYPE;
     }
 
     function _setChainConfiguration(uint256 chainId, ChainConfiguration memory chainConfiguration) internal {
