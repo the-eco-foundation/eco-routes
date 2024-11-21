@@ -317,14 +317,15 @@ export async function verifyContract(
   args: any[],
 ) {
   try {
-    await waitBlocks(async () => {
+    // await waitBlocks(async () => {
       await run('verify:verify', {
         address,
         constructorArguments: args,
       })
-      return await ethers.provider.getCode(address)
-    })
+      
+    // })
     console.log(`${contractName} verified at:`, address)
+    return await ethers.provider.getCode(address)
   } catch (e) {
     console.log(`Error verifying ${contractName}: `, e)
   }
