@@ -116,7 +116,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 20000000,
+    gasLimit: 5000000,
   },
   baseSepolia: {
     network: 'base-sepolia',
@@ -155,7 +155,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 20000000,
+    gasLimit: 30000000,
   },
   ecoTestnet: {
     network: 'eco-testnet',
@@ -189,7 +189,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 20000000,
+    gasLimit: 30000000,
   },
   arbitrumSepolia: {
     network: 'arbitrum-sepolia',
@@ -251,7 +251,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     },
     usdcAddress: '',
     hyperlaneMailboxAddress: zeroAddress, // until they deploy the real one
-    gasLimit: 50000000000,
+    gasLimit: 60000000000,
   },
   polygonSepolia: {
     network: 'polygonSepolia',

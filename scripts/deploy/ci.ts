@@ -13,12 +13,14 @@ const sepoliaDep = mainnetDep.flatMap((dep) => {
 })
 
 export function deployContracts() {
-  for (const dep of mainnetDep) {
-    callYarnCmd(dep)
-  }
   for (const dep of sepoliaDep) {
     callYarnCmd(dep)
   }
+
+  for (const dep of mainnetDep) {
+    callYarnCmd(dep)
+  }
+
 }
 
 function callYarnCmd(cmd: string) {
