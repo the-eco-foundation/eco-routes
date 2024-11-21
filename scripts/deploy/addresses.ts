@@ -112,6 +112,6 @@ function formatObjectWithoutQuotes(
       return `${nestedIndent}"${key}": ${formatValue(value)}`
     })
     .join(',\n')
-  const frontIndent = rootLevel ? '  '  : ''
+  const frontIndent = rootLevel ? '  ' : ''
   return `${frontIndent}{\n${entries}\n${indent}  }`
 }

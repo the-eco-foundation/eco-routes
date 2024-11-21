@@ -2,12 +2,12 @@ import { network } from 'hardhat'
 import {
   DeployNetwork,
   deployProtocol,
-  getDeployNetwork,
   getEmptyProtocolDeploy,
   ProtocolDeploy,
 } from '../deloyProtocol'
 import { actors } from '../../config/mainnet/config'
 import { MainnetChainConfigs } from '../configs/chain.config'
+import { getDeployNetwork } from '../utils'
 
 const protocolDeploy: ProtocolDeploy = getEmptyProtocolDeploy()
 
