@@ -426,8 +426,10 @@ describe('Inbox Test', (): void => {
       expect(
         await inbox.fetchFee(
           sourceChainID,
-          calldata,
           ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+          calldata,
+          calldata,
+          ethers.ZeroAddress,
         ),
       ).to.eq(toBeHex(`100000`, 32))
     })
@@ -450,11 +452,13 @@ describe('Inbox Test', (): void => {
                 Number(
                   await inbox.fetchFee(
                     sourceChainID,
-                    calldata,
                     ethers.zeroPadBytes(
                       await dummyHyperProver.getAddress(),
                       32,
                     ),
+                    calldata,
+                    calldata,
+                    ethers.ZeroAddress,
                   ),
                 ) - 1,
             },
@@ -479,8 +483,10 @@ describe('Inbox Test', (): void => {
               value: Number(
                 await inbox.fetchFee(
                   sourceChainID,
-                  calldata,
                   ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+                  calldata,
+                  calldata,
+                  ethers.ZeroAddress,
                 ),
               ),
             },
@@ -533,8 +539,10 @@ describe('Inbox Test', (): void => {
     it('drains', async () => {
       const fee = await inbox.fetchFee(
         sourceChainID,
-        calldata,
         ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+        calldata,
+        calldata,
+        ethers.ZeroAddress,
       )
       const excess = ethers.parseEther('.123')
       await inbox
@@ -624,11 +632,13 @@ describe('Inbox Test', (): void => {
                   Number(
                     await inbox.fetchFee(
                       sourceChainID,
-                      calldata,
                       ethers.zeroPadBytes(
                         await dummyHyperProver.getAddress(),
                         32,
                       ),
+                      calldata,
+                      calldata,
+                      ethers.ZeroAddress,
                     ),
                   ) - 1,
               },
@@ -662,11 +672,13 @@ describe('Inbox Test', (): void => {
                 value: Number(
                   await inbox.fetchFee(
                     sourceChainID,
-                    calldata,
                     ethers.zeroPadBytes(
                       await dummyHyperProver.getAddress(),
                       32,
                     ),
+                    calldata,
+                    calldata,
+                    ethers.ZeroAddress,
                   ),
                 ),
               },
@@ -733,11 +745,13 @@ describe('Inbox Test', (): void => {
                 value: Number(
                   await inbox.fetchFee(
                     sourceChainID,
-                    calldata,
                     ethers.zeroPadBytes(
                       await dummyHyperProver.getAddress(),
                       32,
                     ),
+                    calldata,
+                    calldata,
+                    ethers.ZeroAddress,
                   ),
                 ),
               },
