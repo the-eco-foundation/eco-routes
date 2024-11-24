@@ -7,6 +7,7 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { HyperProver, Inbox, TestERC20, TestMailbox } from '../typechain-types'
 import { encodeTransfer } from '../utils/encode'
+import { getBytes } from 'ethers'
 
 describe('HyperProver Test', (): void => {
   let inbox: Inbox
@@ -166,14 +167,16 @@ describe('HyperProver Test', (): void => {
         ['bytes32[]', 'address[]'],
         [[intentHash], [await claimant.getAddress()]],
       )
-
+      const fee = await inbox.fetchFee(
+        sourceChainID,
+        ethers.zeroPadValue(await hyperProver.getAddress(), 32),
+        msgbody,
+        msgbody, // does nothing if postDispatchHook is the zero address
+        ethers.ZeroAddress,
+      )
       await expect(
         inbox.connect(solver).fulfillHyperInstant(...fulfillData, {
-          value: await inbox.fetchFee(
-            sourceChainID,
-            msgbody,
-            ethers.zeroPadValue(await hyperProver.getAddress(), 32),
-          ),
+          value: fee,
         }),
       )
         .to.emit(hyperProver, `IntentProven`)
@@ -353,6 +356,14 @@ describe('HyperProver Test', (): void => {
         ],
       )
 
+      const fee = await inbox.fetchFee(
+        sourceChainID,
+        ethers.zeroPadValue(await hyperProver.getAddress(), 32),
+        msgbody,
+        msgbody, // does nothing if postDispatchHook is the zero address
+        ethers.ZeroAddress,
+      )
+
       await expect(
         inbox
           .connect(solver)
@@ -360,13 +371,7 @@ describe('HyperProver Test', (): void => {
             sourceChainID,
             await hyperProver.getAddress(),
             [intentHash0, intentHash1],
-            {
-              value: await inbox.fetchFee(
-                sourceChainID,
-                msgbody,
-                ethers.zeroPadValue(await hyperProver.getAddress(), 32),
-              ),
-            },
+            { value: fee },
           ),
       )
         .to.emit(hyperProver, `IntentProven`)
