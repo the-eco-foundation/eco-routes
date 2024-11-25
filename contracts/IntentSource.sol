@@ -64,7 +64,7 @@ contract IntentSource is IIntentSource {
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,
         address _prover
-    ) external {
+    ) external payable {
         uint256 len = _targets.length;
         if (len == 0 || len != _data.length) {
             revert CalldataMismatch();
@@ -94,7 +94,8 @@ contract IntentSource is IIntentSource {
             expiryTime: _expiryTime,
             hasBeenWithdrawn: false,
             nonce: _nonce,
-            prover: _prover
+            prover: _prover,
+            rewardNative: msg.value
         });
 
         counter += 1;
@@ -119,7 +120,8 @@ contract IntentSource is IIntentSource {
             _intent.rewardAmounts,
             _intent.expiryTime,
             _intent.nonce,
-            _intent.prover
+            _intent.prover,
+            _intent.rewardNative
         );
     }
 
@@ -142,6 +144,7 @@ contract IntentSource is IIntentSource {
             for (uint256 i = 0; i < len; i++) {
                 IERC20(intent.rewardTokens[i]).transfer(withdrawTo, intent.rewardAmounts[i]);
             }
+            payable(withdrawTo).transfer(intent.rewardNative);
             emit Withdrawal(_hash, withdrawTo);
         } else {
             revert NothingToWithdraw(_hash);

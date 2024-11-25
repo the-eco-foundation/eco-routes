@@ -52,6 +52,7 @@ interface IIntentSource is ISemver{
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      * @param _prover the prover contract address for the intent
+     * @param _rewardNative the amount of native tokens offered as reward
      */
     //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
     event IntentCreated(
@@ -64,7 +65,8 @@ interface IIntentSource is ISemver{
         uint256[] _rewardAmounts,
         uint256 _expiryTime,
         bytes32 nonce,
-        address indexed _prover
+        address indexed _prover,
+        uint256 _rewardNative
     );
 
     /**
@@ -96,7 +98,7 @@ interface IIntentSource is ISemver{
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,
         address _prover
-    ) external;
+    ) external payable;
 
     /**
      * @notice allows withdrawal of reward funds locked up for a given intent
