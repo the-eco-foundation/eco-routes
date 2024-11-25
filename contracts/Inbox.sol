@@ -150,8 +150,7 @@ contract Inbox is IInbox, Ownable {
         if (msg.value < fee) {
             revert InsufficientFee(fee);
         }
-
-        if (_postDispatchHook == address(0)) { 
+        if (_postDispatchHook == address(0)) {
             IMailbox(mailbox).dispatch{value: fee}(
                 uint32(_sourceChainID), 
                 _prover32,
