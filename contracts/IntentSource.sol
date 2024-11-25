@@ -71,8 +71,12 @@ contract IntentSource is IIntentSource {
         }
 
         len = _rewardTokens.length;
-        if (len == 0 || len != _rewardAmounts.length) {
+        if (len != _rewardAmounts.length) {
             revert RewardsMismatch();
+        }
+
+        if (len == 0 && msg.value == 0) {
+            revert NoRewards();
         }
 
         if (_expiryTime < block.timestamp + MINIMUM_DURATION) {

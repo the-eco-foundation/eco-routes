@@ -13,33 +13,38 @@ import "./ISemver.sol";
  */
 interface IIntentSource is ISemver{
     /**
-     * @notice emitted on a call to withdraw() by someone who is not entitled to the rewards for a
+     * @notice thrown on a call to withdraw() by someone who is not entitled to the rewards for a
      * given intent.
      * @param _hash the hash of the intent, also the key to the intents mapping
      */
     error UnauthorizedWithdrawal(bytes32 _hash);
 
     /**
-     * @notice emitted on a call to withdraw() for an intent whose rewards have already been withdrawn.
+     * @notice thrown on a call to withdraw() for an intent whose rewards have already been withdrawn.
      * @param _hash the hash of the intent on which withdraw was attempted
      */
     error NothingToWithdraw(bytes32 _hash);
 
     /**
-     * @notice emitted on a call to createIntent where _expiry is less than MINIMUM_DURATION
+     * @notice thrown on a call to createIntent where _expiry is less than MINIMUM_DURATION
      * seconds later than the block timestamp at time of call
      */
     error ExpiryTooSoon();
 
     /**
-     * @notice emitted on a call to createIntent where _targets and _data have different lengths, or when one of their lengths is zero.
+     * @notice thrown on a call to createIntent where _targets and _data have different lengths, or when one of their lengths is zero.
      */
     error CalldataMismatch();
 
     /**
-     * @notice emitted on a call to createIntent where _rewardTokens and _rewardAmounts have different lengths, or when one of their lengths is zero.
+     * @notice thrown on a call to createIntent where _rewardTokens and _rewardAmounts have different lengths, or when one of their lengths is zero.
      */
     error RewardsMismatch();
+
+    /**
+     * @notice thrown on a call to createIntent where no reward is specified in erc20 or native tokens.
+     */
+    error NoRewards();
 
     /**
      * @notice emitted on a successful call to createIntent
