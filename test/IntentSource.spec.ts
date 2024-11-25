@@ -1,11 +1,10 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers'
 import { expect } from 'chai'
-import hre from 'hardhat'
+import { ethers } from 'hardhat'
 import { TestERC20, IntentSource, TestProver, Inbox } from '../typechain-types'
 import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { keccak256, BytesLike, BigNumberish } from 'ethers'
+import { keccak256, BytesLike } from 'ethers'
 import { encodeIdentifier, encodeTransfer } from '../utils/encode'
-const { ethers } = hre
 
 describe('Intent Source Test', (): void => {
   let intentSource: IntentSource
@@ -26,7 +25,7 @@ describe('Intent Source Test', (): void => {
   let data: BytesLike[]
   let rewardTokens: string[]
   let rewardAmounts: number[]
-  let rewardNative: number
+  const rewardNativeEth: bigint = ethers.parseEther('2')
   let nonce: BytesLike
 
   async function deploySourceFixture(): Promise<{
@@ -241,7 +240,6 @@ describe('Intent Source Test', (): void => {
       expect(intentDetail.rewardNative).to.eq(0)
     })
     it('creates properly with native token rewards', async () => {
-      rewardNative = 12345
       await intentSource
         .connect(creator)
         .createIntent(
@@ -253,7 +251,7 @@ describe('Intent Source Test', (): void => {
           [],
           expiry,
           await prover.getAddress(),
-          { value: rewardNative },
+          { value: rewardNativeEth },
         )
       const intent = await intentSource.intents(intentHash)
       // value types
@@ -274,10 +272,9 @@ describe('Intent Source Test', (): void => {
       expect(intentDetail.hasBeenWithdrawn).to.eq(false)
       expect(intentDetail.nonce).to.eq(nonce)
       expect(intentDetail.prover).to.eq(await prover.getAddress())
-      expect(intentDetail.rewardNative).to.eq(rewardNative)
+      expect(intentDetail.rewardNative).to.eq(rewardNativeEth)
     })
     it('increments counter and locks up tokens', async () => {
-      rewardNative = 12345
       const counter = await intentSource.counter()
       const initialBalanceA = await tokenA.balanceOf(
         await intentSource.getAddress(),
@@ -300,7 +297,7 @@ describe('Intent Source Test', (): void => {
           rewardAmounts,
           expiry,
           await prover.getAddress(),
-          { value: rewardNative },
+          { value: rewardNativeEth },
         )
       expect(await intentSource.counter()).to.eq(Number(counter) + 1)
       expect(await tokenA.balanceOf(await intentSource.getAddress())).to.eq(
@@ -311,10 +308,9 @@ describe('Intent Source Test', (): void => {
       )
       expect(
         await ethers.provider.getBalance(await intentSource.getAddress()),
-      ).to.eq(Number(initialBalanceNative) + rewardNative)
+      ).to.eq(initialBalanceNative + rewardNativeEth)
     })
     it('emits events', async () => {
-      rewardNative = 12345
       await expect(
         intentSource
           .connect(creator)
@@ -327,7 +323,7 @@ describe('Intent Source Test', (): void => {
             rewardAmounts,
             expiry,
             await prover.getAddress(),
-            { value: rewardNative },
+            { value: rewardNativeEth },
           ),
       )
         .to.emit(intentSource, 'IntentCreated')
@@ -342,13 +338,12 @@ describe('Intent Source Test', (): void => {
           expiry,
           nonce,
           await prover.getAddress(),
-          rewardNative,
+          rewardNativeEth,
         )
     })
   })
   describe('claiming rewards', async () => {
     beforeEach(async (): Promise<void> => {
-      rewardNative = 12345
       expiry = (await time.latest()) + minimumDuration + 10
       nonce = await encodeIdentifier(
         0,
@@ -391,7 +386,7 @@ describe('Intent Source Test', (): void => {
           rewardAmounts,
           expiry,
           await prover.getAddress(),
-          { value: rewardNative },
+          { value: rewardNativeEth },
         )
     })
     context('before expiry, no proof', () => {
@@ -408,15 +403,16 @@ describe('Intent Source Test', (): void => {
           .addProvenIntent(intentHash, await claimant.getAddress())
       })
       it('gets withdrawn to claimant', async () => {
-        const initialBalanceA: BigNumberish = await tokenA.balanceOf(
+        const initialBalanceA = await tokenA.balanceOf(
           await claimant.getAddress(),
         )
-        const initialBalanceB: BigNumberish = await tokenB.balanceOf(
+        const initialBalanceB = await tokenB.balanceOf(
           await claimant.getAddress(),
         )
 
-        const initialBalanceNative: BigNumberish =
-          await ethers.provider.getBalance(await claimant.getAddress())
+        const initialBalanceNative = await ethers.provider.getBalance(
+          await claimant.getAddress(),
+        )
 
         expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
           .false
@@ -433,7 +429,7 @@ describe('Intent Source Test', (): void => {
         )
         expect(
           await ethers.provider.getBalance(await claimant.getAddress()),
-        ).to.eq(Number(initialBalanceNative) + Number(rewardNative))
+        ).to.eq(initialBalanceNative + rewardNativeEth)
       })
       it('emits event', async () => {
         await expect(
