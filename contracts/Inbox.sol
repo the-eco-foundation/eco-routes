@@ -285,6 +285,21 @@ contract Inbox is IInbox, Ownable {
     }
 
     /**
+     * @notice allows for native token transfers on the destination chain
+     * @param _to the address to which the native tokens will be sent
+     * @param _amount the amount of native tokens to be sent
+     * @dev cannot be internal since invoked by low-level call
+     * @dev can only be invoked from the contract itself
+     */
+    function transferNative(address payable _to, uint256 _amount) public {
+        if (msg.sender != address(this)) {
+            revert UnauthorizedTransferNative();
+        }
+        (bool success, ) = _to.call{value: _amount}("");
+        require(success, "Transfer failed.");
+    }
+
+    /**
      * @notice allows the owner to set the mailbox
      * @param _mailbox the address of the mailbox
      * @dev this can only be called once, to initialize the mailbox, and should be called at time of deployment
