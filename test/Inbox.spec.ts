@@ -7,7 +7,7 @@ import {
   loadFixture,
 } from '@nomicfoundation/hardhat-toolbox/network-helpers'
 import { DataHexString } from 'ethers/lib.commonjs/utils/data'
-import { encodeTransfer } from '../utils/encode'
+import { encodeTransfer, encodeTransferNative } from '../utils/encode'
 import { keccak256, toBeHex } from 'ethers'
 
 describe('Inbox Test', (): void => {
@@ -98,6 +98,42 @@ describe('Inbox Test', (): void => {
       timeStamp: _timestamp,
     }
   }
+  async function createIntentDataNative(
+    amount: number,
+    timeDelta: number,
+  ): Promise<{
+    intentHash: string
+    calldata: DataHexString
+    timeStamp: number
+  }> {
+    const _calldata = await encodeTransferNative(dstAddr.address, amount)
+    const _timestamp = (await time.latest()) + timeDelta
+    const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+    const intermediateHash = keccak256(
+      abiCoder.encode(
+        ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+        [
+          sourceChainID,
+          (await owner.provider.getNetwork()).chainId,
+          [await inbox.getAddress()],
+          [_calldata],
+          _timestamp,
+          nonce,
+        ],
+      ),
+    )
+    const _intentHash = keccak256(
+      abiCoder.encode(
+        ['address', 'bytes32'],
+        [await inbox.getAddress(), intermediateHash],
+      ),
+    )
+    return {
+      intentHash: _intentHash,
+      calldata: _calldata,
+      timeStamp: _timestamp,
+    }
+  }
 
   beforeEach(async (): Promise<void> => {
     ;({ inbox, mailbox, erc20, owner, solver, dstAddr } =
@@ -114,7 +150,7 @@ describe('Inbox Test', (): void => {
     expect(await inbox.solverWhitelist(owner)).to.be.false
   })
 
-  describe('onlyOwner', async () => {
+  describe('restricted methods', async () => {
     it('doesnt let non-owner call onlyOwner functions', async () => {
       await expect(
         inbox.connect(solver).makeSolvingPublic(),
@@ -149,6 +185,11 @@ describe('Inbox Test', (): void => {
       expect(await inbox.mailbox()).to.eq(await mailbox.getAddress())
       await inbox.connect(owner).setMailbox(solver.address)
       expect(await inbox.mailbox()).to.eq(await mailbox.getAddress())
+    })
+    it('doesnt let anybody call transferNative', async () => {
+      await expect(
+        inbox.connect(solver).transferNative(solver.address, 1),
+      ).to.be.revertedWithCustomError(inbox, 'UnauthorizedTransferNative')
     })
   })
 
@@ -374,6 +415,50 @@ describe('Inbox Test', (): void => {
       // check balances
       expect(await erc20.balanceOf(solver.address)).to.equal(0)
       expect(await erc20.balanceOf(dstAddr.address)).to.equal(mintAmount)
+    })
+
+    it('should succeed with transferring native token', async () => {
+      expect(await inbox.fulfilled(intentHash)).to.equal(ethers.ZeroAddress)
+      const initialNativeBalance = await ethers.provider.getBalance(
+        dstAddr.address,
+      )
+
+      const nativeToTransfer = ethers.parseEther('0.1')
+      ;({ intentHash, calldata, timeStamp } = await createIntentDataNative(
+        nativeToTransfer,
+        timeDelta,
+      ))
+
+      // transfer the tokens to the inbox so it can process the transaction
+
+      await solver.sendTransaction({
+        to: await inbox.getAddress(),
+        value: nativeToTransfer,
+      })
+      await expect(
+        inbox
+          .connect(solver)
+          .fulfillStorage(
+            sourceChainID,
+            [await inbox.getAddress()],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+          ),
+      )
+        .to.emit(inbox, 'Fulfillment')
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
+        .to.emit(inbox, 'ToBeProven')
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
+      // should update the fulfilled hash
+      expect(await inbox.fulfilled(intentHash)).to.equal(dstAddr.address)
+
+      // check balances
+      expect(await ethers.provider.getBalance(dstAddr.address)).to.equal(
+        initialNativeBalance + nativeToTransfer,
+      )
     })
 
     it('should revert if the intent has already been fulfilled', async () => {

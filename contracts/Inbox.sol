@@ -415,5 +415,5 @@ contract Inbox is IInbox, Ownable {
         );
     }
 
-    
+    receive() external payable {}
 }
