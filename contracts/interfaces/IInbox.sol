@@ -58,6 +58,7 @@ interface IInbox is ISemver{
      * @param _sourceChainID The chainID of the source chain
      * @param _targets The array of addresses to call
      * @param _data The array of calldata
+     * @param _values The array of values to send with the calls
      * @param _expiryTime The timestamp at which the intent expires
      * @param _nonce The nonce of the calldata. Composed of the hash on the src chain of a global nonce & chainID
      * @param _claimant The address who can claim the reward on the src chain. Not part of the hash
@@ -69,17 +70,19 @@ interface IInbox is ISemver{
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         uint256 _expiryTime,
         bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash
-    ) external returns (bytes[] memory);
+    ) external payable returns (bytes[] memory);
 
     /**
      * Same as above but with the added _prover parameter. This fulfill method is used to fulfill an intent that is proving with the HyperProver and wishes to prove immediately.
      * @param _sourceChainID The chainID of the source chain
      * @param _targets The array of addresses to call
      * @param _data The array of calldata
+     * @param _values The array of values to send with the calls
      * @param _expiryTime The timestamp at which the intent expires
      * @param _nonce The nonce of the calldata. Composed of the hash on the src chain of a global nonce & chainID
      * @param _claimant The address who can claim the reward on the src chain. Not part of the hash
@@ -92,6 +95,7 @@ interface IInbox is ISemver{
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         uint256 _expiryTime,
         bytes32 _nonce,
         address _claimant,
@@ -104,6 +108,7 @@ interface IInbox is ISemver{
      * @param _sourceChainID The chainID of the source chain
      * @param _targets The array of addresses to call
      * @param _data The array of calldata
+     * @param _values The array of values to send with the calls
      * @param _expiryTime The timestamp at which the intent expires
      * @param _nonce The nonce of the calldata. Composed of the hash on the src chain of a global nonce & chainID
      * @param _claimant The address who can claim the reward on the src chain. Not part of the hash
@@ -117,12 +122,13 @@ interface IInbox is ISemver{
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         uint256 _expiryTime,
         bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash,
         address _prover
-    ) external returns (bytes[] memory);
+    ) external payable returns (bytes[] memory);
     
     /**
      * Sends a batch of intents to the hyperprover in a single message.
