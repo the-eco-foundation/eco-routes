@@ -48,6 +48,7 @@ interface IIntentSource is ISemver{
      * @param _destinationChain the destination chain
      * @param _targets the address on _destinationChain at which the instruction sets need to be executed
      * @param _data the instructions to be executed on _targets
+     * @param _values the native token value per instruction
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
@@ -60,6 +61,7 @@ interface IIntentSource is ISemver{
         uint256 indexed _destinationChain,
         address[] _targets,
         bytes[] _data,
+        uint256[] _values,
         address[] _rewardTokens,
         uint256[] _rewardAmounts,
         uint256 _expiryTime,
@@ -82,6 +84,7 @@ interface IIntentSource is ISemver{
      * @param _destinationChain the destination chain
      * @param _targets the addresses on _destinationChain at which the instruction sets need to be executed
      * @param _data the instructions to be executed on _targets
+     * @param _values the native token value per instruction
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
@@ -92,6 +95,7 @@ interface IIntentSource is ISemver{
         address _inbox,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,

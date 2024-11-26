@@ -50,6 +50,7 @@ contract IntentSource is IIntentSource {
      * @param _destinationChainID the destination chain
      * @param _targets the addresses on _destinationChainID at which the instructions need to be executed
      * @param _data the instruction sets to be executed on _targets
+     * @param _values the native token value per instruction
      * @param _rewardTokens the addresses of reward tokens
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the timestamp at which the intent expires
@@ -60,13 +61,14 @@ contract IntentSource is IIntentSource {
         address _inbox,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         address[] calldata _rewardTokens,
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,
         address _prover
     ) external {
         uint256 len = _targets.length;
-        if (len == 0 || len != _data.length) {
+        if (len == 0 || len != _data.length || len != _values.length) {
             revert CalldataMismatch();
         }
 
@@ -91,6 +93,7 @@ contract IntentSource is IIntentSource {
             data: _data,
             rewardTokens: _rewardTokens,
             rewardAmounts: _rewardAmounts,
+            values: _values,
             expiryTime: _expiryTime,
             hasBeenWithdrawn: false,
             nonce: _nonce,
@@ -115,6 +118,7 @@ contract IntentSource is IIntentSource {
             _intent.destinationChainID,
             _intent.targets,
             _intent.data,
+            _intent.values,
             _intent.rewardTokens,
             _intent.rewardAmounts,
             _intent.expiryTime,
