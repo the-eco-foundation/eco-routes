@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 import "@hyperlane-xyz/core/contracts/libs/Message.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
+import "@hyperlane-xyz/core/contracts/interfaces/hooks/IPostDispatchHook.sol";
 
 contract TestMailbox {
 
@@ -18,7 +19,15 @@ contract TestMailbox {
     
     bytes public messageBody;
     
+    bytes public metadata;
+    
+    address public relayer;
+    
     bool public dispatched;
+
+    bool public dispatchedWithRelayer;
+
+    uint256 public constant fee = 100000;
 
     constructor(address _processor) {
         processor = _processor;
@@ -28,7 +37,7 @@ contract TestMailbox {
         uint32 _destinationDomain,
         bytes32 _recipientAddress,
         bytes calldata _messageBody
-    ) public payable returns (bytes32) {
+    ) public payable returns (uint256) {
         destinationDomain = _destinationDomain;
         recipientAddress = _recipientAddress;
         messageBody = _messageBody;
@@ -37,7 +46,39 @@ contract TestMailbox {
         if (processor != address(0)) {
             process(_messageBody);
         }
-        return(0);
+
+        if (msg.value != fee) {
+            revert("no");
+        }
+
+        return(msg.value);
+        
+    }
+
+    function dispatch(
+        uint32 _destinationDomain,
+        bytes32 _recipientAddress,
+        bytes calldata _messageBody,
+        bytes calldata _metadata,
+        IPostDispatchHook _relayer
+    ) public payable returns (uint256) {
+        destinationDomain = _destinationDomain;
+        recipientAddress = _recipientAddress;
+        messageBody = _messageBody;
+        metadata = _metadata;
+        relayer = address(_relayer);
+
+        dispatchedWithRelayer = true;
+
+        if (processor != address(0)) {
+            process(_messageBody);
+        }
+
+        if (msg.value != fee) {
+            revert("no");
+        }
+
+        return(msg.value);
     }
 
     function process(bytes calldata _msg) public {
@@ -49,6 +90,16 @@ contract TestMailbox {
         bytes32,
         bytes calldata
     ) public pure returns (bytes32) {
-        return bytes32(uint256(100000));
+        return bytes32(fee);
+    }
+
+    function quoteDispatch(
+        uint32,
+        bytes32,
+        bytes calldata,
+        bytes calldata,
+        address
+    ) public pure returns (bytes32) {
+        return bytes32(fee);
     }
 }

@@ -25,4 +25,6 @@ struct Intent {
     bytes32 nonce;
     // address of the prover this intent will be checked against
     address prover;
+    // native tokens offered as reward
+    uint256 rewardNative;
 }

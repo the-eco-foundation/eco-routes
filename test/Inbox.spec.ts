@@ -426,8 +426,10 @@ describe('Inbox Test', (): void => {
       expect(
         await inbox.fetchFee(
           sourceChainID,
-          calldata,
           ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+          calldata,
+          calldata,
+          ethers.ZeroAddress,
         ),
       ).to.eq(toBeHex(`100000`, 32))
     })
@@ -450,11 +452,13 @@ describe('Inbox Test', (): void => {
                 Number(
                   await inbox.fetchFee(
                     sourceChainID,
-                    calldata,
                     ethers.zeroPadBytes(
                       await dummyHyperProver.getAddress(),
                       32,
                     ),
+                    calldata,
+                    calldata,
+                    ethers.ZeroAddress,
                   ),
                 ) - 1,
             },
@@ -479,8 +483,10 @@ describe('Inbox Test', (): void => {
               value: Number(
                 await inbox.fetchFee(
                   sourceChainID,
-                  calldata,
                   ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+                  calldata,
+                  calldata,
+                  ethers.ZeroAddress,
                 ),
               ),
             },
@@ -503,6 +509,56 @@ describe('Inbox Test', (): void => {
       )
       expect(await mailbox.dispatched()).to.be.true
     })
+    it('fulfills hyper instant with relayer', async () => {
+      const relayerAddress = ethers.Wallet.createRandom().address
+      const metadata = calldata
+      await expect(
+        inbox
+          .connect(solver)
+          .fulfillHyperInstantWithRelayer(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+            await dummyHyperProver.getAddress(),
+            metadata,
+            relayerAddress,
+            {
+              value: Number(
+                await inbox.fetchFee(
+                  sourceChainID,
+                  ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+                  calldata,
+                  metadata,
+                  relayerAddress,
+                ),
+              ),
+            },
+          ),
+      )
+        .to.emit(inbox, 'Fulfillment')
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
+        .to.emit(inbox, 'HyperInstantFulfillment')
+        .withArgs(intentHash, sourceChainID, dstAddr.address)
+
+      expect(await mailbox.destinationDomain()).to.eq(sourceChainID)
+      expect(await mailbox.recipientAddress()).to.eq(
+        ethers.zeroPadValue(await dummyHyperProver.getAddress(), 32),
+      )
+      expect(await mailbox.messageBody()).to.eq(
+        ethers.AbiCoder.defaultAbiCoder().encode(
+          ['bytes32[]', 'address[]'],
+          [[intentHash], [dstAddr.address]],
+        ),
+      )
+      expect(await mailbox.metadata()).to.eq(metadata)
+      expect(await mailbox.relayer()).to.eq(relayerAddress)
+      expect(await mailbox.dispatchedWithRelayer()).to.be.true
+    })
+
     it('fulfills hyper batch', async () => {
       await expect(
         inbox
@@ -533,8 +589,10 @@ describe('Inbox Test', (): void => {
     it('drains', async () => {
       const fee = await inbox.fetchFee(
         sourceChainID,
-        calldata,
         ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
+        calldata,
+        calldata,
+        ethers.ZeroAddress,
       )
       const excess = ethers.parseEther('.123')
       await inbox
@@ -624,11 +682,13 @@ describe('Inbox Test', (): void => {
                   Number(
                     await inbox.fetchFee(
                       sourceChainID,
-                      calldata,
                       ethers.zeroPadBytes(
                         await dummyHyperProver.getAddress(),
                         32,
                       ),
+                      calldata,
+                      calldata,
+                      ethers.ZeroAddress,
                     ),
                   ) - 1,
               },
@@ -662,11 +722,13 @@ describe('Inbox Test', (): void => {
                 value: Number(
                   await inbox.fetchFee(
                     sourceChainID,
-                    calldata,
                     ethers.zeroPadBytes(
                       await dummyHyperProver.getAddress(),
                       32,
                     ),
+                    calldata,
+                    calldata,
+                    ethers.ZeroAddress,
                   ),
                 ),
               },
@@ -683,6 +745,62 @@ describe('Inbox Test', (): void => {
           ),
         )
         expect(await mailbox.dispatched()).to.be.true
+      })
+      it('succeeds for a single intent with relayer', async () => {
+        const relayerAddress = ethers.Wallet.createRandom().address
+        const metadata = calldata
+        expect(await mailbox.dispatched()).to.be.false
+        await inbox
+          .connect(solver)
+          .fulfillHyperBatched(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            dstAddr.address,
+            intentHash,
+            await dummyHyperProver.getAddress(),
+          )
+        expect(await mailbox.dispatched()).to.be.false
+        await expect(
+          inbox
+            .connect(solver)
+            .sendBatchWithRelayer(
+              sourceChainID,
+              await dummyHyperProver.getAddress(),
+              [intentHash],
+              metadata,
+              relayerAddress,
+              {
+                value: Number(
+                  await inbox.fetchFee(
+                    sourceChainID,
+                    ethers.zeroPadBytes(
+                      await dummyHyperProver.getAddress(),
+                      32,
+                    ),
+                    calldata,
+                    calldata,
+                    ethers.ZeroAddress,
+                  ),
+                ),
+              },
+            ),
+        ).to.not.be.reverted
+        expect(await mailbox.destinationDomain()).to.eq(sourceChainID)
+        expect(await mailbox.recipientAddress()).to.eq(
+          ethers.zeroPadValue(await dummyHyperProver.getAddress(), 32),
+        )
+        expect(await mailbox.messageBody()).to.eq(
+          ethers.AbiCoder.defaultAbiCoder().encode(
+            ['bytes32[]', 'address[]'],
+            [[intentHash], [dstAddr.address]],
+          ),
+        )
+        expect(await mailbox.metadata()).to.eq(metadata)
+        expect(await mailbox.relayer()).to.eq(relayerAddress)
+        expect(await mailbox.dispatchedWithRelayer()).to.be.true
       })
       it('succeeds for multiple intents', async () => {
         expect(await mailbox.dispatched()).to.be.false
@@ -733,11 +851,13 @@ describe('Inbox Test', (): void => {
                 value: Number(
                   await inbox.fetchFee(
                     sourceChainID,
-                    calldata,
                     ethers.zeroPadBytes(
                       await dummyHyperProver.getAddress(),
                       32,
                     ),
+                    calldata,
+                    calldata,
+                    ethers.ZeroAddress,
                   ),
                 ),
               },
