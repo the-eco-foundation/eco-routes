@@ -107,6 +107,36 @@ contract Inbox is IInbox, Ownable {
         bytes32 _expectedHash,
         address _prover
     ) external payable returns (bytes[] memory) {
+        return fulfillHyperInstantWithRelayer(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash, _prover, bytes(""), address(0));
+    }
+
+        /** 
+     * @notice fulfills an intent to be proven immediately via Hyperlane's mailbox
+     * @param _sourceChainID the chainID of the source chain
+     * @param _targets The addresses upon which {_data} will be executed, respectively
+     * @param _data The calldata to be executed on {_targets}, respectively
+     * @param _expiryTime The timestamp at which the intent expires
+     * @param _nonce The nonce of the calldata. Composed of the hash on the source chain of a global nonce & chainID
+     * @param _claimant The address that will receive the reward on the source chain
+     * @param _expectedHash The hash of the intent as created on the source chain 
+     * @param _prover The address of the hyperprover on the source chain
+     * @param _metadata the metadata required for the postDispatchHook on the source chain, set to empty bytes if not applicable
+     * @param _postDispatchHook the address of the postDispatchHook on the source chain, set to zero address if not applicable
+     * @dev solvers can expect this proof to be more expensive than hyperbatched, but it will be faster.
+     * @dev a fee is required to be sent with the transaction, it pays for the use of Hyperlane's architecture
+     */
+    function fulfillHyperInstantWithRelayer(
+        uint256 _sourceChainID,
+        address[] calldata _targets,
+        bytes[] calldata _data,
+        uint256 _expiryTime,
+        bytes32 _nonce,
+        address _claimant,
+        bytes32 _expectedHash,
+        address _prover,
+        bytes memory _metadata,
+        address _postDispatchHook
+    ) public payable returns (bytes[] memory) {
         bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
         emit HyperInstantFulfillment(_expectedHash, _sourceChainID, _claimant);
         bytes32[] memory hashes = new bytes32[](1);
@@ -116,16 +146,25 @@ contract Inbox is IInbox, Ownable {
 
         bytes memory messageBody = abi.encode(hashes, claimants);
         bytes32 _prover32 = _prover.addressToBytes32();
-        uint256 fee = fetchFee(_sourceChainID, messageBody, _prover32);
+        uint256 fee = fetchFee(_sourceChainID, _prover32, messageBody, _metadata, _postDispatchHook);
         if (msg.value < fee) {
             revert InsufficientFee(fee);
         }
-
-        IMailbox(mailbox).dispatch{value: fee}(
-            uint32(_sourceChainID),
-            _prover32,
-            messageBody)
-            ;
+        if (_postDispatchHook == address(0)) {
+            IMailbox(mailbox).dispatch{value: fee}(
+                uint32(_sourceChainID), 
+                _prover32,
+                messageBody
+            );
+        } else { 
+            IMailbox(mailbox).dispatch{value: fee}(
+                uint32(_sourceChainID),
+                _prover32,
+                messageBody,
+                _metadata,
+                IPostDispatchHook(_postDispatchHook)
+            );
+        }
         return results;
     }
 
@@ -169,7 +208,19 @@ contract Inbox is IInbox, Ownable {
      * @dev a fee is required to be sent with the transaction, it pays for the use of Hyperlane's architecture
      */
     function sendBatch(uint256 _sourceChainID, address _prover, bytes32[] calldata _intentHashes) external payable {
-        uint256 size = _intentHashes.length;
+        sendBatchWithRelayer(_sourceChainID, _prover, _intentHashes, bytes(""), address(0));
+    }
+
+    /**
+     * @notice sends a batch of fulfilled intents to the mailbox
+     * @param _sourceChainID the chainID of the source chain
+     * @param _prover the address of the hyperprover on the source chain
+     * @param _intentHashes the hashes of the intents to be proven
+     * @dev it is imperative that the intent hashes correspond to fulfilled intents that originated on the chain with chainID {_sourceChainID}
+     * @dev a fee is required to be sent with the transaction, it pays for the use of Hyperlane's architecture
+     */
+    function sendBatchWithRelayer(uint256 _sourceChainID, address _prover,  bytes32[] calldata _intentHashes, bytes memory _metadata, address _postDispatchHook) public payable {
+                uint256 size = _intentHashes.length;
         if (size > MAX_BATCH_SIZE) {
             revert BatchTooLarge();
         }
@@ -185,30 +236,51 @@ contract Inbox is IInbox, Ownable {
         }
         bytes memory messageBody = abi.encode(hashes, claimants);
         bytes32 _prover32 = _prover.addressToBytes32();
-        uint256 fee = fetchFee(_sourceChainID, messageBody, _prover32);
+        uint256 fee = fetchFee(_sourceChainID, _prover32, messageBody, _metadata, _postDispatchHook);
         if (msg.value < fee) {
             revert InsufficientFee(fee);
         }
 
-        IMailbox(mailbox).dispatch{value: fee}(
-            uint32(_sourceChainID),
-            _prover32,
-            messageBody)
-            ;
+        if (_postDispatchHook == address(0)) { 
+            IMailbox(mailbox).dispatch{value: fee}(
+                uint32(_sourceChainID), 
+                _prover32,
+                messageBody
+            );
+        } else { 
+            IMailbox(mailbox).dispatch{value: fee}(
+                uint32(_sourceChainID),
+                _prover32,
+                messageBody,
+                _metadata,
+                IPostDispatchHook(_postDispatchHook)
+            );
+        }
     }
 
     /**
      * @notice wrapper method for the mailbox's quoteDispatch method
      * @param _sourceChainID the chainID of the source chain
-     * @param _messageBody the message body being sent over the bridge
      * @param _prover the address of the hyperprover on the source chain
+     * @param _messageBody the message body being sent over the bridge
+     * @param _metadata the metadata required for the postDispatchHook on the source chain, set to empty bytes if not applicable
+     * @param _postDispatchHook the address of the postDispatchHook on the source chain, set to zero address if not applicable
      * @dev this method is used to determine the fee required for fulfillHyperInstant or sendBatch
      */
-    function fetchFee(uint256 _sourceChainID, bytes memory _messageBody, bytes32 _prover) public view returns (uint256 fee) {
-        return IMailbox(mailbox).quoteDispatch(
-            uint32(_sourceChainID),
-            _prover,
-            _messageBody
+    function fetchFee(uint256 _sourceChainID, bytes32 _prover, bytes memory _messageBody, bytes memory _metadata, address _postDispatchHook) public view returns (uint256 fee) {
+        return(_postDispatchHook == address(0) ? 
+            IMailbox(mailbox).quoteDispatch(
+                uint32(_sourceChainID), 
+                _prover,
+                _messageBody
+            ) : 
+            IMailbox(mailbox).quoteDispatch(
+                uint32(_sourceChainID),
+                _prover,
+                _messageBody,
+                _metadata,
+                IPostDispatchHook(_postDispatchHook)
+            )
         );
     }
 
