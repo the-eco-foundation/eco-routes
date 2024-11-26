@@ -155,6 +155,30 @@ contract IntentSource is IIntentSource {
         }
     }
 
+    function batchWithdraw(bytes32[] calldata _hashes, address _claimant) external {
+        address[] memory erc20s = [];
+        uint256 nativeRewards = 0;
+        mapping(bytes32 => uint256) memory balances;
+        for (uint256 i = 0; i < _hashes.length; i++) {
+            bytes32 _hash = _hashes[i];
+            Intent storage intent = intents[_hash];
+            if ((SimpleProver(intent.prover).provenIntents(_hash)) != _claimant) {
+                revert ClaimantMismatch();
+            }
+            for (uint256 j = 0; j < intent.rewardTokens.length; j++) {
+                if (balances[intent.rewardTokens[j]] == 0) {
+                    erc20s.push(intent.rewardTokens[j]);
+                }
+                balances[intent.rewardTokens[j]] += intent.rewardAmounts[j];
+            }
+            nativeRewards += intent.rewardNative;
+            intent.hasBeenWithdrawn = true;
+        }
+        for (uint256 i = 0; i < erc20s.length; i++) {
+            IERC20(erc20s[i]).transfer(_claimant, balances[erc20s[i]]);
+        }
+    }
+
     function getIntent(bytes32 identifier) public view returns (Intent memory) {
         Intent memory intent = intents[identifier];
         intent.targets = intents[identifier].targets;

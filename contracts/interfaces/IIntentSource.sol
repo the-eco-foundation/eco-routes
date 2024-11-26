@@ -47,6 +47,10 @@ interface IIntentSource is ISemver{
     error NoRewards();
 
     /**
+     * @notice thrown on a call to batchWithdraw where one of the intents does not have
+     */
+
+    /**
      * @notice emitted on a successful call to createIntent
      * @param _hash the hash of the intent, also the key to the intents mapping
      * @param _creator the address that created the intent
