@@ -123,7 +123,7 @@ describe('Intent Source Test', (): void => {
     })
     context('fails if', () => {
       it('targets or data length is 0, or if they are mismatched', async () => {
-        // mismatch
+        // mismatch between targets and data
         await expect(
           intentSource
             .connect(creator)
@@ -132,21 +132,26 @@ describe('Intent Source Test', (): void => {
               await inbox.getAddress(),
               [await tokenA.getAddress(), await tokenB.getAddress()],
               [await encodeTransfer(creator.address, mintAmount)],
+              [12345],
               [await tokenA.getAddress()],
               [mintAmount],
               (await time.latest()) + minimumDuration,
               await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'CalldataMismatch')
-        // length 0
+        // mismatch between targets and values
         await expect(
           intentSource
             .connect(creator)
             .createIntent(
               1,
               await inbox.getAddress(),
-              [],
-              [],
+              [await tokenA.getAddress(), await tokenB.getAddress()],
+              [
+                await encodeTransfer(creator.address, mintAmount),
+                await encodeTransfer(creator.address, mintAmount),
+              ],
+              [12345, 12345],
               [await tokenA.getAddress()],
               [mintAmount],
               (await time.latest()) + minimumDuration,
@@ -183,6 +188,7 @@ describe('Intent Source Test', (): void => {
               [await encodeTransfer(creator.address, mintAmount)],
               [],
               [],
+              [],
               (await time.latest()) + minimumDuration,
               await prover.getAddress(),
             ),
@@ -197,6 +203,7 @@ describe('Intent Source Test', (): void => {
               await inbox.getAddress(),
               [await tokenA.getAddress()],
               [await encodeTransfer(creator.address, mintAmount)],
+              [0],
               [await tokenA.getAddress()],
               [mintAmount],
               (await time.latest()) + minimumDuration - 1,
@@ -213,6 +220,7 @@ describe('Intent Source Test', (): void => {
           await inbox.getAddress(),
           targets,
           data,
+          [0],
           rewardTokens,
           rewardAmounts,
           expiry,
@@ -231,6 +239,7 @@ describe('Intent Source Test', (): void => {
       expect(intentDetail.destinationChainID).to.eq(chainId)
       expect(intentDetail.targets).to.deep.eq(targets)
       expect(intentDetail.data).to.deep.eq(data)
+      expect(intentDetail.values).to.deep.eq([0])
       expect(intentDetail.rewardTokens).to.deep.eq(rewardTokens)
       expect(intentDetail.rewardAmounts).to.deep.eq(rewardAmounts)
       expect(intentDetail.expiryTime).to.eq(expiry)
@@ -247,6 +256,7 @@ describe('Intent Source Test', (): void => {
           await inbox.getAddress(),
           targets,
           data,
+          [0],
           [],
           [],
           expiry,
@@ -266,6 +276,7 @@ describe('Intent Source Test', (): void => {
       expect(intentDetail.destinationChainID).to.eq(chainId)
       expect(intentDetail.targets).to.deep.eq(targets)
       expect(intentDetail.data).to.deep.eq(data)
+      expect(intentDetail.values).to.deep.eq([0])
       expect(intentDetail.rewardTokens).to.deep.eq([])
       expect(intentDetail.rewardAmounts).to.deep.eq([])
       expect(intentDetail.expiryTime).to.eq(expiry)
