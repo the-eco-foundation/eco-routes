@@ -22,9 +22,6 @@ interface IInbox is ISemver{
     // Event emitted when a change is made to the solver whitelist
     event SolverWhitelistChanged(address indexed _solver, bool indexed _canSolve);
 
-    // Event emitted when the prover address of a chain is set
-    event ProverSet(uint256 indexed _chainID, address indexed _prover);
-
     // Error thrown when solving intents is not public and a non-whitelisted address made a solve attempt
     error UnauthorizedSolveAttempt(address _solver);
 
@@ -42,6 +39,9 @@ interface IInbox is ISemver{
 
     // Error thrown when a solver attempts to make a call to the hyperlane mailbox
     error CallToMailbox();
+
+    // Error thrown when an external address attempts to call transferNative
+    error UnauthorizedTransferNative();
     
     // Error thrown when the number of intents in a call to sendBatch exceeds MAX_BATCH_SIZE
     error BatchTooLarge();
