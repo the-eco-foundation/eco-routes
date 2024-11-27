@@ -137,7 +137,7 @@ contract IntentSource is IIntentSource {
             if (claimant != address(0)) {
                 withdrawTo = claimant;
             } else {
-                if (block.timestamp > intent.expiryTime) {
+                if (block.timestamp >= intent.expiryTime) {
                     withdrawTo = intent.creator;
                 } else {
                     revert UnauthorizedWithdrawal(_hash);
@@ -146,7 +146,7 @@ contract IntentSource is IIntentSource {
             intent.hasBeenWithdrawn = true;
             uint256 len = intent.rewardTokens.length;
             for (uint256 i = 0; i < len; i++) {
-                IERC20(intent.rewardTokens[i]).transfer(withdrawTo, intent.rewardAmounts[i]);
+                safeERC20Transfer(intent.rewardTokens[i], withdrawTo, intent.rewardAmounts[i]);
             }
             payable(withdrawTo).transfer(intent.rewardNative);
             emit Withdrawal(_hash, withdrawTo);
@@ -155,30 +155,58 @@ contract IntentSource is IIntentSource {
         }
     }
 
+    // sort intents s.t. intents with the same (singular) reward token are together. if there are intents with multiple reward tokens, put them at the end. ideally dont include those kinds of intents here though. 
     function batchWithdraw(bytes32[] calldata _hashes, address _claimant) external {
-        address[] memory erc20s = [];
-        uint256 nativeRewards = 0;
-        mapping(bytes32 => uint256) memory balances;
+        if(_claimant == address(0)) {
+            revert BadClaimant();
+        }
+        address erc20;
+        uint256 balance;
+        uint256 nativeRewards;
+
         for (uint256 i = 0; i < _hashes.length; i++) {
             bytes32 _hash = _hashes[i];
             Intent storage intent = intents[_hash];
+            if (intent.hasBeenWithdrawn) {
+                revert NothingToWithdraw(_hash);
+            }
             if ((SimpleProver(intent.prover).provenIntents(_hash)) != _claimant) {
-                revert ClaimantMismatch();
+                revert BadClaimant();
             }
-            for (uint256 j = 0; j < intent.rewardTokens.length; j++) {
-                if (balances[intent.rewardTokens[j]] == 0) {
-                    erc20s.push(intent.rewardTokens[j]);
-                }
-                balances[intent.rewardTokens[j]] += intent.rewardAmounts[j];
+            if (block.timestamp < intent.expiryTime) {
+                revert UnauthorizedWithdrawal(_hash);
             }
-            nativeRewards += intent.rewardNative;
             intent.hasBeenWithdrawn = true;
+            for (uint256 j = 0; j < intent.rewardTokens.length; j++) {
+                if (erc20 == intent.rewardTokens[j]) {
+                    balance + intent.rewardAmounts[j];
+                } else {
+                    safeERC20Transfer(erc20, _claimant, balance);
+                    erc20 = intent.rewardTokens[j];
+                    balance = intent.rewardAmounts[j];
+                }
+            }
+            if (intent.rewardNative > 0) {
+                nativeRewards += intent.rewardNative;
+            }
+            emit Withdrawal(_hash, _claimant);
         }
-        for (uint256 i = 0; i < erc20s.length; i++) {
-            IERC20(erc20s[i]).transfer(_claimant, balances[erc20s[i]]);
+        if (erc20 != address(0)) {
+            IERC20(erc20).transfer(_claimant, balance);
+        }
+        if (nativeRewards > 0) {
+            payable(_claimant).transfer(nativeRewards);
         }
     }
 
+    function safeERC20Transfer(address _token, address _to, uint256 _amount) internal {
+        if(_token != address(0)) {
+            if(IERC20(_token).transfer(_to, _amount)) {
+                revert TransferFailed(_token, _to, _amount);
+            }
+        }
+    }
+    
     function getIntent(bytes32 identifier) public view returns (Intent memory) {
         Intent memory intent = intents[identifier];
         intent.targets = intents[identifier].targets;
