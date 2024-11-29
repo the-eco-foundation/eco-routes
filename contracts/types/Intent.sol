@@ -11,6 +11,8 @@ struct Intent {
     address[] targets;
     // instructions we want executed
     bytes[] data;
+    // native token value per instruction
+    uint256[] values;
     // addresses of reward tokens
     address[] rewardTokens;
     // corresponding amounts of reward tokens

@@ -62,6 +62,7 @@ contract Inbox is IInbox, Ownable {
      * @param _sourceChainID the chainID of the source chain
      * @param _targets The addresses upon which {_data} will be executed, respectively
      * @param _data The calldata to be executed on {_targets}, respectively
+     * @param _values The value to be sent in each call
      * @param _expiryTime The timestamp at which the intent expires
      * @param _nonce The nonce of the calldata. Composed of the hash on the source chain of a global nonce & chainID
      * @param _claimant The address that will receive the reward on the source chain
@@ -71,13 +72,14 @@ contract Inbox is IInbox, Ownable {
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         uint256 _expiryTime,
         bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash
-    ) external returns (bytes[] memory) {
+    ) external payable returns (bytes[] memory) {
 
-        bytes[] memory result = _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+        bytes[] memory result = _fulfill(_sourceChainID, _targets, _data, _values, _expiryTime, _nonce, _claimant, _expectedHash);
 
         emit ToBeProven(_expectedHash, _sourceChainID, _claimant);
 
@@ -89,6 +91,7 @@ contract Inbox is IInbox, Ownable {
      * @param _sourceChainID the chainID of the source chain
      * @param _targets The addresses upon which {_data} will be executed, respectively
      * @param _data The calldata to be executed on {_targets}, respectively
+     * @param _values The value to be sent in each call
      * @param _expiryTime The timestamp at which the intent expires
      * @param _nonce The nonce of the calldata. Composed of the hash on the source chain of a global nonce & chainID
      * @param _claimant The address that will receive the reward on the source chain
@@ -101,13 +104,14 @@ contract Inbox is IInbox, Ownable {
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         uint256 _expiryTime,
         bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash,
         address _prover
     ) external payable returns (bytes[] memory) {
-        return fulfillHyperInstantWithRelayer(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash, _prover, bytes(""), address(0));
+        return fulfillHyperInstantWithRelayer(_sourceChainID, _targets, _data, _values, _expiryTime, _nonce, _claimant, _expectedHash, _prover, bytes(""), address(0));
     }
 
         /** 
@@ -115,6 +119,7 @@ contract Inbox is IInbox, Ownable {
      * @param _sourceChainID the chainID of the source chain
      * @param _targets The addresses upon which {_data} will be executed, respectively
      * @param _data The calldata to be executed on {_targets}, respectively
+     * @param _values The value to be sent in each call
      * @param _expiryTime The timestamp at which the intent expires
      * @param _nonce The nonce of the calldata. Composed of the hash on the source chain of a global nonce & chainID
      * @param _claimant The address that will receive the reward on the source chain
@@ -129,6 +134,7 @@ contract Inbox is IInbox, Ownable {
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         uint256 _expiryTime,
         bytes32 _nonce,
         address _claimant,
@@ -137,7 +143,7 @@ contract Inbox is IInbox, Ownable {
         bytes memory _metadata,
         address _postDispatchHook
     ) public payable returns (bytes[] memory) {
-        bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+        bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _values, _expiryTime, _nonce, _claimant, _expectedHash);
         emit HyperInstantFulfillment(_expectedHash, _sourceChainID, _claimant);
         bytes32[] memory hashes = new bytes32[](1);
         address[] memory claimants = new address[](1);
@@ -173,6 +179,7 @@ contract Inbox is IInbox, Ownable {
      * @param _sourceChainID the chainID of the source chain
      * @param _targets The addresses upon which {_data} will be executed, respectively
      * @param _data The calldata to be executed on {_targets}, respectively
+     * @param _values The value to be sent in each call
      * @param _expiryTime The timestamp at which the intent expires
      * @param _nonce The nonce of the calldata. Composed of the hash on the source chain of a global nonce & chainID
      * @param _claimant The address that will receive the reward on the source chain
@@ -186,13 +193,14 @@ contract Inbox is IInbox, Ownable {
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         uint256 _expiryTime,
         bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash,
         address _prover
-    ) external returns (bytes[] memory){
-        bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
+    ) external payable returns (bytes[] memory){
+        bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _values, _expiryTime, _nonce, _claimant, _expectedHash);
 
         emit AddToBatch(_expectedHash, _sourceChainID, _claimant, _prover);
 
@@ -346,6 +354,7 @@ contract Inbox is IInbox, Ownable {
         uint256 _sourceChainID,
         address[] calldata _targets,
         bytes[] calldata _data,
+        uint256[] calldata _values,
         uint256 _expiryTime,
         bytes32 _nonce,
         address _claimant,
@@ -373,7 +382,7 @@ contract Inbox is IInbox, Ownable {
                 // no executing calls on the mailbox
                 revert CallToMailbox();
             }
-            (bool success, bytes memory result) = _targets[i].call(_data[i]);
+            (bool success, bytes memory result) = _targets[i].call{value: _values[i]}(_data[i]);
             if (!success) {
                 revert IntentCallFailed(_targets[i], _data[i], result);
             }
