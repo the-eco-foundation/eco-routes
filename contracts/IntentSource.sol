@@ -6,6 +6,8 @@ import "./interfaces/IIntentSource.sol";
 import "./interfaces/SimpleProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
+
 
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
@@ -184,7 +186,7 @@ contract IntentSource is IIntentSource {
             intent.hasBeenWithdrawn = true;
             for (uint256 j = 0; j < intent.rewardTokens.length; j++) {
                 if (erc20 == intent.rewardTokens[j]) {
-                    balance + intent.rewardAmounts[j];
+                    balance += intent.rewardAmounts[j];
                 } else {
                     safeERC20Transfer(erc20, _claimant, balance);
                     erc20 = intent.rewardTokens[j];
@@ -206,7 +208,7 @@ contract IntentSource is IIntentSource {
 
     function safeERC20Transfer(address _token, address _to, uint256 _amount) internal {
         if(_token != address(0)) {
-            if(IERC20(_token).transfer(_to, _amount)) {
+            if(!IERC20(_token).transfer(_to, _amount)) {
                 revert TransferFailed(_token, _to, _amount);
             }
         }

@@ -6,6 +6,7 @@ import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { keccak256, BytesLike, ZeroAddress } from 'ethers'
 import { DataHexString } from 'ethers/lib/utils'
 import { encodeIdentifier, encodeTransfer } from '../utils/encode'
+import exp from 'constants'
 
 describe('Intent Source Test', (): void => {
   let intentSource: IntentSource
@@ -549,48 +550,105 @@ describe('Intent Source Test', (): void => {
           { value: rewardNativeEth },
         )
     })
-    it.only('bricks if called with the zero address as the claimant param', async () => {
-      await expect(
-        intentSource
+    describe('fails if', () => {
+      it('bricks if called with the zero address as the claimant param', async () => {
+        await expect(
+          intentSource
+            .connect(otherPerson)
+            .batchWithdraw([intentHash], ZeroAddress),
+        ).to.be.revertedWithCustomError(intentSource, 'BadClaimant')
+      })
+      it('bricks if called with an intent whose claimant differs from the claimant param', async () => {
+        await expect(
+          intentSource
+            .connect(otherPerson)
+            .batchWithdraw([intentHash], await claimant.getAddress()),
+        ).to.be.revertedWithCustomError(intentSource, 'BadClaimant')
+      })
+      it('bricks if called before expiry by IntentCreator', async () => {
+        await expect(
+          intentSource
+            .connect(otherPerson)
+            .batchWithdraw([intentHash], await creator.getAddress()),
+        ).to.be.revertedWithCustomError(intentSource, 'UnauthorizedWithdrawal')
+      })
+    })
+    describe('single intent, complex', () => {
+      it.only('before expiry to claimant', async () => {
+        const initialBalanceNative = await ethers.provider.getBalance(
+          await claimant.getAddress(),
+        )
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .false
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
+        expect(await tokenA.balanceOf(await intentSource.getAddress())).to.eq(
+          mintAmount,
+        )
+        expect(await tokenB.balanceOf(await intentSource.getAddress())).to.eq(
+          mintAmount * 2,
+        )
+        expect(
+          await ethers.provider.getBalance(await intentSource.getAddress()),
+        ).to.eq(rewardNativeEth)
+
+        await prover
+          .connect(creator)
+          .addProvenIntent(intentHash, await claimant.getAddress())
+        await intentSource
           .connect(otherPerson)
-          .batchWithdraw([intentHash], ZeroAddress),
-      ).to.be.revertedWithCustomError(intentSource, 'BadClaimant')
-    })
-    it.only('bricks if called with an intent whose claimant differs from the claimant param', async () => {
-      await expect(
-        intentSource
+          .batchWithdraw([intentHash], await claimant.getAddress())
+
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .true
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
+          mintAmount,
+        )
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
+          mintAmount * 2,
+        )
+        expect(await tokenA.balanceOf(await intentSource.getAddress())).to.eq(0)
+        expect(await tokenB.balanceOf(await intentSource.getAddress())).to.eq(0)
+
+        expect(
+          await ethers.provider.getBalance(await intentSource.getAddress()),
+        ).to.eq(0)
+
+        expect(
+          await ethers.provider.getBalance(await claimant.getAddress()),
+        ).to.eq(initialBalanceNative + rewardNativeEth)
+      })
+      it.only('after expiry to creator', async () => {
+        await time.increaseTo(expiry)
+        const initialBalanceNative = await ethers.provider.getBalance(
+          await creator.getAddress(),
+        )
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .false
+        expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(0)
+        expect(await tokenB.balanceOf(await creator.getAddress())).to.eq(0)
+
+        await prover
           .connect(otherPerson)
-          .batchWithdraw([intentHash], await claimant.getAddress()),
-      ).to.be.revertedWithCustomError(intentSource, 'BadClaimant')
-    })
-    it.only('bricks if called before expiry by IntentCreator', async () => {
-      await expect(
-        intentSource
+          .addProvenIntent(intentHash, await creator.getAddress())
+        await intentSource
           .connect(otherPerson)
-          .batchWithdraw([intentHash], await creator.getAddress()),
-      ).to.be.revertedWithCustomError(intentSource, 'UnauthorizedWithdrawal')
+          .batchWithdraw([intentHash], await creator.getAddress())
+
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .true
+        expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(
+          mintAmount,
+        )
+        expect(await tokenB.balanceOf(await creator.getAddress())).to.eq(
+          mintAmount * 2,
+        )
+        expect(
+          await ethers.provider.getBalance(await creator.getAddress()),
+        ).to.eq(initialBalanceNative + rewardNativeEth)
+      })
     })
-    it('works with a single intent', async () => {
-      await time.increaseTo(expiry)
-      expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-        .false
-      expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
-      expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
-      await prover
-        .connect(creator)
-        .addProvenIntent(intentHash, await claimant.getAddress())
-      await intentSource
-        .connect(otherPerson)
-        .batchWithdraw([intentHash], await claimant.getAddress())
-      expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-        .true
-      expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
-        mintAmount,
-      )
-      expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
-        mintAmount * 2,
-      )
-    })
+
     it('sends 1 tx if withdrawing for multiple intents of the same reward token', async () => {})
     it('sends 2 tx if withdrawing many of one reward token and many of another withdraw token ', async () => {})
     it('sends 3 tx if withdrawing many of one reward token and many of another withdraw token and many of native', async () => {})
