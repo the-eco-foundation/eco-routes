@@ -29,6 +29,7 @@ describe('Intent Source Test', (): void => {
   let rewardAmounts: number[]
   const rewardNativeEth: bigint = ethers.parseEther('2')
   let nonce: BytesLike
+  const abiCoder = ethers.AbiCoder.defaultAbiCoder()
 
   async function deploySourceFixture(): Promise<{
     intentSource: IntentSource
@@ -504,53 +505,60 @@ describe('Intent Source Test', (): void => {
     })
   })
   describe('batch withdrawal', async () => {
-    beforeEach(async (): Promise<void> => {
-      expiry = (await time.latest()) + minimumDuration + 10
-      nonce = await encodeIdentifier(
-        0,
-        (await ethers.provider.getNetwork()).chainId,
-      )
-      chainId = 1
-      targets = [await tokenA.getAddress()]
-      data = [await encodeTransfer(creator.address, mintAmount)]
-      rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
-      rewardAmounts = [mintAmount, mintAmount * 2]
-      const abiCoder = ethers.AbiCoder.defaultAbiCoder()
-      const intermediateHash = keccak256(
-        abiCoder.encode(
-          ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
-          [
-            await intentSource.CHAIN_ID(),
+    describe('fails if', () => {
+      beforeEach(async (): Promise<void> => {
+        expiry = (await time.latest()) + minimumDuration + 10
+        nonce = await encodeIdentifier(
+          0,
+          (await ethers.provider.getNetwork()).chainId,
+        )
+        chainId = 1
+        targets = [await tokenA.getAddress()]
+        data = [await encodeTransfer(creator.address, mintAmount)]
+        rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
+        rewardAmounts = [mintAmount, mintAmount * 2]
+        const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+        const intermediateHash = keccak256(
+          abiCoder.encode(
+            [
+              'uint256',
+              'uint256',
+              'address[]',
+              'bytes[]',
+              'uint256',
+              'bytes32',
+            ],
+            [
+              await intentSource.CHAIN_ID(),
+              chainId,
+              targets,
+              data,
+              expiry,
+              nonce,
+            ],
+          ),
+        )
+        intentHash = keccak256(
+          abiCoder.encode(
+            ['address', 'bytes32'],
+            [await inbox.getAddress(), intermediateHash],
+          ),
+        )
+
+        await intentSource
+          .connect(creator)
+          .createIntent(
             chainId,
+            await inbox.getAddress(),
             targets,
             data,
+            rewardTokens,
+            rewardAmounts,
             expiry,
-            nonce,
-          ],
-        ),
-      )
-      intentHash = keccak256(
-        abiCoder.encode(
-          ['address', 'bytes32'],
-          [await inbox.getAddress(), intermediateHash],
-        ),
-      )
-
-      await intentSource
-        .connect(creator)
-        .createIntent(
-          chainId,
-          await inbox.getAddress(),
-          targets,
-          data,
-          rewardTokens,
-          rewardAmounts,
-          expiry,
-          await prover.getAddress(),
-          { value: rewardNativeEth },
-        )
-    })
-    describe('fails if', () => {
+            await prover.getAddress(),
+            { value: rewardNativeEth },
+          )
+      })
       it('bricks if called with the zero address as the claimant param', async () => {
         await expect(
           intentSource
@@ -574,6 +582,59 @@ describe('Intent Source Test', (): void => {
       })
     })
     describe('single intent, complex', () => {
+      beforeEach(async (): Promise<void> => {
+        expiry = (await time.latest()) + minimumDuration + 10
+        nonce = await encodeIdentifier(
+          0,
+          (await ethers.provider.getNetwork()).chainId,
+        )
+        chainId = 1
+        targets = [await tokenA.getAddress()]
+        data = [await encodeTransfer(creator.address, mintAmount)]
+        rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
+        rewardAmounts = [mintAmount, mintAmount * 2]
+        const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+        const intermediateHash = keccak256(
+          abiCoder.encode(
+            [
+              'uint256',
+              'uint256',
+              'address[]',
+              'bytes[]',
+              'uint256',
+              'bytes32',
+            ],
+            [
+              await intentSource.CHAIN_ID(),
+              chainId,
+              targets,
+              data,
+              expiry,
+              nonce,
+            ],
+          ),
+        )
+        intentHash = keccak256(
+          abiCoder.encode(
+            ['address', 'bytes32'],
+            [await inbox.getAddress(), intermediateHash],
+          ),
+        )
+
+        await intentSource
+          .connect(creator)
+          .createIntent(
+            chainId,
+            await inbox.getAddress(),
+            targets,
+            data,
+            rewardTokens,
+            rewardAmounts,
+            expiry,
+            await prover.getAddress(),
+            { value: rewardNativeEth },
+          )
+      })
       it.only('before expiry to claimant', async () => {
         const initialBalanceNative = await ethers.provider.getBalance(
           await claimant.getAddress(),
@@ -648,9 +709,43 @@ describe('Intent Source Test', (): void => {
         ).to.eq(initialBalanceNative + rewardNativeEth)
       })
     })
-
-    it('sends 1 tx if withdrawing for multiple intents of the same reward token', async () => {})
-    it('sends 2 tx if withdrawing many of one reward token and many of another withdraw token ', async () => {})
-    it('sends 3 tx if withdrawing many of one reward token and many of another withdraw token and many of native', async () => {})
+    describe('multiple intents with one reward token', () => {
+      beforeEach(async (): Promise<void> => {
+        expiry = (await time.latest()) + minimumDuration + 20
+        nonce = await encodeIdentifier(
+          0,
+          (await ethers.provider.getNetwork()).chainId,
+        )
+        chainId = 1
+        targets = [await tokenA.getAddress()]
+        data = [await encodeTransfer(creator.address, mintAmount)]
+      })
+      it.only('single token', async () => {
+        expiry = (await time.latest()) + minimumDuration + 10
+        let tx
+        for (let i = 0; i < 3; i++) {
+          tx = await intentSource
+            .connect(creator)
+            .createIntent(
+              chainId,
+              await inbox.getAddress(),
+              targets,
+              data,
+              [await tokenA.getAddress()],
+              [mintAmount / 10],
+              expiry,
+              await prover.getAddress(),
+            )
+          tx = await tx.wait()
+        }
+        let logs = await intentSource.queryFilter(
+          intentSource.getEvent('IntentCreated'),
+        )
+        logs = logs.map((log) => log.args[0])
+        console.log(logs)
+      })
+    })
+    it('one of two tokens', async () => {})
+    it('one of two tokens, plus native', async () => {})
   })
 })
