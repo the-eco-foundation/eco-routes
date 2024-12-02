@@ -48,8 +48,9 @@ interface IIntentSource is ISemver{
 
     /**
      * @notice thrown on a call to batchWithdraw where an intent's claimant does not match the input claimant address
+     * @param _hash the hash of the intent on which withdraw was attempted
      */
-    error BadClaimant();
+    error BadClaimant(bytes32 _hash);
 
     /**
      * @notice thrown on transfer failure

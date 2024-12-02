@@ -158,7 +158,7 @@ contract IntentSource is IIntentSource {
     // sort intents s.t. intents with the same (singular) reward token are together. if there are intents with multiple reward tokens, put them at the end. ideally dont include those kinds of intents here though. 
     function batchWithdraw(bytes32[] calldata _hashes, address _claimant) external {
         if(_claimant == address(0)) {
-            revert BadClaimant();
+            revert BadClaimant(0x0);
         }
         address erc20;
         uint256 balance;
@@ -170,11 +170,16 @@ contract IntentSource is IIntentSource {
             if (intent.hasBeenWithdrawn) {
                 revert NothingToWithdraw(_hash);
             }
-            if ((SimpleProver(intent.prover).provenIntents(_hash)) != _claimant) {
-                revert BadClaimant();
-            }
-            if (block.timestamp < intent.expiryTime) {
-                revert UnauthorizedWithdrawal(_hash);
+            address claimant = SimpleProver(intent.prover).provenIntents(_hash);
+            if (claimant != _claimant) {
+                if (intent.creator != _claimant) {
+                    revert BadClaimant(_hash);
+                }
+                // trying to reclaim rewards for an expired intent
+                if (claimant != address(0) || block.timestamp < intent.expiryTime) {
+                    // intent is not expired
+                    revert UnauthorizedWithdrawal(_hash);
+                }
             }
             intent.hasBeenWithdrawn = true;
             for (uint256 j = 0; j < intent.rewardTokens.length; j++) {

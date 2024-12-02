@@ -3,7 +3,8 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { TestERC20, IntentSource, TestProver, Inbox } from '../typechain-types'
 import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { keccak256, BytesLike } from 'ethers'
+import { keccak256, BytesLike, ZeroAddress } from 'ethers'
+import { DataHexString } from 'ethers/lib/utils'
 import { encodeIdentifier, encodeTransfer } from '../utils/encode'
 
 describe('Intent Source Test', (): void => {
@@ -500,5 +501,98 @@ describe('Intent Source Test', (): void => {
         )
       })
     })
+  })
+  describe('batch withdrawal', async () => {
+    beforeEach(async (): Promise<void> => {
+      expiry = (await time.latest()) + minimumDuration + 10
+      nonce = await encodeIdentifier(
+        0,
+        (await ethers.provider.getNetwork()).chainId,
+      )
+      chainId = 1
+      targets = [await tokenA.getAddress()]
+      data = [await encodeTransfer(creator.address, mintAmount)]
+      rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
+      rewardAmounts = [mintAmount, mintAmount * 2]
+      const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+      const intermediateHash = keccak256(
+        abiCoder.encode(
+          ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
+          [
+            await intentSource.CHAIN_ID(),
+            chainId,
+            targets,
+            data,
+            expiry,
+            nonce,
+          ],
+        ),
+      )
+      intentHash = keccak256(
+        abiCoder.encode(
+          ['address', 'bytes32'],
+          [await inbox.getAddress(), intermediateHash],
+        ),
+      )
+
+      await intentSource
+        .connect(creator)
+        .createIntent(
+          chainId,
+          await inbox.getAddress(),
+          targets,
+          data,
+          rewardTokens,
+          rewardAmounts,
+          expiry,
+          await prover.getAddress(),
+          { value: rewardNativeEth },
+        )
+    })
+    it.only('bricks if called with the zero address as the claimant param', async () => {
+      await expect(
+        intentSource
+          .connect(otherPerson)
+          .batchWithdraw([intentHash], ZeroAddress),
+      ).to.be.revertedWithCustomError(intentSource, 'BadClaimant')
+    })
+    it.only('bricks if called with an intent whose claimant differs from the claimant param', async () => {
+      await expect(
+        intentSource
+          .connect(otherPerson)
+          .batchWithdraw([intentHash], await claimant.getAddress()),
+      ).to.be.revertedWithCustomError(intentSource, 'BadClaimant')
+    })
+    it.only('bricks if called before expiry by IntentCreator', async () => {
+      await expect(
+        intentSource
+          .connect(otherPerson)
+          .batchWithdraw([intentHash], await creator.getAddress()),
+      ).to.be.revertedWithCustomError(intentSource, 'UnauthorizedWithdrawal')
+    })
+    it('works with a single intent', async () => {
+      await time.increaseTo(expiry)
+      expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+        .false
+      expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
+      expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
+      await prover
+        .connect(creator)
+        .addProvenIntent(intentHash, await claimant.getAddress())
+      await intentSource
+        .connect(otherPerson)
+        .batchWithdraw([intentHash], await claimant.getAddress())
+      expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+        .true
+      expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
+        mintAmount,
+      )
+      expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
+        mintAmount * 2,
+      )
+    })
+    it('sends 1 tx if withdrawing for multiple intents of the same reward token', async () => {})
+    it('sends 2 tx if withdrawing many of one reward token and many of another withdraw token ', async () => {})
+    it('sends 3 tx if withdrawing many of one reward token and many of another withdraw token and many of native', async () => {})
   })
 })
