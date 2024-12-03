@@ -47,6 +47,20 @@ interface IIntentSource is ISemver{
     error NoRewards();
 
     /**
+     * @notice thrown on a call to batchWithdraw where an intent's claimant does not match the input claimant address
+     * @param _hash the hash of the intent on which withdraw was attempted
+     */
+    error BadClaimant(bytes32 _hash);
+
+    /**
+     * @notice thrown on transfer failure
+     * @param _token the token
+     * @param _to the recipient
+     * @param _amount the amount
+     */
+    error TransferFailed(address _token, address _to, uint256 _amount);
+
+    /**
      * @notice emitted on a successful call to createIntent
      * @param _hash the hash of the intent, also the key to the intents mapping
      * @param _creator the address that created the intent

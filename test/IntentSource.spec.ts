@@ -3,8 +3,10 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { TestERC20, IntentSource, TestProver, Inbox } from '../typechain-types'
 import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { keccak256, BytesLike } from 'ethers'
+import { keccak256, BytesLike, ZeroAddress } from 'ethers'
+import { DataHexString } from 'ethers/lib/utils'
 import { encodeIdentifier, encodeTransfer } from '../utils/encode'
+import exp from 'constants'
 
 describe('Intent Source Test', (): void => {
   let intentSource: IntentSource
@@ -27,6 +29,7 @@ describe('Intent Source Test', (): void => {
   let rewardAmounts: number[]
   const rewardNativeEth: bigint = ethers.parseEther('2')
   let nonce: BytesLike
+  const abiCoder = ethers.AbiCoder.defaultAbiCoder()
 
   async function deploySourceFixture(): Promise<{
     intentSource: IntentSource
@@ -499,6 +502,465 @@ describe('Intent Source Test', (): void => {
           Number(initialBalanceB) + rewardAmounts[1],
         )
       })
+    })
+  })
+  describe('batch withdrawal', async () => {
+    describe('fails if', () => {
+      beforeEach(async (): Promise<void> => {
+        expiry = (await time.latest()) + minimumDuration + 10
+        nonce = await encodeIdentifier(
+          0,
+          (await ethers.provider.getNetwork()).chainId,
+        )
+        chainId = 1
+        targets = [await tokenA.getAddress()]
+        data = [await encodeTransfer(creator.address, mintAmount)]
+        rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
+        rewardAmounts = [mintAmount, mintAmount * 2]
+        const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+        const intermediateHash = keccak256(
+          abiCoder.encode(
+            [
+              'uint256',
+              'uint256',
+              'address[]',
+              'bytes[]',
+              'uint256',
+              'bytes32',
+            ],
+            [
+              await intentSource.CHAIN_ID(),
+              chainId,
+              targets,
+              data,
+              expiry,
+              nonce,
+            ],
+          ),
+        )
+        intentHash = keccak256(
+          abiCoder.encode(
+            ['address', 'bytes32'],
+            [await inbox.getAddress(), intermediateHash],
+          ),
+        )
+
+        await intentSource
+          .connect(creator)
+          .createIntent(
+            chainId,
+            await inbox.getAddress(),
+            targets,
+            data,
+            rewardTokens,
+            rewardAmounts,
+            expiry,
+            await prover.getAddress(),
+            { value: rewardNativeEth },
+          )
+      })
+      it('bricks if called with the zero address as the claimant param', async () => {
+        await expect(
+          intentSource
+            .connect(otherPerson)
+            .batchWithdraw([intentHash], ZeroAddress),
+        ).to.be.revertedWithCustomError(intentSource, 'BadClaimant')
+      })
+      it('bricks if called with an intent whose claimant differs from the claimant param', async () => {
+        await expect(
+          intentSource
+            .connect(otherPerson)
+            .batchWithdraw([intentHash], await claimant.getAddress()),
+        ).to.be.revertedWithCustomError(intentSource, 'BadClaimant')
+      })
+      it('bricks if called before expiry by IntentCreator', async () => {
+        await expect(
+          intentSource
+            .connect(otherPerson)
+            .batchWithdraw([intentHash], await creator.getAddress()),
+        ).to.be.revertedWithCustomError(intentSource, 'UnauthorizedWithdrawal')
+      })
+    })
+    describe('single intent, complex', () => {
+      beforeEach(async (): Promise<void> => {
+        expiry = (await time.latest()) + minimumDuration + 10
+        nonce = await encodeIdentifier(
+          0,
+          (await ethers.provider.getNetwork()).chainId,
+        )
+        chainId = 1
+        targets = [await tokenA.getAddress()]
+        data = [await encodeTransfer(creator.address, mintAmount)]
+        rewardTokens = [await tokenA.getAddress(), await tokenB.getAddress()]
+        rewardAmounts = [mintAmount, mintAmount * 2]
+        const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+        const intermediateHash = keccak256(
+          abiCoder.encode(
+            [
+              'uint256',
+              'uint256',
+              'address[]',
+              'bytes[]',
+              'uint256',
+              'bytes32',
+            ],
+            [
+              await intentSource.CHAIN_ID(),
+              chainId,
+              targets,
+              data,
+              expiry,
+              nonce,
+            ],
+          ),
+        )
+        intentHash = keccak256(
+          abiCoder.encode(
+            ['address', 'bytes32'],
+            [await inbox.getAddress(), intermediateHash],
+          ),
+        )
+
+        await intentSource
+          .connect(creator)
+          .createIntent(
+            chainId,
+            await inbox.getAddress(),
+            targets,
+            data,
+            rewardTokens,
+            rewardAmounts,
+            expiry,
+            await prover.getAddress(),
+            { value: rewardNativeEth },
+          )
+      })
+      it('before expiry to claimant', async () => {
+        const initialBalanceNative = await ethers.provider.getBalance(
+          await claimant.getAddress(),
+        )
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .false
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
+        expect(await tokenA.balanceOf(await intentSource.getAddress())).to.eq(
+          mintAmount,
+        )
+        expect(await tokenB.balanceOf(await intentSource.getAddress())).to.eq(
+          mintAmount * 2,
+        )
+        expect(
+          await ethers.provider.getBalance(await intentSource.getAddress()),
+        ).to.eq(rewardNativeEth)
+
+        await prover
+          .connect(creator)
+          .addProvenIntent(intentHash, await claimant.getAddress())
+        await intentSource
+          .connect(otherPerson)
+          .batchWithdraw([intentHash], await claimant.getAddress())
+
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .true
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
+          mintAmount,
+        )
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
+          mintAmount * 2,
+        )
+        expect(await tokenA.balanceOf(await intentSource.getAddress())).to.eq(0)
+        expect(await tokenB.balanceOf(await intentSource.getAddress())).to.eq(0)
+
+        expect(
+          await ethers.provider.getBalance(await intentSource.getAddress()),
+        ).to.eq(0)
+
+        expect(
+          await ethers.provider.getBalance(await claimant.getAddress()),
+        ).to.eq(initialBalanceNative + rewardNativeEth)
+      })
+      it('after expiry to creator', async () => {
+        await time.increaseTo(expiry)
+        const initialBalanceNative = await ethers.provider.getBalance(
+          await creator.getAddress(),
+        )
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .false
+        expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(0)
+        expect(await tokenB.balanceOf(await creator.getAddress())).to.eq(0)
+
+        await prover
+          .connect(otherPerson)
+          .addProvenIntent(intentHash, await creator.getAddress())
+        await intentSource
+          .connect(otherPerson)
+          .batchWithdraw([intentHash], await creator.getAddress())
+
+        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
+          .true
+        expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(
+          mintAmount,
+        )
+        expect(await tokenB.balanceOf(await creator.getAddress())).to.eq(
+          mintAmount * 2,
+        )
+        expect(
+          await ethers.provider.getBalance(await creator.getAddress()),
+        ).to.eq(initialBalanceNative + rewardNativeEth)
+      })
+    })
+    describe('multiple intents, each with a single reward token', () => {
+      beforeEach(async (): Promise<void> => {
+        expiry = (await time.latest()) + minimumDuration + 20
+        nonce = await encodeIdentifier(
+          0,
+          (await ethers.provider.getNetwork()).chainId,
+        )
+        chainId = 1
+        targets = [await tokenA.getAddress()]
+        data = [await encodeTransfer(creator.address, mintAmount)]
+      })
+      it('same token', async () => {
+        let tx
+        for (let i = 0; i < 3; i++) {
+          tx = await intentSource
+            .connect(creator)
+            .createIntent(
+              chainId,
+              await inbox.getAddress(),
+              targets,
+              data,
+              [await tokenA.getAddress()],
+              [mintAmount / 10],
+              expiry,
+              await prover.getAddress(),
+            )
+          tx = await tx.wait()
+        }
+        const logs = await intentSource.queryFilter(
+          intentSource.getEvent('IntentCreated'),
+        )
+        const hashes = logs.map((log) => log.args[0])
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
+
+        for (let i = 0; i < 3; i++) {
+          await prover
+            .connect(creator)
+            .addProvenIntent(hashes[i], await claimant.getAddress())
+        }
+        await intentSource
+          .connect(otherPerson)
+          .batchWithdraw(hashes, await claimant.getAddress())
+
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
+          (mintAmount / 10) * 3,
+        )
+      })
+      it('multiple tokens', async () => {
+        let tx
+        for (let i = 0; i < 3; i++) {
+          tx = await intentSource
+            .connect(creator)
+            .createIntent(
+              chainId,
+              await inbox.getAddress(),
+              targets,
+              data,
+              [await tokenA.getAddress()],
+              [mintAmount / 10],
+              expiry,
+              await prover.getAddress(),
+            )
+          tx = await tx.wait()
+        }
+        for (let i = 0; i < 3; i++) {
+          tx = await intentSource
+            .connect(creator)
+            .createIntent(
+              chainId,
+              await inbox.getAddress(),
+              targets,
+              data,
+              [await tokenB.getAddress()],
+              [(mintAmount * 2) / 10],
+              expiry,
+              await prover.getAddress(),
+            )
+          tx = await tx.wait()
+        }
+        const logs = await intentSource.queryFilter(
+          intentSource.getEvent('IntentCreated'),
+        )
+        const hashes = logs.map((log) => log.args[0])
+
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
+
+        for (let i = 0; i < 6; i++) {
+          await prover
+            .connect(creator)
+            .addProvenIntent(hashes[i], await claimant.getAddress())
+        }
+        await intentSource
+          .connect(otherPerson)
+          .batchWithdraw(hashes, await claimant.getAddress())
+
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
+          (mintAmount / 10) * 3,
+        )
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
+          ((mintAmount * 2) / 10) * 3,
+        )
+      })
+      it('multiple tokens plus native', async () => {
+        let tx
+        for (let i = 0; i < 3; i++) {
+          tx = await intentSource
+            .connect(creator)
+            .createIntent(
+              chainId,
+              await inbox.getAddress(),
+              targets,
+              data,
+              [await tokenA.getAddress()],
+              [mintAmount / 10],
+              expiry,
+              await prover.getAddress(),
+            )
+          tx = await tx.wait()
+        }
+        for (let i = 0; i < 3; i++) {
+          tx = await intentSource
+            .connect(creator)
+            .createIntent(
+              chainId,
+              await inbox.getAddress(),
+              targets,
+              data,
+              [await tokenB.getAddress()],
+              [(mintAmount * 2) / 10],
+              expiry,
+              await prover.getAddress(),
+            )
+          tx = await tx.wait()
+        }
+        for (let i = 0; i < 3; i++) {
+          tx = await intentSource
+            .connect(creator)
+            .createIntent(
+              chainId,
+              await inbox.getAddress(),
+              targets,
+              data,
+              [],
+              [],
+              expiry,
+              await prover.getAddress(),
+              { value: rewardNativeEth },
+            )
+          tx = await tx.wait()
+        }
+        const logs = await intentSource.queryFilter(
+          intentSource.getEvent('IntentCreated'),
+        )
+        const hashes = logs.map((log) => log.args[0])
+
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
+        const initialBalanceNative = await ethers.provider.getBalance(
+          await claimant.getAddress(),
+        )
+
+        for (let i = 0; i < 9; i++) {
+          await prover
+            .connect(creator)
+            .addProvenIntent(hashes[i], await claimant.getAddress())
+        }
+        await intentSource
+          .connect(otherPerson)
+          .batchWithdraw(hashes, await claimant.getAddress())
+
+        expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
+          (mintAmount / 10) * 3,
+        )
+        expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
+          ((mintAmount * 2) / 10) * 3,
+        )
+        expect(
+          await ethers.provider.getBalance(await claimant.getAddress()),
+        ).to.eq(initialBalanceNative + BigInt(3) * rewardNativeEth)
+      })
+    })
+    it('works in the case of multiple intents, each with multiple reward tokens', async () => {
+      expiry = (await time.latest()) + minimumDuration + 20
+      nonce = await encodeIdentifier(
+        0,
+        (await ethers.provider.getNetwork()).chainId,
+      )
+      chainId = 1
+      targets = [await tokenA.getAddress()]
+      data = [await encodeTransfer(creator.address, mintAmount)]
+      let tx
+      for (let i = 0; i < 5; i++) {
+        tx = await intentSource
+          .connect(creator)
+          .createIntent(
+            chainId,
+            await inbox.getAddress(),
+            targets,
+            data,
+            [await tokenA.getAddress()],
+            [mintAmount / 10],
+            expiry,
+            await prover.getAddress(),
+          )
+        tx = await tx.wait()
+      }
+      for (let i = 0; i < 5; i++) {
+        tx = await intentSource
+          .connect(creator)
+          .createIntent(
+            chainId,
+            await inbox.getAddress(),
+            targets,
+            data,
+            [await tokenB.getAddress(), await tokenA.getAddress()],
+            [(mintAmount * 2) / 10, mintAmount / 10],
+            expiry,
+            await prover.getAddress(),
+            { value: rewardNativeEth },
+          )
+        tx = await tx.wait()
+      }
+      const logs = await intentSource.queryFilter(
+        intentSource.getEvent('IntentCreated'),
+      )
+      const hashes = logs.map((log) => log.args[0])
+
+      expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
+      expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
+      const initialBalanceNative = await ethers.provider.getBalance(
+        await claimant.getAddress(),
+      )
+
+      for (let i = 0; i < 10; i++) {
+        await prover
+          .connect(creator)
+          .addProvenIntent(hashes[i], await claimant.getAddress())
+      }
+      await intentSource
+        .connect(otherPerson)
+        .batchWithdraw(hashes, await claimant.getAddress())
+
+      expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
+        mintAmount,
+      )
+      expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(
+        mintAmount,
+      )
+      expect(
+        await ethers.provider.getBalance(await claimant.getAddress()),
+      ).to.eq(initialBalanceNative + BigInt(5) * rewardNativeEth)
     })
   })
 })
