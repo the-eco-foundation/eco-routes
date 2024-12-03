@@ -31,8 +31,8 @@ export async function deployViemContracts() {
     getDeployAccount().address,
   )
   await deployProver(sepoliaDep, salt)
-  // await deployIntentSource(sepoliaDep, salt)
-  // await deployInbox(sepoliaDep, salt, true)
+  await deployIntentSource(sepoliaDep, salt)
+  await deployInbox(sepoliaDep, salt, true)
 }
 
 async function deployProver(chains: Chain[], salt: Hex) {
