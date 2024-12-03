@@ -1,10 +1,11 @@
 import { run } from 'hardhat'
 import { ethers } from 'ethers'
-import { Hex, zeroAddress } from 'viem'
+import { Chain, Hex, zeroAddress } from 'viem'
 import { DeployNetworkConfig } from './deloyProtocol'
 import { networks as mainnetNetworks } from '../config/mainnet/config'
 import { networks as sepoliaNetworks } from '../config/testnet/config'
-
+import { optimism, optimismSepolia, arbitrum, base, polygon, arbitrumSepolia, baseSepolia, polygonAmoy } from '@alchemy/aa-core'
+import { mantle, mantleSepoliaTestnet } from 'viem/chains'
 export function isZeroAddress(address: Hex): boolean {
   return address === zeroAddress
 }
@@ -49,8 +50,8 @@ export async function retryFunction(
       if (ans) {
         return ans
       }
-    } catch (e) {
-      err = e
+    } catch (e: any) {
+      err = e as any
     }
     const currentBlock = await provider.getBlockNumber()
     if (currentBlock >= maxWaitBlock) {
@@ -140,6 +141,41 @@ export function getDeployNetwork(networkName: string): DeployNetworkConfig {
     case 'mantleSepolia':
       return sepoliaNetworks.mantleSepolia
     case 'polygonSepolia':
+      return sepoliaNetworks.polygonSepolia
+  }
+  throw new Error('Network not found')
+}
+
+export function getDeployChainConfig(chain: Chain): DeployNetworkConfig {
+  // mainnet
+  switch (chain) {
+    case base:
+      return mainnetNetworks.base
+    case optimism:
+      return mainnetNetworks.optimism
+    // case 'helix':
+    //   return mainnetNetworks.helix
+    case arbitrum:
+      return mainnetNetworks.arbitrum
+    case mantle:
+      return mainnetNetworks.mantle
+    case polygon:
+      return mainnetNetworks.polygon
+  }
+
+  // sepolia
+  switch (chain) {
+    case baseSepolia:
+      return sepoliaNetworks.baseSepolia
+    case optimismSepolia:
+      return sepoliaNetworks.optimismSepolia
+    // case 'ecoTestnet':
+    //   return sepoliaNetworks.ecoTestnet
+    case arbitrumSepolia:
+      return sepoliaNetworks.arbitrumSepolia
+    case mantleSepoliaTestnet:
+      return sepoliaNetworks.mantleSepolia
+    case polygonAmoy:
       return sepoliaNetworks.polygonSepolia
   }
   throw new Error('Network not found')
