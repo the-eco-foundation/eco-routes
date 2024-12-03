@@ -6,7 +6,6 @@ import "./interfaces/IIntentSource.sol";
 import "./interfaces/SimpleProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "hardhat/console.sol";
 
 
 /**
@@ -130,7 +129,10 @@ contract IntentSource is IIntentSource {
             _intent.rewardNative
         );
     }
-
+    /**
+     * @notice Withdraws the rewards associated with an intent to its claimant
+     * @param _hash the hash of the intent
+     */
     function withdrawRewards(bytes32 _hash) external {
         Intent storage intent = intents[_hash];
         address claimant = SimpleProver(intent.prover).provenIntents(_hash);
@@ -156,8 +158,12 @@ contract IntentSource is IIntentSource {
             revert NothingToWithdraw(_hash);
         }
     }
-
-    // sort intents s.t. intents with the same (singular) reward token are together. if there are intents with multiple reward tokens, put them at the end. ideally dont include those kinds of intents here though. 
+    /**
+     * @notice Withdraws a batch of intents that all have the same claimant
+     * @param _hashes the array of intent hashes
+     * @param _claimant the claimant
+     * @dev For best performance, group intents s.t. intents with the same reward token are consecutive. If there are intents with multiple reward tokens, put them at the end. Ideally don't include those kinds of intents here though.
+     */
     function batchWithdraw(bytes32[] calldata _hashes, address _claimant) external {
         if(_claimant == address(0)) {
             revert BadClaimant(0x0);
@@ -199,7 +205,7 @@ contract IntentSource is IIntentSource {
             emit Withdrawal(_hash, _claimant);
         }
         if (erc20 != address(0)) {
-            IERC20(erc20).transfer(_claimant, balance);
+            safeERC20Transfer(erc20, _claimant, balance);
         }
         if (nativeRewards > 0) {
             payable(_claimant).transfer(nativeRewards);
