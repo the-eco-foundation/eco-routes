@@ -1,11 +1,22 @@
-import { Chain, Client, createWalletClient, decodeEventLog, Hex, http, publicActions, sha256, WalletClient } from "viem"
-import { Create2Deployer, SingletonDeployer } from "./contracts/deployer"
-import { privateKeyToAccount } from "viem/accounts"
-import { getGitHash } from "../publish/gitUtils"
-import SepoliaContracts from "./contracts/sepolia"
-import MainnetContracts, { ContractNames } from "./contracts/mainnet"
+import {
+  Chain,
+  createWalletClient,
+  decodeEventLog,
+  Hex,
+  http,
+  publicActions,
+  sha256,
+} from 'viem'
+import { SingletonDeployer } from './contracts/deployer'
+import { privateKeyToAccount } from 'viem/accounts'
+import { getGitHash } from '../publish/gitUtils'
+import SepoliaContracts from './contracts/sepolia'
+import MainnetContracts, { ContractNames } from './contracts/mainnet'
 
-export function decodeDepoyLog(data: Hex, topics: [signature: Hex, ...args: Hex[]] | []) {
+export function decodeDepoyLog(
+  data: Hex,
+  topics: [signature: Hex, ...args: Hex[]] | [],
+) {
   return decodeEventLog({
     abi: SingletonDeployer.abi,
     eventName: 'Deployed',
@@ -16,7 +27,8 @@ export function decodeDepoyLog(data: Hex, topics: [signature: Hex, ...args: Hex[
 
 export function getDeployAccount() {
   // Load environment variables
-  const DEPLOYER_PRIVATE_KEY: Hex = process.env.DEPLOYER_PRIVATE_KEY as Hex || '0x'
+  const DEPLOYER_PRIVATE_KEY: Hex =
+    (process.env.DEPLOYER_PRIVATE_KEY as Hex) || '0x'
   return privateKeyToAccount(DEPLOYER_PRIVATE_KEY)
 }
 
@@ -27,7 +39,7 @@ export function getGitRandomSalt() {
 export function getClient(chain: Chain) {
   const client = createWalletClient({
     transport: http(getUrl(chain)),
-    chain: chain,
+    chain,
     account: getDeployAccount(),
   })
   return client.extend(publicActions)
@@ -37,9 +49,7 @@ function getUrl(chain: Chain) {
   return getAchemyRPCUrl(chain) || chain.rpcUrls.default.http[0]
 }
 
-function getAchemyRPCUrl(
-  chain: Chain,
-): string | undefined {
+function getAchemyRPCUrl(chain: Chain): string | undefined {
   const apiKey = process.env.ALCHEMY_API_KEY
   if (!chain.rpcUrls.alchemy) {
     return undefined

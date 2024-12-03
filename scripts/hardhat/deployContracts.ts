@@ -20,7 +20,6 @@ export function deployContracts() {
   for (const dep of mainnetDep) {
     callYarnCmd(dep)
   }
-
 }
 
 function callYarnCmd(cmd: string) {

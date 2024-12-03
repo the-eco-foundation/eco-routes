@@ -1,6 +1,6 @@
-import { Chain, Hex } from "viem"
+import { Chain, Hex } from 'viem'
 
-async function a(){
+async function a() {
   // {
   //   "address": "0x00000000219ab540356cBB839Cbe05303d7705Fa",
   //   "chain": "1",
@@ -12,10 +12,17 @@ async function a(){
   //   "chosenContract": "0"
   // }
 }
-//https://github.com/Aniket-Engg/sol-verifier
-//https://docs.sourcify.dev/docs/api/#/Stateless%20Verification/post_verify
-//https://github.com/k1rill-fedoseev/sourcify-to-etherscan/blob/master/src/etherscan.ts
-export async function verifyContract(chain: Chain, address: Hex, contractName: string, abi: string, bytecode: string, constructorArgs: any[]) {
+// https://github.com/Aniket-Engg/sol-verifier
+// https://docs.sourcify.dev/docs/api/#/Stateless%20Verification/post_verify
+// https://github.com/k1rill-fedoseev/sourcify-to-etherscan/blob/master/src/etherscan.ts
+export async function verifyContract(
+  chain: Chain,
+  address: Hex,
+  contractName: string,
+  abi: string,
+  bytecode: string,
+  constructorArgs: any[],
+) {
   const verificationPayload = {
     module: 'contract',
     action: 'verifysourcecode',

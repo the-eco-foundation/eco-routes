@@ -11,34 +11,35 @@ export type ContractDeployConfigs = {
   args?: any[]
 }
 
-export type ContractNames = "Prover" | "IntentSource" | "Inbox" | "HyperProver"
+export type ContractNames = 'Prover' | 'IntentSource' | 'Inbox' | 'HyperProver'
 const MainnetContracts: Record<ContractNames, ContractDeployConfigs> = {
-  "Prover": {
+  Prover: {
     name: Prover.contractName,
     abi: Prover.abi,
     bytecode: Prover.bytecode,
-    args: [[
-      MainnetChainConfigs.baseChainConfiguration,
-      MainnetChainConfigs.optimismChainConfiguration,
-      MainnetChainConfigs.arbitrumChainConfiguration,
-      MainnetChainConfigs.mantleChainConfiguration,
-    ]],
+    args: [
+      [
+        MainnetChainConfigs.baseChainConfiguration,
+        MainnetChainConfigs.optimismChainConfiguration,
+        MainnetChainConfigs.arbitrumChainConfiguration,
+        MainnetChainConfigs.mantleChainConfiguration,
+      ],
+    ],
   },
-  "IntentSource": {
+  IntentSource: {
     name: IntentSource.contractName,
     abi: IntentSource.abi,
     bytecode: IntentSource.bytecode,
   },
-  "Inbox": {
+  Inbox: {
     name: Inbox.contractName,
     abi: Inbox.abi,
     bytecode: Inbox.bytecode,
   },
-  "HyperProver": {
+  HyperProver: {
     name: HyperProver.contractName,
     abi: HyperProver.abi,
     bytecode: HyperProver.bytecode,
-  }
-
+  },
 }
 export default MainnetContracts

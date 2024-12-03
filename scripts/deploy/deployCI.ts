@@ -1,8 +1,18 @@
 import { deleteAddressesJson, transformAddresses } from './addresses'
-import { deployContracts } from './ci'
 import { addressesToCVS } from './csv'
+import { deployViemContracts } from '../viem_deploy/deploy'
 
-deployContracts()
-transformAddresses()
-addressesToCVS()
-deleteAddressesJson()
+async function main() {
+  await deployViemContracts()
+  transformAddresses()
+  addressesToCVS()
+  deleteAddressesJson()
+}
+
+main()
+  .then((results) => {
+    // console.log('Deployment and verification results:', results)
+  })
+  .catch((err) => {
+    console.error('Error:', err)
+  })
