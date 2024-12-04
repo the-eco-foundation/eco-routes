@@ -37,7 +37,7 @@ export type DeployOpts = {
 }
 
 export class ProtocolDeploy {
-  private queueVerify = new PQueue()
+  private queueVerify = new PQueue({ concurrency: 3 }) // theres a 5/second limit on etherscan
   private queueDeploy = new PQueue()
   private deployChains: Chain[] = []
   private clients: {
@@ -157,7 +157,8 @@ export class ProtocolDeploy {
         console.log(
           `Retrying setting hyperlane mailbox address on inbox contract ${inboxAddress}...`,
         )
-
+        // wait for 15 seconds before retrying
+        await new Promise((resolve) => setTimeout(resolve, 15000))
         await this.deployInbox(chain, salt, deployHyper, opts)
       }
       return
@@ -306,7 +307,7 @@ export class ProtocolDeploy {
   }
 }
 
-const NONCE_POLL_INTERVAL = 2000
+const NONCE_POLL_INTERVAL = 10000
 /**
  * Waits for the nonce of a client to update.
  *
@@ -326,7 +327,7 @@ async function waitForNonceUpdate(
   return new Promise(async (resolve, reject) => {
     const getNonce = async (blockTag: BlockTag) => {
       try {
-        return await client.getTransactionCount({ address , blockTag})
+        return await client.getTransactionCount({ address, blockTag })
       } catch (error) {
         reject(error)
       }
@@ -334,6 +335,8 @@ async function waitForNonceUpdate(
     }
     const initialNonce = await getNonce('pending')
     const result = await txCall()
+    // some nodes in the rpc might not be updated even when the one we hit at first is causing a nonce error down the line
+    await new Promise((resolve) => setTimeout(resolve, pollInterval / 10))
     let latestNonce = await getNonce('latest')
     while (latestNonce <= initialNonce) {
       await new Promise((resolve) => setTimeout(resolve, pollInterval))
