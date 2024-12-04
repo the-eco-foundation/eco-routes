@@ -5,10 +5,15 @@ import {
   zeroAddress,
   Chain,
   encodeAbiParameters,
+  PublicClient,
+  PrivateKeyAccount,
+  RpcSchema,
+  Transport,
 } from 'viem'
 import MainnetContracts from './contracts/mainnet'
 import { Create2Deployer, Create3Deployer } from './contracts/deployer'
 import {
+  DeployWalletClient,
   getClient,
   getConstructorArgs,
   getDeployAccount,
@@ -34,8 +39,22 @@ export class ProtocolDeploy {
   private queueVerify = new PQueue()
   private queueDeploy = new PQueue()
   private deployChains: Chain[] = []
+  private clients: {
+    [key: string]: DeployWalletClient<
+      Transport,
+      Chain,
+      PrivateKeyAccount,
+      RpcSchema
+    >
+  } = {}
+
+  private account: PrivateKeyAccount
   constructor(deployChains: Chain[] = [sepoliaDep, mainnetDep].flat()) {
     this.deployChains = deployChains
+    this.account = getDeployAccount()
+    for (const chain of deployChains) {
+      this.clients[chain.id] = getClient(chain, this.account)
+    }
     createJsonAddresses()
   }
 
@@ -90,7 +109,7 @@ export class ProtocolDeploy {
     chain: Chain,
     salt: Hex,
     deployHyper: boolean,
-    opts?: DeployOpts,
+    opts: DeployOpts = { retry: true },
   ) {
     const config = getDeployChainConfig(chain)
     const ownerAndSolver = getDeployAccount().address
@@ -107,15 +126,23 @@ export class ProtocolDeploy {
     )
 
     try {
-      const client = await getClient(chain)
+      const client = this.clients[chain.id]
       const { request } = await client.simulateContract({
         address: inboxAddress,
         abi: MainnetContracts.Inbox.abi,
         functionName: 'setMailbox',
         args: [config.hyperlaneMailboxAddress],
       })
-      const hash = await client.writeContract(request)
-      await client.waitForTransactionReceipt({ hash })
+      await waitForNonceUpdate(
+        client as any,
+        getDeployAccount().address,
+        1000,
+        async () => {
+          const hash = await client.writeContract(request)
+          await client.waitForTransactionReceipt({ hash })
+        },
+      )
+
       console.log(
         `Chain: ${chain.name}, Inbox ${inboxAddress} setMailbox to: ${config.hyperlaneMailboxAddress}`,
       )
@@ -124,6 +151,14 @@ export class ProtocolDeploy {
         `Chain: ${chain.name}, Failed to set hyperlane mailbox address ${config.hyperlaneMailboxAddress} on inbox contract ${inboxAddress}:`,
         error,
       )
+      if (opts.retry) {
+        opts.retry = false
+        console.log(
+          `Retrying setting hyperlane mailbox address on inbox contract ${inboxAddress}...`,
+        )
+
+        await this.deployInbox(chain, salt, deployHyper, opts)
+      }
       return
     }
 
@@ -160,7 +195,7 @@ export class ProtocolDeploy {
       return zeroAddress
     }
     const { name } = parameters as any
-    const client = getClient(chain)
+    const client = this.clients[chain.id]
 
     console.log(`Deploying ${name}...`)
 
@@ -187,10 +222,17 @@ export class ProtocolDeploy {
           functionName: 'deploy',
           args: [encodedDeployData, salt],
         })
+      await waitForNonceUpdate(
+        client as any,
+        getDeployAccount().address,
+        1000,
+        async () => {
+          const hash = await client.writeContract(request)
+          // wait so that the nonces dont collide
+          await client.waitForTransactionReceipt({ hash })
+        },
+      )
 
-      const hash = await client.writeContract(request)
-      // wait so that the nonces dont collide
-      await client.waitForTransactionReceipt({ hash })
       console.log(
         `Chain: ${chain.name}, ${name} deployed at: ${deployedAddress}`,
       )
@@ -220,6 +262,7 @@ export class ProtocolDeploy {
         error,
       )
       if (opts.retry) {
+        opts.retry = false
         console.log(`Retrying ${name} deployment...`)
         // wait for 15 seconds before retrying
         await new Promise((resolve) => setTimeout(resolve, 15000))
@@ -260,4 +303,40 @@ export class ProtocolDeploy {
     await this.deployIntentSource(chain, salt, opts)
     await this.deployInbox(chain, salt, true, opts)
   }
+}
+
+/**
+ * Waits for the nonce of a client to update.
+ *
+ * @param client - The `viem` client instance.
+ * @param address - The Ethereum address to monitor.
+ * @param currentNonce - The current nonce to compare against.
+ * @param pollInterval - The interval (in ms) for polling the nonce (default: 1000ms).
+ * @param txCall - The transaction call to make. Must update the nonce by at least 1 or this function will hang and timeout.
+ * @returns A promise that resolves to the updated nonce.
+ */
+async function waitForNonceUpdate(
+  client: PublicClient,
+  address: Hex,
+  pollInterval: number,
+  txCall: () => Promise<any>,
+): Promise<number> {
+  return new Promise(async (resolve, reject) => {
+    const getNonce = async () => {
+      try {
+        return await client.getTransactionCount({ address })
+      } catch (error) {
+        reject(error)
+      }
+      return 0
+    }
+    const initialNonce = await getNonce()
+    const result = await txCall()
+    let latestNonce = await getNonce()
+    while (latestNonce <= initialNonce) {
+      await new Promise((resolve) => setTimeout(resolve, pollInterval))
+      latestNonce = await getNonce()
+    }
+    resolve(result)
+  })
 }
