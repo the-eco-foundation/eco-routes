@@ -244,7 +244,7 @@ export class ProtocolDeploy {
 
     console.log(salt)
     await this.deployProver(chains, salt, opts)
-    // await this.deployIntentSource(chains, salt, opts)
-    // await this.deployInbox(chains, salt, true, opts)
+    await this.deployIntentSource(chains, salt, opts)
+    await this.deployInbox(chains, salt, true, opts)
   }
 }
