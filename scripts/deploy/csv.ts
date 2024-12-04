@@ -10,7 +10,7 @@ function appendToCSV(filePath: string, data: Record<string, any>) {
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(
       filePath,
-      'Address,Prover,IntentSource,Inbox,HyperProver\n',
+      'Chain,Prover,IntentSource,Inbox,HyperProver\n',
       'utf8',
     )
   }
