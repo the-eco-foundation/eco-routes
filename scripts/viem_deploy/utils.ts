@@ -7,23 +7,11 @@ import {
   publicActions,
   sha256,
 } from 'viem'
-import { Deployer } from './contracts/deployer'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getGitHash } from '../publish/gitUtils'
 import SepoliaContracts from './contracts/sepolia'
 import MainnetContracts, { ContractNames } from './contracts/mainnet'
 
-export function decodeDepoyLog(
-  data: Hex,
-  topics: [signature: Hex, ...args: Hex[]] | [],
-) {
-  return decodeEventLog({
-    abi: Deployer.abi,
-    eventName: 'Deployed',
-    topics,
-    data,
-  })
-}
 
 export function getDeployAccount() {
   // Load environment variables

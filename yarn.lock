@@ -655,6 +655,11 @@
     "@smithy/types" "^3.3.0"
     tslib "^2.6.2"
 
+"@axelar-network/axelar-gmp-sdk-solidity@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@axelar-network/axelar-gmp-sdk-solidity/-/axelar-gmp-sdk-solidity-6.0.4.tgz#593d0aef12218ecb294fcdef0dfd0a99b0381975"
+  integrity sha512-o8pv+krIAlEwzid0Ac8qwykDsavc+1DRPvyFQ3V0R0zTQFtYLJIIXXXt7FRb8b+LJDAuX+E0bB3N2X+hlcxk/g==
+
 "@babel/code-frame@^7.0.0":
   version "7.24.7"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.24.7.tgz#882fd9e09e8ee324e496bd040401c6f046ef4465"

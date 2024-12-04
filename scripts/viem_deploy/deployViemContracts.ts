@@ -8,7 +8,7 @@ import {
   encodeAbiParameters,
 } from 'viem'
 import MainnetContracts from './contracts/mainnet'
-import { Deployer } from './contracts/deployer'
+import { Create2Deployer, Create3Deployer } from './contracts/deployer'
 import {
   getClient,
   getConstructorArgs,
@@ -25,10 +25,11 @@ import { verifyContract } from './verify'
 dotenv.config()
 
 export type DeployOpts = {
-  pre: boolean
-  retry: boolean
+  pre?: boolean
+  retry?: boolean
+  deployType?: 'create2' | 'create3'
 }
-export async function deployViemContracts(chains: Chain[] = sepoliaDep,salt: Hex = getGitRandomSalt(), opts?: DeployOpts) {
+export async function deployViemContracts(chains: Chain[] = sepoliaDep, salt: Hex = getGitRandomSalt(), opts?: DeployOpts) {
   console.log(
     'Deploying contracts with the account:',
     getDeployAccount().address,
@@ -36,14 +37,14 @@ export async function deployViemContracts(chains: Chain[] = sepoliaDep,salt: Hex
 
   console.log(salt)
   await deployProver(chains, salt, opts)
-  await deployIntentSource(chains, salt)
-  await deployInbox(chains, salt, true)
+  await deployIntentSource(chains, salt, opts)
+  await deployInbox(chains, salt, true, opts)
 }
 
 export async function deployViemFull() {
   const salt = getGitRandomSalt()
   const saltPre = getGitRandomSalt()
-  await deployViemContracts([sepoliaDep].flat(),salt, {pre: false, retry: true})
+  await deployViemContracts([sepoliaDep].flat(), salt)
   // await deployViemContracts([mainnetDep].flat(),saltPre, {pre: false, retry: true})
   // await deployViemContracts([sepoliaDep, mainnetDep].flat(), saltPre, {pre: true, retry: true})
 }
@@ -121,6 +122,7 @@ async function deployHyperProver(chain: Chain, salt: Hex, inboxAddress: Hex, opt
     ...(getConstructorArgs(chain, 'HyperProver') as any),
     args: [config.hyperlaneMailboxAddress, inboxAddress],
   }
+  opts = { ...opts, deployType: 'create3' }
   await deployAndVerifyContract<any>(chain, salt, params as any, opts)
 }
 
@@ -156,9 +158,12 @@ async function deployAndVerifyContract<
       ).slice(2) // chop the 0x off
     }
     console.log('salt is', salt)
-    const { request , result : deployedAddress  } = await client.simulateContract({
-      address: Deployer.address,
-      abi: Deployer.abi,
+
+    const deployerContract = getDepoyerContract(opts)
+
+    const {request, result: deployedAddress} = await client.simulateContract({
+      address: deployerContract.address,
+      abi: deployerContract.abi,
       functionName: 'deploy',
       args: [encodedDeployData, salt],
     })
@@ -204,5 +209,15 @@ async function deployAndVerifyContract<
     } else {
       throw new Error('Contract address is null, might not have deployed')
     }
+  }
+}
+
+function getDepoyerContract(opts: DeployOpts) {
+  switch (opts.deployType) {
+    case 'create3':
+      return Create3Deployer
+    case 'create2':
+    default:
+      return Create2Deployer
   }
 }

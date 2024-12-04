@@ -148,6 +148,7 @@
     "viem": "^2.0.0"
   },
   "dependencies": {
+    "@axelar-network/axelar-gmp-sdk-solidity": "^6.0.4",
     "@hyperlane-xyz/registry": "^4.2.0",
     "@hyperlane-xyz/sdk": "^5.1.0",
     "@openzeppelin/contracts": "^5.0.2",
