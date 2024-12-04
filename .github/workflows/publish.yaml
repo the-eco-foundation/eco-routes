@@ -102,6 +102,8 @@ jobs:
           CALDERA_SCAN_API_KEY: ${{ secrets.CALDERA_SCAN_API_KEY }}
           MANTLE_SCAN_API_KEY: ${{ secrets.MANTLE_SCAN_API_KEY }}
           POLYGON_SCAN_API_KEY: ${{ secrets.POLYGON_SCAN_API_KEY }}
+          #verification
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
       - name: Publish prepack build directory
         uses: borales/actions-yarn@v4
         with:
