@@ -14,14 +14,14 @@ export const mainnetDep: Chain[] = [
   // arbitrum,
   base,
   // mantle,
-  // optimism,
+  optimism,
   // polygon,
 ] as any
 
 export const sepoliaDep: Chain[] = [
-  arbitrumSepolia,
+  // arbitrumSepolia,
   baseSepolia,
-  mantleSepoliaTestnet,
+  // mantleSepoliaTestnet,
   optimismSepolia,
 
   // polygonAmoy,

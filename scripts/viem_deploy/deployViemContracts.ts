@@ -19,48 +19,61 @@ import {
 } from './utils'
 import { updateAddresses } from '../deploy/addresses'
 import { DeployNetwork } from '../deloyProtocol'
-import { sepoliaDep } from './chains'
+import { mainnetDep, sepoliaDep } from './chains'
 import * as dotenv from 'dotenv'
 import { getDeployChainConfig, proverSupported } from '../utils'
 import { verifyContract } from './verify'
 
 dotenv.config()
 
-export async function deployViemContracts() {
-  const salt: Hex = getGitRandomSalt() // Random salt
+export type DeployOpts = {
+  pre: boolean
+  retry: boolean
+}
+export async function deployViemContracts(chains: Chain[] = sepoliaDep,salt: Hex = getGitRandomSalt(), opts?: DeployOpts) {
   console.log(
     'Deploying contracts with the account:',
     getDeployAccount().address,
   )
-  await deployProver(sepoliaDep, salt)
-  await deployIntentSource(sepoliaDep, salt)
-  await deployInbox(sepoliaDep, salt, true)
+  // const salt: Hex = getGitRandomSalt()
+  console.log(salt)
+  await deployProver(chains, salt, opts)
+  // await deployIntentSource(chains, salt)
+  // await deployInbox(chains, salt, true)
 }
 
-async function deployProver(chains: Chain[], salt: Hex) {
+export async function deployViemFull() {
+  const salt = getGitRandomSalt()
+  const saltPre = getGitRandomSalt()
+  await deployViemContracts([sepoliaDep].flat(),salt)//, salt, {pre: false, retry: true})
+  // await deployViemContracts([sepoliaDep, mainnetDep].flat(), saltPre, {pre: true, retry: true})
+}
+
+async function deployProver(chains: Chain[], salt: Hex, opts?: DeployOpts) {
   for (const chain of chains) {
     await deployAndVerifyContract<any>(
       chain,
       salt,
       getConstructorArgs(chain, 'Prover') as any,
+      opts
     )
     // await checkVerifyStatus(chain.id, 'y7ejv5uwkw6gjfhwesrtprbkvn5btu9rqdxabple2pubneyqav')
     // await getContractSource(chain.id, '0x7e3aCB6FBeBe20398249BA08c0E42a08Bd6ae341')
   }
 }
 
-async function deployIntentSource(chains: Chain[], salt: Hex) {
+async function deployIntentSource(chains: Chain[], salt: Hex, opts?: DeployOpts) {
   for (const chain of chains) {
     const config = getDeployChainConfig(chain)
     const params = {
       ...(getConstructorArgs(chain, 'IntentSource') as any),
       args: [config.intentSource.minimumDuration, config.intentSource.counter],
     }
-    await deployAndVerifyContract<any>(chain, salt, params as any)
+    await deployAndVerifyContract<any>(chain, salt, params as any, opts)
   }
 }
 
-async function deployInbox(chains: Chain[], salt: Hex, deployHyper: boolean) {
+async function deployInbox(chains: Chain[], salt: Hex, deployHyper: boolean, opts?: DeployOpts) {
   for (const chain of chains) {
     const config = getDeployChainConfig(chain)
     const ownerAndSolver = getDeployAccount().address
@@ -73,6 +86,7 @@ async function deployInbox(chains: Chain[], salt: Hex, deployHyper: boolean) {
       chain,
       salt,
       params as any,
+      opts
     )
 
     try {
@@ -97,18 +111,18 @@ async function deployInbox(chains: Chain[], salt: Hex, deployHyper: boolean) {
     }
 
     if (deployHyper) {
-      await deployHyperProver(chain, salt, inboxAddress)
+      await deployHyperProver(chain, salt, inboxAddress, opts)
     }
   }
 }
 
-async function deployHyperProver(chain: Chain, salt: Hex, inboxAddress: Hex) {
+async function deployHyperProver(chain: Chain, salt: Hex, inboxAddress: Hex, opts?: DeployOpts) {
   const config = getDeployChainConfig(chain)
   const params = {
     ...(getConstructorArgs(chain, 'HyperProver') as any),
     args: [config.hyperlaneMailboxAddress, inboxAddress],
   }
-  await deployAndVerifyContract<any>(chain, salt, params as any)
+  await deployAndVerifyContract<any>(chain, salt, params as any, opts)
 }
 
 async function deployAndVerifyContract<
@@ -117,7 +131,7 @@ async function deployAndVerifyContract<
   chain: Chain,
   salt: Hex,
   parameters: EncodeDeployDataParameters<abi> & { constructorArgs: any[] },
-  retry: boolean = true,
+  opts: DeployOpts = { retry: true, pre: false },
 ): Promise<Hex> {
   if (!proverSupported(chain.name)) {
     console.log(
@@ -142,8 +156,8 @@ async function deployAndVerifyContract<
         parameters.args as any,
       ).slice(2) // chop the 0x off
     }
-
-    const { request } = await client.simulateContract({
+    console.log('salt is', salt)
+    const { request , result : deployedAddress  } = await client.simulateContract({
       address: Deployer.address,
       abi: Deployer.abi,
       functionName: 'deploy',
@@ -152,22 +166,24 @@ async function deployAndVerifyContract<
 
     const hash = await client.writeContract(request)
 
-    // Wait for the transaction receipt
-    const receipt = await client.waitForTransactionReceipt({ hash })
-    const log = receipt.logs.find(
-      (log) => getAddress(log.address) === DEPLOYER_ADDRESS,
-    )
-    if (!log) {
-      throw new Error('No log found')
-    }
-    const dlog = decodeDepoyLog(log.data, log.topics)
-    const contractAddress = dlog?.args ? ((dlog.args as any).addr as any) : null
-    if (contractAddress === null) {
-      throw new Error('Contract address is null, might not have deployed')
-    }
-    console.log(`Chain: ${chain.name}, ${name} deployed at: ${contractAddress}`)
-    const config = getDeployChainConfig(chain) as DeployNetwork
-    updateAddresses(config, `${name}`, contractAddress)
+    // // Wait for the transaction receipt
+    // const receipt = await client.waitForTransactionReceipt({ hash })
+    // const log = receipt.logs.find(
+    //   (log) => getAddress(log.address) === DEPLOYER_ADDRESS,
+    // )
+    // if (!log) {
+    //   throw new Error('No log found')
+    // }
+    // const dlog = decodeDepoyLog(log.data, log.topics)
+    // const contractAddress = dlog?.args ? ((dlog.args as any).addr as any) : null
+    // if (contractAddress === null) {
+    //   throw new Error('Contract address is null, might not have deployed')
+    // }
+
+    console.log(`Chain: ${chain.name}, ${name} deployed at: ${deployedAddress}`)
+    const networkConfig = getDeployChainConfig(chain) as DeployNetwork
+    networkConfig.pre = opts.pre || false
+    updateAddresses(networkConfig, `${name}`, deployedAddress)
     console.log(
       `Chain: ${chain.name}, ${name} address updated in addresses.json`,
     )
@@ -181,17 +197,18 @@ async function deployAndVerifyContract<
       codeformat: 'solidity-standard-json-input',
       constructorArguements: args,
       contractname: name,
-      contractaddress: contractAddress,
+      contractaddress: deployedAddress,
       contractFilePath: `contracts/${name}.sol`,
     })
 
-    return contractAddress
+    return deployedAddress
+
   } catch (error) {
     console.error(
       `Chain: ${chain.name}, Failed to deploy or verify ${name}:`,
       error,
     )
-    if (retry) {
+    if (opts.retry) {
       console.log(`Retrying ${name} deployment...`)
       // wait for 15 seconds before retrying
       await new Promise((resolve) => setTimeout(resolve, 15000))
@@ -199,7 +216,7 @@ async function deployAndVerifyContract<
         chain,
         salt,
         parameters as any,
-        false,
+        opts
       )
     } else {
       throw new Error('Contract address is null, might not have deployed')

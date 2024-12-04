@@ -99,7 +99,7 @@ export async function verifyContract(ver: VerifyContractType) {
   console.log(version)
   console.log(metadata.settings)
   console.log(Object.keys(sources).length)
-  console.log(args)
+  console.log('Args length: ', args.length)
   const standardJson = {
     language: metadata.language,
     sources,
