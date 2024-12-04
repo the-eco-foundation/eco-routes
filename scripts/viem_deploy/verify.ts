@@ -4,7 +4,7 @@ import * as path from 'path'
 
 const ETHERSCAN_V2_API_URL = 'https://api.etherscan.io/v2/api'
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY as Hex
-const DEPLOY_WAIT_TIME_MS = 60000 //1 minute to wait for the contract bytecode to register on etherscan
+const DEPLOY_WAIT_TIME_MS = 60000 // 1 minute to wait for the contract bytecode to register on etherscan
 const OUTPUT_DIR = path.join(__dirname, '../../artifacts/build-info')
 export type VerifyContractType = {
   chainId: number
@@ -15,7 +15,10 @@ export type VerifyContractType = {
   contractFilePath: string
 }
 
-export async function waitForSource(timeMs: number, getter: () => Promise<any>) {
+export async function waitForSource(
+  timeMs: number,
+  getter: () => Promise<any>,
+) {
   const start = Date.now()
   let res
   let a = 0
@@ -23,7 +26,12 @@ export async function waitForSource(timeMs: number, getter: () => Promise<any>) 
     console.log('Waiting for source...', a++)
     try {
       res = await getter()
-      if (res.message === 'OK' && res.result  && res.result[0] && res.result[0].contractAddress) {
+      if (
+        res.message === 'OK' &&
+        res.result &&
+        res.result[0] &&
+        res.result[0].contractAddress
+      ) {
         return res
       }
     } catch (e) {
@@ -32,10 +40,12 @@ export async function waitForSource(timeMs: number, getter: () => Promise<any>) 
     await new Promise((resolve) => setTimeout(resolve, 5000))
   }
   return res
-
 }
 
-export async function getContractCreation(chainId: number, address: Hex): Promise<any>{
+export async function getContractCreation(
+  chainId: number,
+  address: Hex,
+): Promise<any> {
   const urlparam = {
     chainid: `${chainId}`,
     module: 'contract',
@@ -47,7 +57,9 @@ export async function getContractCreation(chainId: number, address: Hex): Promis
   const url = ETHERSCAN_V2_API_URL + '?' + addParams
   const result = await fetch(url, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    },
   })
   const res = await result.json()
   console.log(res)
@@ -58,19 +70,29 @@ export async function verifyContract(ver: VerifyContractType) {
   if (!ETHERSCAN_API_KEY) {
     throw new Error('ETHERSCAN_API_KEY not found')
   }
-  await waitForSource(DEPLOY_WAIT_TIME_MS, async () => await getContractCreation(ver.chainId, ver.contractaddress))
+  await waitForSource(
+    DEPLOY_WAIT_TIME_MS,
+    async () => await getContractCreation(ver.chainId, ver.contractaddress),
+  )
   console.log('Current directory:', __dirname)
   console.log('Artifact Output directory:', OUTPUT_DIR)
   const outputData = await readOutputFile()
 
-  const metadata = JSON.parse(outputData.output.contracts[ver.contractFilePath][ver.contractname].metadata)
+  const metadata = JSON.parse(
+    outputData.output.contracts[ver.contractFilePath][ver.contractname]
+      .metadata,
+  )
   const version = `v${metadata.compiler.version}`
-  const target = Object.entries(metadata.settings.compilationTarget)[0].join(':')
-  const sources = Object.entries(outputData.input.sources)
-    .reduce((acc, [key, value]) => {
+  const target = Object.entries(metadata.settings.compilationTarget)[0].join(
+    ':',
+  )
+  const sources = Object.entries(outputData.input.sources).reduce(
+    (acc, [key, value]) => {
       acc[key as string] = { content: (value as any).content }
       return acc
-    }, {} as Record<string, { content: string }>)
+    },
+    {} as Record<string, { content: string }>,
+  )
 
   const args = ver.constructorArguements
   console.log(target)
@@ -80,16 +102,16 @@ export async function verifyContract(ver: VerifyContractType) {
   console.log(args)
   const standardJson = {
     language: metadata.language,
-    sources: sources,
+    sources,
     settings: {
       viaIR: metadata.settings.viaIR,
       optimizer: metadata.settings.optimizer,
       evmVersion: metadata.settings.evmVersion,
       remappings: metadata.settings.remappings,
-      libraries: metadata.settings.libraries
-    }
+      libraries: metadata.settings.libraries,
+    },
   }
-  
+
   const body = {
     chainId: `${ver.chainId}`,
     contractaddress: ver.contractaddress,
@@ -97,7 +119,7 @@ export async function verifyContract(ver: VerifyContractType) {
     codeformat: 'solidity-standard-json-input',
     contractname: target,
     compilerversion: version,
-    constructorArguements: args
+    constructorArguements: args,
   }
 
   const str = new URLSearchParams(body).toString()
@@ -114,11 +136,13 @@ export async function verifyContract(ver: VerifyContractType) {
     const result = await fetch(url, {
       method: 'POST',
       body: str,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+      },
     })
     const res = await result.json()
     console.log(res)
-    
+
     const guid = res.result
 
     await checkVerifyStatus(ver.chainId, guid)
@@ -133,14 +157,16 @@ export async function checkVerifyStatus(chainId: number, guid: string) {
       chainid: `${chainId}`,
       module: 'contract',
       action: 'checkverifystatus',
-      guid: guid,
+      guid,
       apikey: ETHERSCAN_API_KEY,
     }
     const addParams = new URLSearchParams(urlparam).toString()
     const url = ETHERSCAN_V2_API_URL + '?' + addParams
     const result = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+      },
     })
     const res = await result.json()
 
@@ -148,8 +174,6 @@ export async function checkVerifyStatus(chainId: number, guid: string) {
   } catch (e) {
     console.error(e)
   }
-
-
 }
 
 async function readOutputFile(): Promise<any> {

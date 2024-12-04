@@ -132,10 +132,15 @@ async function deployAndVerifyContract<
 
   try {
     const encodedDeployData = encodeDeployData<abi>(parameters)
-    let args : any = {}
-    if(parameters.args){
-      const description = parameters.abi.find((x : any) => 'type' in x  && x.type === 'constructor') as any
-      args = encodeAbiParameters(description.inputs, parameters.args as any).slice(2) //chop the 0x off
+    let args: any = {}
+    if (parameters.args) {
+      const description = parameters.abi.find(
+        (x: any) => 'type' in x && x.type === 'constructor',
+      ) as any
+      args = encodeAbiParameters(
+        description.inputs,
+        parameters.args as any,
+      ).slice(2) // chop the 0x off
     }
 
     const { request } = await client.simulateContract({
@@ -177,7 +182,7 @@ async function deployAndVerifyContract<
       constructorArguements: args,
       contractname: name,
       contractaddress: contractAddress,
-      contractFilePath: `contracts/${name}.sol`
+      contractFilePath: `contracts/${name}.sol`,
     })
 
     return contractAddress

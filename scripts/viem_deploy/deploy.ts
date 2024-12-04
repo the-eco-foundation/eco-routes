@@ -1,4 +1,4 @@
-import { deployViemContracts } from "./deployViemContracts"
+import { deployViemContracts } from './deployViemContracts'
 
 async function main() {
   await deployViemContracts()

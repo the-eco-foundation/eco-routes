@@ -7,7 +7,7 @@ import {
   publicActions,
   sha256,
 } from 'viem'
-import {Deployer} from './contracts/deployer'
+import { Deployer } from './contracts/deployer'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getGitHash } from '../publish/gitUtils'
 import SepoliaContracts from './contracts/sepolia'
