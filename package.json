@@ -87,13 +87,13 @@
     "intentWithdrawBaseOp": "hardhat run scripts/mainnet/intentWithdrawBaseOp.ts",
     "MainnetCannon": "-------- Cannon scripts below --------",
     "EndMainnetCannon": "-------- End Cannon scripts  --------",
-    "versionPackage": "npx ts-node scripts/publish/version.ts",
+    "versionPackage": "npx tsx scripts/publish/version.ts",
     "prepack": "rimraf build && yarn run versionPackage && bash scripts/publish/prepack.sh",
-    "deployCI": "npx ts-node scripts/deploy/deployCI.ts",
+    "deployCI": "npx tsx scripts/deploy/deployCI.ts",
     "pub:clean": "rimraf build/dist",
     "pub:build": "cd build && tsc",
     "pub:prepack": "yarn pub:clean && yarn pub:build",
-    "viemDeployCI": "npx ts-node scripts/viem_deploy/deploy.ts"
+    "viemDeployCI": "npx tsx scripts/viem_deploy/deploy.ts"
   },
   "devDependencies": {
     "@alchemy/aa-core": "^3.19.0",
@@ -136,13 +136,14 @@
     "hardhat": "^2.22.6",
     "hardhat-gas-reporter": "^1.0.9",
     "lodash": "^4.17.21",
+    "p-queue": "^8.0.1",
     "prettier": "^3.1.1",
     "rimraf": "^6.0.1",
     "solhint": "^4.0.0",
     "solhint-plugin-eco": "^0.1.0",
     "solidity-coverage": "^0.8.5",
     "solidity-docgen": "^0.6.0-beta.36",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typechain": "^8.3.2",
     "typescript": ">=4.5.0",
     "viem": "^2.0.0"

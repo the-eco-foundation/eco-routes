@@ -1,4 +1,4 @@
-import { deployViemContracts, deployViemFull } from '../viem_deploy/deployViemContracts'
+import { deployViemContracts, deployViemFull } from '../viem_deploy/ProtocolDeploy'
 import { deleteAddressesJson, transformAddresses } from './addresses'
 import { addressesToCVS } from './csv'
 
