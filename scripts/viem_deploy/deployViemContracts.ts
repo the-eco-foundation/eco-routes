@@ -19,12 +19,10 @@ import {
 } from './utils'
 import { updateAddresses } from '../deploy/addresses'
 import { DeployNetwork } from '../deloyProtocol'
-import { mainnetDep, sepoliaDep } from './chains'
+import { sepoliaDep } from './chains'
 import * as dotenv from 'dotenv'
 import { getDeployChainConfig, proverSupported } from '../utils'
-import { checkVerifyStatus, verifyContract } from './verify'
-import { network, run } from 'hardhat'
-import hre from 'hardhat'
+import { verifyContract } from './verify'
 
 dotenv.config()
 
@@ -35,8 +33,8 @@ export async function deployViemContracts() {
     getDeployAccount().address,
   )
   await deployProver(sepoliaDep, salt)
-  // await deployIntentSource(sepoliaDep, salt)
-  // await deployInbox(sepoliaDep, salt, true)
+  await deployIntentSource(sepoliaDep, salt)
+  await deployInbox(sepoliaDep, salt, true)
 }
 
 async function deployProver(chains: Chain[], salt: Hex) {
@@ -46,6 +44,8 @@ async function deployProver(chains: Chain[], salt: Hex) {
       salt,
       getConstructorArgs(chain, 'Prover') as any,
     )
+    // await checkVerifyStatus(chain.id, 'y7ejv5uwkw6gjfhwesrtprbkvn5btu9rqdxabple2pubneyqav')
+    // await getContractSource(chain.id, '0x7e3aCB6FBeBe20398249BA08c0E42a08Bd6ae341')
   }
 }
 
@@ -168,43 +168,36 @@ async function deployAndVerifyContract<
     )
     // Verify the contract on Etherscan
     console.log(`Verifying ${name} on Etherscan...`)
-    // const contractAddress = '0x7f77B9e5FFc1063878CC84DF4368945DcD468B9C'
+    // const contractAddress = '0x7e3aCB6FBeBe20398249BA08c0E42a08Bd6ae341'
     // const hash = '0xed82af428b7af070de59e1fd8f4a341105fb0650a0aa94868612e9190f2dcd37'
-    const verificationResult = await checkVerifyStatus({
-    // const verificationResult = await verifyContract({
+    // const verificationResult = await checkVerifyStatus({
+    const verificationResult = await verifyContract({
       chainId: chain.id,
       codeformat: 'solidity-standard-json-input',
       constructorArguements: args,
       contractname: name,
       contractaddress: contractAddress,
-      contractFilePath: `contracts/${name}.sol`,
-      creatorTxHash: hash
+      contractFilePath: `contracts/${name}.sol`
     })
 
-    // await run('verify:verify', {
-    //   address: contractAddress,
-    //   constructorArguments: parameters.constructorArgs,
-    // })
     return contractAddress
-    // return '0x'
   } catch (error) {
     console.error(
       `Chain: ${chain.name}, Failed to deploy or verify ${name}:`,
       error,
     )
-    // if (retry) {
-    //   console.log(`Retrying ${name} deployment...`)
-    //   // wait for 15 seconds before retrying
-    //   await new Promise((resolve) => setTimeout(resolve, 15000))
-    //   return await deployAndVerifyContract(
-    //     chain,
-    //     salt,
-    //     parameters as any,
-    //     false,
-    //   )
-    // } else {
-    //   throw new Error('Contract address is null, might not have deployed')
-    // }
-    return '0x'
+    if (retry) {
+      console.log(`Retrying ${name} deployment...`)
+      // wait for 15 seconds before retrying
+      await new Promise((resolve) => setTimeout(resolve, 15000))
+      return await deployAndVerifyContract(
+        chain,
+        salt,
+        parameters as any,
+        false,
+      )
+    } else {
+      throw new Error('Contract address is null, might not have deployed')
+    }
   }
 }

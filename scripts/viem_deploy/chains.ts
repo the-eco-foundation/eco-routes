@@ -19,10 +19,10 @@ export const mainnetDep: Chain[] = [
 ] as any
 
 export const sepoliaDep: Chain[] = [
-  // arbitrumSepolia,
+  arbitrumSepolia,
   baseSepolia,
-  // mantleSepoliaTestnet,
-  // optimismSepolia,
+  mantleSepoliaTestnet,
+  optimismSepolia,
 
   // polygonAmoy,
 ] as any
