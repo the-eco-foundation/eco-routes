@@ -9,6 +9,7 @@ import {
   PrivateKeyAccount,
   RpcSchema,
   Transport,
+  BlockTag,
 } from 'viem'
 import MainnetContracts from './contracts/mainnet'
 import { Create2Deployer, Create3Deployer } from './contracts/deployer'
@@ -136,7 +137,7 @@ export class ProtocolDeploy {
       await waitForNonceUpdate(
         client as any,
         getDeployAccount().address,
-        1000,
+        NONCE_POLL_INTERVAL,
         async () => {
           const hash = await client.writeContract(request)
           await client.waitForTransactionReceipt({ hash })
@@ -225,7 +226,7 @@ export class ProtocolDeploy {
       await waitForNonceUpdate(
         client as any,
         getDeployAccount().address,
-        1000,
+        NONCE_POLL_INTERVAL,
         async () => {
           const hash = await client.writeContract(request)
           // wait so that the nonces dont collide
@@ -305,13 +306,14 @@ export class ProtocolDeploy {
   }
 }
 
+const NONCE_POLL_INTERVAL = 2000
 /**
  * Waits for the nonce of a client to update.
  *
  * @param client - The `viem` client instance.
  * @param address - The Ethereum address to monitor.
  * @param currentNonce - The current nonce to compare against.
- * @param pollInterval - The interval (in ms) for polling the nonce (default: 1000ms).
+ * @param pollInterval - The interval (in ms) for polling the nonce (default: NONCE_POLL_INTERVAL).
  * @param txCall - The transaction call to make. Must update the nonce by at least 1 or this function will hang and timeout.
  * @returns A promise that resolves to the updated nonce.
  */
@@ -322,20 +324,20 @@ async function waitForNonceUpdate(
   txCall: () => Promise<any>,
 ): Promise<number> {
   return new Promise(async (resolve, reject) => {
-    const getNonce = async () => {
+    const getNonce = async (blockTag: BlockTag) => {
       try {
-        return await client.getTransactionCount({ address })
+        return await client.getTransactionCount({ address , blockTag})
       } catch (error) {
         reject(error)
       }
       return 0
     }
-    const initialNonce = await getNonce()
+    const initialNonce = await getNonce('pending')
     const result = await txCall()
-    let latestNonce = await getNonce()
+    let latestNonce = await getNonce('latest')
     while (latestNonce <= initialNonce) {
       await new Promise((resolve) => setTimeout(resolve, pollInterval))
-      latestNonce = await getNonce()
+      latestNonce = await getNonce('latest')
     }
     resolve(result)
   })

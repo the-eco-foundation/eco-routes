@@ -118,7 +118,7 @@ contract Prover is SimpleProver {
         }
     }
 
-    function version() external pure returns (string memory) { return "v0.0.4210-beta"; }
+    function version() external pure returns (string memory) { return "v0.0.4211-beta"; }
 
     function getProofType() external pure override returns (ProofType) {
         return PROOF_TYPE;

@@ -1,12 +1,15 @@
 import {
   Account,
   Chain,
+  createNonceManager,
   createWalletClient,
   Hex,
   http,
+  NonceManagerSource,
   PrivateKeyAccount,
   PublicActions,
   publicActions,
+  PublicClient,
   RpcSchema,
   sha256,
   Transport,
@@ -18,6 +21,7 @@ import { getGitHash } from '../publish/gitUtils'
 import SepoliaContracts from './contracts/sepolia'
 import MainnetContracts, { ContractNames } from './contracts/mainnet'
 import { Prettify } from 'viem/chains'
+
 
 export function getDeployAccount() {
   // Load environment variables
@@ -41,10 +45,10 @@ export type DeployWalletClient<
     chain,
     account,
     rpcSchema extends RpcSchema
-      ? [...WalletRpcSchema, ...rpcSchema]
-      : WalletRpcSchema
+    ? [...WalletRpcSchema, ...rpcSchema]
+    : WalletRpcSchema
   > &
-    PublicActions<transport, chain>
+  PublicActions<transport, chain>
 >
 
 export function getClient(chain: Chain, account: PrivateKeyAccount) {
