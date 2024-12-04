@@ -4,7 +4,7 @@ import { addressesToCVS } from './csv'
 
 async function main() {
   const deploy = new ProtocolDeploy()
-  await deploy.deployFullNetwork()
+  await deploy.deployFullNetwork(true)
   transformAddresses()
   addressesToCVS()
   deleteAddressesJson()

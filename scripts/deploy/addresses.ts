@@ -17,7 +17,14 @@ export const csvFilePath = path.join(
   __dirname,
   '../../build/deployAddresses.csv',
 )
-
+export function createJsonAddresses() {
+  if (fs.existsSync(jsonFilePath)) {
+    console.log('Addresses file already exists: ', jsonFilePath)
+  } else {
+    console.log('Creating addresses file: ', jsonFilePath)
+    fs.writeFileSync(jsonFilePath, JSON.stringify({}), 'utf8')
+  }
+}
 export function updateAddresses(
   deployNetwork: DeployNetwork,
   key: string,

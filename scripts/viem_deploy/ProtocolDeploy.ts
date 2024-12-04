@@ -14,7 +14,7 @@ import {
   getDeployAccount,
   getGitRandomSalt,
 } from './utils'
-import { updateAddresses } from '../deploy/addresses'
+import { createJsonAddresses, updateAddresses } from '../deploy/addresses'
 import { DeployNetwork } from '../deloyProtocol'
 import { mainnetDep, sepoliaDep } from './chains'
 import * as dotenv from 'dotenv'
@@ -32,91 +32,103 @@ export type DeployOpts = {
 
 export class ProtocolDeploy {
   private queueVerify = new PQueue()
+  private queueDeploy = new PQueue()
   private deployChains: Chain[] = []
   constructor(deployChains: Chain[] = [sepoliaDep, mainnetDep].flat()) {
     this.deployChains = deployChains
+    createJsonAddresses()
   }
 
-  async deployFullNetwork() {
+  async deployFullNetwork(concurrent: boolean = false) {
     const salt = getGitRandomSalt()
     const saltPre = getGitRandomSalt()
-    await this.deployViemContracts(this.deployChains, salt)
-    await this.deployViemContracts(this.deployChains, saltPre, {
-      pre: true,
-      retry: true,
-    })
-  }
-
-  async deployProver(chains: Chain[], salt: Hex, opts?: DeployOpts) {
-    for (const chain of chains) {
-      await this.deployAndVerifyContract(
-        chain,
-        salt,
-        getConstructorArgs(chain, 'Prover') as any,
-        opts,
-      )
-    }
-  }
-
-  async deployIntentSource(chains: Chain[], salt: Hex, opts?: DeployOpts) {
-    for (const chain of chains) {
-      const config = getDeployChainConfig(chain)
-      const params = {
-        ...(getConstructorArgs(chain, 'IntentSource') as any),
-        args: [
-          config.intentSource.minimumDuration,
-          config.intentSource.counter,
-        ],
+    for (const chain of this.deployChains) {
+      if (concurrent) {
+        this.queueDeploy.add(async () => {
+          await this.deployViemContracts(chain, salt)
+          await this.deployViemContracts(chain, saltPre, {
+            pre: true,
+            retry: true,
+          })
+        })
+      } else {
+        await this.deployViemContracts(chain, salt)
+        await this.deployViemContracts(chain, saltPre, {
+          pre: true,
+          retry: true,
+        })
       }
-      await this.deployAndVerifyContract(chain, salt, params as any, opts)
     }
+
+    if (concurrent) {
+      // wait for queue to finish
+      await this.queueDeploy.onIdle()
+    }
+    // wait for verification queue to finish
+    await this.queueVerify.onIdle()
+  }
+
+  async deployProver(chain: Chain, salt: Hex, opts?: DeployOpts) {
+    await this.deployAndVerifyContract(
+      chain,
+      salt,
+      getConstructorArgs(chain, 'Prover') as any,
+      opts,
+    )
+  }
+
+  async deployIntentSource(chain: Chain, salt: Hex, opts?: DeployOpts) {
+    const config = getDeployChainConfig(chain)
+    const params = {
+      ...(getConstructorArgs(chain, 'IntentSource') as any),
+      args: [config.intentSource.minimumDuration, config.intentSource.counter],
+    }
+    await this.deployAndVerifyContract(chain, salt, params as any, opts)
   }
 
   async deployInbox(
-    chains: Chain[],
+    chain: Chain,
     salt: Hex,
     deployHyper: boolean,
     opts?: DeployOpts,
   ) {
-    for (const chain of chains) {
-      const config = getDeployChainConfig(chain)
-      const ownerAndSolver = getDeployAccount().address
+    const config = getDeployChainConfig(chain)
+    const ownerAndSolver = getDeployAccount().address
 
-      const params = {
-        ...(getConstructorArgs(chain, 'Inbox') as any),
-        args: [ownerAndSolver, true, [ownerAndSolver]],
-      }
-      const inboxAddress = await this.deployAndVerifyContract(
-        chain,
-        salt,
-        params as any,
-        opts,
+    const params = {
+      ...(getConstructorArgs(chain, 'Inbox') as any),
+      args: [ownerAndSolver, true, [ownerAndSolver]],
+    }
+    const inboxAddress = await this.deployAndVerifyContract(
+      chain,
+      salt,
+      params as any,
+      opts,
+    )
+
+    try {
+      const client = await getClient(chain)
+      const { request } = await client.simulateContract({
+        address: inboxAddress,
+        abi: MainnetContracts.Inbox.abi,
+        functionName: 'setMailbox',
+        args: [config.hyperlaneMailboxAddress],
+      })
+      const hash = await client.writeContract(request)
+      await client.waitForTransactionReceipt({ hash })
+      console.log(
+        `Chain: ${chain.name}, Inbox ${inboxAddress} setMailbox to: ${config.hyperlaneMailboxAddress}`,
       )
+    } catch (error) {
+      console.error(
+        `Chain: ${chain.name}, Failed to set hyperlane mailbox address ${config.hyperlaneMailboxAddress} on inbox contract ${inboxAddress}:`,
+        error,
+      )
+      return
+    }
 
-      try {
-        const client = await getClient(chain)
-        const { request } = await client.simulateContract({
-          address: inboxAddress,
-          abi: MainnetContracts.Inbox.abi,
-          functionName: 'setMailbox',
-          args: [config.hyperlaneMailboxAddress],
-        })
-        const hash = await client.writeContract(request)
-        await client.waitForTransactionReceipt({ hash })
-        console.log(
-          `Chain: ${chain.name}, Inbox ${inboxAddress} setMailbox to: ${config.hyperlaneMailboxAddress}`,
-        )
-      } catch (error) {
-        console.error(
-          `Chain: ${chain.name}, Failed to set hyperlane mailbox address ${config.hyperlaneMailboxAddress} on inbox contract ${inboxAddress}:`,
-          error,
-        )
-        return
-      }
-
-      if (deployHyper) {
-        await this.deployHyperProver(chain, salt, inboxAddress, opts)
-      }
+    if (deployHyper) {
+      await this.deployHyperProver(chain, salt, inboxAddress, opts)
     }
   }
 
@@ -176,8 +188,9 @@ export class ProtocolDeploy {
           args: [encodedDeployData, salt],
         })
 
-      await client.writeContract(request)
-
+      const hash = await client.writeContract(request)
+      // wait so that the nonces dont collide
+      await client.waitForTransactionReceipt({ hash })
       console.log(
         `Chain: ${chain.name}, ${name} deployed at: ${deployedAddress}`,
       )
@@ -233,7 +246,7 @@ export class ProtocolDeploy {
   }
 
   async deployViemContracts(
-    chains: Chain[] = sepoliaDep,
+    chain: Chain,
     salt: Hex = getGitRandomSalt(),
     opts?: DeployOpts,
   ) {
@@ -243,8 +256,8 @@ export class ProtocolDeploy {
     )
 
     console.log(salt)
-    await this.deployProver(chains, salt, opts)
-    await this.deployIntentSource(chains, salt, opts)
-    await this.deployInbox(chains, salt, true, opts)
+    await this.deployProver(chain, salt, opts)
+    await this.deployIntentSource(chain, salt, opts)
+    await this.deployInbox(chain, salt, true, opts)
   }
 }
