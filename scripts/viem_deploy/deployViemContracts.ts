@@ -4,14 +4,12 @@ import {
   Abi,
   EncodeDeployDataParameters,
   zeroAddress,
-  getAddress,
   Chain,
   encodeAbiParameters,
 } from 'viem'
 import MainnetContracts from './contracts/mainnet'
-import { DEPLOYER_ADDRESS, Deployer } from './contracts/deployer'
+import { Deployer } from './contracts/deployer'
 import {
-  decodeDepoyLog,
   getClient,
   getConstructorArgs,
   getDeployAccount,
@@ -35,17 +33,18 @@ export async function deployViemContracts(chains: Chain[] = sepoliaDep,salt: Hex
     'Deploying contracts with the account:',
     getDeployAccount().address,
   )
-  // const salt: Hex = getGitRandomSalt()
+
   console.log(salt)
   await deployProver(chains, salt, opts)
-  // await deployIntentSource(chains, salt)
-  // await deployInbox(chains, salt, true)
+  await deployIntentSource(chains, salt)
+  await deployInbox(chains, salt, true)
 }
 
 export async function deployViemFull() {
   const salt = getGitRandomSalt()
   const saltPre = getGitRandomSalt()
-  await deployViemContracts([sepoliaDep].flat(),salt)//, salt, {pre: false, retry: true})
+  await deployViemContracts([sepoliaDep].flat(),salt, {pre: false, retry: true})
+  // await deployViemContracts([mainnetDep].flat(),saltPre, {pre: false, retry: true})
   // await deployViemContracts([sepoliaDep, mainnetDep].flat(), saltPre, {pre: true, retry: true})
 }
 
@@ -164,21 +163,8 @@ async function deployAndVerifyContract<
       args: [encodedDeployData, salt],
     })
 
-    const hash = await client.writeContract(request)
+    await client.writeContract(request)
 
-    // // Wait for the transaction receipt
-    // const receipt = await client.waitForTransactionReceipt({ hash })
-    // const log = receipt.logs.find(
-    //   (log) => getAddress(log.address) === DEPLOYER_ADDRESS,
-    // )
-    // if (!log) {
-    //   throw new Error('No log found')
-    // }
-    // const dlog = decodeDepoyLog(log.data, log.topics)
-    // const contractAddress = dlog?.args ? ((dlog.args as any).addr as any) : null
-    // if (contractAddress === null) {
-    //   throw new Error('Contract address is null, might not have deployed')
-    // }
 
     console.log(`Chain: ${chain.name}, ${name} deployed at: ${deployedAddress}`)
     const networkConfig = getDeployChainConfig(chain) as DeployNetwork
@@ -189,10 +175,7 @@ async function deployAndVerifyContract<
     )
     // Verify the contract on Etherscan
     console.log(`Verifying ${name} on Etherscan...`)
-    // const contractAddress = '0x7e3aCB6FBeBe20398249BA08c0E42a08Bd6ae341'
-    // const hash = '0xed82af428b7af070de59e1fd8f4a341105fb0650a0aa94868612e9190f2dcd37'
-    // const verificationResult = await checkVerifyStatus({
-    const verificationResult = await verifyContract({
+    await verifyContract({
       chainId: chain.id,
       codeformat: 'solidity-standard-json-input',
       constructorArguements: args,
