@@ -1,13 +1,13 @@
-import { deployViemContracts, deployViemFull } from '../viem_deploy/ProtocolDeploy'
+import { ProtocolDeploy } from '../viem_deploy/ProtocolDeploy'
 import { deleteAddressesJson, transformAddresses } from './addresses'
 import { addressesToCVS } from './csv'
 
 async function main() {
-  // await deployViemContracts(sepoliaDep)
-  await deployViemFull()
-  // transformAddresses()
-  // addressesToCVS()
-  // deleteAddressesJson()
+  const deploy = new ProtocolDeploy()
+  await deploy.deployFullNetwork()
+  transformAddresses()
+  addressesToCVS()
+  deleteAddressesJson()
 }
 
 main()

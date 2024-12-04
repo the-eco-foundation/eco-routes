@@ -1,7 +1,6 @@
 import {
   encodeDeployData,
   Hex,
-  Abi,
   EncodeDeployDataParameters,
   zeroAddress,
   Chain,
@@ -32,25 +31,21 @@ export type DeployOpts = {
 }
 
 export class ProtocolDeploy {
-  private queue = new PQueue()
-  private deployQueue = new PQueue()
-  private clients: Record<number, any> = {}
+  private queueVerify = new PQueue()
   private deployChains: Chain[] = []
-  constructor(deployChains: Chain[] = [sepoliaDep].flat()) {
+  constructor(deployChains: Chain[] = [sepoliaDep, mainnetDep].flat()) {
     this.deployChains = deployChains
-    for (const chain of deployChains) {
-      this.clients[chain.id] = getClient(chain)
-    }
   }
 
   async deployFullNetwork() {
     const salt = getGitRandomSalt()
     const saltPre = getGitRandomSalt()
     await this.deployViemContracts(this.deployChains, salt)
-    // await deployViemContracts([mainnetDep].flat(),saltPre, {pre: false, retry: true})
-    // await deployViemContracts([sepoliaDep, mainnetDep].flat(), saltPre, {pre: true, retry: true})
+    await this.deployViemContracts(this.deployChains, saltPre, {
+      pre: true,
+      retry: true,
+    })
   }
-
 
   async deployProver(chains: Chain[], salt: Hex, opts?: DeployOpts) {
     for (const chain of chains) {
@@ -58,7 +53,7 @@ export class ProtocolDeploy {
         chain,
         salt,
         getConstructorArgs(chain, 'Prover') as any,
-        opts
+        opts,
       )
     }
   }
@@ -68,13 +63,21 @@ export class ProtocolDeploy {
       const config = getDeployChainConfig(chain)
       const params = {
         ...(getConstructorArgs(chain, 'IntentSource') as any),
-        args: [config.intentSource.minimumDuration, config.intentSource.counter],
+        args: [
+          config.intentSource.minimumDuration,
+          config.intentSource.counter,
+        ],
       }
       await this.deployAndVerifyContract(chain, salt, params as any, opts)
     }
   }
 
-  async deployInbox(chains: Chain[], salt: Hex, deployHyper: boolean, opts?: DeployOpts) {
+  async deployInbox(
+    chains: Chain[],
+    salt: Hex,
+    deployHyper: boolean,
+    opts?: DeployOpts,
+  ) {
     for (const chain of chains) {
       const config = getDeployChainConfig(chain)
       const ownerAndSolver = getDeployAccount().address
@@ -87,7 +90,7 @@ export class ProtocolDeploy {
         chain,
         salt,
         params as any,
-        opts
+        opts,
       )
 
       try {
@@ -117,7 +120,12 @@ export class ProtocolDeploy {
     }
   }
 
-  async deployHyperProver(chain: Chain, salt: Hex, inboxAddress: Hex, opts?: DeployOpts) {
+  async deployHyperProver(
+    chain: Chain,
+    salt: Hex,
+    inboxAddress: Hex,
+    opts?: DeployOpts,
+  ) {
     const config = getDeployChainConfig(chain)
     const params = {
       ...(getConstructorArgs(chain, 'HyperProver') as any),
@@ -160,17 +168,19 @@ export class ProtocolDeploy {
 
       const deployerContract = this.getDepoyerContract(opts)
 
-      const { request, result: deployedAddress } = await client.simulateContract({
-        address: deployerContract.address,
-        abi: deployerContract.abi,
-        functionName: 'deploy',
-        args: [encodedDeployData, salt],
-      })
+      const { request, result: deployedAddress } =
+        await client.simulateContract({
+          address: deployerContract.address,
+          abi: deployerContract.abi,
+          functionName: 'deploy',
+          args: [encodedDeployData, salt],
+        })
 
       await client.writeContract(request)
 
-
-      console.log(`Chain: ${chain.name}, ${name} deployed at: ${deployedAddress}`)
+      console.log(
+        `Chain: ${chain.name}, ${name} deployed at: ${deployedAddress}`,
+      )
       const networkConfig = getDeployChainConfig(chain) as DeployNetwork
       networkConfig.pre = opts.pre || false
       updateAddresses(networkConfig, `${name}`, deployedAddress)
@@ -179,17 +189,18 @@ export class ProtocolDeploy {
       )
       // Verify the contract on Etherscan
       console.log(`Verifying ${name} on Etherscan...`)
-      // this.queue.add(async () => verifyContract({
-      //   chainId: chain.id,
-      //   codeformat: 'solidity-standard-json-input',
-      //   constructorArguements: args,
-      //   contractname: name,
-      //   contractaddress: deployedAddress,
-      //   contractFilePath: `contracts/${name}.sol`,
-      // }))
+      this.queueVerify.add(async () =>
+        verifyContract({
+          chainId: chain.id,
+          codeformat: 'solidity-standard-json-input',
+          constructorArguements: args,
+          contractname: name,
+          contractaddress: deployedAddress,
+          contractFilePath: `contracts/${name}.sol`,
+        }),
+      )
 
       return deployedAddress
-
     } catch (error) {
       console.error(
         `Chain: ${chain.name}, Failed to deploy or verify ${name}:`,
@@ -203,7 +214,7 @@ export class ProtocolDeploy {
           chain,
           salt,
           parameters as any,
-          opts
+          opts,
         )
       } else {
         throw new Error('Contract address is null, might not have deployed')
@@ -221,7 +232,11 @@ export class ProtocolDeploy {
     }
   }
 
-  async deployViemContracts(chains: Chain[] = sepoliaDep, salt: Hex = getGitRandomSalt(), opts?: DeployOpts) {
+  async deployViemContracts(
+    chains: Chain[] = sepoliaDep,
+    salt: Hex = getGitRandomSalt(),
+    opts?: DeployOpts,
+  ) {
     console.log(
       'Deploying contracts with the account:',
       getDeployAccount().address,

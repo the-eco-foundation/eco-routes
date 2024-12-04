@@ -1,10 +1,8 @@
-import {  ProtocolDeploy } from './ProtocolDeploy'
+import { ProtocolDeploy } from './ProtocolDeploy'
 
 async function main() {
   const deploy = new ProtocolDeploy()
   await deploy.deployFullNetwork()
-  // await deployViemContracts()
-  // await deployViemFull()
 }
 main()
   .then((results) => {

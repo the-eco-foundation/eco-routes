@@ -11,17 +11,17 @@ import {
 import { Chain, mantle, mantleSepoliaTestnet } from 'viem/chains'
 
 export const mainnetDep: Chain[] = [
-  // arbitrum,
+  arbitrum,
   base,
-  // mantle,
+  mantle,
   optimism,
-  // polygon,
+  polygon,
 ] as any
 
 export const sepoliaDep: Chain[] = [
-  // arbitrumSepolia,
+  arbitrumSepolia,
   baseSepolia,
-  // mantleSepoliaTestnet,
+  mantleSepoliaTestnet,
   optimismSepolia,
 
   // polygonAmoy,

@@ -1,7 +1,6 @@
 import {
   Chain,
   createWalletClient,
-  decodeEventLog,
   Hex,
   http,
   publicActions,
@@ -11,7 +10,6 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { getGitHash } from '../publish/gitUtils'
 import SepoliaContracts from './contracts/sepolia'
 import MainnetContracts, { ContractNames } from './contracts/mainnet'
-
 
 export function getDeployAccount() {
   // Load environment variables
