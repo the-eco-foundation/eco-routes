@@ -16,8 +16,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * This contract makes a call to the prover contract (on the sourcez chain) in order to verify intent fulfillment.
  */
 contract IntentSource is IIntentSource {
-    // chain ID
-    uint256 public immutable CHAIN_ID;
 
     // intent creation counter
     uint256 public counter;
@@ -37,7 +35,6 @@ contract IntentSource is IIntentSource {
      * _counterStart the initial value of the counter
      */
     constructor(uint256 _minimumDuration, uint256 _counterStart) {
-        CHAIN_ID = block.chainid;
         MINIMUM_DURATION = _minimumDuration;
         counter = _counterStart;
     }
@@ -83,10 +80,10 @@ contract IntentSource is IIntentSource {
         if (_expiryTime < block.timestamp + MINIMUM_DURATION) {
             revert ExpiryTooSoon();
         }
-
-        bytes32 _nonce = keccak256(abi.encode(counter, CHAIN_ID));
+        uint256 chainID = block.chainid;
+        bytes32 _nonce = keccak256(abi.encode(counter, chainID));
         bytes32 intermediateHash =
-            keccak256(abi.encode(CHAIN_ID, _destinationChainID, _targets, _data, _expiryTime, _nonce));
+            keccak256(abi.encode(chainID, _destinationChainID, _targets, _data, _expiryTime, _nonce));
         bytes32 intentHash = keccak256(abi.encode(_inbox, intermediateHash));
 
         intents[intentHash] = Intent({

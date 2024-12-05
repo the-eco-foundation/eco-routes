@@ -84,9 +84,6 @@ describe('Intent Source Test', (): void => {
 
   describe('constructor', () => {
     it('is initialized correctly', async () => {
-      expect(await intentSource.CHAIN_ID()).to.eq(
-        (await ethers.provider.getNetwork()).chainId,
-      )
       expect(await intentSource.MINIMUM_DURATION()).to.eq(minimumDuration)
       expect(await intentSource.counter()).to.eq(0)
     })
@@ -108,7 +105,7 @@ describe('Intent Source Test', (): void => {
         abiCoder.encode(
           ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
           [
-            await intentSource.CHAIN_ID(),
+            (await intentSource.runner?.provider?.getNetwork())?.chainId,
             chainId,
             targets,
             data,
@@ -362,7 +359,7 @@ describe('Intent Source Test', (): void => {
         abiCoder.encode(
           ['uint256', 'uint256', 'address[]', 'bytes[]', 'uint256', 'bytes32'],
           [
-            await intentSource.CHAIN_ID(),
+            (await intentSource.runner?.provider?.getNetwork())?.chainId,
             chainId,
             targets,
             data,
@@ -529,7 +526,7 @@ describe('Intent Source Test', (): void => {
               'bytes32',
             ],
             [
-              await intentSource.CHAIN_ID(),
+              (await intentSource.runner?.provider?.getNetwork())?.chainId,
               chainId,
               targets,
               data,
@@ -605,7 +602,7 @@ describe('Intent Source Test', (): void => {
               'bytes32',
             ],
             [
-              await intentSource.CHAIN_ID(),
+              (await intentSource.runner?.provider?.getNetwork())?.chainId,
               chainId,
               targets,
               data,
