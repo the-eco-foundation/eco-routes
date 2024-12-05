@@ -107,7 +107,7 @@ contract Prover is SimpleProver {
     );
 
     /**
-     * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
+     * @notice emitted on a proving state if the blockNumber is less than or equal to the current blockNumber
      * @param _inputBlockNumber the block number we are trying to prove
      * @param _latestBlockNumber the latest block number that has been proven
      */
