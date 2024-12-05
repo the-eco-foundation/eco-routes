@@ -134,9 +134,23 @@ contract Prover is SimpleProver {
         }
     }
 
+    /**
+     * @notice validates a storage proof against using SecureMerkleTrie.verifyInclusionProof
+     * @param _key key
+     * @param _val value
+     * @param _proof proof
+     * @param _root root
+     */
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
         require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
     }
+    /**
+     * @notice validates an account proof against using SecureMerkleTrie.verifyInclusionProof
+     * @param _address address of contract
+     * @param _data data
+     * @param _proof proof
+     * @param _root root
+     */
 
     function proveAccount(bytes memory _address, bytes memory _data, bytes[] memory _proof, bytes32 _root)
         public
@@ -145,16 +159,26 @@ contract Prover is SimpleProver {
         require(SecureMerkleTrie.verifyInclusionProof(_address, _data, _proof, _root), "failed to prove account");
     }
 
+    /**
+     * @notice generates the output root used for Bedrock and Cannon proving
+     * @param outputRootVersion the output root version number usually 0
+     * @param worldStateRoot world state root
+     * @param messagePasserStateRoot message passer state root
+     * @param latestBlockHash latest block hash
+     */
     function generateOutputRoot(
-        uint256 version,
+        uint256 outputRootVersion,
         bytes32 worldStateRoot,
         bytes32 messagePasserStateRoot,
         bytes32 latestBlockHash
     ) public pure returns (bytes32) {
-        return keccak256(abi.encode(version, worldStateRoot, messagePasserStateRoot, latestBlockHash));
+        return keccak256(abi.encode(outputRootVersion, worldStateRoot, messagePasserStateRoot, latestBlockHash));
     }
 
-    // helper function for getting all rlp data encoded
+    /**
+     * @notice helper function for getting all rlp data encoded
+     * @param dataList list of data elements to be encoded
+     */
     function rlpEncodeDataLibList(bytes[] memory dataList) public pure returns (bytes memory) {
         for (uint256 i = 0; i < dataList.length; ++i) {
             dataList[i] = RLPWriter.writeBytes(dataList[i]);
@@ -162,23 +186,27 @@ contract Prover is SimpleProver {
 
         return RLPWriter.writeList(dataList);
     }
-    /// @notice Packs values into a 32 byte GameId type.
-    /// @param _gameType The game type.
-    /// @param _timestamp The timestamp of the game's creation.
-    /// @param _gameProxy The game proxy address.
-    /// @return gameId_ The packed GameId.
 
+    /**
+     * @notice Packs values into a 32 byte GameId type.
+     * @param _gameType The game type.
+     * @param _timestamp The timestamp of the game's creation.
+     * @param _gameProxy The game proxy address.
+     * @return gameId_ The packed GameId.
+     */
     function pack(uint32 _gameType, uint64 _timestamp, address _gameProxy) public pure returns (bytes32 gameId_) {
         assembly {
             gameId_ := or(or(shl(224, _gameType), shl(160, _timestamp)), _gameProxy)
         }
     }
 
-    /// @notice Unpacks values from a 32 byte GameId type.
-    /// @param _gameId The packed GameId.
-    /// @return gameType_ The game type.
-    /// @return timestamp_ The timestamp of the game's creation.
-    /// @return gameProxy_ The game proxy address.
+    /**
+     * @notice Unpacks values from a 32 byte GameId type.
+     * @param _gameId The packed GameId.
+     * @return gameType_ The game type.
+     * @return timestamp_ The timestamp of the game's creation.
+     * @return gameProxy_ The game proxy address.
+     */
     function unpack(bytes32 _gameId) public pure returns (uint32 gameType_, uint64 timestamp_, address gameProxy_) {
         assembly {
             gameType_ := shr(224, _gameId)
@@ -187,6 +215,11 @@ contract Prover is SimpleProver {
         }
     }
 
+    /**
+     * @notice converts bytes to uint
+     * @param b bytes to convert
+     * @return uint256 converted uint
+     */
     function _bytesToUint(bytes memory b) internal pure returns (uint256) {
         uint256 number;
         for (uint256 i = 0; i < b.length; i++) {
@@ -195,6 +228,15 @@ contract Prover is SimpleProver {
         return number;
     }
 
+    /**
+     * @notice assembles the game status storage slot
+     * @param createdAt the time the game was created
+     * @param resolvedAt the time the game was resolved
+     * @param gameStatus the status of the game
+     * @param initialized whether the game has been initialized
+     * @param l2BlockNumberChallenged whether the l2 block number has been challenged
+     * @return gameStatusStorageSlotRLP the game status storage slot in RLP format
+     */
     function assembleGameStatusStorage(
         uint64 createdAt,
         uint64 resolvedAt,
