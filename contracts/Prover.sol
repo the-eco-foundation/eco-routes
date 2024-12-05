@@ -90,7 +90,7 @@ contract Prover is SimpleProver {
     }
 
     /**
-     * @notice emitted when L1 world state is proven for a given intent
+     * @notice emitted when L1 world state is proven
      * @param _blockNumber  the block number corresponding to this L1 world state
      * @param _L1WorldStateRoot the world state root at _blockNumber
      */
