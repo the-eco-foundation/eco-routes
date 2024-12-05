@@ -247,26 +247,18 @@ contract Prover is SimpleProver {
         // The if test is to remove leaing zeroes from the bytes
         // Assumption is that initialized is always true
         if (l2BlockNumberChallenged) {
-            gameStatusStorageSlotRLP = bytes.concat(
-                RLPWriter.writeBytes(
-                    abi.encodePacked(
-                        abi.encodePacked(l2BlockNumberChallenged),
-                        abi.encodePacked(initialized),
-                        abi.encodePacked(gameStatus),
-                        abi.encodePacked(resolvedAt),
-                        abi.encodePacked(createdAt)
-                    )
-                )
+            gameStatusStorageSlotRLP = RLPWriter.writeBytes(
+                abi.encodePacked(l2BlockNumberChallenged, initialized, gameStatus, resolvedAt, createdAt)
             );
         } else {
             gameStatusStorageSlotRLP = bytes.concat(
                 RLPWriter.writeBytes(
                     abi.encodePacked(
                         // abi.encodePacked(l2BlockNumberChallenged),
-                        abi.encodePacked(initialized),
-                        abi.encodePacked(gameStatus),
-                        abi.encodePacked(resolvedAt),
-                        abi.encodePacked(createdAt)
+                        initialized,
+                        gameStatus,
+                        resolvedAt,
+                        createdAt
                     )
                 )
             );
