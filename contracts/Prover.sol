@@ -274,7 +274,8 @@ contract Prover is SimpleProver {
      * state.
      */
     function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {
-        require(keccak256(rlpEncodedBlockData) == l1BlockhashOracle.hash(), "hash does not match block data");
+        bytes32 blockHash = keccak256(rlpEncodedBlockData);
+        require(blockHash == l1BlockhashOracle.hash(), "hash does not match block data");
 
         uint256 settlementChainId = chainConfigurations[block.chainid].settlementChainId;
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
@@ -282,7 +283,7 @@ contract Prover is SimpleProver {
 
         BlockProof memory blockProof = BlockProof({
             blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
-            blockHash: keccak256(rlpEncodedBlockData),
+            blockHash: blockHash,
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
         BlockProof memory existingBlockProof = provenStates[settlementChainId];
