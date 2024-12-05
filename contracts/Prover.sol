@@ -326,10 +326,9 @@ contract Prover is SimpleProver {
         require(
             existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
         );
-
-        bytes32 outputRoot = generateOutputRoot(
-            L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, keccak256(rlpEncodedBlockData)
-        );
+        bytes32 blockHash = keccak256(rlpEncodedBlockData);
+        bytes32 outputRoot =
+            generateOutputRoot(L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, blockHash);
 
         bytes32 outputRootStorageSlot =
             bytes32(abi.encode((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2)));
@@ -351,12 +350,10 @@ contract Prover is SimpleProver {
             l1WorldStateRoot
         );
 
-        // provenL2States[l2WorldStateRoot] = l2OutputIndex;
-
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
             blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
-            blockHash: keccak256(rlpEncodedBlockData),
+            blockHash: blockHash,
             stateRoot: l2WorldStateRoot
         });
         if (existingBlockProof.blockNumber < blockProof.blockNumber) {
