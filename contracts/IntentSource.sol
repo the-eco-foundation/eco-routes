@@ -20,22 +20,14 @@ contract IntentSource is IIntentSource {
     // intent creation counter
     uint256 public counter;
 
-    /**
-     * minimum duration of an intent, in seconds.
-     * Intents cannot expire less than MINIMUM_DURATION seconds after they are created.
-     */
-    uint256 public immutable MINIMUM_DURATION;
-
     // stores the intents
-    mapping(bytes32 intenthash => Intent) public intents;
+    mapping(bytes32 intentHash => Intent) public intents;
 
     /**
      * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs to be redeployed.
-     * _minimumDuration the minimum duration of an intent originating on this chain
      * _counterStart the initial value of the counter
      */
-    constructor(uint256 _minimumDuration, uint256 _counterStart) {
-        MINIMUM_DURATION = _minimumDuration;
+    constructor(uint256 _counterStart) {
         counter = _counterStart;
     }
 
@@ -78,9 +70,6 @@ contract IntentSource is IIntentSource {
             revert NoRewards();
         }
 
-        if (_expiryTime < block.timestamp + MINIMUM_DURATION) {
-            revert ExpiryTooSoon();
-        }
         uint256 chainID = block.chainid;
         bytes32 _nonce = keccak256(abi.encode(counter, chainID));
         bytes32 intermediateHash =

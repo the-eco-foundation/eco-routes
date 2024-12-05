@@ -26,12 +26,6 @@ interface IIntentSource is ISemver{
     error NothingToWithdraw(bytes32 _hash);
 
     /**
-     * @notice thrown on a call to createIntent where _expiry is less than MINIMUM_DURATION
-     * seconds later than the block timestamp at time of call
-     */
-    error ExpiryTooSoon();
-
-    /**
      * @notice thrown on a call to createIntent where _targets and _data have different lengths, or when one of their lengths is zero.
      */
     error CalldataMismatch();

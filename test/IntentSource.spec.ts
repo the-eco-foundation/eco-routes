@@ -18,7 +18,6 @@ describe('Intent Source Test', (): void => {
   let claimant: SignerWithAddress
   let otherPerson: SignerWithAddress
   const mintAmount: number = 1000
-  const minimumDuration = 1000
 
   let expiry: number
   let intentHash: BytesLike
@@ -45,7 +44,7 @@ describe('Intent Source Test', (): void => {
     prover = await (await ethers.getContractFactory('TestProver')).deploy()
 
     const intentSourceFactory = await ethers.getContractFactory('IntentSource')
-    const intentSource = await intentSourceFactory.deploy(minimumDuration, 0)
+    const intentSource = await intentSourceFactory.deploy(0)
     inbox = await (
       await ethers.getContractFactory('Inbox')
     ).deploy(owner.address, false, [owner.address])
@@ -84,13 +83,12 @@ describe('Intent Source Test', (): void => {
 
   describe('constructor', () => {
     it('is initialized correctly', async () => {
-      expect(await intentSource.MINIMUM_DURATION()).to.eq(minimumDuration)
       expect(await intentSource.counter()).to.eq(0)
     })
   })
   describe('intent creation', async () => {
     beforeEach(async (): Promise<void> => {
-      expiry = (await time.latest()) + minimumDuration + 10
+      expiry = (await time.latest()) + 123
       chainId = 1
       targets = [await tokenA.getAddress()]
       data = [await encodeTransfer(creator.address, mintAmount)]
@@ -134,7 +132,7 @@ describe('Intent Source Test', (): void => {
               [await encodeTransfer(creator.address, mintAmount)],
               [await tokenA.getAddress()],
               [mintAmount],
-              (await time.latest()) + minimumDuration,
+              await time.latest(),
               await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'CalldataMismatch')
@@ -149,7 +147,7 @@ describe('Intent Source Test', (): void => {
               [],
               [await tokenA.getAddress()],
               [mintAmount],
-              (await time.latest()) + minimumDuration,
+              await time.latest(),
               await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'CalldataMismatch')
@@ -166,7 +164,7 @@ describe('Intent Source Test', (): void => {
               [await encodeTransfer(creator.address, mintAmount)],
               [await tokenA.getAddress(), await tokenB.getAddress()],
               [mintAmount],
-              (await time.latest()) + minimumDuration,
+              await time.latest(),
               await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'RewardsMismatch')
@@ -183,26 +181,10 @@ describe('Intent Source Test', (): void => {
               [await encodeTransfer(creator.address, mintAmount)],
               [],
               [],
-              (await time.latest()) + minimumDuration,
+              await time.latest(),
               await prover.getAddress(),
             ),
         ).to.be.revertedWithCustomError(intentSource, 'NoRewards')
-      })
-      it('reverts if expiryTime is too early', async () => {
-        await expect(
-          intentSource
-            .connect(creator)
-            .createIntent(
-              1,
-              await inbox.getAddress(),
-              [await tokenA.getAddress()],
-              [await encodeTransfer(creator.address, mintAmount)],
-              [await tokenA.getAddress()],
-              [mintAmount],
-              (await time.latest()) + minimumDuration - 1,
-              await prover.getAddress(),
-            ),
-        ).to.be.revertedWithCustomError(intentSource, 'ExpiryTooSoon')
       })
     })
     it('creates properly with erc20 rewards', async () => {
@@ -344,7 +326,7 @@ describe('Intent Source Test', (): void => {
   })
   describe('claiming rewards', async () => {
     beforeEach(async (): Promise<void> => {
-      expiry = (await time.latest()) + minimumDuration + 10
+      expiry = (await time.latest()) + 123
       nonce = await encodeIdentifier(
         0,
         (await ethers.provider.getNetwork()).chainId,
@@ -504,7 +486,7 @@ describe('Intent Source Test', (): void => {
   describe('batch withdrawal', async () => {
     describe('fails if', () => {
       beforeEach(async (): Promise<void> => {
-        expiry = (await time.latest()) + minimumDuration + 10
+        expiry = (await time.latest()) + 123
         nonce = await encodeIdentifier(
           0,
           (await ethers.provider.getNetwork()).chainId,
@@ -580,7 +562,7 @@ describe('Intent Source Test', (): void => {
     })
     describe('single intent, complex', () => {
       beforeEach(async (): Promise<void> => {
-        expiry = (await time.latest()) + minimumDuration + 10
+        expiry = (await time.latest()) + 123
         nonce = await encodeIdentifier(
           0,
           (await ethers.provider.getNetwork()).chainId,
@@ -708,7 +690,7 @@ describe('Intent Source Test', (): void => {
     })
     describe('multiple intents, each with a single reward token', () => {
       beforeEach(async (): Promise<void> => {
-        expiry = (await time.latest()) + minimumDuration + 20
+        expiry = (await time.latest()) + 123
         nonce = await encodeIdentifier(
           0,
           (await ethers.provider.getNetwork()).chainId,
@@ -889,7 +871,7 @@ describe('Intent Source Test', (): void => {
       })
     })
     it('works in the case of multiple intents, each with multiple reward tokens', async () => {
-      expiry = (await time.latest()) + minimumDuration + 20
+      expiry = (await time.latest()) + 123
       nonce = await encodeIdentifier(
         0,
         (await ethers.provider.getNetwork()).chainId,
