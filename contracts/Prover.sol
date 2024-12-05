@@ -8,7 +8,6 @@ import {IL1Block} from "./interfaces/IL1Block.sol";
 import {SimpleProver} from "./interfaces/SimpleProver.sol";
 
 contract Prover is SimpleProver {
-    // uint16 public constant NONCE_PACKING = 1;
     ProofType public constant PROOF_TYPE = ProofType.Storage;
 
     // Output slot for Bedrock L2_OUTPUT_ORACLE where Settled Batches are stored
@@ -103,7 +102,9 @@ contract Prover is SimpleProver {
      * @param _blockNumber the blocknumber corresponding to the world state
      * @param _L2WorldStateRoot the world state root at _blockNumber
      */
-    event L2WorldStateProven(uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot);
+    event L2WorldStateProven(
+        uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot
+    );
 
     /**
      * @notice emitted on a proving state if the blockNumber is less than the current blockNumber
@@ -118,7 +119,9 @@ contract Prover is SimpleProver {
         }
     }
 
-    function version() external pure returns (string memory) { return "v0.0.3-beta"; }
+    function version() external pure returns (string memory) {
+        return "v0.0.3-beta";
+    }
 
     function getProofType() external pure override returns (ProofType) {
         return PROOF_TYPE;
