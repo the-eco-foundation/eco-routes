@@ -129,7 +129,9 @@ contract Prover is SimpleProver {
 
     function _setChainConfiguration(uint256 chainId, ChainConfiguration memory chainConfiguration) internal {
         chainConfigurations[chainId] = chainConfiguration;
-        l1BlockhashOracle = IL1Block(chainConfiguration.blockhashOracle);
+        if (block.chainid == chainId) {
+            l1BlockhashOracle = IL1Block(chainConfiguration.blockhashOracle);
+        }
     }
 
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
