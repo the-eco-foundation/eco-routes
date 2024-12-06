@@ -137,8 +137,10 @@ contract IntentSource is IIntentSource {
             for (uint256 i = 0; i < len; i++) {
                 safeERC20Transfer(intent.rewardTokens[i], withdrawTo, intent.rewardAmounts[i]);
             }
-            payable(withdrawTo).transfer(intent.rewardNative);
             emit Withdrawal(_hash, withdrawTo);
+            if(intent.rewardNative > 0) {
+                payable(withdrawTo).transfer(intent.rewardNative);
+            }
         } else {
             revert NothingToWithdraw(_hash);
         }
@@ -184,9 +186,7 @@ contract IntentSource is IIntentSource {
                     balance = intent.rewardAmounts[j];
                 }
             }
-            if (intent.rewardNative > 0) {
-                nativeRewards += intent.rewardNative;
-            }
+            nativeRewards += intent.rewardNative;
             emit Withdrawal(_hash, _claimant);
         }
         safeERC20Transfer(erc20, _claimant, balance);
