@@ -6,6 +6,7 @@ import "./interfaces/IIntentSource.sol";
 import "./interfaces/SimpleProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
 /**
@@ -16,6 +17,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * This contract makes a call to the prover contract (on the sourcez chain) in order to verify intent fulfillment.
  */
 contract IntentSource is IIntentSource {
+    using SafeERC20 for IERC20;
 
     // intent creation counter
     uint256 public counter;
@@ -89,7 +91,7 @@ contract IntentSource is IIntentSource {
         counter += 1;
 
         for (uint256 i = 0; i < len; i++) {
-            IERC20(_rewardTokens[i]).transferFrom(msg.sender, address(this), _rewardAmounts[i]);
+            IERC20(_rewardTokens[i]).safeTransferFrom(msg.sender, address(this), _rewardAmounts[i]);
         }
 
         emitIntentCreated(intentHash, intents[intentHash]);
@@ -187,9 +189,7 @@ contract IntentSource is IIntentSource {
             }
             emit Withdrawal(_hash, _claimant);
         }
-        if (erc20 != address(0)) {
-            safeERC20Transfer(erc20, _claimant, balance);
-        }
+        safeERC20Transfer(erc20, _claimant, balance);
         if (nativeRewards > 0) {
             payable(_claimant).transfer(nativeRewards);
         }
@@ -197,9 +197,7 @@ contract IntentSource is IIntentSource {
 
     function safeERC20Transfer(address _token, address _to, uint256 _amount) internal {
         if(_token != address(0)) {
-            if(!IERC20(_token).transfer(_to, _amount)) {
-                revert TransferFailed(_token, _to, _amount);
-            }
+            IERC20(_token).safeTransfer(_to, _amount);
         }
     }
     
