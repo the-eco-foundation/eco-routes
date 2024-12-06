@@ -202,12 +202,6 @@ contract IntentSource is IIntentSource {
     }
     
     function getIntent(bytes32 identifier) public view returns (Intent memory) {
-        Intent memory intent = intents[identifier];
-        intent.targets = intents[identifier].targets;
-        intent.data = intents[identifier].data;
-        intent.rewardTokens = intents[identifier].rewardTokens;
-        intent.rewardAmounts = intents[identifier].rewardAmounts;
-
-        return intent;
+        return intents[identifier];
     }
 }
