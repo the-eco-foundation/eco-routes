@@ -379,13 +379,11 @@ describe('Intent Source Test', (): void => {
           await claimant.getAddress(),
         )
 
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be.true
 
         await intentSource.connect(otherPerson).withdrawRewards(intentHash)
 
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be.false
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
@@ -421,13 +419,11 @@ describe('Intent Source Test', (): void => {
         const initialBalanceB = await tokenB.balanceOf(
           await creator.getAddress(),
         )
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be.true
 
         await intentSource.connect(otherPerson).withdrawRewards(intentHash)
 
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be.false
         expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
@@ -450,13 +446,11 @@ describe('Intent Source Test', (): void => {
         const initialBalanceB = await tokenB.balanceOf(
           await claimant.getAddress(),
         )
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be.true
 
         await intentSource.connect(otherPerson).withdrawRewards(intentHash)
 
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be.false
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
@@ -601,8 +595,7 @@ describe('Intent Source Test', (): void => {
         const initialBalanceNative = await ethers.provider.getBalance(
           await claimant.getAddress(),
         )
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be.true
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
         expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
         expect(await tokenA.balanceOf(await intentSource.getAddress())).to.eq(
@@ -622,8 +615,7 @@ describe('Intent Source Test', (): void => {
           .connect(otherPerson)
           .batchWithdraw([intentHash], await claimant.getAddress())
 
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be.false
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
           mintAmount,
         )
@@ -646,8 +638,7 @@ describe('Intent Source Test', (): void => {
         const initialBalanceNative = await ethers.provider.getBalance(
           await creator.getAddress(),
         )
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be.true
         expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(0)
         expect(await tokenB.balanceOf(await creator.getAddress())).to.eq(0)
 
@@ -658,8 +649,7 @@ describe('Intent Source Test', (): void => {
           .connect(otherPerson)
           .batchWithdraw([intentHash], await creator.getAddress())
 
-        expect((await intentSource.intents(intentHash)).isActive).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be.false
         expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(
           mintAmount,
         )
