@@ -188,7 +188,7 @@ describe('Intent Source Test', (): void => {
       expect(intent.creator).to.eq(creator.address)
       expect(intent.destinationChainID).to.eq(chainId)
       expect(intent.expiryTime).to.eq(expiry)
-      expect(intent.hasBeenWithdrawn).to.eq(false)
+      expect(intent.isActive).to.eq(true)
       expect(intent.nonce).to.eq(nonce)
       // getIntent complete call
       const intentDetail = await intentSource.getIntent(intentHash)
@@ -199,7 +199,7 @@ describe('Intent Source Test', (): void => {
       expect(intentDetail.rewardTokens).to.deep.eq(rewardTokens)
       expect(intentDetail.rewardAmounts).to.deep.eq(rewardAmounts)
       expect(intentDetail.expiryTime).to.eq(expiry)
-      expect(intentDetail.hasBeenWithdrawn).to.eq(false)
+      expect(intentDetail.isActive).to.eq(true)
       expect(intentDetail.nonce).to.eq(nonce)
       expect(intentDetail.prover).to.eq(await prover.getAddress())
       expect(intentDetail.rewardNative).to.eq(0)
@@ -223,7 +223,7 @@ describe('Intent Source Test', (): void => {
       expect(intent.creator).to.eq(creator.address)
       expect(intent.destinationChainID).to.eq(chainId)
       expect(intent.expiryTime).to.eq(expiry)
-      expect(intent.hasBeenWithdrawn).to.eq(false)
+      expect(intent.isActive).to.eq(true)
       expect(intent.nonce).to.eq(nonce)
       // getIntent complete call
       const intentDetail = await intentSource.getIntent(intentHash)
@@ -234,7 +234,7 @@ describe('Intent Source Test', (): void => {
       expect(intentDetail.rewardTokens).to.deep.eq([])
       expect(intentDetail.rewardAmounts).to.deep.eq([])
       expect(intentDetail.expiryTime).to.eq(expiry)
-      expect(intentDetail.hasBeenWithdrawn).to.eq(false)
+      expect(intentDetail.isActive).to.eq(true)
       expect(intentDetail.nonce).to.eq(nonce)
       expect(intentDetail.prover).to.eq(await prover.getAddress())
       expect(intentDetail.rewardNative).to.eq(rewardNativeEth)
@@ -379,13 +379,13 @@ describe('Intent Source Test', (): void => {
           await claimant.getAddress(),
         )
 
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .true
 
         await intentSource.connect(otherPerson).withdrawRewards(intentHash)
 
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .false
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
@@ -421,13 +421,13 @@ describe('Intent Source Test', (): void => {
         const initialBalanceB = await tokenB.balanceOf(
           await creator.getAddress(),
         )
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .true
 
         await intentSource.connect(otherPerson).withdrawRewards(intentHash)
 
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .false
         expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
@@ -450,13 +450,13 @@ describe('Intent Source Test', (): void => {
         const initialBalanceB = await tokenB.balanceOf(
           await claimant.getAddress(),
         )
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .true
 
         await intentSource.connect(otherPerson).withdrawRewards(intentHash)
 
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .false
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
           Number(initialBalanceA) + rewardAmounts[0],
         )
@@ -601,8 +601,8 @@ describe('Intent Source Test', (): void => {
         const initialBalanceNative = await ethers.provider.getBalance(
           await claimant.getAddress(),
         )
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .true
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
         expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
         expect(await tokenA.balanceOf(await intentSource.getAddress())).to.eq(
@@ -622,8 +622,8 @@ describe('Intent Source Test', (): void => {
           .connect(otherPerson)
           .batchWithdraw([intentHash], await claimant.getAddress())
 
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .false
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(
           mintAmount,
         )
@@ -646,8 +646,8 @@ describe('Intent Source Test', (): void => {
         const initialBalanceNative = await ethers.provider.getBalance(
           await creator.getAddress(),
         )
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .false
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .true
         expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(0)
         expect(await tokenB.balanceOf(await creator.getAddress())).to.eq(0)
 
@@ -658,8 +658,8 @@ describe('Intent Source Test', (): void => {
           .connect(otherPerson)
           .batchWithdraw([intentHash], await creator.getAddress())
 
-        expect((await intentSource.intents(intentHash)).hasBeenWithdrawn).to.be
-          .true
+        expect((await intentSource.intents(intentHash)).isActive).to.be
+          .false
         expect(await tokenA.balanceOf(await creator.getAddress())).to.eq(
           mintAmount,
         )

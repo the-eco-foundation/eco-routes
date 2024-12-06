@@ -82,7 +82,7 @@ contract IntentSource is IIntentSource {
             rewardTokens: _rewardTokens,
             rewardAmounts: _rewardAmounts,
             expiryTime: _expiryTime,
-            hasBeenWithdrawn: false,
+            isActive: true,
             nonce: _nonce,
             prover: _prover,
             rewardNative: msg.value
@@ -122,7 +122,7 @@ contract IntentSource is IIntentSource {
         Intent storage intent = intents[_hash];
         address claimant = SimpleProver(intent.prover).provenIntents(_hash);
         address withdrawTo;
-        if (!intent.hasBeenWithdrawn) {
+        if (intent.isActive) {
             if (claimant != address(0)) {
                 withdrawTo = claimant;
             } else {
@@ -132,7 +132,7 @@ contract IntentSource is IIntentSource {
                     revert UnauthorizedWithdrawal(_hash);
                 }
             }
-            intent.hasBeenWithdrawn = true;
+            intent.isActive = false;
             uint256 len = intent.rewardTokens.length;
             for (uint256 i = 0; i < len; i++) {
                 safeERC20Transfer(intent.rewardTokens[i], withdrawTo, intent.rewardAmounts[i]);
@@ -160,7 +160,7 @@ contract IntentSource is IIntentSource {
         for (uint256 i = 0; i < _hashes.length; i++) {
             bytes32 _hash = _hashes[i];
             Intent storage intent = intents[_hash];
-            if (intent.hasBeenWithdrawn) {
+            if (!intent.isActive) {
                 revert NothingToWithdraw(_hash);
             }
             address claimant = SimpleProver(intent.prover).provenIntents(_hash);
@@ -174,7 +174,7 @@ contract IntentSource is IIntentSource {
                     revert UnauthorizedWithdrawal(_hash);
                 }
             }
-            intent.hasBeenWithdrawn = true;
+            intent.isActive = false;
             for (uint256 j = 0; j < intent.rewardTokens.length; j++) {
                 if (erc20 == intent.rewardTokens[j]) {
                     balance += intent.rewardAmounts[j];
