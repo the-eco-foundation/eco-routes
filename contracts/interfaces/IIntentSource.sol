@@ -36,11 +36,6 @@ interface IIntentSource is ISemver{
     error RewardsMismatch();
 
     /**
-     * @notice thrown on a call to createIntent where no reward is specified in erc20 or native tokens.
-     */
-    error NoRewards();
-
-    /**
      * @notice thrown on a call to batchWithdraw where an intent's claimant does not match the input claimant address
      * @param _hash the hash of the intent on which withdraw was attempted
      */

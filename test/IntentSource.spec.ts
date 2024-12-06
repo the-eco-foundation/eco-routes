@@ -169,23 +169,6 @@ describe('Intent Source Test', (): void => {
             ),
         ).to.be.revertedWithCustomError(intentSource, 'RewardsMismatch')
       })
-      it('reverts if rewardtokens and rewardAmounts are empty and msg.value is 0', async () => {
-        // length 0
-        await expect(
-          intentSource
-            .connect(creator)
-            .createIntent(
-              1,
-              await inbox.getAddress(),
-              [await tokenA.getAddress()],
-              [await encodeTransfer(creator.address, mintAmount)],
-              [],
-              [],
-              await time.latest(),
-              await prover.getAddress(),
-            ),
-        ).to.be.revertedWithCustomError(intentSource, 'NoRewards')
-      })
     })
     it('creates properly with erc20 rewards', async () => {
       await intentSource

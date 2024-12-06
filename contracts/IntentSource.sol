@@ -66,10 +66,6 @@ contract IntentSource is IIntentSource {
             revert RewardsMismatch();
         }
 
-        if (len == 0 && msg.value == 0) {
-            revert NoRewards();
-        }
-
         uint256 chainID = block.chainid;
         bytes32 _nonce = keccak256(abi.encode(counter, chainID));
         bytes32 intermediateHash =
