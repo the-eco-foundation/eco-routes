@@ -524,6 +524,7 @@ contract Prover is SimpleProver {
 
     /**
      * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
+     * @param chainId the destination chain id of the intent we are proving
      * @param claimant the address that can claim the reward
      * @param inboxContract the address of the inbox contract
      * @param intermediateHash the hash which, when hashed with the correct inbox contract, will result in the correct intentHash
