@@ -106,7 +106,7 @@ interface IIntentSource is ISemver{
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,
         address _prover
-    ) external payable;
+    ) external payable returns (bytes32 intentHash);
 
     /**
      * @notice allows withdrawal of reward funds locked up for a given intent

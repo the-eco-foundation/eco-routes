@@ -57,7 +57,7 @@ contract IntentSource is IIntentSource {
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,
         address _prover
-    ) external payable {
+    ) external payable returns (bytes32) {
         uint256 len = _targets.length;
         if (len == 0 || len != _data.length) {
             revert CalldataMismatch();
@@ -95,6 +95,7 @@ contract IntentSource is IIntentSource {
         }
 
         emitIntentCreated(intentHash, intents[intentHash]);
+        return intentHash;
     }
 
     function emitIntentCreated(bytes32 _hash, Intent memory _intent) internal {
