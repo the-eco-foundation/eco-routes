@@ -31,13 +31,13 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install # will run `yarn install` command
-      - name: install dependencies
+      - name: set variable
         id: npm_tag
         uses: borales/actions-yarn@v4
         with:
           cmd: pub:publish 
       - name: Use Output
-        run: echo "was saved in outpub ${{ steps.npm_tag.outputs.NPM_TAG }}"
+        run: echo "was saved in outpub $NPM_TAG"
       # - name: Set Variable
       #   id: npm
       #   uses: borales/actions-yarn@v4
