@@ -10,6 +10,16 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
+      - name: install node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+
+      - name: install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
       - name: Set Variable
         id: npm
         run: npm run pub:publish >> $GITHUB_OUTPUT
