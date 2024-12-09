@@ -7,14 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set Variable
-        run: echo "MY_VARIABLE=my_value" >> $GITHUB_ENV #this is workflow scoped
+        run: echo "::set-output name=my_output::my_value"
 
   job2:
     needs: job1
     runs-on: ubuntu-latest
     steps:
       - name: Use Variable
-        run: echo "${{ env.MY_VARIABLE }}"
+        run: echo "${{ steps.step1.outputs.my_output }}"
     
   # lint:
   #   name: Eslint, prettier and solhint
