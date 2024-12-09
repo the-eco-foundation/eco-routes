@@ -11,6 +11,15 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
+      - name: install node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+      - name: install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
       - name: Set environment variable
         run: echo "MY_ENV_VAR=myValue" >> $GITHUB_ENV
       - name: set variable
