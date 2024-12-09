@@ -25,7 +25,9 @@ jobs:
           cmd: install # will run `yarn install` command
       - name: Set Variable
         id: npm
-        run: npm run pub:publish >> $GITHUB_OUTPUT
+        uses: borales/actions-yarn@v4
+        with: 
+          cmd: pub:publish >> $GITHUB_OUTPUT
 
 
   job2:
@@ -35,7 +37,7 @@ jobs:
       NPM_TAG: ${{ needs.job1.outputs.npm-tag }}
     steps:
       - name: Use Variable
-        run: echo $NPM_TAG
+        run: echo $NPM_BUILD_TAG
     
   # lint:
   #   name: Eslint, prettier and solhint
