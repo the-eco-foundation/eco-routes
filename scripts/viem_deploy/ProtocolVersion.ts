@@ -163,7 +163,7 @@ export class ProtocolVersion {
 // Get the GITHUB_REF environment variable
 export function getGithubTagRef(): string {
   // Get the GITHUB_REF environment variable
-  const githubRef = process.env.GITHUB_REF
+  const githubRef = process.env.FAKE_GITHUB_REF
   if (!githubRef) {
     console.error('GITHUB_REF environment variable is not set.')
     throw new Error('GITHUB_REF environment variable is not set.')
