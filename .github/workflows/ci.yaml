@@ -8,6 +8,8 @@ jobs:
     outputs:
       npm-tag: ${{ steps.npm.outputs.NPM_TAG }}
     steps:
+      - name: checkout code
+        uses: actions/checkout@v4
       - name: Set Variable
         id: npm
         run: npm run pub:publish >> $GITHUB_OUTPUT
