@@ -5,16 +5,20 @@ on: [push]
 jobs:
   job1:
     runs-on: ubuntu-latest
+    outputs:
+      npm-tag: ${{ steps.job1.outputs.NPM_TAG }}
     steps:
       - name: Set Variable
-        run: echo "::set-output name=my_output::my_value"
+        run: echo "NPM_TAG=beta" >> $GITHUB_OUTPUT
 
   job2:
     needs: job1
     runs-on: ubuntu-latest
+    env:
+      NPM_TAG: ${{ needs.job1.outputs.npm-tag }}
     steps:
       - name: Use Variable
-        run: echo "${{ steps.step1.outputs.my_output }}"
+        run: echo $NPM_TAG
     
   # lint:
   #   name: Eslint, prettier and solhint
