@@ -8,9 +8,10 @@ interface AddressBook {
   }
 }
 
+export const PRE_SUFFIX = '-pre'
 export const jsonFilePath = path.join(
   __dirname,
-  '../../build/jsonAddresses.json',
+  '../../build/deployAddresses.json',
 )
 export const tsFilePath = path.join(__dirname, '../../build/src/index.ts')
 export const csvFilePath = path.join(
@@ -37,7 +38,7 @@ export function updateAddresses(
     addresses = JSON.parse(fileContent)
   }
   const ck = deployNetwork.chainId.toString()
-  const chainKey = deployNetwork.pre ? ck + '-pre' : ck
+  const chainKey = deployNetwork.pre ? ck + PRE_SUFFIX : ck
   addresses[chainKey] = addresses[chainKey] || {}
   addresses[chainKey][key] = value
   fs.writeFileSync(jsonFilePath, JSON.stringify(addresses), 'utf8')
@@ -86,10 +87,6 @@ export type EcoChainIds = ${formatAddressTypes(addresses)}\n\n`
     comments +
     `export const ${name}: Record<EcoChainIds, EcoChainConfig> = \n${formatObjectWithoutQuotes(addresses, 0, true)} as const\n`
   fs.writeFileSync(tsFilePath, outputContent, 'utf-8')
-}
-
-export function deleteAddressesJson() {
-  fs.unlinkSync(jsonFilePath)
 }
 
 // This function formats an object with quotes around the keys and indents per level by 2 spaces

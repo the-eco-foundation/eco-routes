@@ -22,7 +22,7 @@ import {
 } from './utils'
 import { createJsonAddresses, updateAddresses } from '../deploy/addresses'
 import { DeployNetwork } from '../deloyProtocol'
-import { mainnetDep, sepoliaDep } from './chains'
+import { DeployChains, mainnetDep, sepoliaDep } from './chains'
 import * as dotenv from 'dotenv'
 import { getDeployChainConfig, proverSupported } from '../utils'
 import { verifyContract } from './verify'
@@ -36,8 +36,13 @@ export type DeployOpts = {
   deployType?: 'create2' | 'create3'
 }
 
+type DeployType = {
+  partial: boolean
+  exisingDeployVer: string
+}
+
 export class ProtocolDeploy {
-  private queueVerify = new PQueue({ concurrency: 3 }) // theres a 5/second limit on etherscan
+  private queueVerify = new PQueue({ interval: 1000, intervalCap: 3}) // theres a 5/second limit on etherscan
   private queueDeploy = new PQueue()
   private deployChains: Chain[] = []
   private clients: {
@@ -50,7 +55,7 @@ export class ProtocolDeploy {
   } = {}
 
   private account: PrivateKeyAccount
-  constructor(deployChains: Chain[] = [sepoliaDep, mainnetDep].flat()) {
+  constructor(deployChains: Chain[] = DeployChains, opts?: {}) {
     this.deployChains = deployChains
     this.account = getDeployAccount()
     for (const chain of deployChains) {
@@ -66,10 +71,10 @@ export class ProtocolDeploy {
       if (concurrent) {
         this.queueDeploy.add(async () => {
           await this.deployViemContracts(chain, salt)
-          await this.deployViemContracts(chain, saltPre, {
-            pre: true,
-            retry: true,
-          })
+          // await this.deployViemContracts(chain, saltPre, {
+          //   pre: true,
+          //   retry: true,
+          // })
         })
       } else {
         await this.deployViemContracts(chain, salt)
@@ -302,8 +307,8 @@ export class ProtocolDeploy {
 
     console.log(salt)
     await this.deployProver(chain, salt, opts)
-    await this.deployIntentSource(chain, salt, opts)
-    await this.deployInbox(chain, salt, true, opts)
+    // await this.deployIntentSource(chain, salt, opts)
+    // await this.deployInbox(chain, salt, true, opts)
   }
 }
 
