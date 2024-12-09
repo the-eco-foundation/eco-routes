@@ -11,10 +11,13 @@ jobs:
     steps:
       - name: Set environment variable
         run: echo "MY_ENV_VAR=myValue" >> $GITHUB_ENV
-
+      - name: set variable
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: pub:publish 
       - name: Use environment variable
         run: |
-          echo "The value of MY_ENV_VAR is $MY_ENV_VAR"
+          echo "The value of MY_ENV_VAR is $NPM_TAG"
   # job1:
   #   runs-on: ubuntu-latest
   #   outputs:
