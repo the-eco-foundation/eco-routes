@@ -4,17 +4,17 @@ on: [push]
 
 jobs:
   job1:
-    name: Job 1
     runs-on: ubuntu-latest
-    steps: 
-      - name: Set env
-        run: echo "NPM_DEPLOY_TAG=beta" >> $GITHUB_ENV
+    steps:
+      - name: Set Variable
+        run: echo "MY_VARIABLE=my_value" >> $GITHUB_ENV #this is workflow scoped
+
   job2:
-    name: Job 2
+    needs: job1
     runs-on: ubuntu-latest
-    steps: 
-      - name: Read env
-        run: echo "${{ env.NPM_DEPLOY_TAG }}"
+    steps:
+      - name: Use Variable
+        run: echo "${{ env.MY_VARIABLE }}"
     
   # lint:
   #   name: Eslint, prettier and solhint
