@@ -8,36 +8,44 @@ env:
 jobs:
   job1:
     runs-on: ubuntu-latest
-    outputs:
-      npm-tag: ${{ steps.npm.outputs.NPM_TAG }}
     steps:
-      - name: checkout code
-        uses: actions/checkout@v4
-      - name: install node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "yarn"
+      - name: Set Output
+        id: step1
+        run: echo "::set-output name=my_output::latest_tag"
+      - name: Use Output
+        run: echo "${{ steps.step1.outputs.my_output }}"
+  # job1:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     npm-tag: ${{ steps.npm.outputs.NPM_TAG }}
+  #   steps:
+  #     - name: checkout code
+  #       uses: actions/checkout@v4
+  #     - name: install node
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version-file: ".nvmrc"
+  #         cache: "yarn"
 
-      - name: install dependencies
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install # will run `yarn install` command
-      - name: Set Variable
-        id: npm
-        uses: borales/actions-yarn@v4
-        with: 
-          cmd: pub:publish >> $GITHUB_OUTPUT
+  #     - name: install dependencies
+  #       uses: borales/actions-yarn@v4
+  #       with:
+  #         cmd: install # will run `yarn install` command
+  #     - name: Set Variable
+  #       id: npm
+  #       uses: borales/actions-yarn@v4
+  #       with: 
+  #         cmd: pub:publish >> $GITHUB_OUTPUT
 
 
-  job2:
-    needs: job1
-    runs-on: ubuntu-latest
-    env:
-      NPM_TAG: ${{ needs.job1.outputs.npm-tag }}
-    steps:
-      - name: Use Variable
-        run: echo $NPM_BUILD_TAG
+  # job2:
+  #   needs: job1
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     NPM_TAG: ${{ needs.job1.outputs.npm-tag }}
+  #   steps:
+  #     - name: Use Variable
+  #       run: echo $NPM_TAG
     
   # lint:
   #   name: Eslint, prettier and solhint
