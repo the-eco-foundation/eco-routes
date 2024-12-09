@@ -6,36 +6,43 @@ env:
   FAKE_GITHUB_REF: "refs/tags/v0.0.509-beta"
 
 jobs:
-  job1:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set Output
-        id: step1
-        run: echo "::set-output name=my_output::latest_tag"
-      - name: Use Output
-        run: echo "${{ steps.step1.outputs.my_output }}"
   # job1:
   #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Set Output
+  #       id: step1
+  #       run: echo "::set-output name=my_output::latest_tag"
+  #     - name: Use Output
+  #       run: echo "${{ steps.step1.outputs.my_output }}"
+  job1:
+    runs-on: ubuntu-latest
   #   outputs:
   #     npm-tag: ${{ steps.npm.outputs.NPM_TAG }}
-  #   steps:
-  #     - name: checkout code
-  #       uses: actions/checkout@v4
-  #     - name: install node
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version-file: ".nvmrc"
-  #         cache: "yarn"
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: install node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
 
-  #     - name: install dependencies
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: install # will run `yarn install` command
-  #     - name: Set Variable
-  #       id: npm
-  #       uses: borales/actions-yarn@v4
-  #       with: 
-  #         cmd: pub:publish >> $GITHUB_OUTPUT
+      - name: install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
+      - name: install dependencies
+        id: npm_tag
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: pub:publish 
+      - name: Use Output
+        run: echo "was saved in outpub ${{ steps.npm_tag.outputs.NPM_TAG }}"
+      # - name: Set Variable
+      #   id: npm
+      #   uses: borales/actions-yarn@v4
+      #   with: 
+      #     cmd: pub:publish >> $GITHUB_OUTPUT
 
 
   # job2:

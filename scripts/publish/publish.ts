@@ -13,7 +13,8 @@ function publishTag() {
   // console.log(`TAG=${pv.getReleaseTag()}`)
   // execCMD(`echo ${pv.getReleaseTag()}`)
   // console.log(pv.getReleaseTag())
-  setGithubOutput('NPM_TAG', pv.getReleaseTag())
+  // setGithubOutput('NPM_TAG', pv.getReleaseTag())
+  execCMD(`echo "::set-output name=NPM_TAG::${pv.getReleaseTag()}"`)
 }
 
 
