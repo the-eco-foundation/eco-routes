@@ -6,9 +6,10 @@ jobs:
   job1:
     runs-on: ubuntu-latest
     outputs:
-      npm-tag: ${{ steps.job1.outputs.NPM_TAG }}
+      npm-tag: ${{ steps.npm.outputs.NPM_TAG }}
     steps:
       - name: Set Variable
+        id: npm
         run: echo "NPM_TAG=beta" >> $GITHUB_OUTPUT
 
   job2:
