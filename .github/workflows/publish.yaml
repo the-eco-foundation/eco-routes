@@ -136,6 +136,11 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install
+      - name : Set NPM Tag
+        id: npm
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: echo "::set-output name=NPM_TAG::$(pub:publish)")"
       - name: Publish to NPM
         uses: borales/actions-yarn@v4
         with:
