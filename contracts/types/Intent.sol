@@ -17,8 +17,8 @@ struct Intent {
     uint256[] rewardAmounts;
     // intent expiry timestamp
     uint256 expiryTime;
-    // true if it has been withdrawn already
-    bool hasBeenWithdrawn;
+    // true from intent creation until withdrawal
+    bool isActive;
     // hash of counter, chainid
     bytes32 nonce;
     // address of the prover this intent will be checked against
