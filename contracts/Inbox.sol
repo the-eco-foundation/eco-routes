@@ -75,7 +75,7 @@ contract Inbox is IInbox, Ownable {
         bytes32 _nonce,
         address _claimant,
         bytes32 _expectedHash
-    ) external returns (bytes[] memory) {
+    ) external payable returns (bytes[] memory) {
 
         bytes[] memory result = _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
 
@@ -191,7 +191,7 @@ contract Inbox is IInbox, Ownable {
         address _claimant,
         bytes32 _expectedHash,
         address _prover
-    ) external returns (bytes[] memory){
+    ) external payable returns (bytes[] memory){
         bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
 
         emit AddToBatch(_expectedHash, _sourceChainID, _claimant, _prover);
