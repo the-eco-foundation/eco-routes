@@ -301,9 +301,9 @@ contract Prover is SimpleProver {
      * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
      * @param l2MessagePasserStateRoot // storage root / storage hash from eth_getProof(l2tol1messagePasser, [], block where intent was fulfilled)
      * @param l2OutputIndex the batch number
-     * @param l1StorageProof todo
+     * @param l1StorageProof storage proof from settlment chain for eth_getProof(L2OutputOracle, [], L1 block number)
      * @param rlpEncodedOutputOracleData rlp encoding of (balance, nonce, storageHash, codeHash) of eth_getProof(L2OutputOracle, [], L1 block number)
-     * @param l1AccountProof accountProof from eth_getProof(L2OutputOracle, [], )
+     * @param l1AccountProof accountProof from settlement chain for eth_getProof(L2OutputOracle, [], )
      * @param l1WorldStateRoot the l1 world state root that was proven in proveSettlementLayerState
      */
 
