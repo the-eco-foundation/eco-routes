@@ -10,7 +10,7 @@ import {
   stripZerosLeft,
   zeroPadValue,
 } from 'ethers'
-const SecureTrie = require('merkle-patricia-tree').SecureTrie
+// const SecureTrie = require('merkle-patricia-tree').SecureTrie
 
 // Connect to local Ethereum node
 const provider = new ethers.JsonRpcProvider('http://localhost:8545')
