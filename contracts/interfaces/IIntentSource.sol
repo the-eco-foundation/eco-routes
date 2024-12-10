@@ -26,12 +26,6 @@ interface IIntentSource is ISemver{
     error NothingToWithdraw(bytes32 _hash);
 
     /**
-     * @notice thrown on a call to createIntent where _expiry is less than MINIMUM_DURATION
-     * seconds later than the block timestamp at time of call
-     */
-    error ExpiryTooSoon();
-
-    /**
      * @notice thrown on a call to createIntent where _targets and _data have different lengths, or when one of their lengths is zero.
      */
     error CalldataMismatch();
@@ -40,11 +34,6 @@ interface IIntentSource is ISemver{
      * @notice thrown on a call to createIntent where _rewardTokens and _rewardAmounts have different lengths, or when one of their lengths is zero.
      */
     error RewardsMismatch();
-
-    /**
-     * @notice thrown on a call to createIntent where no reward is specified in erc20 or native tokens.
-     */
-    error NoRewards();
 
     /**
      * @notice thrown on a call to batchWithdraw where an intent's claimant does not match the input claimant address
@@ -117,7 +106,7 @@ interface IIntentSource is ISemver{
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,
         address _prover
-    ) external payable;
+    ) external payable returns (bytes32 intentHash);
 
     /**
      * @notice allows withdrawal of reward funds locked up for a given intent
