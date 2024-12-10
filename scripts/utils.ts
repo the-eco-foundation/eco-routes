@@ -190,19 +190,25 @@ export function getDeployChainConfig(chain: Chain): DeployNetworkConfig {
   throw new Error('Network not found')
 }
 
-
-export async function execCMD(command: string) : Promise<string>{
+export async function execCMD(command: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    const { exec } = require('child_process')
-    exec(command, (error: any, stdout: any, stderr: any) => {
-      if (error) {
-        console.error(`exec error: ${error}`)
-        console.error(`stderr: ${stderr}`)
-        reject(error)
-        return
-      }
-      console.log(stdout)
-      resolve(stdout)
-    })
+    // This is running locally so ignore github specific commands
+    if (command.includes('>>') && !process.env.GITHUB_ENV) {
+      const skipMessage = 'Command contains >>, skipping execution'
+      console.log(skipMessage)
+      resolve(skipMessage)
+    } else {
+      const { exec } = require('child_process')
+      exec(command, (error: any, stdout: any, stderr: any) => {
+        if (error) {
+          console.error(`exec error: ${error}`)
+          console.error(`stderr: ${stderr}`)
+          reject(error)
+          return
+        }
+        console.log(stdout)
+        resolve(stdout)
+      })
+    }
   })
 }

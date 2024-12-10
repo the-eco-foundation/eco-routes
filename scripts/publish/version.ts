@@ -1,14 +1,16 @@
-import { ProtocolVersion } from "../viem_deploy/ProtocolVersion"
-
-
+import { ProtocolVersion } from '../viem_deploy/ProtocolVersion'
 
 async function main() {
-  const pv = new ProtocolVersion('0.0.509')
+  const pv = new ProtocolVersion()
   pv.updateVersionInSolidityFiles()
   const chains = await pv.getDeployChains()
-  console.log(chains)
-  // const version = await ver.getPublishedVersion('beta')
-  // console.log(version)
+  console.log(
+    'Chains going to be deployed: ',
+    chains.reduce((acc, chain) => {
+      acc += chain.id + ','
+      return acc
+    }, ''),
+  )
 }
 
 main()
@@ -18,4 +20,3 @@ main()
   .catch((err) => {
     console.error('Error:', err)
   })
-

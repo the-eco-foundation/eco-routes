@@ -42,7 +42,7 @@ type DeployType = {
 }
 
 export class ProtocolDeploy {
-  private queueVerify = new PQueue({ interval: 1000, intervalCap: 3}) // theres a 5/second limit on etherscan
+  private queueVerify = new PQueue({ interval: 1000, intervalCap: 3 }) // theres a 5/second limit on etherscan
   private queueDeploy = new PQueue()
   private deployChains: Chain[] = []
   private clients: {
