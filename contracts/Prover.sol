@@ -523,15 +523,16 @@ contract Prover is SimpleProver {
     }
 
     /**
-     * @notice Validates L2 world state by ensuring that the passed in l2 world state root corresponds to value in the L2 output oracle on L1
+     * @notice Validates an intent has been proven by checking the storage proof on the destination chain
+     * to ensure that the inentHash maps to the claimant address in the inbox contract
      * @param chainId the destination chain id of the intent we are proving
      * @param claimant the address that can claim the reward
-     * @param inboxContract the address of the inbox contract
+     * @param inboxContract the address of the inbox contract on the destination chain
      * @param intermediateHash the hash which, when hashed with the correct inbox contract, will result in the correct intentHash
-     * @param l2StorageProof todo
-     * @param rlpEncodedInboxData todo
-     * @param l2AccountProof todo
-     * @param l2WorldStateRoot todo
+     * @param l2StorageProof A storage proof for the intentHash mapping to the claimant address
+     * @param rlpEncodedInboxData RLP encoded data for the inbox contract including nonce, balance, storageHash, codeHash
+     * @param l2AccountProof An account proof for the destination chain  inbox contract
+     * @param l2WorldStateRoot The world state root of the destination chain
      */
     function proveIntent(
         uint256 chainId, //the destination chain id of the intent we are proving
