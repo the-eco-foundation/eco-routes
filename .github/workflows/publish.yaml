@@ -136,16 +136,10 @@ jobs:
         uses: borales/actions-yarn@v5
         with:
           cmd: install
-      # - name: Set NPM Build Tag
-      #   id: npm
-      #   uses: borales/actions-yarn@v5
-      #   with:
-      #     cmd: pub:tag
       - name: Publish to NPM
         uses: borales/actions-yarn@v5
         with:
           cmd: pub:publish # will run `yarn publish` command with args
-          dir: "build"
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm registry
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # scope registry

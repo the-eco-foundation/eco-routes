@@ -2,39 +2,6 @@ name: Eco Routes Protocol CI Tests
 
 on: [push]
 
-jobs:
-  lint:
-    name: Eslint, prettier and solhint
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4.2.2
-
-      - name: install node
-        uses: actions/setup-node@v4.1.0
-        with:
-          node-version-file: ".nvmrc"
-          cache: "yarn"
-      - name: install dependencies
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: install # will run `yarn install` command
-      - name: Build Project
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: build
-      - name: Prepack
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: prepack
-      - name: Publish to NPM
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: pub:publish
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm registry
-     
 # jobs:
 #   lint:
 #     name: Eslint, prettier and solhint
@@ -49,47 +16,80 @@ jobs:
 #         with:
 #           node-version-file: ".nvmrc"
 #           cache: "yarn"
-
 #       - name: install dependencies
 #         uses: borales/actions-yarn@v5
 #         with:
 #           cmd: install # will run `yarn install` command
-
-#       - name: build project
+#       - name: Build Project
 #         uses: borales/actions-yarn@v5
 #         with:
-#           cmd: build # will run `yarn build` command
-
-#       - name: check lint
+#           cmd: build
+#       - name: Prepack
 #         uses: borales/actions-yarn@v5
 #         with:
-#           cmd: format # will run `yarn format` command
-
-#   tests:
-#     name: Test Suite
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: checkout code
-#         uses: actions/checkout@v4.2.2
-
-#       - name: install node
-#         uses: actions/setup-node@v4.1.0
-#         with:
-#           node-version-file: ".nvmrc"
-#           cache: "npm"
-
-#       - name: install dependencies
+#           cmd: prepack
+#       - name: Publish to NPM
 #         uses: borales/actions-yarn@v5
 #         with:
-#           cmd: install # will run `yarn install` command
+#           cmd: pub:publish
+#         env:
+#           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm registry
+     
+jobs:
+  lint:
+    name: Eslint, prettier and solhint
+    runs-on: ubuntu-latest
 
-#       - name: build project
-#         uses: borales/actions-yarn@v5
-#         with:
-#           cmd: build # will run `yarn build` command
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4.2.2
 
-#       - name: Run Test
-#         uses: borales/actions-yarn@v5
-#         with:
-#           cmd: test # will run `yarn test` command
+      - name: install node
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+
+      - name: install dependencies
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: install # will run `yarn install` command
+
+      - name: build project
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: build # will run `yarn build` command
+
+      - name: check lint
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: format # will run `yarn format` command
+
+  tests:
+    name: Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: install node
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: install dependencies
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: install # will run `yarn install` command
+
+      - name: build project
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: build # will run `yarn build` command
+
+      - name: Run Test
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: test # will run `yarn test` command

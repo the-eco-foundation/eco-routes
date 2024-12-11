@@ -27,7 +27,7 @@ export const sepoliaDep: Chain[] = [
   // arbitrumSepolia,
   baseSepolia,
   // mantleSepoliaTestnet,
-  optimismSepolia,
+  // optimismSepolia,
 ] as any
 
 /**
