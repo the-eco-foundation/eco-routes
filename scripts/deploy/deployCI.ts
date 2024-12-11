@@ -1,8 +1,18 @@
-import { deleteAddressesJson, transformAddresses } from './addresses'
-import { deployContracts } from './ci'
+import { ProtocolDeploy } from '../viem_deploy/ProtocolDeploy'
+import { transformAddresses } from './addresses'
 import { addressesToCVS } from './csv'
 
-deployContracts()
-transformAddresses()
-addressesToCVS()
-deleteAddressesJson()
+async function main() {
+  const deploy = new ProtocolDeploy()
+  await deploy.deployFullNetwork(true)
+  transformAddresses()
+  addressesToCVS()
+}
+
+main()
+  .then((results) => {
+    // console.log('Deployment and verification results:', results)
+  })
+  .catch((err) => {
+    console.error('Error:', err)
+  })

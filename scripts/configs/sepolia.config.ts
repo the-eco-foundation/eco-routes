@@ -49,6 +49,7 @@ export const mantleSepoliaChainConfiguration: DeployNetworkConfig = {
       networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
 }
+
 export const arbitrumSepoliaChainConfiguration: DeployNetworkConfig = {
   chainId: networks.arbitrumSepolia.chainId, // chainId
   chainConfiguration: {
@@ -60,4 +61,8 @@ export const arbitrumSepoliaChainConfiguration: DeployNetworkConfig = {
     outputRootVersionNumber:
       networks.arbitrumSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
   },
+}
+
+export const polygonSepoliaChainConfiguration: DeployNetworkConfig = {
+  chainId: networks.polygonSepolia.chainId, // chainId
 }

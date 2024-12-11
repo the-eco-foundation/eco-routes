@@ -3,11 +3,11 @@ import { actors } from '../../config/testnet/config'
 import {
   DeployNetwork,
   deployProtocol,
-  getDeployNetwork,
   getEmptyProtocolDeploy,
   ProtocolDeploy,
 } from '../deloyProtocol'
 import { SepoliaChainConfigs } from '../configs/chain.config'
+import { getDeployNetwork } from '../utils'
 export const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY || ''
 
 const protocolDeploy: ProtocolDeploy = getEmptyProtocolDeploy()
