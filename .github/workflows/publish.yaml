@@ -140,7 +140,7 @@ jobs:
         id: npm
         uses: borales/actions-yarn@v4
         with:
-          cmd: pub:publish
+          cmd: pub:tag
       - name: Publish to NPM
         uses: borales/actions-yarn@v4
         with:
