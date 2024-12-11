@@ -20,13 +20,20 @@ jobs:
         uses: borales/actions-yarn@v5
         with:
           cmd: install # will run `yarn install` command
-      - name: Create a directory
-        run: mkdir -p build
+      - name: Publish prepack build directory
+        uses: borales/actions-yarn@v5
+        with:
+          cmd: pub:prepack
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            ./build
       - name: Publish to NPM
         uses: borales/actions-yarn@v5
         with:
           cmd: pub:publish
-          dir: "build"
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm registry
      
