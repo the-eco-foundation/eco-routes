@@ -20,7 +20,7 @@ import {
   getDeployAccount,
   getGitRandomSalt,
 } from './utils'
-import { createJsonAddresses, updateAddresses } from '../deploy/addresses'
+import { createJsonAddresses, updateAddress } from '../deploy/addresses'
 import { DeployNetwork } from '../deloyProtocol'
 import { DeployChains, mainnetDep, sepoliaDep } from './chains'
 import * as dotenv from 'dotenv'
@@ -34,11 +34,6 @@ export type DeployOpts = {
   pre?: boolean
   retry?: boolean
   deployType?: 'create2' | 'create3'
-}
-
-type DeployType = {
-  partial: boolean
-  exisingDeployVer: string
 }
 
 export class ProtocolDeploy {
@@ -65,16 +60,17 @@ export class ProtocolDeploy {
   }
 
   async deployFullNetwork(concurrent: boolean = false) {
+    return
     const salt = getGitRandomSalt()
     const saltPre = getGitRandomSalt()
     for (const chain of this.deployChains) {
       if (concurrent) {
         this.queueDeploy.add(async () => {
           await this.deployViemContracts(chain, salt)
-          // await this.deployViemContracts(chain, saltPre, {
-          //   pre: true,
-          //   retry: true,
-          // })
+          await this.deployViemContracts(chain, saltPre, {
+            pre: true,
+            retry: true,
+          })
         })
       } else {
         await this.deployViemContracts(chain, salt)
@@ -245,7 +241,7 @@ export class ProtocolDeploy {
       )
       const networkConfig = getDeployChainConfig(chain) as DeployNetwork
       networkConfig.pre = opts.pre || false
-      updateAddresses(networkConfig, `${name}`, deployedAddress)
+      updateAddress(networkConfig, `${name}`, deployedAddress)
       console.log(
         `Chain: ${chain.name}, ${name} address updated in addresses.json`,
       )

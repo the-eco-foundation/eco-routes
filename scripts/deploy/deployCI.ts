@@ -1,9 +1,11 @@
 import { ProtocolDeploy } from '../viem_deploy/ProtocolDeploy'
+import { ProtocolVersion } from '../viem_deploy/ProtocolVersion'
 import { transformAddresses } from './addresses'
 import { addressesToCVS } from './csv'
 
 async function main() {
-  const deploy = new ProtocolDeploy()
+  const pv = new ProtocolVersion()
+  const deploy = new ProtocolDeploy(await pv.getDeployChains())
   await deploy.deployFullNetwork(true)
   transformAddresses()
   addressesToCVS()

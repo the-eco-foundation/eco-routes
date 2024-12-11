@@ -2,127 +2,61 @@ name: Eco Routes Protocol CI Tests
 
 on: [push]
 
-env:
-  FAKE_GITHUB_REF: "refs/tags/v0.0.509-beta"
-
 jobs:
-  job1:
+  lint:
+    name: Eslint, prettier and solhint
     runs-on: ubuntu-latest
+
     steps:
       - name: checkout code
         uses: actions/checkout@v4
+
       - name: install node
         uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: "yarn"
+
       - name: install dependencies
         uses: borales/actions-yarn@v4
         with:
           cmd: install # will run `yarn install` command
-      - name: Set environment variable
-        run: echo "MY_ENV_VAR=myValue" >> $GITHUB_ENV
-      - name: set variable
+
+      - name: build project
         uses: borales/actions-yarn@v4
         with:
-          cmd: pub:publish 
-      - name: Use environment variable
-        run: |
-          echo "The value of MY_ENV_VAR is $NPM_TAG"
-  # job1:
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     npm-tag: ${{ steps.npm.outputs.NPM_TAG }}
-    # steps:
-    #   - name: checkout code
-    #     uses: actions/checkout@v4
-    #   - name: install node
-    #     uses: actions/setup-node@v4
-    #     with:
-    #       node-version-file: ".nvmrc"
-    #       cache: "yarn"
+          cmd: build # will run `yarn build` command
 
-    #   - name: install dependencies
-    #     uses: borales/actions-yarn@v4
-    #     with:
-    #       cmd: install # will run `yarn install` command
-    #   - name: set variable
-    #     id: npm_tag
-    #     uses: borales/actions-yarn@v4
-    #     with:
-    #       cmd: pub:publish 
-    #   - name: Use Output
-    #     run: echo "was saved in outpub $NPM_TAG"
-      # - name: Set Variable
-      #   id: npm
-      #   uses: borales/actions-yarn@v4
-      #   with: 
-      #     cmd: pub:publish >> $GITHUB_OUTPUT
+      - name: check lint
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: format # will run `yarn format` command
 
+  tests:
+    name: Test Suite
+    runs-on: ubuntu-latest
 
-  # job2:
-  #   needs: job1
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     NPM_TAG: ${{ needs.job1.outputs.npm-tag }}
-  #   steps:
-  #     - name: Use Variable
-  #       run: echo $NPM_TAG
-    
-  # lint:
-  #   name: Eslint, prettier and solhint
-  #   runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
 
-  #   steps:
-  #     - name: checkout code
-  #       uses: actions/checkout@v4
+      - name: install node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
-  #     - name: install node
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version-file: ".nvmrc"
-  #         cache: "yarn"
+      - name: install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
 
-  #     - name: install dependencies
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: install # will run `yarn install` command
+      - name: build project
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: build # will run `yarn build` command
 
-  #     - name: build project
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: build # will run `yarn build` command
-
-  #     - name: check lint
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: format # will run `yarn format` command
-
-  # tests:
-  #   name: Test Suite
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: install node
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version-file: ".nvmrc"
-  #         cache: "npm"
-
-  #     - name: install dependencies
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: install # will run `yarn install` command
-
-  #     - name: build project
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: build # will run `yarn build` command
-
-  #     - name: Run Test
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: test # will run `yarn test` command
+      - name: Run Test
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: test # will run `yarn test` command

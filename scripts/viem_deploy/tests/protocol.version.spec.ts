@@ -30,6 +30,10 @@ jest.mock('../chains', () => {
 })
 
 describe('ProtocolVersion Tests', () => {
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
+
   beforeAll(() => {
     console.log = jest.fn()
     console.error = jest.fn()
@@ -76,6 +80,19 @@ describe('ProtocolVersion Tests', () => {
     })
   })
 
+  describe('on updateProtocolVersion', () => {
+    it('should call the package and .sol file updates', () => {
+      const spy = jest.spyOn(ProtocolVersion.prototype, 'updateProjectVersion')
+      const spySolidity = jest.spyOn(ProtocolVersion.prototype, 'updateVersionInSolidityFiles')
+      const spyPackage =  jest.spyOn(ProtocolVersion.prototype, 'updatePackageJsonVersion')
+      const pv = new ProtocolVersion('1.0.0')
+      pv.updateProjectVersion()
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spySolidity).toHaveBeenCalled()//recursive call so we dont know how many times
+      expect(spyPackage).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('on isPatchUpdate', () => {
     let pv: ProtocolVersion
     const versionString = '0.0.2-beta'
@@ -93,7 +110,9 @@ describe('ProtocolVersion Tests', () => {
       jest
         .spyOn(ProtocolVersion.prototype, 'getPublishedVersion')
         .mockResolvedValue(versionString)
-      expect(async () => await pv.isPatchUpdate()).rejects.toThrow(`Version of git tag ${versionString} is the same as the current published version: ${versionString}`)
+      expect(async () => await pv.isPatchUpdate()).rejects.toThrow(
+        `Version of git tag ${versionString} is the same as the current published version: ${versionString}`,
+      )
     })
 
     it('should return false if this version is lower patch than the published one', async () => {
@@ -154,15 +173,16 @@ describe('ProtocolVersion Tests', () => {
       jest
         .spyOn(ProtocolVersion.prototype, 'getNewChains')
         .mockResolvedValue([])
-      expect(async () => await pv.getDeployChains()).rejects.toThrow('No new chains to deploy for a patch update')
+      expect(async () => await pv.getDeployChains()).rejects.toThrow(
+        'No new chains to deploy for a patch update',
+      )
     })
 
     it('should call getNewChains if its a patch update', async () => {
       jest
         .spyOn(ProtocolVersion.prototype, 'isPatchUpdate')
         .mockResolvedValue(true)
-      const spy = jest
-        .spyOn(ProtocolVersion.prototype, 'getNewChains')
+      const spy = jest.spyOn(ProtocolVersion.prototype, 'getNewChains')
       await pv.getDeployChains()
       expect(spy).toHaveBeenCalledTimes(1)
     })
@@ -171,8 +191,7 @@ describe('ProtocolVersion Tests', () => {
       jest
         .spyOn(ProtocolVersion.prototype, 'isPatchUpdate')
         .mockResolvedValue(false)
-      const spy = jest
-        .spyOn(ProtocolVersion.prototype, 'getNewChains')
+      const spy = jest.spyOn(ProtocolVersion.prototype, 'getNewChains')
       expect(await pv.getDeployChains()).toEqual(MockDeployChains)
       expect(spy).toHaveBeenCalledTimes(0)
     })

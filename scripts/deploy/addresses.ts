@@ -1,11 +1,18 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { DeployNetwork } from '../deloyProtocol'
+import { Hex } from 'viem'
 
 interface AddressBook {
   [network: string]: {
     [key: string]: string
   }
+}
+export type EcoChainConfig = {
+  Prover: Hex
+  IntentSource: Hex
+  Inbox: Hex
+  HyperProver: Hex
 }
 
 export const PRE_SUFFIX = '-pre'
@@ -26,7 +33,26 @@ export function createJsonAddresses() {
     fs.writeFileSync(jsonFilePath, JSON.stringify({}), 'utf8')
   }
 }
-export function updateAddresses(
+
+export function mergeAddresses(ads: Record<string, EcoChainConfig>){
+  let addresses: Record<string, EcoChainConfig> = {}
+
+  if (fs.existsSync(jsonFilePath)) {
+    const fileContent = fs.readFileSync(jsonFilePath, 'utf8')
+    addresses = JSON.parse(fileContent)
+  }
+  
+  addresses = {...addresses, ...ads}
+  fs.writeFileSync(jsonFilePath, JSON.stringify(addresses), 'utf8')
+}
+
+/**
+ * Adds a new address to the address json file
+ * @param deployNetwork the network of the deployed contract
+ * @param key the network id
+ * @param value the deployed contract address
+ */
+export function updateAddress(
   deployNetwork: DeployNetwork,
   key: string,
   value: string,
@@ -43,6 +69,7 @@ export function updateAddresses(
   addresses[chainKey][key] = value
   fs.writeFileSync(jsonFilePath, JSON.stringify(addresses), 'utf8')
 }
+
 
 /**
  * Transforms the addresses json file into a typescript file

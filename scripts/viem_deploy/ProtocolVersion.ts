@@ -110,6 +110,11 @@ export class ProtocolVersion {
   getVersion(): string {
     return semver.stringify(this.version)
   }
+  
+  updateProjectVersion(){
+    this.updateVersionInSolidityFiles()
+    this.updatePackageJsonVersion()
+  }
 
   /**
    * This function updates all the .sol files in the given directory to return a version string with the given version.
@@ -145,10 +150,9 @@ export class ProtocolVersion {
   /**
    * Updates the package json version to the given version
    *
-   * @param version the version to update the package.json to
    */
-  updatePackageJsonVersion(version: string) {
-    version = this.verifySemver(version)
+  updatePackageJsonVersion() {
+    const version = semver.stringify(this.version)
     // Update the version in package.json
     const packageJsonPath = path.join(__dirname, '../../package.json')
     const packageJson = fs.readFileSync(packageJsonPath, 'utf8')
@@ -169,10 +173,12 @@ export class ProtocolVersion {
    * @returns true if the current version is a patch update from the published version
    */
   async isPatchUpdate(): Promise<boolean> {
-    const publishedVersion = await this.getPublishedVersion(this.getReleaseTag())
+    const publishedVersion = await this.getPublishedVersion(
+      this.getReleaseTag(),
+    )
     if (!publishedVersion) return false
     const pub = semver.parse(publishedVersion)
-    //in case the wrong string was published under another tag, ie 1.0.0-beta was published under latest
+    // in case the wrong string was published under another tag, ie 1.0.0-beta was published under latest
     pub.release = this.getReleaseTag()
     if (
       pub.major === this.version.major &&
@@ -188,7 +194,7 @@ export class ProtocolVersion {
       pub.major === this.version.major &&
       pub.minor === this.version.minor &&
       compareSemverIntegerStrings(this.version.patch || '0', pub.patch || '0') >
-      0
+        0
     )
   }
 

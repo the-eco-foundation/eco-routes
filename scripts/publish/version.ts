@@ -2,15 +2,15 @@ import { ProtocolVersion } from '../viem_deploy/ProtocolVersion'
 
 async function main() {
   const pv = new ProtocolVersion()
-  pv.updateVersionInSolidityFiles()
+  pv.updateProjectVersion()
   const chains = await pv.getDeployChains()
-  console.log(
-    'Chains going to be deployed: ',
-    chains.reduce((acc, chain) => {
-      acc += chain.id + ','
-      return acc
-    }, ''),
-  )
+  // console.log(
+  //   'Chains going to be deployed: ',
+  //   chains.reduce((acc, chain) => {
+  //     acc += chain.id + ','
+  //     return acc
+  //   }, ''),
+  // )
 }
 
 main()
