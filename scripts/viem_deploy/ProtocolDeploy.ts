@@ -41,14 +41,13 @@ export type DeployOpts = {
   pre?: boolean
   retry?: boolean
   deployType?: 'create2' | 'create3'
-  salts?: SaltsType
 }
-
 export class ProtocolDeploy {
   private queueVerify = new PQueue({ interval: 1000, intervalCap: 1 }) // theres a 5/second limit on etherscan
   private queueDeploy = new PQueue()
   private deployChains: Chain[] = []
-  private opts?: DeployOpts = {}
+  private salts?: SaltsType
+
   private clients: {
     [key: string]: DeployWalletClient<
       Transport,
@@ -59,19 +58,19 @@ export class ProtocolDeploy {
   } = {}
 
   private account: PrivateKeyAccount
-  constructor(deployChains: Chain[] = DeployChains, opts?: DeployOpts) {
+  constructor(deployChains: Chain[] = DeployChains, salts?: SaltsType) {
     this.deployChains = deployChains
     this.account = getDeployAccount()
     for (const chain of deployChains) {
       this.clients[chain.id] = getClient(chain, this.account)
     }
-    this.opts = opts
+    this.salts = salts
     createFile(jsonFilePath)
   }
 
   async deployFullNetwork(concurrent: boolean = false) {
-    const { salt, saltPre } = !isEmpty(this.opts?.salts)
-      ? this.opts.salts
+    const { salt, saltPre } = !isEmpty(this.salts)
+      ? this.salts
       : { salt: getGitRandomSalt(), saltPre: getGitRandomSalt() }
     saveDeploySalts({ salt, saltPre })
     console.log('Using Salts :', salt, saltPre)
@@ -303,11 +302,7 @@ export class ProtocolDeploy {
     }
   }
 
-  async deployViemContracts(
-    chain: Chain,
-    salt: Hex = getGitRandomSalt(),
-    opts?: DeployOpts,
-  ) {
+  async deployViemContracts(chain: Chain, salt: Hex, opts?: DeployOpts) {
     console.log(
       'Deploying contracts with the account:',
       getDeployAccount().address,
