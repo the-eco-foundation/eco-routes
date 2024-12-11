@@ -27,6 +27,8 @@ jobs:
         with:
           cmd: pub:env
           dir: "build"
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm registry
      
 # jobs:
   # lint:
