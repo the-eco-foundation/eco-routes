@@ -65,18 +65,18 @@ export class ProtocolVersion {
    * @returns the chains that have been deployed
    */
   async getNewChains(): Promise<Chain[]> {
-    const saveDir = path.join(__dirname, '../../tmp')
+    const tempDir = path.join(__dirname, '../../tmp')
     // extract a package into a folder
     const pkg = `${this.packageName}@${this.getReleaseTag()}`
     try {
       const ext = await pacote.extract(
         pkg,
-        saveDir,
+        tempDir,
         {},
       )
       console.info('extracted!', JSON.stringify(ext))
       const existingData = getJsonAddresses(
-        path.join(saveDir, 'deployAddresses.json'),
+        path.join(tempDir, 'deployAddresses.json'),
       )
       console.info('Existing data:', JSON.stringify(existingData))
       const chainIDs = Object.keys(existingData)

@@ -158,7 +158,6 @@ describe('ProtocolVersion Tests', () => {
 
     it('should return all the chains not inlcuded in the package', async () => {
        const cs = await pv.getNewChains()
-      console.info(cs)
       // expect(mockRim).toHaveBeenCalledTimes(1)
       expect(cs.length).toEqual(1)
       expect(cs[0].id).toEqual(3)
@@ -169,8 +168,15 @@ describe('ProtocolVersion Tests', () => {
     let pv: ProtocolVersion
     const versionString = '0.0.2-beta'
     beforeEach(() => {
-      pv = new ProtocolVersion(versionString)
       jest.restoreAllMocks()
+      pv = new ProtocolVersion(versionString)
+      mockExtract.mockResolvedValue({})
+
+      mockGetJsonAddresses.mockReturnValue({
+        '1': {},
+        '2': {},
+        '3-pre': {},
+      })
     })
 
     it('should throw if a patch update has no new chains', async () => {
