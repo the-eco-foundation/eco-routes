@@ -1,5 +1,5 @@
 import { ProtocolDeploy } from '../viem_deploy/ProtocolDeploy'
-import { deleteAddressesJson, transformAddresses } from './addresses'
+import { transformAddresses } from './addresses'
 import { addressesToCVS } from './csv'
 
 async function main() {
