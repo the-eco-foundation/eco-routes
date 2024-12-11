@@ -139,11 +139,12 @@ contract IntentSource is IIntentSource {
             intent.isActive = false;
             uint256 len = intent.rewardTokens.length;
             for (uint256 i = 0; i < len; i++) {
-                safeERC20Transfer(intent.rewardTokens[i], withdrawTo, intent.rewardAmounts[i]);
+                IERC20(intent.rewardTokens[i]).safeTransfer(withdrawTo, intent.rewardAmounts[i]);
             }
             emit Withdrawal(_hash, withdrawTo);
-            if(intent.rewardNative > 0) {
-                payable(withdrawTo).transfer(intent.rewardNative);
+            uint256 nativeReward = intent.rewardNative;
+            if(nativeReward > 0) {
+                payable(withdrawTo).transfer(nativeReward);
             }
         } else {
             revert NothingToWithdraw(_hash);
@@ -183,11 +184,12 @@ contract IntentSource is IIntentSource {
             }
             intent.isActive = false;
             for (uint256 j = 0; j < intent.rewardTokens.length; j++) {
-                if (erc20 == intent.rewardTokens[j]) {
+                address newToken = intent.rewardTokens[j];
+                if (erc20 == newToken) {
                     balance += intent.rewardAmounts[j];
                 } else {
                     safeERC20Transfer(erc20, _claimant, balance);
-                    erc20 = intent.rewardTokens[j];
+                    erc20 = newToken;
                     balance = intent.rewardAmounts[j];
                 }
             }
