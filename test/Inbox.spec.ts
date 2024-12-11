@@ -148,6 +148,13 @@ describe('Inbox Test', (): void => {
     expect(await inbox.isSolvingPublic()).to.be.false
     expect(await inbox.solverWhitelist(solver)).to.be.true
     expect(await inbox.solverWhitelist(owner)).to.be.false
+
+    const log = (
+      await inbox.queryFilter(inbox.getEvent('SolverWhitelistChanged'))
+    )[0]
+
+    expect(log.args._solver).to.eq(solver.address)
+    expect(log.args._canSolve).to.eq(true)
   })
 
   describe('restricted methods', async () => {
@@ -781,7 +788,7 @@ describe('Inbox Test', (): void => {
 
         const excess = ethers.parseEther('.123')
         const initialSolverbalance = await ethers.provider.getBalance(
-          await solver.getAddress(),
+          solver.address,
         )
         await expect(
           inbox
