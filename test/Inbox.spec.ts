@@ -161,9 +161,6 @@ describe('Inbox Test', (): void => {
       await expect(
         inbox.connect(solver).setMailbox(await mailbox.getAddress()),
       ).to.be.revertedWithCustomError(inbox, 'OwnableUnauthorizedAccount')
-      await expect(
-        inbox.connect(solver).drain(solver.address),
-      ).to.be.revertedWithCustomError(inbox, 'OwnableUnauthorizedAccount')
     })
     it('lets owner make solving public', async () => {
       expect(await inbox.isSolvingPublic()).to.be.false
@@ -671,13 +668,16 @@ describe('Inbox Test', (): void => {
 
       expect(await mailbox.dispatched()).to.be.false
     })
-    it('drains', async () => {
+    it('refunds solver when too much fee is sent', async () => {
       const fee = await inbox.fetchFee(
         sourceChainID,
         ethers.zeroPadBytes(await dummyHyperProver.getAddress(), 32),
         calldata,
         calldata,
         ethers.ZeroAddress,
+      )
+      const initialSolverbalance = await ethers.provider.getBalance(
+        solver.address,
       )
       const excess = ethers.parseEther('.123')
       await inbox
@@ -695,15 +695,12 @@ describe('Inbox Test', (): void => {
             value: fee + excess,
           },
         )
-      const initialSolverbalance = await ethers.provider.getBalance(
-        solver.address,
-      )
-      await inbox.connect(owner).drain(solver.address)
-      expect(await ethers.provider.getBalance(solver.address)).to.eq(
-        initialSolverbalance + excess,
-      )
       expect(await ethers.provider.getBalance(await inbox.getAddress())).to.eq(
         0,
+      )
+      // not bothered about the gas accounting, if its more than this then there was a refund, going to assume its the right amount.
+      expect(await ethers.provider.getBalance(solver.address)).to.greaterThan(
+        initialSolverbalance - excess,
       )
     })
     context('sendBatch', async () => {
@@ -740,7 +737,7 @@ describe('Inbox Test', (): void => {
           .withArgs(hashes[0])
         expect(await mailbox.dispatched()).to.be.false
       })
-      it('should revert if sending a batch with too low a fee', async () => {
+      it('should revert if sending a batch with too low a fee, and refund some if the msg value is greater than the fee', async () => {
         expect(await mailbox.dispatched()).to.be.false
         await inbox
           .connect(solver)
@@ -779,7 +776,42 @@ describe('Inbox Test', (): void => {
               },
             ),
         ).to.be.revertedWithCustomError(inbox, 'InsufficientFee')
-        expect(await mailbox.dispatched()).to.be.false
+
+        const excess = ethers.parseEther('.123')
+        const initialSolverbalance = await ethers.provider.getBalance(
+          await solver.getAddress(),
+        )
+        await expect(
+          inbox
+            .connect(solver)
+            .sendBatch(
+              sourceChainID,
+              await dummyHyperProver.getAddress(),
+              [intentHash],
+              {
+                value:
+                  Number(
+                    await inbox.fetchFee(
+                      sourceChainID,
+                      ethers.zeroPadBytes(
+                        await dummyHyperProver.getAddress(),
+                        32,
+                      ),
+                      calldata,
+                      calldata,
+                      ethers.ZeroAddress,
+                    ),
+                  ) + 1,
+              },
+            ),
+        ).to.not.be.reverted
+        expect(
+          await ethers.provider.getBalance(await inbox.getAddress()),
+        ).to.eq(0)
+        expect(await ethers.provider.getBalance(solver.address)).to.greaterThan(
+          initialSolverbalance - excess,
+        )
+        expect(await mailbox.dispatched()).to.be.true
       })
       it('succeeds for a single intent', async () => {
         expect(await mailbox.dispatched()).to.be.false

@@ -5,6 +5,7 @@ import "./interfaces/IInbox.sol";
 import "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import "@hyperlane-xyz/core/contracts/libs/TypeCasts.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
 /**
  * @title Inbox
@@ -150,6 +151,9 @@ contract Inbox is IInbox, Ownable {
         if (msg.value < fee) {
             revert InsufficientFee(fee);
         }
+        if (msg.value > fee) {
+            payable(msg.sender).transfer(msg.value - fee);
+        }
         if (_postDispatchHook == address(0)) {
             IMailbox(mailbox).dispatch{value: fee}(
                 uint32(_sourceChainID), 
@@ -238,7 +242,10 @@ contract Inbox is IInbox, Ownable {
         if (msg.value < fee) {
             revert InsufficientFee(fee);
         }
-
+        if (msg.value > fee) {
+            payable(msg.sender).transfer(msg.value - fee);
+            console.log("msg.value: %s, fee: %s", msg.value, fee);
+        }
         if (_postDispatchHook == address(0)) { 
             IMailbox(mailbox).dispatch{value: fee}(
                 uint32(_sourceChainID), 
@@ -329,17 +336,7 @@ contract Inbox is IInbox, Ownable {
         solverWhitelist[_solver] = _canSolve;
         emit SolverWhitelistChanged(_solver, _canSolve);
     }
-
-    /**
-     * @notice allows the owner to withdraw the contract's balance
-     * @param _destination the address to which the balance will be sent
-     * @dev this is a safety feature to be able to get stuck funds out of the contract
-     * @dev mostly useful for reclaiming dust and excess fees
-     */
-    function drain(address _destination) public onlyOwner {
-        payable(_destination).transfer(address(this).balance);
-    }
-
+    
     function _fulfill(
         uint256 _sourceChainID,
         address[] calldata _targets,
