@@ -224,17 +224,15 @@ contract Inbox is IInbox, Ownable {
         if (size > MAX_BATCH_SIZE) {
             revert BatchTooLarge();
         }
-        bytes32[] memory hashes = new bytes32[](size);
         address[] memory claimants = new address[](size);
         for (uint256 i = 0; i < size; i++) {
             address claimant = fulfilled[_intentHashes[i]];
             if (claimant == address(0)) {
                 revert IntentNotFulfilled(_intentHashes[i]);
             }
-            hashes[i] = _intentHashes[i];
             claimants[i] = claimant;
         }
-        bytes memory messageBody = abi.encode(hashes, claimants);
+        bytes memory messageBody = abi.encode(_intentHashes, claimants);
         bytes32 _prover32 = _prover.addressToBytes32();
         uint256 fee = fetchFee(_sourceChainID, _prover32, messageBody, _metadata, _postDispatchHook);
         if (msg.value < fee) {
