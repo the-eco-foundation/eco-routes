@@ -69,12 +69,12 @@ export class ProtocolVersion {
     // extract a package into a folder
     const pkg = `${this.packageName}@${this.getReleaseTag()}`
     try {
-      const { from, resolved, integrity } = await pacote.extract(
+      const ext = await pacote.extract(
         pkg,
         saveDir,
         {},
       )
-      console.log('extracted!', from, resolved, integrity)
+      console.info('extracted!', JSON.stringify(ext))
       const existingData = getJsonAddresses(
         path.join(saveDir, 'deployAddresses.json'),
       )

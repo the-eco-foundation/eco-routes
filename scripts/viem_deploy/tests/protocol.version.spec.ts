@@ -140,8 +140,15 @@ describe('ProtocolVersion Tests', () => {
     let pv: ProtocolVersion
     const versionString = '0.0.2-beta'
     beforeEach(() => {
-      pv = new ProtocolVersion(versionString)
       jest.resetAllMocks()
+      pv = new ProtocolVersion(versionString)
+      mockExtract.mockResolvedValue({})
+
+      mockGetJsonAddresses.mockReturnValue({
+        '1': {},
+        '2': {},
+        '3-pre': {},
+      })
     })
 
     it("should return all chains if it can't extract the package", async () => {
@@ -150,15 +157,7 @@ describe('ProtocolVersion Tests', () => {
     })
 
     it('should return all the chains not inlcuded in the package', async () => {
-      mockExtract.mockResolvedValue({})
-
-      mockGetJsonAddresses.mockReturnValue({
-        '1': {},
-        '2': {},
-        '3-pre': {},
-      })
-
-      const cs = await pv.getNewChains()
+       const cs = await pv.getNewChains()
       console.info(cs)
       // expect(mockRim).toHaveBeenCalledTimes(1)
       expect(cs.length).toEqual(1)
