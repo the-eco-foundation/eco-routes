@@ -3,11 +3,9 @@
 import { execCMD } from '../utils'
 import { ProtocolVersion } from '../viem_deploy/ProtocolVersion'
 
-
 function publish() {
   const pv = new ProtocolVersion()
   const tag  = pv.getReleaseTag()
-  // const tag = 'asdf123'
   const ops = {cwd: 'build'}
   execCMD(`echo starting yarn publish`, ops)
   execCMD(`"pwd"  pwd`, ops)

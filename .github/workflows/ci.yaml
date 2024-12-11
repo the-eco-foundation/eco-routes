@@ -2,39 +2,6 @@ name: Eco Routes Protocol CI Tests
 
 on: [push]
 
-# jobs:
-#   lint:
-#     name: Eslint, prettier and solhint
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: checkout code
-#         uses: actions/checkout@v4.2.2
-
-#       - name: install node
-#         uses: actions/setup-node@v4.1.0
-#         with:
-#           node-version-file: ".nvmrc"
-#           cache: "yarn"
-#       - name: install dependencies
-#         uses: borales/actions-yarn@v5
-#         with:
-#           cmd: install # will run `yarn install` command
-#       - name: Build Project
-#         uses: borales/actions-yarn@v5
-#         with:
-#           cmd: build
-#       - name: Prepack
-#         uses: borales/actions-yarn@v5
-#         with:
-#           cmd: prepack
-#       - name: Publish to NPM
-#         uses: borales/actions-yarn@v5
-#         with:
-#           cmd: pub:publish
-#         env:
-#           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # npm registry
-     
 jobs:
   lint:
     name: Eslint, prettier and solhint
