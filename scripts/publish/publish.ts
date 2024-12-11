@@ -13,4 +13,5 @@ function publish(){
   execCMD(`echo ${tag}`)
 }
 
+
 publish()
