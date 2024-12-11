@@ -20,7 +20,6 @@ jobs:
         uses: borales/actions-yarn@v5
         with:
           cmd: mkdir build
-          dir: "build"
       - name: Publish to NPM
         uses: borales/actions-yarn@v5
         with:
