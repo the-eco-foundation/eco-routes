@@ -78,9 +78,12 @@ export class ProtocolVersion {
       const existingData = getJsonAddresses(
         path.join(saveDir, 'deployAddresses.json'),
       )
+      console.info('Existing data:', JSON.stringify(existingData))
       const chainIDs = Object.keys(existingData)
         .filter((val) => !val.endsWith(PRE_SUFFIX))
         .map((val) => Number.parseInt(val))
+        console.info('Existing data:', chainIDs)
+        console.info('DeployChains data:', JSON.stringify(DeployChains))
       mergeAddresses(existingData)
       // delete tmp package directory
       // rimrafSync(saveDir)
