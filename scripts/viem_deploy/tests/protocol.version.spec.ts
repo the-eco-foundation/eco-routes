@@ -1,5 +1,5 @@
 const mockExtract = jest.fn()
-const mockGetJsonAddresses = jest.fn()
+const mockGetJsonFromFile = jest.fn()
 const mockMergeAddresses = jest.fn()
 const mockRim = jest.fn()
 const MockDeployChains = [{ id: 1 }, { id: 2 }, { id: 3 }]
@@ -26,7 +26,7 @@ jest.mock('../chains', () => {
 jest.mock('../../deploy/addresses', () => {
   return {
     ...jest.requireActual('../../deploy/addresses'),
-    getJsonAddresses: mockGetJsonAddresses,
+    getJsonFromFile: mockGetJsonFromFile,
     mergeAddresses: mockMergeAddresses,
   }
 })
@@ -38,6 +38,7 @@ describe('ProtocolVersion Tests', () => {
 
   beforeAll(() => {
     console.log = jest.fn()
+    console.debug = jest.fn()
     console.error = jest.fn()
   })
   describe('on constructor', () => {
@@ -146,7 +147,7 @@ describe('ProtocolVersion Tests', () => {
       pv = new ProtocolVersion(versionString)
       mockExtract.mockResolvedValue({})
 
-      mockGetJsonAddresses.mockReturnValue({
+      mockGetJsonFromFile.mockReturnValue({
         '1': {},
         '2': {},
         '3-pre': {},
@@ -174,7 +175,7 @@ describe('ProtocolVersion Tests', () => {
       pv = new ProtocolVersion(versionString)
       mockExtract.mockResolvedValue({})
 
-      mockGetJsonAddresses.mockReturnValue({
+      mockGetJsonFromFile.mockReturnValue({
         '1': {},
         '2': {},
         '3-pre': {},
@@ -202,12 +203,26 @@ describe('ProtocolVersion Tests', () => {
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
+    it('should return the salts if its a patch update', async () => {
+      jest
+        .spyOn(ProtocolVersion.prototype, 'isPatchUpdate')
+        .mockResolvedValue(true)
+      const spy = jest.spyOn(ProtocolVersion.prototype, 'getNewChains')
+      const salts = { salt: '0x1', saltPre: '0x2' }
+      mockGetJsonFromFile.mockReturnValue(salts)
+      expect(await pv.getDeployChains()).toEqual({
+        chains: MockDeployChains,
+        salts,
+      })
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
     it('should return all the deploy chains if its not a patch', async () => {
       jest
         .spyOn(ProtocolVersion.prototype, 'isPatchUpdate')
         .mockResolvedValue(false)
       const spy = jest.spyOn(ProtocolVersion.prototype, 'getNewChains')
-      expect(await pv.getDeployChains()).toEqual(MockDeployChains)
+      expect(await pv.getDeployChains()).toEqual({ chains: MockDeployChains })
       expect(spy).toHaveBeenCalledTimes(0)
     })
   })

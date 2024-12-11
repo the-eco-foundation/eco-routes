@@ -6,9 +6,12 @@ import { DeployChains } from '../viem_deploy/chains'
 import pacote from 'pacote'
 import PackageJson from '../../package.json'
 import {
-  getJsonAddresses,
+  getJsonFromFile,
+  jsonFileName,
   mergeAddresses,
   PRE_SUFFIX,
+  saltFileName,
+  SaltsType,
 } from '../deploy/addresses'
 import {
   getGithubTagRef,
@@ -19,6 +22,9 @@ import { compareSemverIntegerStrings } from './utils'
 
 // Directory containing Solidity contract files
 const contractsDir = path.join(__dirname, '../../contracts')
+
+// Directory to save the extracted package
+const tempDir = path.join(__dirname, '../../tmp')
 
 // Regular expression to verify that a string is a valid SemVer
 // default regex from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string  with an optional leading v
@@ -48,15 +54,16 @@ export class ProtocolVersion {
     this.version.release = this.version.release || 'latest'
   }
 
-  async getDeployChains(): Promise<Chain[]> {
+  async getDeployChains(): Promise<{ chains: Chain[]; salts?: SaltsType }> {
     if (await this.isPatchUpdate()) {
       const chains = await this.getNewChains()
       if (chains.length === 0) {
         throw new Error('No new chains to deploy for a patch update')
       }
-      return chains
+      const salts = getJsonFromFile<SaltsType>(path.join(tempDir, saltFileName))
+      return { chains, salts }
     } else {
-      return DeployChains
+      return { chains: DeployChains }
     }
   }
 
@@ -65,19 +72,15 @@ export class ProtocolVersion {
    * @returns the chains that have been deployed
    */
   async getNewChains(): Promise<Chain[]> {
-    const tempDir = path.join(__dirname, '../../tmp')
     // extract a package into a folder
     const pkg = `${this.packageName}@${this.getReleaseTag()}`
     try {
-      const ext = await pacote.extract(
-        pkg,
-        tempDir,
-        {},
-      )
+      const ext = await pacote.extract(pkg, tempDir, {})
       console.log('Extracted package')
-      const existingData = getJsonAddresses(
-        path.join(tempDir, 'deployAddresses.json'),
+      const existingData = getJsonFromFile<any>(
+        path.join(tempDir, jsonFileName),
       )
+
       console.debug('Existing data:', JSON.stringify(existingData))
       const chainIDs = Object.keys(existingData)
         .filter((val) => !val.endsWith(PRE_SUFFIX))
@@ -203,7 +206,7 @@ export class ProtocolVersion {
       pub.major === this.version.major &&
       pub.minor === this.version.minor &&
       compareSemverIntegerStrings(this.version.patch || '0', pub.patch || '0') >
-      0
+        0
     )
   }
 

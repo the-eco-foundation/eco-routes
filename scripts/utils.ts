@@ -190,7 +190,10 @@ export function getDeployChainConfig(chain: Chain): DeployNetworkConfig {
   throw new Error('Network not found')
 }
 
-export async function execCMD(command: string, options: {} = {}): Promise<string> {
+export async function execCMD(
+  command: string,
+  options: {} = {},
+): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     // This is running locally so ignore github specific commands
     if (command.includes('>>') && !process.env.GITHUB_ENV) {

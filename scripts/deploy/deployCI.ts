@@ -5,7 +5,8 @@ import { addressesToCVS } from './csv'
 
 async function main() {
   const pv = new ProtocolVersion()
-  const deploy = new ProtocolDeploy(await pv.getDeployChains())
+  const dp = await pv.getDeployChains()
+  const deploy = new ProtocolDeploy(dp.chains, { salts: dp.salts })
   await deploy.deployFullNetwork(true)
   transformAddresses()
   addressesToCVS()

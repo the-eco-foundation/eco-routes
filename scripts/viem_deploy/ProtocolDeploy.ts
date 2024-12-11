@@ -20,13 +20,20 @@ import {
   getDeployAccount,
   getGitRandomSalt,
 } from './utils'
-import { createJsonAddresses, addJsonAddress } from '../deploy/addresses'
+import {
+  createFile,
+  addJsonAddress,
+  jsonFilePath,
+  saveDeploySalts,
+  SaltsType,
+} from '../deploy/addresses'
 import { DeployNetwork } from '../deloyProtocol'
 import { DeployChains, mainnetDep, sepoliaDep } from './chains'
 import * as dotenv from 'dotenv'
 import { getDeployChainConfig, proverSupported } from '../utils'
 import { verifyContract } from './verify'
 import PQueue from 'p-queue'
+import { isEmpty } from 'lodash'
 
 dotenv.config()
 
@@ -34,12 +41,14 @@ export type DeployOpts = {
   pre?: boolean
   retry?: boolean
   deployType?: 'create2' | 'create3'
+  salts?: SaltsType
 }
 
 export class ProtocolDeploy {
   private queueVerify = new PQueue({ interval: 1000, intervalCap: 1 }) // theres a 5/second limit on etherscan
   private queueDeploy = new PQueue()
   private deployChains: Chain[] = []
+  private opts?: DeployOpts = {}
   private clients: {
     [key: string]: DeployWalletClient<
       Transport,
@@ -50,18 +59,21 @@ export class ProtocolDeploy {
   } = {}
 
   private account: PrivateKeyAccount
-  constructor(deployChains: Chain[] = DeployChains, opts?: {}) {
+  constructor(deployChains: Chain[] = DeployChains, opts?: DeployOpts) {
     this.deployChains = deployChains
     this.account = getDeployAccount()
     for (const chain of deployChains) {
       this.clients[chain.id] = getClient(chain, this.account)
     }
-    createJsonAddresses()
+    this.opts = opts
+    createFile(jsonFilePath)
   }
 
   async deployFullNetwork(concurrent: boolean = false) {
-    const salt = getGitRandomSalt()
-    const saltPre = getGitRandomSalt()
+    const { salt, saltPre } = !isEmpty(this.opts?.salts)
+      ? this.opts.salts
+      : { salt: getGitRandomSalt(), saltPre: getGitRandomSalt() }
+    saveDeploySalts({ salt, saltPre })
     for (const chain of this.deployChains) {
       if (concurrent) {
         this.queueDeploy.add(async () => {
