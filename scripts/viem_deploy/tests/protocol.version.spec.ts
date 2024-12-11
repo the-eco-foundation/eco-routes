@@ -159,6 +159,7 @@ describe('ProtocolVersion Tests', () => {
       })
 
       const cs = await pv.getNewChains()
+      console.info(cs)
       // expect(mockRim).toHaveBeenCalledTimes(1)
       expect(cs.length).toEqual(1)
       expect(cs[0].id).toEqual(3)

@@ -94,6 +94,7 @@ export class ProtocolVersion {
       setGithubStepSummary(
         `### Deploying all chains\n Issue extracting package ${pkg}`,
       )
+      console.info('error data:', e)
       return DeployChains
     }
   }
