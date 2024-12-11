@@ -61,6 +61,7 @@ export class ProtocolVersion {
         throw new Error('No new chains to deploy for a patch update')
       }
       const salts = getJsonFromFile<SaltsType>(path.join(tempDir, saltFileName))
+      console.log('Salts Detected:', salts)
       return { chains, salts }
     } else {
       return { chains: DeployChains }

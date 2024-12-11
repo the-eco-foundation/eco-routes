@@ -74,6 +74,7 @@ export class ProtocolDeploy {
       ? this.opts.salts
       : { salt: getGitRandomSalt(), saltPre: getGitRandomSalt() }
     saveDeploySalts({ salt, saltPre })
+    console.log('Using Salts :', salt, saltPre)
     for (const chain of this.deployChains) {
       if (concurrent) {
         this.queueDeploy.add(async () => {
