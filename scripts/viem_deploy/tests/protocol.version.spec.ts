@@ -1,5 +1,6 @@
 const mockExtract = jest.fn()
 const mockGetJsonAddresses = jest.fn()
+const mockMergeAddresses = jest.fn()
 const mockRim = jest.fn()
 const MockDeployChains = [{ id: 1 }, { id: 2 }, { id: 3 }]
 
@@ -26,6 +27,7 @@ jest.mock('../../deploy/addresses', () => {
   return {
     ...jest.requireActual('../../deploy/addresses'),
     getJsonAddresses: mockGetJsonAddresses,
+    mergeAddresses: mockMergeAddresses,
   }
 })
 
