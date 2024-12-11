@@ -95,7 +95,7 @@
     "pub:clean": "rimraf build/dist",
     "pub:build": "cd build && tsc",
     "pub:prepack": "yarn pub:clean && yarn pub:build",
-    "pub:tag": "npx tsx scripts/publish/setNpmTag.ts",
+    "pub:tag": "npx tsx scripts/publish/tag.ts",
     "viemDeployCI": "npx tsx scripts/viem_deploy/deploy.ts"
   },
   "devDependencies": {
