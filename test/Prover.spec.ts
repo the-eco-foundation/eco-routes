@@ -381,6 +381,7 @@ describe('Prover End to End Tests', () => {
         bedrock.destinationChain.worldStateRoot,
         bedrock.destinationChain.messageParserStateRoot,
         bedrock.destinationChain.batchIndex,
+        bedrock.destinationChain.batchProof,
         bedrock.baseSepolia.storageProof,
         await prover.rlpEncodeDataLibList(
           bedrock.destinationChain.contractData,
