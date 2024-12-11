@@ -4,13 +4,11 @@ import { execCMD } from '../utils'
 import { ProtocolVersion } from '../viem_deploy/ProtocolVersion'
 
 function publish(){
-  // const pv = new ProtocolVersion()
-  // const tag  = pv.getReleaseTag()
-  const tag = 'testfornpm112'
-  // execCMD(`npm publish --tag ${tag} --access public`)
-  execCMD(`echo NPM_AUTH_TOKEN is $NPM_AUTH_TOKEN`)
+  const pv = new ProtocolVersion()
+  const tag  = pv.getReleaseTag()
+  execCMD(`echo NPM build tag is ${tag}`)
   execCMD(`echo GITHUB_ACTION is $GITHUB_ACTION`)
-  execCMD(`echo Tag is ${tag}`)
+  execCMD(`yarn publish --tag ${tag} --access public`)
 }
 
 
