@@ -348,7 +348,7 @@ contract Prover is SimpleProver {
         require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
         proveStorage(
             abi.encodePacked(outputRootStorageSlot),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+            RLPWriter.writeBytes(abi.encodePacked(outputRoot)),
             l1StorageProof,
             bytes32(outputOracleStateRoot)
         );
@@ -393,9 +393,9 @@ contract Prover is SimpleProver {
             gameId29 := shl(24, gameId)
         }
         if (bytes1(uint8(gameId29[0])) == bytes1(uint8(0x00))) {
-            _value = bytes.concat(bytes1(uint8(0x98)), gameId24);
+            _value = RLPWriter.writeBytes(abi.encodePacked(gameId24));
         } else {
-            _value = bytes.concat(bytes1(uint8(0x9d)), gameId29);
+            _value = RLPWriter.writeBytes(abi.encodePacked(gameId29));
         }
 
         bytes32 _rootClaim = generateOutputRoot(
@@ -451,7 +451,7 @@ contract Prover is SimpleProver {
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
         proveStorage(
             abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT)),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(rootClaim)),
+            RLPWriter.writeBytes(abi.encodePacked(rootClaim)),
             faultDisputeGameProofData.faultDisputeGameRootClaimStorageProof,
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
         );
@@ -574,7 +574,7 @@ contract Prover is SimpleProver {
         // proves that the claimaint address corresponds to the intentHash on the contract
         proveStorage(
             abi.encodePacked(messageMappingSlot),
-            bytes.concat(hex"94", bytes20(claimant)),
+            RLPWriter.writeBytes(abi.encodePacked(claimant)),
             l2StorageProof,
             bytes32(inboxStateRoot)
         );
