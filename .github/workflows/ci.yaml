@@ -9,54 +9,74 @@ jobs:
 
     steps:
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: install node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.1.0
         with:
           node-version-file: ".nvmrc"
           cache: "yarn"
-
-      - name: install dependencies
-        uses: borales/actions-yarn@v4
+      - name: Publish to NPM
+        uses: borales/actions-yarn@v5
         with:
-          cmd: install # will run `yarn install` command
+          cmd: pub:env
+          dir: "build"
+     
+# jobs:
+  # lint:
+  #   name: Eslint, prettier and solhint
+  #   runs-on: ubuntu-latest
 
-      - name: build project
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: build # will run `yarn build` command
+  #   steps:
+  #     - name: checkout code
+  #       uses: actions/checkout@v4.2.2
 
-      - name: check lint
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: format # will run `yarn format` command
+  #     - name: install node
+  #       uses: actions/setup-node@v4.1.0
+  #       with:
+  #         node-version-file: ".nvmrc"
+  #         cache: "yarn"
 
-  tests:
-    name: Test Suite
-    runs-on: ubuntu-latest
+  #     - name: install dependencies
+  #       uses: borales/actions-yarn@v5
+  #       with:
+  #         cmd: install # will run `yarn install` command
 
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
+  #     - name: build project
+  #       uses: borales/actions-yarn@v5
+  #       with:
+  #         cmd: build # will run `yarn build` command
 
-      - name: install node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".nvmrc"
-          cache: "npm"
+  #     - name: check lint
+  #       uses: borales/actions-yarn@v5
+  #       with:
+  #         cmd: format # will run `yarn format` command
 
-      - name: install dependencies
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install # will run `yarn install` command
+  # tests:
+  #   name: Test Suite
+  #   runs-on: ubuntu-latest
 
-      - name: build project
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: build # will run `yarn build` command
+  #   steps:
+  #     - name: checkout code
+  #       uses: actions/checkout@v4.2.2
 
-      - name: Run Test
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: test # will run `yarn test` command
+  #     - name: install node
+  #       uses: actions/setup-node@v4.1.0
+  #       with:
+  #         node-version-file: ".nvmrc"
+  #         cache: "npm"
+
+  #     - name: install dependencies
+  #       uses: borales/actions-yarn@v5
+  #       with:
+  #         cmd: install # will run `yarn install` command
+
+  #     - name: build project
+  #       uses: borales/actions-yarn@v5
+  #       with:
+  #         cmd: build # will run `yarn build` command
+
+  #     - name: Run Test
+  #       uses: borales/actions-yarn@v5
+  #       with:
+  #         cmd: test # will run `yarn test` command

@@ -96,7 +96,8 @@
     "pub:build": "cd build && tsc",
     "pub:prepack": "yarn pub:clean && yarn pub:build",
     "pub:tag": "npx tsx scripts/publish/tag.ts",
-    "viemDeployCI": "npx tsx scripts/viem_deploy/deploy.ts"
+    "viemDeployCI": "npx tsx scripts/viem_deploy/deploy.ts",
+    "pub:env":  "npx tsx scripts/publish/publish.ts"
   },
   "devDependencies": {
     "@alchemy/aa-core": "^3.19.0",
