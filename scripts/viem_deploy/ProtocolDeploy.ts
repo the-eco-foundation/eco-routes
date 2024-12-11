@@ -20,7 +20,7 @@ import {
   getDeployAccount,
   getGitRandomSalt,
 } from './utils'
-import { createJsonAddresses, updateAddress } from '../deploy/addresses'
+import { createJsonAddresses, addJsonAddress } from '../deploy/addresses'
 import { DeployNetwork } from '../deloyProtocol'
 import { DeployChains, mainnetDep, sepoliaDep } from './chains'
 import * as dotenv from 'dotenv'
@@ -37,7 +37,7 @@ export type DeployOpts = {
 }
 
 export class ProtocolDeploy {
-  private queueVerify = new PQueue({ interval: 1000, intervalCap: 3 }) // theres a 5/second limit on etherscan
+  private queueVerify = new PQueue({ interval: 1000, intervalCap: 1 }) // theres a 5/second limit on etherscan
   private queueDeploy = new PQueue()
   private deployChains: Chain[] = []
   private clients: {
@@ -60,7 +60,6 @@ export class ProtocolDeploy {
   }
 
   async deployFullNetwork(concurrent: boolean = false) {
-    return
     const salt = getGitRandomSalt()
     const saltPre = getGitRandomSalt()
     for (const chain of this.deployChains) {
@@ -241,7 +240,7 @@ export class ProtocolDeploy {
       )
       const networkConfig = getDeployChainConfig(chain) as DeployNetwork
       networkConfig.pre = opts.pre || false
-      updateAddress(networkConfig, `${name}`, deployedAddress)
+      addJsonAddress(networkConfig, `${name}`, deployedAddress)
       console.log(
         `Chain: ${chain.name}, ${name} address updated in addresses.json`,
       )

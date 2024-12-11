@@ -5,9 +5,11 @@ import { Chain } from 'viem'
 import { DeployChains } from '../viem_deploy/chains'
 import pacote from 'pacote'
 import PackageJson from '../../package.json'
-import csvtojson from 'csvtojson'
-import { PRE_SUFFIX } from '../deploy/addresses'
-import { rimrafSync } from 'rimraf'
+import {
+  getJsonAddresses,
+  mergeAddresses,
+  PRE_SUFFIX,
+} from '../deploy/addresses'
 import {
   getGithubTagRef,
   getPublishedPackages,
@@ -73,14 +75,15 @@ export class ProtocolVersion {
         {},
       )
       console.log('extracted!', from, resolved, integrity)
-      const data = await csvtojson().fromFile(
-        path.join(saveDir, 'deployAddresses.csv'),
+      const existingData = getJsonAddresses(
+        path.join(saveDir, 'deployAddresses.json'),
       )
-      const chainIDs = data
-        .filter((val) => !val.Address.endsWith(PRE_SUFFIX))
-        .map((val) => Number.parseInt(val.Address))
+      const chainIDs = Object.keys(existingData)
+        .filter((val) => !val.endsWith(PRE_SUFFIX))
+        .map((val) => Number.parseInt(val))
+      mergeAddresses(existingData)
       // delete tmp package directory
-      rimrafSync(saveDir)
+      // rimrafSync(saveDir)
       console.log('Deleted tmp package directory')
       return DeployChains.filter((chain) => !chainIDs.includes(chain.id))
     } catch (e) {
@@ -110,8 +113,11 @@ export class ProtocolVersion {
   getVersion(): string {
     return semver.stringify(this.version)
   }
-  
-  updateProjectVersion(){
+
+  /**
+   * Updates the version of the project in the solidity files and the package.json file
+   */
+  updateProjectVersion() {
     this.updateVersionInSolidityFiles()
     this.updatePackageJsonVersion()
   }

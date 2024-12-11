@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat'
-import { updateAddress } from './deploy/addresses'
+import { addJsonAddress } from './deploy/addresses'
 import { ContractTransactionResponse, Signer } from 'ethers'
 import { Deployer, Inbox, Prover } from '../typechain-types'
 import { Address, Hex, zeroAddress } from 'viem'
@@ -157,7 +157,7 @@ export async function deployProver(
   ) as Hex
 
   console.log(`${contractName} implementation deployed to: `, proverAddress)
-  updateAddress(deployNetwork, `${contractName}`, proverAddress)
+  addJsonAddress(deployNetwork, `${contractName}`, proverAddress)
   verifyContract(ethers.provider, contractName, proverAddress, [deployArgs])
   return proverAddress
 }
@@ -190,7 +190,7 @@ export async function deployIntentSource(
   ) as Hex
 
   console.log(`${contractName} deployed to:`, intentSourceAddress)
-  updateAddress(deployNetwork, `${contractName}`, intentSourceAddress)
+  addJsonAddress(deployNetwork, `${contractName}`, intentSourceAddress)
   verifyContract(ethers.provider, contractName, intentSourceAddress, args)
   return intentSourceAddress
 }
@@ -245,7 +245,7 @@ export async function deployInbox(
   }, ethers.provider)
 
   console.log(`${contractName} implementation deployed to: `, inboxAddress)
-  updateAddress(deployNetwork, `${contractName}`, inboxAddress)
+  addJsonAddress(deployNetwork, `${contractName}`, inboxAddress)
   verifyContract(ethers.provider, contractName, inboxAddress, args)
   return inboxAddress
 }
@@ -276,7 +276,7 @@ export async function deployHyperProver(
   ) as Hex
 
   console.log(`${contractName} deployed to: ${hyperProverAddress}`)
-  updateAddress(deployNetwork, `${contractName}`, hyperProverAddress)
+  addJsonAddress(deployNetwork, `${contractName}`, hyperProverAddress)
   verifyContract(ethers.provider, contractName, hyperProverAddress, args)
   return hyperProverAddress
 }

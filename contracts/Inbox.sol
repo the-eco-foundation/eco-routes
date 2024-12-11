@@ -55,7 +55,7 @@ contract Inbox is IInbox, Ownable {
         }
     }
 
-    function version() external pure returns (string memory) { return "0.0.509-latest"; }
+    function version() external pure returns (string memory) { return "1.0.0-latest"; }
 
     /** 
      * @notice fulfills an intent to be proven via storage proofs

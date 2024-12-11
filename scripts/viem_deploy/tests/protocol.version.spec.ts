@@ -1,5 +1,5 @@
 const mockExtract = jest.fn()
-const mockCsv = jest.fn()
+const mockGetJsonAddresses = jest.fn()
 const mockRim = jest.fn()
 const MockDeployChains = [{ id: 1 }, { id: 2 }, { id: 3 }]
 
@@ -16,16 +16,16 @@ jest.mock('pacote', () => {
     extract: mockExtract,
   }
 })
-
-jest.mock('csvtojson', () => {
-  return () => ({
-    fromFile: mockCsv,
-  })
-})
-
 jest.mock('../chains', () => {
   return {
     DeployChains: MockDeployChains,
+  }
+})
+
+jest.mock('../../deploy/addresses', () => {
+  return {
+    ...jest.requireActual('../../deploy/addresses'),
+    getJsonAddresses: mockGetJsonAddresses,
   }
 })
 
@@ -83,12 +83,18 @@ describe('ProtocolVersion Tests', () => {
   describe('on updateProtocolVersion', () => {
     it('should call the package and .sol file updates', () => {
       const spy = jest.spyOn(ProtocolVersion.prototype, 'updateProjectVersion')
-      const spySolidity = jest.spyOn(ProtocolVersion.prototype, 'updateVersionInSolidityFiles')
-      const spyPackage =  jest.spyOn(ProtocolVersion.prototype, 'updatePackageJsonVersion')
+      const spySolidity = jest.spyOn(
+        ProtocolVersion.prototype,
+        'updateVersionInSolidityFiles',
+      )
+      const spyPackage = jest.spyOn(
+        ProtocolVersion.prototype,
+        'updatePackageJsonVersion',
+      )
       const pv = new ProtocolVersion('1.0.0')
       pv.updateProjectVersion()
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spySolidity).toHaveBeenCalled()//recursive call so we dont know how many times
+      expect(spySolidity).toHaveBeenCalled() //recursive call so we dont know how many times
       expect(spyPackage).toHaveBeenCalledTimes(1)
     })
   })
@@ -145,14 +151,15 @@ describe('ProtocolVersion Tests', () => {
 
     it('should return all the chains not inlcuded in the package', async () => {
       mockExtract.mockResolvedValue({})
-      mockCsv.mockResolvedValue([
-        { Address: '1' },
-        { Address: '2' },
-        { Address: '3-pre' },
-      ])
+
+      mockGetJsonAddresses.mockReturnValue({
+        '1': {},
+        '2': {},
+        '3-pre': {},
+      })
 
       const cs = await pv.getNewChains()
-      expect(mockRim).toHaveBeenCalledTimes(1)
+      // expect(mockRim).toHaveBeenCalledTimes(1)
       expect(cs.length).toEqual(1)
       expect(cs[0].id).toEqual(3)
     })

@@ -1,6 +1,6 @@
 {
   "name": "@eco-foundation/routes",
-  "version": "0.0.509-latest",
+  "version": "1.0.0-latest",
   "description": "The Eco Routes Protocol is a decentralized intent based system that allows users to submit their intent to the network and have it fulfilled by a solver on the destination rollup of their choise.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -114,7 +114,6 @@
     "@typechain/ethers-v6": "^0.5.1",
     "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.2.0",
-    "@types/csvtojson": "^2.0.3",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.13",
     "@types/mocha": ">=9.1.0",
@@ -126,7 +125,6 @@
     "@wagmi/cli": "^2.0.0-rc.3",
     "chai": "^4.3.10",
     "concurrently": "^8.2.2",
-    "csvtojson": "^2.0.10",
     "depcheck": "^1.4.7",
     "dotenv": "^16.3.1",
     "eslint": "^8.55.0",

@@ -48,7 +48,7 @@ contract HyperProver is IMessageRecipient, SimpleProver {
         INBOX = _inbox;
     }
 
-    function version() external pure returns (string memory) { return "0.0.509-latest"; }
+    function version() external pure returns (string memory) { return "1.0.0-latest"; }
 
     /**
      * @notice implementation of the handle method required by IMessageRecipient

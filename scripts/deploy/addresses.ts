@@ -1,20 +1,13 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { DeployNetwork } from '../deloyProtocol'
-import { Hex } from 'viem'
+import { merge } from 'lodash'
 
 interface AddressBook {
   [network: string]: {
     [key: string]: string
   }
 }
-export type EcoChainConfig = {
-  Prover: Hex
-  IntentSource: Hex
-  Inbox: Hex
-  HyperProver: Hex
-}
-
 export const PRE_SUFFIX = '-pre'
 export const jsonFilePath = path.join(
   __dirname,
@@ -25,25 +18,29 @@ export const csvFilePath = path.join(
   __dirname,
   '../../build/deployAddresses.csv',
 )
-export function createJsonAddresses() {
-  if (fs.existsSync(jsonFilePath)) {
-    console.log('Addresses file already exists: ', jsonFilePath)
+export function createJsonAddresses(path: string = jsonFilePath) {
+  if (fs.existsSync(path)) {
+    console.log('Addresses file already exists: ', path)
   } else {
-    console.log('Creating addresses file: ', jsonFilePath)
-    fs.writeFileSync(jsonFilePath, JSON.stringify({}), 'utf8')
+    console.log('Creating addresses file: ', path)
+    fs.writeFileSync(path, JSON.stringify({}), 'utf8')
   }
 }
 
-export function mergeAddresses(ads: Record<string, EcoChainConfig>){
-  let addresses: Record<string, EcoChainConfig> = {}
-
-  if (fs.existsSync(jsonFilePath)) {
-    const fileContent = fs.readFileSync(jsonFilePath, 'utf8')
-    addresses = JSON.parse(fileContent)
+export function getJsonAddresses(path: string = jsonFilePath): AddressBook {
+  if (fs.existsSync(path)) {
+    const fileContent = fs.readFileSync(path, 'utf8')
+    return JSON.parse(fileContent)
+  } else {
+    createJsonAddresses(path)
+    return getJsonAddresses(path)
   }
+}
+
+export function mergeAddresses(ads: AddressBook, path: string = jsonFilePath) {
+  const addresses: AddressBook = getJsonAddresses(path)
   
-  addresses = {...addresses, ...ads}
-  fs.writeFileSync(jsonFilePath, JSON.stringify(addresses), 'utf8')
+  fs.writeFileSync(path, JSON.stringify(merge(addresses, ads)), 'utf8')
 }
 
 /**
@@ -52,24 +49,18 @@ export function mergeAddresses(ads: Record<string, EcoChainConfig>){
  * @param key the network id
  * @param value the deployed contract address
  */
-export function updateAddress(
+export function addJsonAddress(
   deployNetwork: DeployNetwork,
   key: string,
   value: string,
 ) {
-  let addresses: AddressBook = {}
-
-  if (fs.existsSync(jsonFilePath)) {
-    const fileContent = fs.readFileSync(jsonFilePath, 'utf8')
-    addresses = JSON.parse(fileContent)
-  }
+  const addresses: AddressBook = getJsonAddresses()
   const ck = deployNetwork.chainId.toString()
   const chainKey = deployNetwork.pre ? ck + PRE_SUFFIX : ck
   addresses[chainKey] = addresses[chainKey] || {}
   addresses[chainKey][key] = value
   fs.writeFileSync(jsonFilePath, JSON.stringify(addresses), 'utf8')
 }
-
 
 /**
  * Transforms the addresses json file into a typescript file
