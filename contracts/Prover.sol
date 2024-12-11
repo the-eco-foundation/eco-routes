@@ -32,6 +32,9 @@ contract Prover is SimpleProver {
     // Output slot for the game status (fixed)
     uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
 
+    // Number of blocks to wait before Settlement Layer can be proven again
+    uint256 public constant SETTLEMENT_BLOCKS_DELAY = 5;
+
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
     // But optimism maintains a service that posts L1 block data on L2.
@@ -105,6 +108,13 @@ contract Prover is SimpleProver {
     event L2WorldStateProven(
         uint256 indexed _destinationChainID, uint256 indexed _blockNumber, bytes32 _L2WorldStateRoot
     );
+
+    /**
+     * @notice emitted on a proving state if the blockNumber is less than or equal to the current blockNumber + SETTLEMENT_BLOCKS_DELAY
+     * @param _inputBlockNumber the block number we are trying to prove
+     * @param _nextProvableBlockNumber the next block number that can be proven
+     */
+    error NeedLaterBlock(uint256 _inputBlockNumber, uint256 _nextProvableBlockNumber);
 
     /**
      * @notice emitted on a proving state if the blockNumber is less than or equal to the current blockNumber
@@ -287,11 +297,11 @@ contract Prover is SimpleProver {
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
         BlockProof memory existingBlockProof = provenStates[settlementChainId];
-        if (existingBlockProof.blockNumber < blockProof.blockNumber) {
+        if (existingBlockProof.blockNumber + SETTLEMENT_BLOCKS_DELAY < blockProof.blockNumber) {
             provenStates[settlementChainId] = blockProof;
             emit L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
-            revert OutdatedBlock(blockProof.blockNumber, existingBlockProof.blockNumber);
+            revert NeedLaterBlock(blockProof.blockNumber, existingBlockProof.blockNumber + SETTLEMENT_BLOCKS_DELAY);
         }
     }
     /**
