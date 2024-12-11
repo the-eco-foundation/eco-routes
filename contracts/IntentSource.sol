@@ -142,8 +142,9 @@ contract IntentSource is IIntentSource {
                 safeERC20Transfer(intent.rewardTokens[i], withdrawTo, intent.rewardAmounts[i]);
             }
             emit Withdrawal(_hash, withdrawTo);
-            if(intent.rewardNative > 0) {
-                payable(withdrawTo).transfer(intent.rewardNative);
+            uint256 nativeReward = intent.rewardNative;
+            if(nativeReward > 0) {
+                payable(withdrawTo).transfer(nativeReward);
             }
         } else {
             revert NothingToWithdraw(_hash);
