@@ -39,7 +39,7 @@ export function getJsonAddresses(path: string = jsonFilePath): AddressBook {
 
 export function mergeAddresses(ads: AddressBook, path: string = jsonFilePath) {
   const addresses: AddressBook = getJsonAddresses(path)
-  
+
   fs.writeFileSync(path, JSON.stringify(merge(addresses, ads)), 'utf8')
 }
 

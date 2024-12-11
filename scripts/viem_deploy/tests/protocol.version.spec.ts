@@ -159,7 +159,7 @@ describe('ProtocolVersion Tests', () => {
     })
 
     it('should return all the chains not inlcuded in the package', async () => {
-       const cs = await pv.getNewChains()
+      const cs = await pv.getNewChains()
       // expect(mockRim).toHaveBeenCalledTimes(1)
       expect(cs.length).toEqual(1)
       expect(cs[0].id).toEqual(3)

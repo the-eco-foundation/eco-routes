@@ -74,16 +74,16 @@ export class ProtocolVersion {
         tempDir,
         {},
       )
-      console.info('extracted!', JSON.stringify(ext))
+      console.log('Extracted package')
       const existingData = getJsonAddresses(
         path.join(tempDir, 'deployAddresses.json'),
       )
-      console.info('Existing data:', JSON.stringify(existingData))
+      console.debug('Existing data:', JSON.stringify(existingData))
       const chainIDs = Object.keys(existingData)
         .filter((val) => !val.endsWith(PRE_SUFFIX))
         .map((val) => Number.parseInt(val))
-        console.info('Existing data:', chainIDs)
-        console.info('DeployChains data:', JSON.stringify(DeployChains))
+      console.debug('Existing data:', chainIDs)
+      console.debug('DeployChains data:', JSON.stringify(DeployChains))
       mergeAddresses(existingData)
       // delete tmp package directory
       // rimrafSync(saveDir)
@@ -94,7 +94,6 @@ export class ProtocolVersion {
       setGithubStepSummary(
         `### Deploying all chains\n Issue extracting package ${pkg}`,
       )
-      console.info('error data:', e)
       return DeployChains
     }
   }
@@ -204,7 +203,7 @@ export class ProtocolVersion {
       pub.major === this.version.major &&
       pub.minor === this.version.minor &&
       compareSemverIntegerStrings(this.version.patch || '0', pub.patch || '0') >
-        0
+      0
     )
   }
 
