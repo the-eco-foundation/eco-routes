@@ -6,7 +6,7 @@ import "./interfaces/IIntentSource.sol";
 import "./interfaces/SimpleProver.sol";
 import "./types/Intent.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
@@ -16,39 +16,32 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * This contract makes a call to the prover contract (on the sourcez chain) in order to verify intent fulfillment.
  */
 contract IntentSource is IIntentSource {
-    // chain ID
-    uint256 public immutable CHAIN_ID;
+    using SafeERC20 for IERC20;
 
     // intent creation counter
     uint256 public counter;
 
-    /**
-     * minimum duration of an intent, in seconds.
-     * Intents cannot expire less than MINIMUM_DURATION seconds after they are created.
-     */
-    uint256 public immutable MINIMUM_DURATION;
-
     // stores the intents
-    mapping(bytes32 intenthash => Intent) public intents;
+    mapping(bytes32 intentHash => Intent) public intents;
 
     /**
      * @dev counterStart is required to preserve nonce uniqueness in the event IntentSource needs to be redeployed.
-     * _minimumDuration the minimum duration of an intent originating on this chain
      * _counterStart the initial value of the counter
      */
-    constructor(uint256 _minimumDuration, uint256 _counterStart) {
-        CHAIN_ID = block.chainid;
-        MINIMUM_DURATION = _minimumDuration;
+    constructor(uint256 _counterStart) {
         counter = _counterStart;
     }
 
-    function version() external pure returns (string memory) { return "v0.0.3-beta"; }
+    function version() external pure returns (string memory) {
+        return "v0.0.3-beta";
+    }
     /**
      * @notice Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets.
      * @dev If a proof ON THE SOURCE CHAIN is not completed by the expiry time, the reward funds will not be redeemable by the solver, REGARDLESS OF WHETHER THE INSTRUCTIONS WERE EXECUTED.
      * The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent solver.
      * @dev The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.
      * @param _destinationChainID the destination chain
+     * @param _inbox the inbox contract on the destination chain
      * @param _targets the addresses on _destinationChainID at which the instructions need to be executed
      * @param _data the instruction sets to be executed on _targets
      * @param _rewardTokens the addresses of reward tokens
@@ -56,6 +49,7 @@ contract IntentSource is IIntentSource {
      * @param _expiryTime the timestamp at which the intent expires
      * @param _prover the prover against which the intent's status will be checked
      */
+
     function createIntent(
         uint256 _destinationChainID,
         address _inbox,
@@ -65,7 +59,7 @@ contract IntentSource is IIntentSource {
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,
         address _prover
-    ) external payable {
+    ) external payable returns (bytes32) {
         uint256 len = _targets.length;
         if (len == 0 || len != _data.length) {
             revert CalldataMismatch();
@@ -76,17 +70,10 @@ contract IntentSource is IIntentSource {
             revert RewardsMismatch();
         }
 
-        if (len == 0 && msg.value == 0) {
-            revert NoRewards();
-        }
-
-        if (_expiryTime < block.timestamp + MINIMUM_DURATION) {
-            revert ExpiryTooSoon();
-        }
-
-        bytes32 _nonce = keccak256(abi.encode(counter, CHAIN_ID));
+        uint256 chainID = block.chainid;
+        bytes32 _nonce = keccak256(abi.encode(counter, chainID));
         bytes32 intermediateHash =
-            keccak256(abi.encode(CHAIN_ID, _destinationChainID, _targets, _data, _expiryTime, _nonce));
+            keccak256(abi.encode(chainID, _destinationChainID, _targets, _data, _expiryTime, _nonce));
         bytes32 intentHash = keccak256(abi.encode(_inbox, intermediateHash));
 
         intents[intentHash] = Intent({
@@ -97,7 +84,7 @@ contract IntentSource is IIntentSource {
             rewardTokens: _rewardTokens,
             rewardAmounts: _rewardAmounts,
             expiryTime: _expiryTime,
-            hasBeenWithdrawn: false,
+            isActive: true,
             nonce: _nonce,
             prover: _prover,
             rewardNative: msg.value
@@ -106,10 +93,11 @@ contract IntentSource is IIntentSource {
         counter += 1;
 
         for (uint256 i = 0; i < len; i++) {
-            IERC20(_rewardTokens[i]).transferFrom(msg.sender, address(this), _rewardAmounts[i]);
+            IERC20(_rewardTokens[i]).safeTransferFrom(msg.sender, address(this), _rewardAmounts[i]);
         }
 
         emitIntentCreated(intentHash, intents[intentHash]);
+        return intentHash;
     }
 
     function emitIntentCreated(bytes32 _hash, Intent memory _intent) internal {
@@ -133,11 +121,12 @@ contract IntentSource is IIntentSource {
      * @notice Withdraws the rewards associated with an intent to its claimant
      * @param _hash the hash of the intent
      */
+
     function withdrawRewards(bytes32 _hash) external {
         Intent storage intent = intents[_hash];
         address claimant = SimpleProver(intent.prover).provenIntents(_hash);
         address withdrawTo;
-        if (!intent.hasBeenWithdrawn) {
+        if (intent.isActive) {
             if (claimant != address(0)) {
                 withdrawTo = claimant;
             } else {
@@ -147,13 +136,15 @@ contract IntentSource is IIntentSource {
                     revert UnauthorizedWithdrawal(_hash);
                 }
             }
-            intent.hasBeenWithdrawn = true;
+            intent.isActive = false;
             uint256 len = intent.rewardTokens.length;
             for (uint256 i = 0; i < len; i++) {
                 safeERC20Transfer(intent.rewardTokens[i], withdrawTo, intent.rewardAmounts[i]);
             }
-            payable(withdrawTo).transfer(intent.rewardNative);
             emit Withdrawal(_hash, withdrawTo);
+            if(intent.rewardNative > 0) {
+                payable(withdrawTo).transfer(intent.rewardNative);
+            }
         } else {
             revert NothingToWithdraw(_hash);
         }
@@ -164,8 +155,9 @@ contract IntentSource is IIntentSource {
      * @param _claimant the claimant
      * @dev For best performance, group intents s.t. intents with the same reward token are consecutive. If there are intents with multiple reward tokens, put them at the end. Ideally don't include those kinds of intents here though.
      */
+
     function batchWithdraw(bytes32[] calldata _hashes, address _claimant) external {
-        if(_claimant == address(0)) {
+        if (_claimant == address(0)) {
             revert BadClaimant(0x0);
         }
         address erc20;
@@ -175,7 +167,7 @@ contract IntentSource is IIntentSource {
         for (uint256 i = 0; i < _hashes.length; i++) {
             bytes32 _hash = _hashes[i];
             Intent storage intent = intents[_hash];
-            if (intent.hasBeenWithdrawn) {
+            if (!intent.isActive) {
                 revert NothingToWithdraw(_hash);
             }
             address claimant = SimpleProver(intent.prover).provenIntents(_hash);
@@ -189,7 +181,7 @@ contract IntentSource is IIntentSource {
                     revert UnauthorizedWithdrawal(_hash);
                 }
             }
-            intent.hasBeenWithdrawn = true;
+            intent.isActive = false;
             for (uint256 j = 0; j < intent.rewardTokens.length; j++) {
                 if (erc20 == intent.rewardTokens[j]) {
                     balance += intent.rewardAmounts[j];
@@ -199,14 +191,10 @@ contract IntentSource is IIntentSource {
                     balance = intent.rewardAmounts[j];
                 }
             }
-            if (intent.rewardNative > 0) {
-                nativeRewards += intent.rewardNative;
-            }
+            nativeRewards += intent.rewardNative;
             emit Withdrawal(_hash, _claimant);
         }
-        if (erc20 != address(0)) {
-            safeERC20Transfer(erc20, _claimant, balance);
-        }
+        safeERC20Transfer(erc20, _claimant, balance);
         if (nativeRewards > 0) {
             payable(_claimant).transfer(nativeRewards);
         }
@@ -214,19 +202,11 @@ contract IntentSource is IIntentSource {
 
     function safeERC20Transfer(address _token, address _to, uint256 _amount) internal {
         if(_token != address(0)) {
-            if(!IERC20(_token).transfer(_to, _amount)) {
-                revert TransferFailed(_token, _to, _amount);
-            }
+            IERC20(_token).safeTransfer(_to, _amount);
         }
     }
-    
-    function getIntent(bytes32 identifier) public view returns (Intent memory) {
-        Intent memory intent = intents[identifier];
-        intent.targets = intents[identifier].targets;
-        intent.data = intents[identifier].data;
-        intent.rewardTokens = intents[identifier].rewardTokens;
-        intent.rewardAmounts = intents[identifier].rewardAmounts;
 
-        return intent;
+    function getIntent(bytes32 identifier) public view returns (Intent memory) {
+        return intents[identifier];
     }
 }
