@@ -52,6 +52,7 @@ contract Inbox is IInbox, Ownable {
         isSolvingPublic = _isSolvingPublic;
         for (uint256 i = 0; i < _solvers.length; i++) {
             solverWhitelist[_solvers[i]] = true;
+            emit SolverWhitelistChanged(_solvers[i], true);
         }
     }
 
@@ -310,6 +311,7 @@ contract Inbox is IInbox, Ownable {
     function setMailbox(address _mailbox) public onlyOwner {
         if(mailbox == address(0)) {
             mailbox = _mailbox;
+            emit MailboxSet(_mailbox);
         }
     }
 
