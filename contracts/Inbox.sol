@@ -312,6 +312,7 @@ contract Inbox is IInbox, Ownable {
     function setMailbox(address _mailbox) public onlyOwner {
         if(mailbox == address(0)) {
             mailbox = _mailbox;
+            emit MailboxSet(_mailbox);
         }
     }
 

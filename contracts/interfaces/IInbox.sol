@@ -19,6 +19,9 @@ interface IInbox is ISemver{
     // Event emitted when solving is made public
     event SolvingIsPublic();
 
+    // Event emitted when Hyperlane Mailbox is set
+    event MailboxSet(address indexed _mailbox);
+
     // Event emitted when a change is made to the solver whitelist
     event SolverWhitelistChanged(address indexed _solver, bool indexed _canSolve);
 

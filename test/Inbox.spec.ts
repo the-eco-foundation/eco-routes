@@ -178,7 +178,9 @@ describe('Inbox Test', (): void => {
 
     it('lets owner set mailbox, but only when it is the zero addreses', async () => {
       expect(await inbox.mailbox()).to.eq(ethers.ZeroAddress)
-      await inbox.connect(owner).setMailbox(await mailbox.getAddress())
+      expect(await inbox.connect(owner).setMailbox(await mailbox.getAddress()))
+        .to.emit(inbox, 'MailboxSet')
+        .withArgs(await mailbox.getAddress())
       expect(await inbox.mailbox()).to.eq(await mailbox.getAddress())
       await inbox.connect(owner).setMailbox(solver.address)
       expect(await inbox.mailbox()).to.eq(await mailbox.getAddress())
