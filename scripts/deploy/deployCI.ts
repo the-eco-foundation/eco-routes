@@ -7,7 +7,6 @@ async function main() {
   await deploy.deployFullNetwork(true)
   transformAddresses()
   addressesToCVS()
-  deleteAddressesJson()
 }
 
 main()
