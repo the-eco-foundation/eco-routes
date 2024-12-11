@@ -16,10 +16,8 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "yarn"
-      - name: Create directory
-        uses: borales/actions-yarn@v5
-        with:
-          cmd: mkdir build
+      - name: Create a directory
+        run: mkdir -p build
       - name: Publish to NPM
         uses: borales/actions-yarn@v5
         with:
