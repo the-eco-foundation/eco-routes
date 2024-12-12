@@ -6,7 +6,6 @@ import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers'
 import { keccak256, BytesLike, ZeroAddress } from 'ethers'
 import { DataHexString } from 'ethers/lib/utils'
 import { encodeIdentifier, encodeTransfer } from '../utils/encode'
-import exp from 'constants'
 
 describe('Intent Source Test', (): void => {
   let intentSource: IntentSource

@@ -34,11 +34,14 @@ interface IInbox is ISemver{
     // Error thrown when the intent has already been fulfilled
     error IntentAlreadyFulfilled(bytes32 _hash);
 
-    // Error thrown when the intent call failed while itertating through the callAddresses
-    error IntentCallFailed(address _addr, bytes _data, bytes _returnData);
-
     // Error thrown when the hash generated on the inbox contract does not match the expected hash
     error InvalidHash(bytes32 _expectedHash);
+
+    // Error thrown when the claimant in a fulfill call is the zero address
+    error ZeroClaimant();
+
+    // Error thrown when the intent call failed while itertating through the callAddresses
+    error IntentCallFailed(address _addr, bytes _data, bytes _returnData);
 
     // Error thrown when a solver attempts to make a call to the hyperlane mailbox
     error CallToMailbox();

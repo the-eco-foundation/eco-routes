@@ -297,6 +297,21 @@ describe('Inbox Test', (): void => {
   })
 
   describe('fulfill when the intent is valid', () => {
+    it('should revert if claimant is zero address', async () => {
+      await expect(
+        inbox
+          .connect(solver)
+          .fulfillStorage(
+            sourceChainID,
+            [erc20Address],
+            [calldata],
+            timeStamp,
+            nonce,
+            ethers.ZeroAddress,
+            intentHash,
+          ),
+      ).to.be.revertedWithCustomError(inbox, 'ZeroClaimant')
+    })
     it('should revert if the call fails', async () => {
       await expect(
         inbox
