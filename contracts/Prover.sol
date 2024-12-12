@@ -46,6 +46,7 @@ contract Prover is SimpleProver {
         address settlementContract;
         address blockhashOracle;
         uint256 outputRootVersionNumber;
+        uint256 finalityDelaySeconds;
     }
 
     struct ChainConfigurationConstructor {
@@ -336,6 +337,15 @@ contract Prover is SimpleProver {
         require(
             existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
         );
+
+        // check that the End Batch Block timestamp is greater than the current timestamp + finality delay
+        uint256 endBatchBlockTimeStamp = _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[11]));
+
+        require(
+            block.timestamp > (endBatchBlockTimeStamp + chainConfiguration.finalityDelaySeconds),
+            "block before finality delay period"
+        );
+
         bytes32 blockHash = keccak256(rlpEncodedBlockData);
         bytes32 outputRoot =
             generateOutputRoot(L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, blockHash);
