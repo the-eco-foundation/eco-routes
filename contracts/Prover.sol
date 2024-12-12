@@ -438,12 +438,12 @@ contract Prover is SimpleProver {
         return (_faultDisputeGameProxyAddress, _rootClaim);
     }
 
-    function faultDisputeGameIsResolved(
+    function _faultDisputeGameIsResolved(
         bytes32 rootClaim,
         address faultDisputeGameProxyAddress,
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
-    ) public pure {
+    ) internal pure {
         require(
             faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
         ); // ensure faultDisputeGame is resolved
@@ -469,7 +469,9 @@ contract Prover is SimpleProver {
             abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
             faultDisputeGameStatusStorage,
             faultDisputeGameProofData.faultDisputeGameStatusStorageProof,
-            bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
+            bytes32(
+                RLPReader.readBytes(RLPReader.readList(faultDisputeGameProofData.rlpEncodedFaultDisputeGameData)[2])
+            )
         );
 
         // The Account Proof for FaultDisputeGameFactory
@@ -521,7 +523,9 @@ contract Prover is SimpleProver {
             chainConfiguration.settlementContract, l2WorldStateRoot, disputeGameFactoryProofData, l1WorldStateRoot
         );
 
-        faultDisputeGameIsResolved(rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot);
+        _faultDisputeGameIsResolved(
+            rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot
+        );
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
