@@ -55,7 +55,7 @@ contract Inbox is IInbox, Ownable {
         }
     }
 
-    function version() external pure returns (string memory) { return "0.6.18-beta"; }
+    function version() external pure returns (string memory) { return "0.0.618-beta"; }
 
     /** 
      * @notice fulfills an intent to be proven via storage proofs

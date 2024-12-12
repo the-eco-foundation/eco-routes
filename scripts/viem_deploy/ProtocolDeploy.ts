@@ -200,7 +200,7 @@ export class ProtocolDeploy {
     chain: Chain,
     salt: Hex,
     parameters: EncodeDeployDataParameters & { constructorArgs: any[] },
-    opts: DeployOpts = { retry: true, pre: false },
+    opts: DeployOpts = { deployType: 'create3', retry: true, pre: false },
   ): Promise<Hex> {
     if (!proverSupported(chain.name)) {
       console.log(
@@ -310,8 +310,8 @@ export class ProtocolDeploy {
 
     console.log(salt)
     await this.deployProver(chain, salt, opts)
-    await this.deployIntentSource(chain, salt, opts)
-    await this.deployInbox(chain, salt, true, opts)
+    // await this.deployIntentSource(chain, salt, opts)
+    // await this.deployInbox(chain, salt, true, opts)
   }
 }
 

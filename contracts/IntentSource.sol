@@ -41,7 +41,7 @@ contract IntentSource is IIntentSource {
         counter = _counterStart;
     }
 
-    function version() external pure returns (string memory) { return "0.6.18-beta"; }
+    function version() external pure returns (string memory) { return "0.0.618-beta"; }
     /**
      * @notice Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets.
      * @dev If a proof ON THE SOURCE CHAIN is not completed by the expiry time, the reward funds will not be redeemable by the solver, REGARDLESS OF WHETHER THE INSTRUCTIONS WERE EXECUTED.
