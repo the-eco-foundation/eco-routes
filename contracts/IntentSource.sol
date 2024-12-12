@@ -137,14 +137,15 @@ contract IntentSource is IIntentSource {
                 }
             }
             intent.isActive = false;
+            emit Withdrawal(_hash, withdrawTo);
             uint256 len = intent.rewardTokens.length;
             for (uint256 i = 0; i < len; i++) {
                 IERC20(intent.rewardTokens[i]).safeTransfer(withdrawTo, intent.rewardAmounts[i]);
             }
-            emit Withdrawal(_hash, withdrawTo);
             uint256 nativeReward = intent.rewardNative;
             if(nativeReward > 0) {
-                payable(withdrawTo).transfer(nativeReward);
+                (bool success, ) = payable(withdrawTo).call{value: nativeReward}("");
+                require(success, "Native transfer failed.");
             }
         } else {
             revert NothingToWithdraw(_hash);

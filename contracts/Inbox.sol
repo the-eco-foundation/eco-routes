@@ -152,7 +152,8 @@ contract Inbox is IInbox, Ownable {
             revert InsufficientFee(fee);
         }
         if (msg.value > fee) {
-            payable(msg.sender).transfer(msg.value - fee);
+            (bool success, ) = payable(msg.sender).call{value: msg.value - fee}("");
+            require(success, "Native transfer failed.");
         }
         if (_postDispatchHook == address(0)) {
             IMailbox(mailbox).dispatch{value: fee}(
@@ -243,7 +244,8 @@ contract Inbox is IInbox, Ownable {
             revert InsufficientFee(fee);
         }
         if (msg.value > fee) {
-            payable(msg.sender).transfer(msg.value - fee);
+            (bool success, ) = payable(msg.sender).call{value: msg.value - fee}("");
+            require(success, "Native transfer failed.");
         }
         if (_postDispatchHook == address(0)) { 
             IMailbox(mailbox).dispatch{value: fee}(
@@ -300,7 +302,7 @@ contract Inbox is IInbox, Ownable {
             revert UnauthorizedTransferNative();
         }
         (bool success, ) = _to.call{value: _amount}("");
-        require(success, "Transfer failed.");
+        require(success, "Native transfer failed.");
     }
 
     /**
@@ -349,18 +351,18 @@ contract Inbox is IInbox, Ownable {
         bytes32 intentHash =
             encodeHash(_sourceChainID, block.chainid, address(this), _targets, _data, _expiryTime, _nonce);
 
-        // revert if locally calculated hash does not match expected hash
         if (intentHash != _expectedHash) {
             revert InvalidHash(_expectedHash);
         }
-
-        // revert if intent has already been fulfilled
         if (fulfilled[intentHash] != address(0)) {
             revert IntentAlreadyFulfilled(intentHash);
         }
+
+        fulfilled[intentHash] = _claimant;
+        emit Fulfillment(_expectedHash, _sourceChainID, _claimant);
+
         // Store the results of the calls
         bytes[] memory results = new bytes[](_data.length);
-        // Call the addresses with the calldata
 
         for (uint256 i = 0; i < _data.length; i++) {
             address target = _targets[i];
@@ -374,12 +376,6 @@ contract Inbox is IInbox, Ownable {
             }
             results[i] = result;
         }
-
-        // Mark the intent as fulfilled
-        fulfilled[intentHash] = _claimant;
-
-        emit Fulfillment(_expectedHash, _sourceChainID, _claimant);
-
         return results;
     }
 
