@@ -19,12 +19,13 @@ import {
   setGithubStepSummary,
 } from './git.utils'
 import { compareSemverIntegerStrings } from './utils'
+import { rimrafSync } from 'rimraf'
 
 // Directory containing Solidity contract files
 const contractsDir = path.join(__dirname, '../../contracts')
 
 // Directory to save the extracted package
-const tempDir = path.join(__dirname, '../../tmp')
+const TEMP_DIR = path.join(__dirname, '../../tmp')
 
 // Regular expression to verify that a string is a valid SemVer
 // default regex from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string  with an optional leading v
@@ -55,17 +56,21 @@ export class ProtocolVersion {
   }
 
   async getDeployChains(): Promise<{ chains: Chain[]; salts?: SaltsType }> {
+    let dc: { chains: Chain[]; salts?: SaltsType }
     if (await this.isPatchUpdate()) {
       const chains = await this.getNewChains()
       if (chains.length === 0) {
         throw new Error('No new chains to deploy for a patch update')
       }
-      const salts = getJsonFromFile<SaltsType>(path.join(tempDir, saltFileName))
+      const salts = getJsonFromFile<SaltsType>(path.join(TEMP_DIR, saltFileName))
       console.log('Salts Detected:', salts)
-      return { chains, salts }
+      dc = { chains, salts }
     } else {
-      return { chains: DeployChains }
+      dc = { chains: DeployChains }
     }
+    // delete tmp package directory
+    rimrafSync(TEMP_DIR)
+    return dc
   }
 
   /**
@@ -76,10 +81,10 @@ export class ProtocolVersion {
     // extract a package into a folder
     const pkg = `${this.packageName}@${this.getReleaseTag()}`
     try {
-      const ext = await pacote.extract(pkg, tempDir, {})
+      await pacote.extract(pkg, TEMP_DIR, {})
       console.log('Extracted package')
       const existingData = getJsonFromFile<any>(
-        path.join(tempDir, jsonFileName),
+        path.join(TEMP_DIR, jsonFileName),
       )
 
       console.debug('Existing data:', JSON.stringify(existingData))
@@ -89,8 +94,6 @@ export class ProtocolVersion {
       console.debug('Existing data:', chainIDs)
       console.debug('DeployChains data:', JSON.stringify(DeployChains))
       mergeAddresses(existingData)
-      // delete tmp package directory
-      // rimrafSync(saveDir)
       console.log('Deleted tmp package directory')
       return DeployChains.filter((chain) => !chainIDs.includes(chain.id))
     } catch (e) {
@@ -207,7 +210,7 @@ export class ProtocolVersion {
       pub.major === this.version.major &&
       pub.minor === this.version.minor &&
       compareSemverIntegerStrings(this.version.patch || '0', pub.patch || '0') >
-        0
+      0
     )
   }
 

@@ -86,19 +86,22 @@ describe('ProtocolVersion Tests', () => {
   describe('on updateProtocolVersion', () => {
     it('should call the package and .sol file updates', () => {
       const spy = jest.spyOn(ProtocolVersion.prototype, 'updateProjectVersion')
-      const spySolidity = jest.spyOn(
+      const mockVersionSol = jest.fn()
+      const mockUpdatePackage = jest.fn()
+      jest.spyOn(
         ProtocolVersion.prototype,
         'updateVersionInSolidityFiles',
-      )
-      const spyPackage = jest.spyOn(
+      ).mockImplementation(mockVersionSol)
+      jest.spyOn(
         ProtocolVersion.prototype,
         'updatePackageJsonVersion',
-      )
+      ).mockImplementation(mockUpdatePackage)
+
       const pv = new ProtocolVersion('1.0.0')
       pv.updateProjectVersion()
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spySolidity).toHaveBeenCalled() //recursive call so we dont know how many times
-      expect(spyPackage).toHaveBeenCalledTimes(1)
+      expect(mockVersionSol).toHaveBeenCalled() //recursive call so we dont know how many times
+      expect(mockUpdatePackage).toHaveBeenCalledTimes(1)
     })
   })
 
