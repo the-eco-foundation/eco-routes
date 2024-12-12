@@ -46,6 +46,7 @@ contract Prover is SimpleProver {
         address settlementContract;
         address blockhashOracle;
         uint256 outputRootVersionNumber;
+        uint256 finalityDelaySeconds;
     }
 
     struct ChainConfigurationConstructor {
@@ -123,6 +124,88 @@ contract Prover is SimpleProver {
      */
     error OutdatedBlock(uint256 _inputBlockNumber, uint256 _latestBlockNumber);
 
+    /**
+     * @notice emitted if the passed RLPEncodedBlockData Hash does not match the keccak256 hash of the RPLEncodedData
+     * @param _expectedBlockHash the expected block hash for the RLP encoded data
+     * @param _calculatedBlockHash the calculated block hash from the RLP encoded data
+     */
+    error InvalidRLPEncodedBlock(bytes32 _expectedBlockHash, bytes32 _calculatedBlockHash);
+
+    /**
+     * @notice emitted when proveStorage fails
+     * we validate a storage proof  using SecureMerkleTrie.verifyInclusionProof
+     * @param _key the key for the storage proof
+     * @param _val the _value for the storage proof
+     * @param _proof the storage proof
+     * @param _root the root
+     */
+    error InvalidStorageProof(bytes _key, bytes _val, bytes[] _proof, bytes32 _root);
+
+    /**
+     * @notice emitted when proveAccount fails
+     * we validate account proof  using SecureMerkleTrie.verifyInclusionProof
+     * @param _address the address of the data
+     * @param _data the data we are validating
+     * @param _proof the account proof
+     * @param _root the root
+     */
+    error InvalidAccountProof(bytes _address, bytes _data, bytes[] _proof, bytes32 _root);
+
+    /**
+     * @notice emitted when the settlement chain state root has not yet been proven
+     * @param _blockProofStateRoot the state root of the block that we are trying to prove
+     * @param _l1WorldStateRoot the state root of the last block that was proven on the settlement chain
+     */
+    error SettlementChainStateRootNotProved(bytes32 _blockProofStateRoot, bytes32 _l1WorldStateRoot);
+
+    /**
+     * @notice emitted when the settlement chain state root has not yet been proven
+     * @param _blockProofStateRoot the state root of the block that we are trying to prove
+     * @param _l2WorldStateRoot the state root of the last block that was proven on the settlement chain
+     */
+    error DestinationChainStateRootNotProved(bytes32 _blockProofStateRoot, bytes32 _l2WorldStateRoot);
+
+    /**
+     * @notice emitted when the settlement chain state root has not yet been proven
+     * @param _blockTimeStamp the timestamp of the block that we are trying to prove
+     * @param _finalityDelayTimeStamp the time stamp including finality delay that we need to wait for
+     */
+    error BlockBeforeFinalityPeriod(uint256 _blockTimeStamp, uint256 _finalityDelayTimeStamp);
+
+    /**
+     * @notice emitted when we receive an incorrectly encoded contract state root
+     * @param _outputOracleStateRoot the state root that was encoded incorrectly
+     */
+    error IncorrectOutputOracleStateRoot(bytes _outputOracleStateRoot);
+
+    /**
+     * @notice emitted when we receive an incorrectly encoded disputeGameFactory state root
+     * @param _disputeGameFactoryStateRoot the state root that was encoded incorrectly
+     */
+    error IncorrectDisputeGameFactoryStateRoot(bytes _disputeGameFactoryStateRoot);
+
+    /**
+     * @notice emitted when we receive an incorrectly encoded disputeGameFactory state root
+     * @param _inboxStateRoot the state root that was encoded incorrectly
+     */
+    error IncorrectInboxStateRoot(bytes _inboxStateRoot);
+
+    /**
+     * @notice emitted when a fault dispute game has not been resolved
+     * @param _gameStatus the status of the fault dispute game (2 is resolved)
+     */
+    error FaultDisputeGameUnresolved(uint8 _gameStatus);
+
+    // Check that the intent has not expired and that the sender is permitted to solve intents
+    modifier validRLPEncodeBlock(bytes calldata _rlpEncodedBlockData, bytes32 _expectedBlockHash) {
+        bytes32 calculatedBlockHash = keccak256(_rlpEncodedBlockData);
+        if (calculatedBlockHash == _expectedBlockHash) {
+            _;
+        } else {
+            revert InvalidRLPEncodedBlock(_expectedBlockHash, calculatedBlockHash);
+        }
+    }
+
     constructor(ChainConfigurationConstructor[] memory _chainConfigurations) {
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
             _setChainConfiguration(_chainConfigurations[i].chainId, _chainConfigurations[i].chainConfiguration);
@@ -152,7 +235,9 @@ contract Prover is SimpleProver {
      * @param _root root
      */
     function proveStorage(bytes memory _key, bytes memory _val, bytes[] memory _proof, bytes32 _root) public pure {
-        require(SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root), "failed to prove storage");
+        if (!SecureMerkleTrie.verifyInclusionProof(_key, _val, _proof, _root)) {
+            revert InvalidStorageProof(_key, _val, _proof, _root);
+        }
     }
     /**
      * @notice validates an account proof against using SecureMerkleTrie.verifyInclusionProof
@@ -166,7 +251,9 @@ contract Prover is SimpleProver {
         public
         pure
     {
-        require(SecureMerkleTrie.verifyInclusionProof(_address, _data, _proof, _root), "failed to prove account");
+        if (!SecureMerkleTrie.verifyInclusionProof(_address, _data, _proof, _root)) {
+            revert InvalidAccountProof(_address, _data, _proof, _root);
+        }
     }
 
     /**
@@ -283,17 +370,17 @@ contract Prover is SimpleProver {
      * in that block corresponds to the block on the oracle contract, and that it represents a valid
      * state.
      */
-    function proveSettlementLayerState(bytes calldata rlpEncodedBlockData) public {
-        bytes32 blockHash = keccak256(rlpEncodedBlockData);
-        require(blockHash == l1BlockhashOracle.hash(), "hash does not match block data");
-
+    function proveSettlementLayerState(bytes calldata rlpEncodedBlockData)
+        public
+        validRLPEncodeBlock(rlpEncodedBlockData, l1BlockhashOracle.hash())
+    {
         uint256 settlementChainId = chainConfigurations[block.chainid].settlementChainId;
         // not necessary because we already confirm that the data is correct by ensuring that it hashes to the block hash
         // require(l1WorldStateRoot.length <= 32); // ensure lossless casting to bytes32
 
         BlockProof memory blockProof = BlockProof({
             blockNumber: _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[8])),
-            blockHash: blockHash,
+            blockHash: keccak256(rlpEncodedBlockData),
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
         BlockProof memory existingBlockProof = provenStates[settlementChainId];
@@ -333,9 +420,19 @@ contract Prover is SimpleProver {
         // failing the need for all that, change the mapping to map to bool
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         BlockProof memory existingSettlementBlockProof = provenStates[chainConfiguration.settlementChainId];
-        require(
-            existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
-        );
+        if (existingSettlementBlockProof.stateRoot != l1WorldStateRoot) {
+            revert SettlementChainStateRootNotProved(existingSettlementBlockProof.stateRoot, l1WorldStateRoot);
+        }
+
+        // check that the End Batch Block timestamp is greater than the current timestamp + finality delay
+        uint256 endBatchBlockTimeStamp = _bytesToUint(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[11]));
+
+        if (block.timestamp <= endBatchBlockTimeStamp + chainConfiguration.finalityDelaySeconds) {
+            revert BlockBeforeFinalityPeriod(
+                block.timestamp, endBatchBlockTimeStamp + chainConfiguration.finalityDelaySeconds
+            );
+        }
+
         bytes32 blockHash = keccak256(rlpEncodedBlockData);
         bytes32 outputRoot =
             generateOutputRoot(L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, blockHash);
@@ -345,7 +442,10 @@ contract Prover is SimpleProver {
 
         bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
-        require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
+        if (outputOracleStateRoot.length > 32) {
+            revert IncorrectOutputOracleStateRoot(outputOracleStateRoot);
+        }
+
         proveStorage(
             abi.encodePacked(outputRootStorageSlot),
             RLPWriter.writeBytes(abi.encodePacked(outputRoot)),
@@ -417,7 +517,9 @@ contract Prover is SimpleProver {
         bytes memory disputeGameFactoryStateRoot =
             RLPReader.readBytes(RLPReader.readList(disputeGameFactoryProofData.rlpEncodedDisputeGameFactoryData)[2]);
 
-        require(disputeGameFactoryStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
+        if (disputeGameFactoryStateRoot.length > 32) {
+            revert IncorrectDisputeGameFactoryStateRoot(disputeGameFactoryStateRoot);
+        }
 
         proveStorage(
             abi.encodePacked(disputeGameFactoryStorageSlot),
@@ -438,15 +540,15 @@ contract Prover is SimpleProver {
         return (_faultDisputeGameProxyAddress, _rootClaim);
     }
 
-    function faultDisputeGameIsResolved(
+    function _faultDisputeGameIsResolved(
         bytes32 rootClaim,
         address faultDisputeGameProxyAddress,
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
-    ) public pure {
-        require(
-            faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
-        ); // ensure faultDisputeGame is resolved
+    ) internal pure {
+        if (faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus != 2) {
+            revert FaultDisputeGameUnresolved(faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus);
+        } // ensure faultDisputeGame is resolved
         // Prove that the FaultDispute game has been settled
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
         proveStorage(
@@ -469,7 +571,9 @@ contract Prover is SimpleProver {
             abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
             faultDisputeGameStatusStorage,
             faultDisputeGameProofData.faultDisputeGameStatusStorageProof,
-            bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
+            bytes32(
+                RLPReader.readBytes(RLPReader.readList(faultDisputeGameProofData.rlpEncodedFaultDisputeGameData)[2])
+            )
         );
 
         // The Account Proof for FaultDisputeGameFactory
@@ -490,6 +594,10 @@ contract Prover is SimpleProver {
      * @notice this gives a total of 3 StorageProofs and 1 AccountProof which must be validated.
      * @param chainId the chain id of the chain we are proving
      * @param rlpEncodedBlockData properly encoded L1 block data
+     * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
+     * @param disputeGameFactoryProofData the proof data for the DisputeGameFactory
+     * @param faultDisputeGameProofData the proof data for the FaultDisputeGame
+     * @param l1WorldStateRoot the l1 world state root that was proven for the settlement chain
      */
     function proveWorldStateCannon(
         uint256 chainId, //the destination chain id of the intent we are proving
@@ -498,14 +606,13 @@ contract Prover is SimpleProver {
         DisputeGameFactoryProofData calldata disputeGameFactoryProofData,
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
-    ) public {
+    ) public validRLPEncodeBlock(rlpEncodedBlockData, disputeGameFactoryProofData.latestBlockHash) {
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         BlockProof memory existingSettlementBlockProof = provenStates[chainConfiguration.settlementChainId];
-        require(
-            existingSettlementBlockProof.stateRoot == l1WorldStateRoot, "settlement chain state root not yet proved"
-        );
+        if (existingSettlementBlockProof.stateRoot != l1WorldStateRoot) {
+            revert SettlementChainStateRootNotProved(existingSettlementBlockProof.stateRoot, l1WorldStateRoot);
+        }
         // prove that the FaultDisputeGame was created by the Dispute Game Factory
-        // require(provenL1States[l1WorldStateRoot] > 0, "l1 state root not yet proved");
 
         bytes32 rootClaim;
         address faultDisputeGameProxyAddress;
@@ -514,7 +621,9 @@ contract Prover is SimpleProver {
             chainConfiguration.settlementContract, l2WorldStateRoot, disputeGameFactoryProofData, l1WorldStateRoot
         );
 
-        faultDisputeGameIsResolved(rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot);
+        _faultDisputeGameIsResolved(
+            rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot
+        );
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
@@ -556,7 +665,9 @@ contract Prover is SimpleProver {
     ) public {
         // ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         BlockProof memory existingBlockProof = provenStates[chainId];
-        require(existingBlockProof.stateRoot == l2WorldStateRoot, "destination chain state root not yet proved");
+        if (existingBlockProof.stateRoot != l2WorldStateRoot) {
+            revert DestinationChainStateRootNotProved(existingBlockProof.stateRoot, l2WorldStateRoot);
+        }
 
         bytes32 intentHash = keccak256(abi.encode(inboxContract, intermediateHash));
 
@@ -569,8 +680,9 @@ contract Prover is SimpleProver {
 
         bytes memory inboxStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedInboxData)[2]);
 
-        require(inboxStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
-
+        if (inboxStateRoot.length > 32) {
+            revert IncorrectInboxStateRoot(inboxStateRoot);
+        }
         // proves that the claimaint address corresponds to the intentHash on the contract
         proveStorage(
             abi.encodePacked(messageMappingSlot),

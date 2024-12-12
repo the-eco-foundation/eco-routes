@@ -67,6 +67,7 @@ describe('Prover Unit Tests', () => {
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
       },
     }
 
@@ -80,6 +81,8 @@ describe('Prover Unit Tests', () => {
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
           networks.optimismSepolia.proving.outputRootVersionNumber,
+        finalityDelaySeconds:
+          networks.optimismSepolia.proving.finalityDelaySeconds,
       },
     }
     const proverContract = await ethers.getContractFactory('Prover')
@@ -224,6 +227,7 @@ describe('Prover End to End Tests', () => {
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
       },
     }
 
@@ -237,6 +241,7 @@ describe('Prover End to End Tests', () => {
         blockhashOracle: await blockhashOracle.getAddress(), // blockhashOracle
         outputRootVersionNumber:
           networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+        finalityDelaySeconds: networks.baseSepolia.proving.finalityDelaySeconds,
       },
     }
 
@@ -250,6 +255,8 @@ describe('Prover End to End Tests', () => {
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
           networks.optimismSepolia.proving.outputRootVersionNumber,
+        finalityDelaySeconds:
+          networks.optimismSepolia.proving.finalityDelaySeconds,
       },
     }
 
@@ -263,6 +270,7 @@ describe('Prover End to End Tests', () => {
         blockhashOracle: await blockhashOracle.getAddress(),
         outputRootVersionNumber:
           networks.ecoTestnet.proving.outputRootVersionNumber,
+        finalityDelaySeconds: networks.ecoTestnet.proving.finalityDelaySeconds,
       },
     }
     const proverContract = await ethers.getContractFactory('Prover')
