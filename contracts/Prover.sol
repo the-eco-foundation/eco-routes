@@ -323,7 +323,6 @@ contract Prover is SimpleProver {
         bytes32 l2WorldStateRoot,
         bytes32 l2MessagePasserStateRoot,
         uint256 l2OutputIndex,
-        bytes[] calldata l2OutputIndexProof,
         bytes[] calldata l1StorageProof,
         bytes calldata rlpEncodedOutputOracleData,
         bytes[] calldata l1AccountProof,
@@ -341,17 +340,10 @@ contract Prover is SimpleProver {
         bytes32 outputRoot =
             generateOutputRoot(L2_OUTPUT_ROOT_VERSION_NUMBER, l2WorldStateRoot, l2MessagePasserStateRoot, blockHash);
 
-        bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
+        bytes32 outputRootStorageSlot =
+            bytes32((uint256(keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER))) + l2OutputIndex * 2));
 
-        // Prove and verify array length
-        bytes32 l2OutputsSlot = keccak256(abi.encode(L2_OUTPUT_SLOT_NUMBER));
-        proveStorage(
-            abi.encodePacked(l2OutputsSlot),
-            RLPWriter.writeBytes(abi.encode(l2OutputIndex)), // array length must be greater than index
-            l2OutputIndexProof,
-            bytes32(outputOracleStateRoot)
-        );
-        bytes32 outputRootStorageSlot = bytes32(uint256(l2OutputsSlot) + l2OutputIndex * 2);
+        bytes memory outputOracleStateRoot = RLPReader.readBytes(RLPReader.readList(rlpEncodedOutputOracleData)[2]);
 
         require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
         proveStorage(
