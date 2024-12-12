@@ -32,7 +32,7 @@ contract Prover is SimpleProver {
     // Output slot for the game status (fixed)
     uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
 
-    // Number of blocks to wait before Settlemnent Layer can be proven again
+    // Number of blocks to wait before Settlement Layer can be proven again
     uint256 public constant SETTLEMENT_BLOCKS_DELAY = 5;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
@@ -112,9 +112,9 @@ contract Prover is SimpleProver {
     /**
      * @notice emitted on a proving state if the blockNumber is less than or equal to the current blockNumber + SETTLEMENT_BLOCKS_DELAY
      * @param _inputBlockNumber the block number we are trying to prove
-     * @param _neededBlockNumber the  next block number that can been proven
+     * @param _nextProvableBlockNumber the next block number that can be proven
      */
-    error NeedLaterBlock(uint256 _inputBlockNumber, uint256 _neededBlockNumber);
+    error NeedLaterBlock(uint256 _inputBlockNumber, uint256 _nextProvableBlockNumber);
 
     /**
      * @notice emitted on a proving state if the blockNumber is less than or equal to the current blockNumber
@@ -297,11 +297,11 @@ contract Prover is SimpleProver {
             stateRoot: bytes32(RLPReader.readBytes(RLPReader.readList(rlpEncodedBlockData)[3]))
         });
         BlockProof memory existingBlockProof = provenStates[settlementChainId];
-        if ((existingBlockProof.blockNumber + SETTLEMENT_BLOCKS_DELAY) < blockProof.blockNumber) {
+        if (existingBlockProof.blockNumber + SETTLEMENT_BLOCKS_DELAY < blockProof.blockNumber) {
             provenStates[settlementChainId] = blockProof;
             emit L1WorldStateProven(blockProof.blockNumber, blockProof.stateRoot);
         } else {
-            revert NeedLaterBlock(blockProof.blockNumber, (existingBlockProof.blockNumber + SETTLEMENT_BLOCKS_DELAY));
+            revert NeedLaterBlock(blockProof.blockNumber, existingBlockProof.blockNumber + SETTLEMENT_BLOCKS_DELAY);
         }
     }
     /**
@@ -348,7 +348,7 @@ contract Prover is SimpleProver {
         require(outputOracleStateRoot.length <= 32, "contract state root incorrectly encoded"); // ensure lossless casting to bytes32
         proveStorage(
             abi.encodePacked(outputRootStorageSlot),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(outputRoot)),
+            RLPWriter.writeBytes(abi.encodePacked(outputRoot)),
             l1StorageProof,
             bytes32(outputOracleStateRoot)
         );
@@ -393,9 +393,9 @@ contract Prover is SimpleProver {
             gameId29 := shl(24, gameId)
         }
         if (bytes1(uint8(gameId29[0])) == bytes1(uint8(0x00))) {
-            _value = bytes.concat(bytes1(uint8(0x98)), gameId24);
+            _value = RLPWriter.writeBytes(abi.encodePacked(gameId24));
         } else {
-            _value = bytes.concat(bytes1(uint8(0x9d)), gameId29);
+            _value = RLPWriter.writeBytes(abi.encodePacked(gameId29));
         }
 
         bytes32 _rootClaim = generateOutputRoot(
@@ -438,12 +438,12 @@ contract Prover is SimpleProver {
         return (_faultDisputeGameProxyAddress, _rootClaim);
     }
 
-    function faultDisputeGameIsResolved(
+    function _faultDisputeGameIsResolved(
         bytes32 rootClaim,
         address faultDisputeGameProxyAddress,
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
-    ) public pure {
+    ) internal pure {
         require(
             faultDisputeGameProofData.faultDisputeGameStatusSlotData.gameStatus == 2, "faultDisputeGame not resolved"
         ); // ensure faultDisputeGame is resolved
@@ -451,7 +451,7 @@ contract Prover is SimpleProver {
         // storage proof for FaultDisputeGame rootClaim (means block is valid)
         proveStorage(
             abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_ROOT_CLAIM_SLOT)),
-            bytes.concat(bytes1(uint8(0xa0)), abi.encodePacked(rootClaim)),
+            RLPWriter.writeBytes(abi.encodePacked(rootClaim)),
             faultDisputeGameProofData.faultDisputeGameRootClaimStorageProof,
             bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
         );
@@ -469,7 +469,9 @@ contract Prover is SimpleProver {
             abi.encodePacked(uint256(L2_FAULT_DISPUTE_GAME_STATUS_SLOT)),
             faultDisputeGameStatusStorage,
             faultDisputeGameProofData.faultDisputeGameStatusStorageProof,
-            bytes32(faultDisputeGameProofData.faultDisputeGameStateRoot)
+            bytes32(
+                RLPReader.readBytes(RLPReader.readList(faultDisputeGameProofData.rlpEncodedFaultDisputeGameData)[2])
+            )
         );
 
         // The Account Proof for FaultDisputeGameFactory
@@ -490,6 +492,10 @@ contract Prover is SimpleProver {
      * @notice this gives a total of 3 StorageProofs and 1 AccountProof which must be validated.
      * @param chainId the chain id of the chain we are proving
      * @param rlpEncodedBlockData properly encoded L1 block data
+     * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
+     * @param disputeGameFactoryProofData the proof data for the DisputeGameFactory
+     * @param faultDisputeGameProofData the proof data for the FaultDisputeGame
+     * @param l1WorldStateRoot the l1 world state root that was proven for the settlement chain
      */
     function proveWorldStateCannon(
         uint256 chainId, //the destination chain id of the intent we are proving
@@ -499,6 +505,9 @@ contract Prover is SimpleProver {
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
     ) public {
+        require(
+            keccak256(rlpEncodedBlockData) == disputeGameFactoryProofData.latestBlockHash, "Invalid latest block hash"
+        );
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         BlockProof memory existingSettlementBlockProof = provenStates[chainConfiguration.settlementChainId];
         require(
@@ -514,7 +523,9 @@ contract Prover is SimpleProver {
             chainConfiguration.settlementContract, l2WorldStateRoot, disputeGameFactoryProofData, l1WorldStateRoot
         );
 
-        faultDisputeGameIsResolved(rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot);
+        _faultDisputeGameIsResolved(
+            rootClaim, faultDisputeGameProxyAddress, faultDisputeGameProofData, l1WorldStateRoot
+        );
 
         BlockProof memory existingBlockProof = provenStates[chainId];
         BlockProof memory blockProof = BlockProof({
@@ -574,7 +585,7 @@ contract Prover is SimpleProver {
         // proves that the claimaint address corresponds to the intentHash on the contract
         proveStorage(
             abi.encodePacked(messageMappingSlot),
-            bytes.concat(hex"94", bytes20(claimant)),
+            RLPWriter.writeBytes(abi.encodePacked(claimant)),
             l2StorageProof,
             bytes32(inboxStateRoot)
         );

@@ -692,7 +692,8 @@ describe('Intent Source Test', (): void => {
         const logs = await intentSource.queryFilter(
           intentSource.getEvent('IntentCreated'),
         )
-        const hashes = logs.map((log) => log.args[0])
+        const hashes = logs.map((log) => log.args._hash)
+
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
 
         for (let i = 0; i < 3; i++) {
@@ -743,7 +744,7 @@ describe('Intent Source Test', (): void => {
         const logs = await intentSource.queryFilter(
           intentSource.getEvent('IntentCreated'),
         )
-        const hashes = logs.map((log) => log.args[0])
+        const hashes = logs.map((log) => log.args._hash)
 
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
         expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
@@ -815,10 +816,11 @@ describe('Intent Source Test', (): void => {
         const logs = await intentSource.queryFilter(
           intentSource.getEvent('IntentCreated'),
         )
-        const hashes = logs.map((log) => log.args[0])
+        const hashes = logs.map((log) => log.args._hash)
 
         expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
         expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
+
         const initialBalanceNative = await ethers.provider.getBalance(
           await claimant.getAddress(),
         )
@@ -887,10 +889,11 @@ describe('Intent Source Test', (): void => {
       const logs = await intentSource.queryFilter(
         intentSource.getEvent('IntentCreated'),
       )
-      const hashes = logs.map((log) => log.args[0])
+      const hashes = logs.map((log) => log.args._hash)
 
       expect(await tokenA.balanceOf(await claimant.getAddress())).to.eq(0)
       expect(await tokenB.balanceOf(await claimant.getAddress())).to.eq(0)
+
       const initialBalanceNative = await ethers.provider.getBalance(
         await claimant.getAddress(),
       )
