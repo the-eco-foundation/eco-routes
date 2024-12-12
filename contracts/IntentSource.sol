@@ -90,19 +90,18 @@ contract IntentSource is IIntentSource {
             rewardNative: msg.value
         });
 
+        emitIntentCreated(intentHash, intents[intentHash]);
         counter += 1;
 
         for (uint256 i = 0; i < len; i++) {
             IERC20(_rewardTokens[i]).safeTransferFrom(msg.sender, address(this), _rewardAmounts[i]);
         }
 
-        emitIntentCreated(intentHash, intents[intentHash]);
         return intentHash;
     }
 
     function emitIntentCreated(bytes32 _hash, Intent memory _intent) internal {
         //gets around Stack Too Deep
-        //TODO: remove this, stacktoodeep is solved elsewhere
         emit IntentCreated(
             _hash,
             msg.sender,
