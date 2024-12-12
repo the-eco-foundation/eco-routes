@@ -3,7 +3,7 @@ import { ProtocolVersion } from '../viem_deploy/ProtocolVersion'
 async function main() {
   const pv = new ProtocolVersion()
   pv.updateProjectVersion()
-  const chains = await pv.getDeployChains()
+  await pv.getDeployChains()
   // console.log(
   //   'Chains going to be deployed: ',
   //   chains.reduce((acc, chain) => {

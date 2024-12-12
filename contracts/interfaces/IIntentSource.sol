@@ -3,7 +3,7 @@
 pragma solidity ^0.8.26;
 
 import {Intent} from "../types/Intent.sol";
-import "./ISemver.sol";
+import {Semver, ISemver} from "../libs/Semver.sol";
 /**
  * This contract is the source chain portion of the Eco Protocol's intent system.
  *

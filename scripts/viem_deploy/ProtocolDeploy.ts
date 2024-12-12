@@ -42,6 +42,13 @@ export type DeployOpts = {
   retry?: boolean
   deployType?: 'create2' | 'create3'
 }
+
+// wait for 10 seconds before polling for nonce update
+const NONCE_POLL_INTERVAL = 10000
+
+/**
+ * Deploys the eco protocol to all the chains passed with the salts provided. After deploy it verify the contracts on etherscan.
+ */
 export class ProtocolDeploy {
   private queueVerify = new PQueue({ interval: 1000, intervalCap: 1 }) // theres a 5/second limit on etherscan
   private queueDeploy = new PQueue()
@@ -310,12 +317,11 @@ export class ProtocolDeploy {
 
     console.log(salt)
     await this.deployProver(chain, salt, opts)
-    // await this.deployIntentSource(chain, salt, opts)
-    // await this.deployInbox(chain, salt, true, opts)
+    await this.deployIntentSource(chain, salt, opts)
+    await this.deployInbox(chain, salt, true, opts)
   }
 }
 
-const NONCE_POLL_INTERVAL = 10000
 /**
  * Waits for the nonce of a client to update.
  *

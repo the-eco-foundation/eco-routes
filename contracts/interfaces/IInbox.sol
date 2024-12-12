@@ -1,26 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
-import "./ISemver.sol";
+import {Semver, ISemver} from "../libs/Semver.sol";
 
-interface IInbox is ISemver{
-
+interface IInbox is ISemver {
     // Event emitted when an intent is succesfully fulfilled
-    event Fulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
+    event Fulfillment(
+        bytes32 indexed _hash,
+        uint256 indexed _sourceChainID,
+        address indexed _claimant
+    );
 
     // Event emitted when an intent is ready to be proven via a storage prover
-    event ToBeProven(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
+    event ToBeProven(
+        bytes32 indexed _hash,
+        uint256 indexed _sourceChainID,
+        address indexed _claimant
+    );
 
     // Event emitted when an intent is fulfilled with the instant hyperprover path
-    event HyperInstantFulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
+    event HyperInstantFulfillment(
+        bytes32 indexed _hash,
+        uint256 indexed _sourceChainID,
+        address indexed _claimant
+    );
 
     // Event emitted when an intent is added to a batch to be proven with the hyperprover
-    event AddToBatch(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant, address _prover);
+    event AddToBatch(
+        bytes32 indexed _hash,
+        uint256 indexed _sourceChainID,
+        address indexed _claimant,
+        address _prover
+    );
 
     // Event emitted when solving is made public
     event SolvingIsPublic();
 
     // Event emitted when a change is made to the solver whitelist
-    event SolverWhitelistChanged(address indexed _solver, bool indexed _canSolve);
+    event SolverWhitelistChanged(
+        address indexed _solver,
+        bool indexed _canSolve
+    );
 
     // Event emitted when the prover address of a chain is set
     event ProverSet(uint256 indexed _chainID, address indexed _prover);
@@ -42,7 +61,7 @@ interface IInbox is ISemver{
 
     // Error thrown when a solver attempts to make a call to the hyperlane mailbox
     error CallToMailbox();
-    
+
     // Error thrown when the number of intents in a call to sendBatch exceeds MAX_BATCH_SIZE
     error BatchTooLarge();
 
@@ -123,7 +142,7 @@ interface IInbox is ISemver{
         bytes32 _expectedHash,
         address _prover
     ) external returns (bytes[] memory);
-    
+
     /**
      * Sends a batch of intents to the hyperprover in a single message.
      * All intents should be between the same source and destination chains and should be proven against the same hyperprover.
@@ -131,5 +150,9 @@ interface IInbox is ISemver{
      * @param _prover The prover against which these intents will be proven. Should be the same for all intents in a given batch
      * @param _intentHashes The array of intent hashes to be proven
      */
-    function sendBatch(uint256 _sourceChainID, address _prover, bytes32[] calldata _intentHashes) external payable;
+    function sendBatch(
+        uint256 _sourceChainID,
+        address _prover,
+        bytes32[] calldata _intentHashes
+    ) external payable;
 }

@@ -6,6 +6,7 @@ import {RLPReader} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPRe
 import {RLPWriter} from "@eth-optimism/contracts-bedrock/src/libraries/rlp/RLPWriter.sol";
 import {IL1Block} from "./interfaces/IL1Block.sol";
 import {SimpleProver} from "./interfaces/SimpleProver.sol";
+import {Semver} from "./libs/Semver.sol";
 
 contract Prover is SimpleProver {
     // uint16 public constant NONCE_PACKING = 1;
@@ -118,7 +119,7 @@ contract Prover is SimpleProver {
         }
     }
 
-    function version() external pure returns (string memory) { return "0.0.618-beta"; }
+    function version() external pure returns (string memory) { return Semver.version(); }
 
     function getProofType() external pure override returns (ProofType) {
         return PROOF_TYPE;

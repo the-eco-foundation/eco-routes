@@ -151,8 +151,8 @@ export class ProtocolVersion {
       } else if (filePath.endsWith('.sol')) {
         let content = fs.readFileSync(filePath, 'utf8')
         const versionRegex =
-          /function version\(\) external pure returns \(string memory\) \{[^}]*\}/
-        const newVersionFunction = `function version() external pure returns (string memory) { return "${version}"; }`
+          /function version\(\) internal pure returns \(string memory\) \{[^}]*\}/
+        const newVersionFunction = `function version() internal pure returns (string memory) { return "${version}"; }`
         content = content.replace(versionRegex, newVersionFunction)
         fs.writeFileSync(filePath, content, 'utf8')
         console.log(`Updated Version in ${filePath}`)
