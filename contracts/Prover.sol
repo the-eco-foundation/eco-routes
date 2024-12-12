@@ -490,6 +490,10 @@ contract Prover is SimpleProver {
      * @notice this gives a total of 3 StorageProofs and 1 AccountProof which must be validated.
      * @param chainId the chain id of the chain we are proving
      * @param rlpEncodedBlockData properly encoded L1 block data
+     * @param l2WorldStateRoot the state root of the last block in the batch which contains the block in which the fulfill tx happened
+     * @param disputeGameFactoryProofData the proof data for the DisputeGameFactory
+     * @param faultDisputeGameProofData the proof data for the FaultDisputeGame
+     * @param l1WorldStateRoot the l1 world state root that was proven for the settlement chain
      */
     function proveWorldStateCannon(
         uint256 chainId, //the destination chain id of the intent we are proving
@@ -499,6 +503,9 @@ contract Prover is SimpleProver {
         FaultDisputeGameProofData memory faultDisputeGameProofData,
         bytes32 l1WorldStateRoot
     ) public {
+        require(
+            keccak256(rlpEncodedBlockData) == disputeGameFactoryProofData.latestBlockHash, "Invalid latest block hash"
+        );
         ChainConfiguration memory chainConfiguration = chainConfigurations[chainId];
         BlockProof memory existingSettlementBlockProof = provenStates[chainConfiguration.settlementChainId];
         require(
