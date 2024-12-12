@@ -153,7 +153,7 @@ contract Inbox is IInbox, Ownable {
         }
         if (msg.value > fee) {
             (bool success, ) = payable(msg.sender).call{value: msg.value - fee}("");
-            require(success, "Transfer failed.");
+            require(success, "Native transfer failed.");
         }
         if (_postDispatchHook == address(0)) {
             IMailbox(mailbox).dispatch{value: fee}(
@@ -302,7 +302,7 @@ contract Inbox is IInbox, Ownable {
             revert UnauthorizedTransferNative();
         }
         (bool success, ) = _to.call{value: _amount}("");
-        require(success, "Transfer failed.");
+        require(success, "Native transfer failed.");
     }
 
     /**
