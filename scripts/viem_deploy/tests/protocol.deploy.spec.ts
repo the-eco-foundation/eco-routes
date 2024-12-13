@@ -89,6 +89,8 @@ describe('ProtocolDeployment Tests', () => {
 
   beforeEach(() => {
     jest.resetAllMocks()
+    process.env.DEPLOYER_PRIVATE_KEY =
+      '0x1110002221bf287c8f88282152916470378ead952851e97f681cf48121a2f4aa'
   })
 
   beforeAll(() => {
