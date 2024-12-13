@@ -33,7 +33,7 @@ contract Prover is SimpleProver {
     uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
 
     // Number of blocks to wait before Settlement Layer can be proven again
-    uint256 public constant SETTLEMENT_BLOCKS_DELAY = 5;
+    uint256 immutable public SETTLEMENT_BLOCKS_DELAY;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
@@ -206,7 +206,8 @@ contract Prover is SimpleProver {
         }
     }
 
-    constructor(ChainConfigurationConstructor[] memory _chainConfigurations) {
+    constructor(uint256 _settlementBlocksDelay, ChainConfigurationConstructor[] memory _chainConfigurations) {
+        SETTLEMENT_BLOCKS_DELAY = _settlementBlocksDelay;
         for (uint256 i = 0; i < _chainConfigurations.length; ++i) {
             _setChainConfiguration(_chainConfigurations[i].chainId, _chainConfigurations[i].chainConfiguration);
         }
