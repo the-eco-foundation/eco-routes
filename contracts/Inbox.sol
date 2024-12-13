@@ -357,6 +357,9 @@ contract Inbox is IInbox, Ownable {
         if (fulfilled[intentHash] != address(0)) {
             revert IntentAlreadyFulfilled(intentHash);
         }
+        if (_claimant == address(0)) {
+            revert ZeroClaimant();
+        }
 
         fulfilled[intentHash] = _claimant;
         emit Fulfillment(_expectedHash, _sourceChainID, _claimant);
