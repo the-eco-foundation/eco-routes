@@ -31,19 +31,19 @@ const MainnetContracts: Record<ContractNames, ContractDeployConfigs> = {
     name: IntentSource.contractName,
     abi: IntentSource.abi,
     bytecode: IntentSource.bytecode as Hex,
-    args:[]
+    args: [],
   },
   Inbox: {
     name: Inbox.contractName,
     abi: Inbox.abi,
     bytecode: Inbox.bytecode as Hex,
-    args:[]
+    args: [],
   },
   HyperProver: {
     name: HyperProver.contractName,
     abi: HyperProver.abi,
     bytecode: HyperProver.bytecode as Hex,
-    args:[]
+    args: [],
   },
 }
 export default MainnetContracts

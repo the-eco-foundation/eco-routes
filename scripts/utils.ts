@@ -1,6 +1,6 @@
 import { run } from 'hardhat'
 import { ethers } from 'ethers'
-import { Chain, Hex, zeroAddress } from 'viem'
+import { BlockTag, Chain, Hex, PublicClient, zeroAddress } from 'viem'
 import { DeployNetworkConfig } from './deloyProtocol'
 import { networks as mainnetNetworks } from '../config/mainnet/config'
 import { networks as sepoliaNetworks } from '../config/testnet/config'
@@ -15,8 +15,43 @@ import {
   polygonAmoy,
 } from '@alchemy/aa-core'
 import { mantle, mantleSepoliaTestnet } from 'viem/chains'
+import { ContractNames } from './viem_deploy/contracts/mainnet'
 export function isZeroAddress(address: Hex): boolean {
   return address === zeroAddress
+}
+
+export async function waitMs(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+/**
+ * Waits for the nonce of a client to update.
+ *
+ * @param client - The `viem` client instance.
+ * @param address - The Ethereum address to monitor.
+ * @param currentNonce - The current nonce to compare against.
+ * @param pollInterval - The interval (in ms) for polling the nonce (default: NONCE_POLL_INTERVAL).
+ * @param txCall - The transaction call to make. Must update the nonce by at least 1 or this function will hang and timeout.
+ * @returns A promise that resolves to the updated nonce.
+ */
+export async function waitForNonceUpdate(
+  client: PublicClient,
+  address: Hex,
+  pollInterval: number,
+  txCall: () => Promise<any>,
+): Promise<number> {
+  const getNonce = async (blockTag: BlockTag) => {
+    return await client.getTransactionCount({ address, blockTag })
+  }
+  const initialNonce = await getNonce('pending')
+  const result = await txCall()
+  // some nodes in the rpc might not be updated even when the one we hit at first is causing a nonce error down the line
+  await new Promise((resolve) => setTimeout(resolve, pollInterval / 10))
+  let latestNonce = await getNonce('latest')
+  while (latestNonce <= initialNonce) {
+    await new Promise((resolve) => setTimeout(resolve, pollInterval))
+    latestNonce = await getNonce('latest')
+  }
+  return result
 }
 
 export async function waitBlocks(
@@ -104,10 +139,10 @@ export async function verifyContract(
  * @param network the network to check
  * @returns
  */
-export function proverSupported(network: string): boolean {
+export function proverSupported(network: string, proverName: string): boolean {
   const unsupported =
     network.includes('polygon') || network.includes('arbitrum')
-  return !unsupported
+  return !unsupported && proverName === ('Prover' as ContractNames)
 }
 
 export async function waitSeconds(seconds: number) {

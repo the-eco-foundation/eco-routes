@@ -7,8 +7,7 @@ async function main() {
 }
 
 main()
-  .then(() => {
-  })
+  .then(() => {})
   .catch((err) => {
     console.error('Error:', err)
   })

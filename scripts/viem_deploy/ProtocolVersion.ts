@@ -62,7 +62,9 @@ export class ProtocolVersion {
       if (chains.length === 0) {
         throw new Error('No new chains to deploy for a patch update')
       }
-      const salts = getJsonFromFile<SaltsType>(path.join(TEMP_DIR, saltFileName))
+      const salts = getJsonFromFile<SaltsType>(
+        path.join(TEMP_DIR, saltFileName),
+      )
       console.log('Salts Detected:', salts)
       dc = { chains, salts }
     } else {
@@ -210,7 +212,7 @@ export class ProtocolVersion {
       pub.major === this.version.major &&
       pub.minor === this.version.minor &&
       compareSemverIntegerStrings(this.version.patch || '0', pub.patch || '0') >
-      0
+        0
     )
   }
 

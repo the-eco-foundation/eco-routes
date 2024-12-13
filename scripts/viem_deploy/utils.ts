@@ -26,6 +26,9 @@ export function getDeployAccount() {
   return privateKeyToAccount(DEPLOYER_PRIVATE_KEY)
 }
 
+/**
+ * @returns A random salt generated from the git hash and a random number
+ */
 export function getGitRandomSalt() {
   return sha256(`0x${getGitHash() + Math.random().toString()}`) // Random salt
 }

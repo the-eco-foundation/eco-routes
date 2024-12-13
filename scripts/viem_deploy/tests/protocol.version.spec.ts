@@ -88,14 +88,12 @@ describe('ProtocolVersion Tests', () => {
       const spy = jest.spyOn(ProtocolVersion.prototype, 'updateProjectVersion')
       const mockVersionSol = jest.fn()
       const mockUpdatePackage = jest.fn()
-      jest.spyOn(
-        ProtocolVersion.prototype,
-        'updateVersionInSolidityFiles',
-      ).mockImplementation(mockVersionSol)
-      jest.spyOn(
-        ProtocolVersion.prototype,
-        'updatePackageJsonVersion',
-      ).mockImplementation(mockUpdatePackage)
+      jest
+        .spyOn(ProtocolVersion.prototype, 'updateVersionInSolidityFiles')
+        .mockImplementation(mockVersionSol)
+      jest
+        .spyOn(ProtocolVersion.prototype, 'updatePackageJsonVersion')
+        .mockImplementation(mockUpdatePackage)
 
       const pv = new ProtocolVersion('1.0.0')
       pv.updateProjectVersion()
@@ -122,7 +120,7 @@ describe('ProtocolVersion Tests', () => {
       jest
         .spyOn(ProtocolVersion.prototype, 'getPublishedVersion')
         .mockResolvedValue(versionString)
-      expect(async () => await pv.isPatchUpdate()).rejects.toThrow(
+      await expect(async () => await pv.isPatchUpdate()).rejects.toThrow(
         `Version of git tag ${versionString} is the same as the current published version: ${versionString}`,
       )
     })
@@ -192,7 +190,7 @@ describe('ProtocolVersion Tests', () => {
       jest
         .spyOn(ProtocolVersion.prototype, 'getNewChains')
         .mockResolvedValue([])
-      expect(async () => await pv.getDeployChains()).rejects.toThrow(
+      await expect(async () => await pv.getDeployChains()).rejects.toThrow(
         'No new chains to deploy for a patch update',
       )
     })
