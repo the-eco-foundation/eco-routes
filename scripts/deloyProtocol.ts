@@ -5,7 +5,7 @@ import { Deployer, Inbox, Prover } from '../typechain-types'
 import { Address, Hex, zeroAddress } from 'viem'
 import {
   isZeroAddress,
-  proverSupported,
+  storageProverSupported,
   retryFunction,
   verifyContract,
 } from './utils'
@@ -135,7 +135,7 @@ export async function deployProver(
   singletonDeployer: Deployer,
   deployArgs: Prover.ChainConfigurationConstructorStruct[],
 ) {
-  if (!proverSupported(deployNetwork.network)) {
+  if (!storageProverSupported(deployNetwork.network)) {
     console.log(
       `Unsupported network ${deployNetwork.network} detected, skipping storage Prover deployment`,
     )

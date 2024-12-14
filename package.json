@@ -1,6 +1,6 @@
 {
   "name": "@eco-foundation/routes",
-  "version": "0.0.630-beta",
+  "version": "0.0.702-beta",
   "description": "The Eco Routes Protocol is a decentralized intent based system that allows users to submit their intent to the network and have it fulfilled by a solver on the destination rollup of their choise.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -100,6 +100,7 @@
     "pub:publish": "npx tsx scripts/publish/publish.ts"
   },
   "devDependencies": {
+    "@actions/core": "^1.11.1",
     "@alchemy/aa-core": "^3.19.0",
     "@eth-optimism/contracts-bedrock": "^0.17.2",
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",

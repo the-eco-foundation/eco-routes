@@ -31,7 +31,7 @@ import { DeployChains } from './chains'
 import * as dotenv from 'dotenv'
 import {
   getDeployChainConfig,
-  proverSupported,
+  storageProverSupported,
   waitForNonceUpdate,
   waitMs,
 } from '../utils'
@@ -289,7 +289,7 @@ export class ProtocolDeploy {
     parameters: ContractDeployConfigs,
     opts: DeployOpts = { deployType: 'create3', retry: true, pre: false },
   ): Promise<Hex> {
-    if (!proverSupported(chain.name, parameters.name)) {
+    if (!storageProverSupported(chain.id, parameters.name)) {
       console.log(
         `Unsupported network ${chain.name} detected, skipping storage Prover deployment`,
       )

@@ -1,3 +1,4 @@
+import core from '@actions/core'
 import { ProtocolDeploy } from '../viem_deploy/ProtocolDeploy'
 import { ProtocolVersion } from '../viem_deploy/ProtocolVersion'
 import { transformAddresses } from './addresses'
@@ -18,4 +19,5 @@ main()
   })
   .catch((err) => {
     console.error('Error:', err)
+    core.setFailed(err.message)
   })

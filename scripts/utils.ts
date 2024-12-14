@@ -135,14 +135,30 @@ export async function verifyContract(
 }
 
 /**
- * Checks if the storage prover is supported on a network
+ * Checks if the storage Prover is supported on a network
  * @param network the network to check
+ * @param contractName the network to check
  * @returns
  */
-export function proverSupported(network: string, proverName: string): boolean {
-  const unsupported =
-    network.includes('polygon') || network.includes('arbitrum')
-  return !unsupported && proverName === ('Prover' as ContractNames)
+export function storageProverSupported(
+  chainID: number,
+  contractName: string,
+): boolean {
+  let supported = false
+  switch (chainID) {
+    case base.id:
+    case baseSepolia.id:
+    case optimism.id:
+    case optimismSepolia.id:
+    case mantle.id:
+    case mantleSepoliaTestnet.id:
+      supported = true
+      break
+    default:
+      supported = false
+  }
+
+  return supported || contractName !== ('Prover' as ContractNames)
 }
 
 export async function waitSeconds(seconds: number) {

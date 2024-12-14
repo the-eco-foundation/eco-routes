@@ -6,7 +6,7 @@ const mockSaveDeploySalts = jest.fn()
 const mockEmpty = jest.fn()
 const mockGitRandomSalt = jest.fn()
 const mockCreateFile = jest.fn()
-const mockProverSupported = jest.fn()
+const mockStorageProverSupported = jest.fn()
 const mockSimulateContract = jest.fn()
 const mockWriteContract = jest.fn()
 const mockWaitForTransactionReceipt = jest.fn()
@@ -18,7 +18,7 @@ const mockVerifyContract = jest.fn()
 const mockWaitMs = jest.fn()
 const mockGetClient = jest.fn()
 
-import { sepolia } from 'viem/chains'
+import { optimismSepolia } from 'viem/chains'
 import { SaltsType } from '../../deploy/addresses'
 import { DeployChains } from '../chains'
 //mock before ProtocolDeploy import to prevent jest import issues
@@ -42,7 +42,7 @@ jest.mock('lodash', () => {
 jest.mock('../../utils', () => {
   return {
     ...jest.requireActual('../../utils'),
-    proverSupported: mockProverSupported,
+    storageProverSupported: mockStorageProverSupported,
     waitForNonceUpdate: mockWaitForNonceUpdate,
     getDeployChainConfig: mockGetDeployChainConfig,
     waitMs: mockWaitMs,
@@ -148,7 +148,7 @@ describe('ProtocolDeployment Tests', () => {
     })
 
     describe('on deploy loop', () => {
-      const ds = [sepolia].flat()
+      const ds = [optimismSepolia].flat()
       beforeEach(() => {
         pd = new ProtocolDeploy(ds, salts)
         pd.deployViemContracts = mockDeploy
@@ -180,7 +180,7 @@ describe('ProtocolDeployment Tests', () => {
   })
 
   describe('on deploy and verify', () => {
-    const ds = [sepolia].flat()
+    const ds = [optimismSepolia].flat()
     const mockProver = jest.fn()
     const mockIntentSource = jest.fn()
     const mockInbox = jest.fn()
@@ -245,7 +245,7 @@ describe('ProtocolDeployment Tests', () => {
         mockDep = jest.spyOn(ProtocolDeploy.prototype, 'getDepoyerContract')
         mockDep.mockReturnValue(deployerContract)
         mockSimulateContract.mockResolvedValue({ request, result })
-        mockProverSupported.mockReturnValue(true)
+        mockStorageProverSupported.mockReturnValue(true)
         mockEncodeDeployData.mockReturnValue(encoded)
       })
 
@@ -284,11 +284,11 @@ describe('ProtocolDeployment Tests', () => {
       })
 
       it('should not deploy prover to an unsupported network', async () => {
-        mockProverSupported.mockReturnValue(false)
+        mockStorageProverSupported.mockReturnValue(false)
         expect(await pd.deployAndVerifyContract(c, s, params)).toEqual(
           zeroAddress,
         )
-        expect(mockProverSupported).toHaveBeenCalledTimes(1)
+        expect(mockStorageProverSupported).toHaveBeenCalledTimes(1)
       })
 
       it('should default to create3 deployment', async () => {

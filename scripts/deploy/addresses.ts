@@ -77,6 +77,7 @@ export function saveDeploySalts(salts: SaltsType) {
  * with the correct imports, exports, and types.
  */
 export function transformAddresses() {
+  console.log('Transforming addresses into typescript index.ts file')
   const name = 'EcoProtocolAddresses'
   const addresses = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'))
   const importsExports = `import {Hex} from 'viem'\nexport * from './abi'\n`
