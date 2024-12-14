@@ -89,7 +89,7 @@ export function transformAddresses() {
  * @module index
  */
 export type EcoChainConfig = {
-  Prover: Hex
+  Prover?: Hex
   IntentSource: Hex
   Inbox: Hex
   HyperProver: Hex
