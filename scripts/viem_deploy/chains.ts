@@ -13,7 +13,7 @@ import { Chain, mantle, mantleSepoliaTestnet } from 'viem/chains'
 export const mainnetDep: Chain[] = [
   arbitrum,
   base,
-  // mantle,
+  mantle,
   optimism,
   polygon,
 ] as any

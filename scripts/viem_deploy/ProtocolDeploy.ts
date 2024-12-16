@@ -371,7 +371,9 @@ export class ProtocolDeploy {
         await waitMs(15000)
         return await this.deployAndVerifyContract(chain, salt, parameters, opts)
       } else {
-        throw new Error(`Contract address is null, might not have deployed. Chain: ${chain.name}, Failed to deploy or verify ${name}: ${error}`)
+        throw new Error(
+          `Contract address is null, might not have deployed. Chain: ${chain.name}, Failed to deploy or verify ${name}: ${error}`,
+        )
       }
     }
   }
