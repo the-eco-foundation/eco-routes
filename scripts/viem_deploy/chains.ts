@@ -15,7 +15,7 @@ export const mainnetDep: Chain[] = [
   base,
   // mantle,
   optimism,
-  // polygon,
+  polygon,
 ] as any
 
 // Test chains
