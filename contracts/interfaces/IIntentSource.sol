@@ -103,7 +103,7 @@ interface IIntentSource is ISemver {
      * The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent solver.
      * @param intent The intent struct with all the intent params
      */
-    function createIntent(Intent calldata intent) external payable;
+    function publishIntent(Intent calldata intent, bool addRewards) external payable;
 
     function validateIntent(
         Intent calldata intent

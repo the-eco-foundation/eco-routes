@@ -3,11 +3,14 @@
 pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/IIntentSource.sol";
 import "./types/Intent.sol";
 
 contract IntentVault {
+    using SafeERC20 for IERC20;
+
     constructor(Intent memory intent) {
         uint256 rewardsLength = intent.rewards.length;
 
@@ -28,11 +31,13 @@ contract IntentVault {
             );
 
             if (claimant == intent.creator) {
-                IERC20(token).transfer(claimant, balance);
+                if (balance > 0) {
+                    IERC20(token).safeTransfer(claimant, balance);
+                }
             } else {
-                IERC20(token).transfer(claimant, amount);
+                IERC20(token).safeTransfer(claimant, amount);
                 if (balance > amount) {
-                    IERC20(token).transfer(intent.creator, balance - amount);
+                    IERC20(token).safeTransfer(intent.creator, balance - amount);
                 }
             }
         }
@@ -42,13 +47,16 @@ contract IntentVault {
                 address(this).balance >= intent.nativeReward,
                 "IntentVault: insufficient balance"
             );
-            payable(claimant).transfer(intent.nativeReward);
+
+            (bool success, ) = payable(claimant).call{value: intent.nativeReward}("");
+
+            require(success, "IntentVault: native reward transfer failed");
         }
 
         if (refundToken != address(0)) {
             uint256 refundAmount = IERC20(refundToken).balanceOf(address(this));
             if (refundAmount > 0)
-                IERC20(refundToken).transfer(intent.creator, refundAmount);
+                IERC20(refundToken).safeTransfer(intent.creator, refundAmount);
         }
 
         selfdestruct(payable(intent.creator));

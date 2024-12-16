@@ -18,6 +18,8 @@ struct Intent {
     address creator;
     // nonce provided by the creator
     bytes32 nonce;
+    // ID of chain where the intent was created
+    uint256 sourceChainID;
     // ID of chain where we want instructions executed
     uint256 destinationChainID;
     // The inbox contract on the destination chain will be the msg.sender for the instructions that are executed.

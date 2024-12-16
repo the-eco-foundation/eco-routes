@@ -3,6 +3,7 @@
 pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/IIntentSource.sol";
 import "./interfaces/SimpleProver.sol";
@@ -18,6 +19,8 @@ import "./IntentVault.sol";
  * This contract makes a call to the prover contract (on the sourcez chain) in order to verify intent fulfillment.
  */
 contract IntentSource is IIntentSource {
+    using SafeERC20 for IERC20;
+
     // chain ID
     uint256 public immutable CHAIN_ID;
 
@@ -28,7 +31,7 @@ contract IntentSource is IIntentSource {
     uint256 public immutable MINIMUM_DURATION;
 
     // stores the intents
-    mapping(bytes32 intenthash => bool) public withdrawals;
+    mapping(bytes32 intenthash => bool) public claimed;
 
     address public vaultClaimant;
     address public vaultRefundToken;
@@ -90,8 +93,13 @@ contract IntentSource is IIntentSource {
      * The onus of that time management (i.e. how long it takes for data to post to L1, etc.) is on the intent solver.
      * @param intent The intent struct with all the intent params
      */
-    function createIntent(Intent calldata intent) external payable {
+    function publishIntent(Intent calldata intent, bool addRewards) external payable {
         uint256 rewardsLength = intent.rewards.length;
+
+        require(
+            intent.sourceChainID == CHAIN_ID,
+            "IntentSource: invalid source chain ID"
+        );
 
         if (rewardsLength == 0 && msg.value == 0) {
             revert NoRewards();
@@ -101,7 +109,7 @@ contract IntentSource is IIntentSource {
             revert ExpiryTooSoon();
         }
 
-        bytes32 intentHash = keccak256(abi.encode(CHAIN_ID, intent));
+        bytes32 intentHash = keccak256(abi.encode(intent));
 
         emit IntentCreated(
             intentHash,
@@ -118,20 +126,22 @@ contract IntentSource is IIntentSource {
 
         address vault = intentVaultAddress(intent);
 
-        if (msg.value > 0) {
-            payable(vault).transfer(msg.value);
-        }
+        if (addRewards) {
+            if (intent.nativeReward > 0) {
+                require(msg.value >= intent.nativeReward, "IntentSource: insufficient native reward");
 
-        for (uint256 i = 0; i < rewardsLength; i++) {
-            address token = intent.rewards[i].token;
-            uint256 amount = intent.rewards[i].amount;
-            uint256 allowance = IERC20(token).allowance(
-                msg.sender,
-                address(this)
-            );
+                payable(vault).transfer(intent.nativeReward);
 
-            if (allowance >= amount) {
-                IERC20(token).transferFrom(msg.sender, vault, amount);
+                if (msg.value > intent.nativeReward) {
+                    payable(msg.sender).transfer(msg.value - intent.nativeReward);
+                }
+            }
+
+            for (uint256 i = 0; i < rewardsLength; i++) {
+                address token = intent.rewards[i].token;
+                uint256 amount = intent.rewards[i].amount;
+
+                IERC20(token).safeTransferFrom(msg.sender, vault, amount);
             }
         }
     }
@@ -164,28 +174,28 @@ contract IntentSource is IIntentSource {
      * @param intent The intent struct with all the intent params
      */
     function withdrawRewards(Intent calldata intent) public {
-        bytes32 intentHash = keccak256(abi.encode(CHAIN_ID, intent));
+        bytes32 intentHash = keccak256(abi.encode(intent));
         address claimant = SimpleProver(intent.prover).provenIntents(
             intentHash
         );
 
-        if (!withdrawals[intentHash]) {
-            if (claimant != address(0)) {
-                vaultClaimant = claimant;
+        if (claimant != address(0) && !claimed[intentHash]) {
+            vaultClaimant = claimant;
+            claimed[intentHash] = true;
 
-                emit Withdrawal(intentHash, claimant);
-            } else {
-                if (block.timestamp < intent.expiryTime) {
-                    revert UnauthorizedWithdrawal(intentHash);
-                }
-
-                emit Withdrawal(intentHash, intent.creator);
-            }
-            withdrawals[intentHash] = true;
-
-            new IntentVault{salt: intent.nonce}(intent);
+            emit Withdrawal(intentHash, claimant);
         } else {
-            revert NothingToWithdraw(intentHash);
+            if (block.timestamp < intent.expiryTime) {
+                revert UnauthorizedWithdrawal(intentHash);
+            }
+
+            emit Withdrawal(intentHash, intent.creator);
+        }
+
+        new IntentVault{salt: intent.nonce}(intent);
+
+        if (claimant != address(0)) {
+            vaultClaimant = address(0);
         }
     }
 
@@ -201,16 +211,16 @@ contract IntentSource is IIntentSource {
         }
     }
 
-    // TODO use OpenZeppelin's SafeERC20 library
-    function safeERC20Transfer(
-        address _token,
-        address _to,
-        uint256 _amount
-    ) internal {
-        if (_token != address(0)) {
-            if (!IERC20(_token).transfer(_to, _amount)) {
-                revert TransferFailed(_token, _to, _amount);
-            }
+    function refundToken(Intent calldata intent, address token) external {
+        if (block.timestamp < intent.expiryTime) {
+            bytes32 intentHash = keccak256(abi.encode(intent));
+            revert UnauthorizedWithdrawal(intentHash);
         }
+
+        vaultRefundToken = token;
+
+        new IntentVault{salt: intent.nonce}(intent);
+
+        vaultRefundToken = address(0);
     }
 }
