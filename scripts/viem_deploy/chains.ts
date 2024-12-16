@@ -26,7 +26,7 @@ export const mainnetDep: Chain[] = [
 export const sepoliaDep: Chain[] = [
   arbitrumSepolia,
   baseSepolia,
-  mantleSepoliaTestnet,
+  // mantleSepoliaTestnet,
   optimismSepolia,
 ] as any
 
