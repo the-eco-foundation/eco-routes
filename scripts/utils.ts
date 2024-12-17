@@ -1,6 +1,6 @@
 import { run } from 'hardhat'
 import { ethers } from 'ethers'
-import { Chain, Hex, zeroAddress } from 'viem'
+import { BlockTag, Chain, Hex, PublicClient, zeroAddress } from 'viem'
 import { DeployNetworkConfig } from './deloyProtocol'
 import { networks as mainnetNetworks } from '../config/mainnet/config'
 import { networks as sepoliaNetworks } from '../config/testnet/config'
@@ -15,8 +15,43 @@ import {
   polygonAmoy,
 } from '@alchemy/aa-core'
 import { mantle, mantleSepoliaTestnet } from 'viem/chains'
+import { ContractNames } from './viem_deploy/contracts/mainnet'
 export function isZeroAddress(address: Hex): boolean {
   return address === zeroAddress
+}
+
+export async function waitMs(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+/**
+ * Waits for the nonce of a client to update.
+ *
+ * @param client - The `viem` client instance.
+ * @param address - The Ethereum address to monitor.
+ * @param currentNonce - The current nonce to compare against.
+ * @param pollInterval - The interval (in ms) for polling the nonce (default: NONCE_POLL_INTERVAL).
+ * @param txCall - The transaction call to make. Must update the nonce by at least 1 or this function will hang and timeout.
+ * @returns A promise that resolves to the updated nonce.
+ */
+export async function waitForNonceUpdate(
+  client: PublicClient,
+  address: Hex,
+  pollInterval: number,
+  txCall: () => Promise<any>,
+): Promise<number> {
+  const getNonce = async (blockTag: BlockTag) => {
+    return await client.getTransactionCount({ address, blockTag })
+  }
+  const initialNonce = await getNonce('pending')
+  const result = await txCall()
+  // some nodes in the rpc might not be updated even when the one we hit at first is causing a nonce error down the line
+  await new Promise((resolve) => setTimeout(resolve, pollInterval / 10))
+  let latestNonce = await getNonce('latest')
+  while (latestNonce <= initialNonce) {
+    await new Promise((resolve) => setTimeout(resolve, pollInterval))
+    latestNonce = await getNonce('latest')
+  }
+  return result
 }
 
 export async function waitBlocks(
@@ -100,14 +135,30 @@ export async function verifyContract(
 }
 
 /**
- * Checks if the storage prover is supported on a network
+ * Checks if the storage Prover is supported on a network
  * @param network the network to check
+ * @param contractName the network to check
  * @returns
  */
-export function proverSupported(network: string): boolean {
-  const unsupported =
-    network.includes('polygon') || network.includes('arbitrum')
-  return !unsupported
+export function storageProverSupported(
+  chainID: number,
+  contractName: string,
+): boolean {
+  let supported = false
+  switch (chainID) {
+    case base.id:
+    case baseSepolia.id:
+    case optimism.id:
+    case optimismSepolia.id:
+    case mantle.id:
+    case mantleSepoliaTestnet.id:
+      supported = true
+      break
+    default:
+      supported = false
+  }
+
+  return supported || contractName !== ('Prover' as ContractNames)
 }
 
 export async function waitSeconds(seconds: number) {
@@ -188,4 +239,30 @@ export function getDeployChainConfig(chain: Chain): DeployNetworkConfig {
       return sepoliaNetworks.polygonSepolia
   }
   throw new Error('Network not found')
+}
+
+export async function execCMD(
+  command: string,
+  options: {} = {},
+): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    // This is running locally so ignore github specific commands
+    if (command.includes('>>') && !process.env.GITHUB_ENV) {
+      const skipMessage = 'Command contains >>, skipping execution'
+      console.log(skipMessage)
+      resolve(skipMessage)
+    } else {
+      const { exec } = require('child_process')
+      exec(command, options, (error: any, stdout: any, stderr: any) => {
+        if (error) {
+          console.error(`exec error: ${error}`)
+          console.error(`stderr: ${stderr}`)
+          reject(error)
+          return
+        }
+        console.log(stdout)
+        resolve(stdout)
+      })
+    }
+  })
 }

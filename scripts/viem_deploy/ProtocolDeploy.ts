@@ -1,17 +1,16 @@
 import {
   encodeDeployData,
   Hex,
-  EncodeDeployDataParameters,
   zeroAddress,
   Chain,
   encodeAbiParameters,
-  PublicClient,
   PrivateKeyAccount,
   RpcSchema,
   Transport,
-  BlockTag,
+  toBytes,
+  keccak256,
 } from 'viem'
-import MainnetContracts from './contracts/mainnet'
+import MainnetContracts, { ContractDeployConfigs } from './contracts/mainnet'
 import { Create2Deployer, Create3Deployer } from './contracts/deployer'
 import {
   DeployWalletClient,
@@ -20,26 +19,56 @@ import {
   getDeployAccount,
   getGitRandomSalt,
 } from './utils'
-import { createJsonAddresses, updateAddresses } from '../deploy/addresses'
+import {
+  createFile,
+  addJsonAddress,
+  jsonFilePath,
+  saveDeploySalts,
+  SaltsType,
+} from '../deploy/addresses'
 import { DeployNetwork } from '../deloyProtocol'
-import { mainnetDep, sepoliaDep } from './chains'
+import { DeployChains } from './chains'
 import * as dotenv from 'dotenv'
-import { getDeployChainConfig, proverSupported } from '../utils'
+import {
+  getDeployChainConfig,
+  storageProverSupported,
+  waitForNonceUpdate,
+  waitMs,
+} from '../utils'
 import { verifyContract } from './verify'
+// eslint-disable-next-line node/no-missing-import
 import PQueue from 'p-queue'
+import { isEmpty } from 'lodash'
 
 dotenv.config()
 
+/**
+ * Deploy types options.
+ */
 export type DeployOpts = {
-  pre?: boolean
-  retry?: boolean
-  deployType?: 'create2' | 'create3'
+  pre?: boolean // if the contract is a pre contract, ie preprod/dev
+  retry?: boolean // if the deploy fails, retry
+  deployType?: 'create2' | 'create3' // the deploy type to use(defaults to create3)
 }
 
+// wait for 10 seconds before polling for nonce update
+const NONCE_POLL_INTERVAL = 10000
+
+/**
+ * Deploys the eco protocol to all the chains passed with the salts provided.
+ * After deploy it verify the contracts on etherscan.
+ */
 export class ProtocolDeploy {
-  private queueVerify = new PQueue({ concurrency: 3 }) // theres a 5/second limit on etherscan
+  // The queue for verifying contracts on etherscan
+  private queueVerify = new PQueue({ interval: 1000, intervalCap: 1 }) // theres a 5/second limit on etherscan
+  // The queue for deploying contracts to chains
   private queueDeploy = new PQueue()
+  // The chains to deploy the contracts to
   private deployChains: Chain[] = []
+  // The salts to use for deploying the contracts, if emtpy it will generate random salts
+  private salts?: SaltsType
+
+  // The clients for the chains. Initialize once use multiple times
   private clients: {
     [key: string]: DeployWalletClient<
       Transport,
@@ -49,19 +78,35 @@ export class ProtocolDeploy {
     >
   } = {}
 
+  // The account to deploy the contracts with, loaded from env process.env.DEPLOYER_PRIVATE_KEY
   private account: PrivateKeyAccount
-  constructor(deployChains: Chain[] = [sepoliaDep, mainnetDep].flat()) {
+
+  /**
+   * Constructor that initializes the account and clients for the chains.
+   * @param deployChains the chains to deploy the contracts to, defaults to {@link DeployChains}
+   * @param salts
+   */
+  constructor(deployChains: Chain[] = DeployChains, salts?: SaltsType) {
     this.deployChains = deployChains
     this.account = getDeployAccount()
     for (const chain of deployChains) {
-      this.clients[chain.id] = getClient(chain, this.account)
+      const val = getClient(chain, this.account)
+      this.clients[chain.id] = val
     }
-    createJsonAddresses()
+    this.salts = salts
+    createFile(jsonFilePath)
   }
 
+  /**
+   * Deploy the full network to all the chains passed in the constructor.
+   * @param concurrent if the chain deploys should be done concurrently or not
+   */
   async deployFullNetwork(concurrent: boolean = false) {
-    const salt = getGitRandomSalt()
-    const saltPre = getGitRandomSalt()
+    const { salt, saltPre } = !isEmpty(this.salts)
+      ? this.salts
+      : { salt: getGitRandomSalt(), saltPre: getGitRandomSalt() }
+    saveDeploySalts({ salt, saltPre })
+    console.log('Using Salts :', salt, saltPre)
     for (const chain of this.deployChains) {
       if (concurrent) {
         this.queueDeploy.add(async () => {
@@ -88,24 +133,62 @@ export class ProtocolDeploy {
     await this.queueVerify.onIdle()
   }
 
+  /**
+   * Deploys the network to a chain with a given salt.
+   *
+   * @param chain the chain to deploy on
+   * @param salt the origin salt to use
+   * @param opts deploy options
+   */
+  async deployViemContracts(chain: Chain, salt: Hex, opts?: DeployOpts) {
+    console.log('Deploying contracts with the account:', this.account.address)
+
+    console.log('Deploying with base salt : ' + JSON.stringify(salt))
+    await this.deployProver(chain, salt, opts)
+    await this.deployIntentSource(chain, salt, opts)
+    await this.deployInbox(chain, salt, true, opts)
+  }
+
+  /**
+   * Deploys the prover contract.
+   *
+   * @param chain the chain to deploy on
+   * @param salt the origin salt to use
+   * @param opts deploy options
+   */
   async deployProver(chain: Chain, salt: Hex, opts?: DeployOpts) {
     await this.deployAndVerifyContract(
       chain,
       salt,
-      getConstructorArgs(chain, 'Prover') as any,
+      getConstructorArgs(chain, 'Prover'),
       opts,
     )
   }
 
+  /**
+   * Deploys the intent source contract.
+   *
+   * @param chain the chain to deploy on
+   * @param salt the origin salt to use
+   * @param opts deploy options
+   */
   async deployIntentSource(chain: Chain, salt: Hex, opts?: DeployOpts) {
     const config = getDeployChainConfig(chain)
     const params = {
-      ...(getConstructorArgs(chain, 'IntentSource') as any),
+      ...getConstructorArgs(chain, 'IntentSource'),
       args: [config.intentSource.minimumDuration, config.intentSource.counter],
     }
-    await this.deployAndVerifyContract(chain, salt, params as any, opts)
+    await this.deployAndVerifyContract(chain, salt, params, opts)
   }
 
+  /**
+   * Deploys the inbox contract, and optionally the hyper prover contract.
+   *
+   * @param chain the chain to deploy on
+   * @param salt the origin salt to use
+   * @param deployHyper if the hyper prover should be deployed
+   * @param opts deploy options
+   */
   async deployInbox(
     chain: Chain,
     salt: Hex,
@@ -113,16 +196,16 @@ export class ProtocolDeploy {
     opts: DeployOpts = { retry: true },
   ) {
     const config = getDeployChainConfig(chain)
-    const ownerAndSolver = getDeployAccount().address
+    const ownerAndSolver = this.account.address
 
     const params = {
-      ...(getConstructorArgs(chain, 'Inbox') as any),
+      ...getConstructorArgs(chain, 'Inbox'),
       args: [ownerAndSolver, true, [ownerAndSolver]],
     }
     const inboxAddress = await this.deployAndVerifyContract(
       chain,
       salt,
-      params as any,
+      params,
       opts,
     )
 
@@ -136,7 +219,7 @@ export class ProtocolDeploy {
       })
       await waitForNonceUpdate(
         client as any,
-        getDeployAccount().address,
+        this.account.address,
         NONCE_POLL_INTERVAL,
         async () => {
           const hash = await client.writeContract(request)
@@ -169,6 +252,14 @@ export class ProtocolDeploy {
     }
   }
 
+  /**
+   * Deploys the hyper prover contract.
+   *
+   * @param chain the chain to deploy on
+   * @param salt the origin salt to use
+   * @param inboxAddress the inbox address
+   * @param opts deploy options
+   */
   async deployHyperProver(
     chain: Chain,
     salt: Hex,
@@ -177,26 +268,38 @@ export class ProtocolDeploy {
   ) {
     const config = getDeployChainConfig(chain)
     const params = {
-      ...(getConstructorArgs(chain, 'HyperProver') as any),
+      ...getConstructorArgs(chain, 'HyperProver'),
       args: [config.hyperlaneMailboxAddress, inboxAddress],
     }
     opts = { ...opts, deployType: 'create3' }
-    await this.deployAndVerifyContract(chain, salt, params as any, opts)
+    await this.deployAndVerifyContract(chain, salt, params, opts)
   }
 
+  /**
+   * Deploys a contract and verifies it on etherscan.
+   *
+   * @param chain the chain to deploy on
+   * @param salt the origin salt to use
+   * @param parameters the contract parameters, abi, constructor args etc
+   * @param opts deploy options
+   */
   async deployAndVerifyContract(
     chain: Chain,
     salt: Hex,
-    parameters: EncodeDeployDataParameters & { constructorArgs: any[] },
-    opts: DeployOpts = { retry: true, pre: false },
+    parameters: ContractDeployConfigs,
+    opts: DeployOpts = { deployType: 'create3', retry: true, pre: false },
   ): Promise<Hex> {
-    if (!proverSupported(chain.name)) {
+    if (!storageProverSupported(chain.id, parameters.name)) {
       console.log(
         `Unsupported network ${chain.name} detected, skipping storage Prover deployment`,
       )
       return zeroAddress
     }
-    const { name } = parameters as any
+    // if create3, transform the salt
+    if (opts.deployType === 'create3') {
+      salt = this.transformSalt(salt, parameters.name)
+    }
+    const { name } = parameters
     const client = this.clients[chain.id]
 
     console.log(`Deploying ${name}...`)
@@ -207,11 +310,8 @@ export class ProtocolDeploy {
       if (parameters.args) {
         const description = parameters.abi.find(
           (x: any) => 'type' in x && x.type === 'constructor',
-        ) as any
-        args = encodeAbiParameters(
-          description.inputs,
-          parameters.args as any,
-        ).slice(2) // chop the 0x off
+        )
+        args = encodeAbiParameters(description.inputs, parameters.args).slice(2) // chop the 0x off
       }
       console.log('salt is', salt)
 
@@ -224,9 +324,10 @@ export class ProtocolDeploy {
           functionName: 'deploy',
           args: [encodedDeployData, salt],
         })
+
       await waitForNonceUpdate(
         client as any,
-        getDeployAccount().address,
+        this.account.address,
         NONCE_POLL_INTERVAL,
         async () => {
           const hash = await client.writeContract(request)
@@ -240,7 +341,7 @@ export class ProtocolDeploy {
       )
       const networkConfig = getDeployChainConfig(chain) as DeployNetwork
       networkConfig.pre = opts.pre || false
-      updateAddresses(networkConfig, `${name}`, deployedAddress)
+      addJsonAddress(networkConfig, `${name}`, deployedAddress)
       console.log(
         `Chain: ${chain.name}, ${name} address updated in addresses.json`,
       )
@@ -267,19 +368,38 @@ export class ProtocolDeploy {
         opts.retry = false
         console.log(`Retrying ${name} deployment...`)
         // wait for 15 seconds before retrying
-        await new Promise((resolve) => setTimeout(resolve, 15000))
-        return await this.deployAndVerifyContract(
-          chain,
-          salt,
-          parameters as any,
-          opts,
-        )
+        await waitMs(15000)
+        return await this.deployAndVerifyContract(chain, salt, parameters, opts)
       } else {
-        throw new Error('Contract address is null, might not have deployed')
+        throw new Error(
+          `Contract address is null, might not have deployed. Chain: ${chain.name}, Failed to deploy or verify ${name}: ${error}`,
+        )
       }
     }
   }
 
+  /**
+   * Transforms a given salt with a contract name and then keccaks it.
+   * Generates a deterministic salt per contract.
+   *
+   * @param salt the origin salt
+   * @param contractName the name of the contract
+   * @returns
+   */
+  transformSalt(salt: Hex, contractName: string): Hex {
+    const transformedSalt = keccak256(toBytes(salt + contractName))
+    console.log(
+      `Transformed salt ${salt} for ${contractName}: ${transformedSalt}`,
+    )
+    return transformedSalt
+  }
+
+  /**
+   * Gets the deployer contract based on the deploy opts.
+   *
+   * @param opts the deploy opts
+   * @returns
+   */
   getDepoyerContract(opts: DeployOpts) {
     switch (opts.deployType) {
       case 'create3':
@@ -289,59 +409,4 @@ export class ProtocolDeploy {
         return Create2Deployer
     }
   }
-
-  async deployViemContracts(
-    chain: Chain,
-    salt: Hex = getGitRandomSalt(),
-    opts?: DeployOpts,
-  ) {
-    console.log(
-      'Deploying contracts with the account:',
-      getDeployAccount().address,
-    )
-
-    console.log(salt)
-    await this.deployProver(chain, salt, opts)
-    await this.deployIntentSource(chain, salt, opts)
-    await this.deployInbox(chain, salt, true, opts)
-  }
-}
-
-const NONCE_POLL_INTERVAL = 10000
-/**
- * Waits for the nonce of a client to update.
- *
- * @param client - The `viem` client instance.
- * @param address - The Ethereum address to monitor.
- * @param currentNonce - The current nonce to compare against.
- * @param pollInterval - The interval (in ms) for polling the nonce (default: NONCE_POLL_INTERVAL).
- * @param txCall - The transaction call to make. Must update the nonce by at least 1 or this function will hang and timeout.
- * @returns A promise that resolves to the updated nonce.
- */
-async function waitForNonceUpdate(
-  client: PublicClient,
-  address: Hex,
-  pollInterval: number,
-  txCall: () => Promise<any>,
-): Promise<number> {
-  return new Promise(async (resolve, reject) => {
-    const getNonce = async (blockTag: BlockTag) => {
-      try {
-        return await client.getTransactionCount({ address, blockTag })
-      } catch (error) {
-        reject(error)
-      }
-      return 0
-    }
-    const initialNonce = await getNonce('pending')
-    const result = await txCall()
-    // some nodes in the rpc might not be updated even when the one we hit at first is causing a nonce error down the line
-    await new Promise((resolve) => setTimeout(resolve, pollInterval / 10))
-    let latestNonce = await getNonce('latest')
-    while (latestNonce <= initialNonce) {
-      await new Promise((resolve) => setTimeout(resolve, pollInterval))
-      latestNonce = await getNonce('latest')
-    }
-    resolve(result)
-  })
 }

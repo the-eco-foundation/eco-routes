@@ -1,3 +1,4 @@
+import core from '@actions/core'
 import { ProtocolDeploy } from './ProtocolDeploy'
 
 async function main() {
@@ -10,4 +11,5 @@ main()
   })
   .catch((err) => {
     console.error('Error:', err)
+    core.setFailed(err.message)
   })

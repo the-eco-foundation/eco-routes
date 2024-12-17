@@ -71,6 +71,7 @@ cache/
 out/
 typechain/
 .DS_Store
+tmp/
 
 
 #Publish artifacts

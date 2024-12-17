@@ -1,9 +1,13 @@
+import core from '@actions/core'
 import { ProtocolDeploy } from '../viem_deploy/ProtocolDeploy'
+import { ProtocolVersion } from '../viem_deploy/ProtocolVersion'
 import { transformAddresses } from './addresses'
 import { addressesToCVS } from './csv'
 
 async function main() {
-  const deploy = new ProtocolDeploy()
+  const pv = new ProtocolVersion()
+  const dp = await pv.getDeployChains()
+  const deploy = new ProtocolDeploy(dp.chains, dp.salts)
   await deploy.deployFullNetwork(true)
   transformAddresses()
   addressesToCVS()
@@ -15,4 +19,5 @@ main()
   })
   .catch((err) => {
     console.error('Error:', err)
+    core.setFailed(err.message)
   })

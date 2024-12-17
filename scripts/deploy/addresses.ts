@@ -1,46 +1,75 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { DeployNetwork } from '../deloyProtocol'
+import { merge } from 'lodash'
+import { Hex } from 'viem'
 
 interface AddressBook {
   [network: string]: {
     [key: string]: string
   }
 }
-
-export const jsonFilePath = path.join(
-  __dirname,
-  '../../build/jsonAddresses.json',
-)
+export const PRE_SUFFIX = '-pre'
+export const jsonFileName = 'deployAddresses.json'
+export const jsonFilePath = path.join(__dirname, `../../build/${jsonFileName}`)
 export const tsFilePath = path.join(__dirname, '../../build/src/index.ts')
 export const csvFilePath = path.join(
   __dirname,
   '../../build/deployAddresses.csv',
 )
-export function createJsonAddresses() {
-  if (fs.existsSync(jsonFilePath)) {
-    console.log('Addresses file already exists: ', jsonFilePath)
+export const saltFileName = 'salt.json'
+export const saltPath = path.join(__dirname, `../../build/${saltFileName}`)
+export function createFile(path: string = jsonFilePath) {
+  if (fs.existsSync(path)) {
+    console.log('Addresses file already exists: ', path)
   } else {
-    console.log('Creating addresses file: ', jsonFilePath)
-    fs.writeFileSync(jsonFilePath, JSON.stringify({}), 'utf8')
+    console.log('Creating addresses file: ', path)
+    fs.writeFileSync(path, JSON.stringify({}), 'utf8')
   }
 }
-export function updateAddresses(
+
+export function getJsonFromFile<T>(path: string = jsonFilePath): T {
+  if (fs.existsSync(path)) {
+    const fileContent = fs.readFileSync(path, 'utf8')
+    return JSON.parse(fileContent)
+  } else {
+    createFile(path)
+    return getJsonFromFile<T>(path)
+  }
+}
+
+export function mergeAddresses(ads: AddressBook, path: string = jsonFilePath) {
+  const addresses: AddressBook = getJsonFromFile<AddressBook>(path)
+
+  fs.writeFileSync(path, JSON.stringify(merge(addresses, ads)), 'utf8')
+}
+
+/**
+ * Adds a new address to the address json file
+ * @param deployNetwork the network of the deployed contract
+ * @param key the network id
+ * @param value the deployed contract address
+ */
+export function addJsonAddress(
   deployNetwork: DeployNetwork,
   key: string,
   value: string,
 ) {
-  let addresses: AddressBook = {}
-
-  if (fs.existsSync(jsonFilePath)) {
-    const fileContent = fs.readFileSync(jsonFilePath, 'utf8')
-    addresses = JSON.parse(fileContent)
-  }
+  const addresses: AddressBook = getJsonFromFile<AddressBook>()
   const ck = deployNetwork.chainId.toString()
-  const chainKey = deployNetwork.pre ? ck + '-pre' : ck
+  const chainKey = deployNetwork.pre ? ck + PRE_SUFFIX : ck
   addresses[chainKey] = addresses[chainKey] || {}
   addresses[chainKey][key] = value
   fs.writeFileSync(jsonFilePath, JSON.stringify(addresses), 'utf8')
+}
+export type SaltsType = {
+  salt: Hex
+  saltPre: Hex
+}
+
+export function saveDeploySalts(salts: SaltsType) {
+  createFile(saltPath)
+  fs.writeFileSync(saltPath, JSON.stringify(salts), 'utf8')
 }
 
 /**
@@ -48,6 +77,7 @@ export function updateAddresses(
  * with the correct imports, exports, and types.
  */
 export function transformAddresses() {
+  console.log('Transforming addresses into typescript index.ts file')
   const name = 'EcoProtocolAddresses'
   const addresses = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'))
   const importsExports = `import {Hex} from 'viem'\nexport * from './abi'\n`
@@ -59,7 +89,7 @@ export function transformAddresses() {
  * @module index
  */
 export type EcoChainConfig = {
-  Prover: Hex
+  Prover?: Hex
   IntentSource: Hex
   Inbox: Hex
   HyperProver: Hex
@@ -86,10 +116,6 @@ export type EcoChainIds = ${formatAddressTypes(addresses)}\n\n`
     comments +
     `export const ${name}: Record<EcoChainIds, EcoChainConfig> = \n${formatObjectWithoutQuotes(addresses, 0, true)} as const\n`
   fs.writeFileSync(tsFilePath, outputContent, 'utf-8')
-}
-
-export function deleteAddressesJson() {
-  fs.unlinkSync(jsonFilePath)
 }
 
 // This function formats an object with quotes around the keys and indents per level by 2 spaces
