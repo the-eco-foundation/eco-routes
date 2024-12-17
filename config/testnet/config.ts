@@ -1,5 +1,5 @@
 import { zeroAddress } from 'viem'
-import { DeployNetworkConfig } from '../../scripts/deloyProtocol'
+import { DeployDisputeNetworkConfig } from '../../scripts/deloyProtocol'
 
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
@@ -75,7 +75,7 @@ const intent: any = {
   duration: 3600,
 }
 
-const networks: Record<any, DeployNetworkConfig> = {
+const networks: Record<any, DeployDisputeNetworkConfig> = {
   // sepolia: {
   //   network: 'sepolia',
   //   chainId: networkIds.sepolia,
@@ -94,7 +94,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
     inboxAddress: '0x6097875C63313ACE4E505aAA4C53A044Da454397',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -126,7 +125,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
     inboxAddress: '0x6097875C63313ACE4E505aAA4C53A044Da454397',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -167,7 +165,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
     inboxAddress: '0x200b2417A9d0F79133C2b05b2C028B8A70392e66',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -199,7 +196,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     proverContractAddress: '',
     inboxAddress: '',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -233,7 +229,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '',
     inboxAddress: '',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -261,7 +256,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '',
     inboxAddress: '',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     usdcAddress: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',

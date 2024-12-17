@@ -10,6 +10,7 @@ export const baseSepoliaChainConfiguration: DeployNetworkConfig = {
     blockhashOracle: networks.baseSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.baseSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: 0,
   },
 }
 
@@ -23,6 +24,7 @@ export const optimismSepoliaChainConfiguration: DeployNetworkConfig = {
     blockhashOracle: networks.optimismSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.optimismSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: 0,
   },
 }
 
@@ -35,6 +37,7 @@ export const ecoTestnetChainConfiguration: DeployNetworkConfig = {
     blockhashOracle: networks.ecoTestnet.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.ecoTestnet.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: 0,
   },
 }
 
@@ -47,6 +50,7 @@ export const mantleSepoliaChainConfiguration: DeployNetworkConfig = {
     blockhashOracle: networks.mantleSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.mantleSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: 604800,
   },
 }
 
@@ -60,9 +64,6 @@ export const arbitrumSepoliaChainConfiguration: DeployNetworkConfig = {
     blockhashOracle: networks.arbitrumSepolia.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber:
       networks.arbitrumSepolia.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: 0,
   },
-}
-
-export const polygonSepoliaChainConfiguration: DeployNetworkConfig = {
-  chainId: networks.polygonSepolia.chainId, // chainId
 }

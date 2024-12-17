@@ -1,4 +1,4 @@
-import { DeployNetworkConfig } from '../../scripts/deloyProtocol'
+import { DeployDisputeNetworkConfig } from '../../scripts/deloyProtocol'
 
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
@@ -69,7 +69,7 @@ const intent: any = {
   },
 }
 
-const networks: Record<any, DeployNetworkConfig> = {
+const networks: Record<any, DeployDisputeNetworkConfig> = {
   mainnet: {
     network: 'mainnet',
     chainId: networkIds.mainnet,
@@ -88,7 +88,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
     inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -114,7 +113,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
     inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -142,7 +140,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
     inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -170,7 +167,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
     inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -198,7 +194,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xa6B316239015DFceAC5bc9c19092A9B6f59ed905',
     inboxAddress: '0xfB853672cE99D9ff0a7DE444bEE1FB2C212D65c0',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -226,7 +221,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '',
     inboxAddress: '',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     // proving: {

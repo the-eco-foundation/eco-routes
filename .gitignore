@@ -62,6 +62,7 @@ typechain-types
 
 *~
 build/
+buildTs/
 cover-run
 coverage.json
 .jsbeautifyrc

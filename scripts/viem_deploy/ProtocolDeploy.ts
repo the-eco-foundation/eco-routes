@@ -176,7 +176,7 @@ export class ProtocolDeploy {
     const config = getDeployChainConfig(chain)
     const params = {
       ...getConstructorArgs(chain, 'IntentSource'),
-      args: [config.intentSource.minimumDuration, config.intentSource.counter],
+      args: [config.intentSource.counter],
     }
     await this.deployAndVerifyContract(chain, salt, params, opts)
   }

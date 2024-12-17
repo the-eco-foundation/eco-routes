@@ -9,6 +9,7 @@ const SepoliaContracts: Record<ContractNames, ContractDeployConfigs> = {
   Prover: {
     ...MainnetContracts.Prover,
     args: [
+      5,
       [
         SepoliaChainConfigs.baseSepoliaChainConfiguration,
         SepoliaChainConfigs.optimismSepoliaChainConfiguration,

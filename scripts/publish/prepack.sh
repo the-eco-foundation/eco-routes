@@ -28,7 +28,8 @@ echo "Start abi export and package.json generation"
 npx tsx scripts/publish/abi-export.ts
 npx tsx scripts/publish/package.ts
 echo "Finished abi export and package.json generation"
-echo "Move .npmignore, tsconfig, README.md and LICENSE to build"
+echo "Move tsconfig, README.md and LICENSE to build"
+cp tsconfig.json build/
 cp README.md build/
 cp LICENSE build/
 
