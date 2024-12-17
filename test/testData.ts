@@ -75,6 +75,7 @@ const networks: any = {
         id: networkIds.sepolia,
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
+      finalityDelaySeconds: 0,
     },
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
@@ -99,6 +100,7 @@ const networks: any = {
         // Dispute Game Factory address
         contract: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
       },
+      finalityDelaySeconds: 0,
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
@@ -128,6 +130,7 @@ const networks: any = {
         id: 84532,
         contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
       },
+      finalityDelaySeconds: 604800,
     },
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     arbitrumSepolia: {

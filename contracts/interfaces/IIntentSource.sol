@@ -13,33 +13,41 @@ import {Semver, ISemver} from "../libs/Semver.sol";
  */
 interface IIntentSource is ISemver{
     /**
-     * @notice emitted on a call to withdraw() by someone who is not entitled to the rewards for a
+     * @notice thrown on a call to withdraw() by someone who is not entitled to the rewards for a
      * given intent.
      * @param _hash the hash of the intent, also the key to the intents mapping
      */
     error UnauthorizedWithdrawal(bytes32 _hash);
 
     /**
-     * @notice emitted on a call to withdraw() for an intent whose rewards have already been withdrawn.
+     * @notice thrown on a call to withdraw() for an intent whose rewards have already been withdrawn.
      * @param _hash the hash of the intent on which withdraw was attempted
      */
     error NothingToWithdraw(bytes32 _hash);
 
     /**
-     * @notice emitted on a call to createIntent where _expiry is less than MINIMUM_DURATION
-     * seconds later than the block timestamp at time of call
-     */
-    error ExpiryTooSoon();
-
-    /**
-     * @notice emitted on a call to createIntent where _targets and _data have different lengths, or when one of their lengths is zero.
+     * @notice thrown on a call to createIntent where _targets and _data have different lengths, or when one of their lengths is zero.
      */
     error CalldataMismatch();
 
     /**
-     * @notice emitted on a call to createIntent where _rewardTokens and _rewardAmounts have different lengths, or when one of their lengths is zero.
+     * @notice thrown on a call to createIntent where _rewardTokens and _rewardAmounts have different lengths, or when one of their lengths is zero.
      */
     error RewardsMismatch();
+
+    /**
+     * @notice thrown on a call to batchWithdraw where an intent's claimant does not match the input claimant address
+     * @param _hash the hash of the intent on which withdraw was attempted
+     */
+    error BadClaimant(bytes32 _hash);
+
+    /**
+     * @notice thrown on transfer failure
+     * @param _token the token
+     * @param _to the recipient
+     * @param _amount the amount
+     */
+    error TransferFailed(address _token, address _to, uint256 _amount);
 
     /**
      * @notice emitted on a successful call to createIntent
@@ -52,6 +60,7 @@ interface IIntentSource is ISemver{
      * @param _rewardAmounts the amounts of reward tokens
      * @param _expiryTime the time by which the storage proof must have been created in order for the solver to redeem rewards.
      * @param _prover the prover contract address for the intent
+     * @param _rewardNative the amount of native tokens offered as reward
      */
     //only three of these attributes can be indexed, i chose what i thought would be the three most interesting to fillers
     event IntentCreated(
@@ -64,7 +73,8 @@ interface IIntentSource is ISemver{
         uint256[] _rewardAmounts,
         uint256 _expiryTime,
         bytes32 nonce,
-        address indexed _prover
+        address indexed _prover,
+        uint256 _rewardNative
     );
 
     /**
@@ -96,7 +106,7 @@ interface IIntentSource is ISemver{
         uint256[] calldata _rewardAmounts,
         uint256 _expiryTime,
         address _prover
-    ) external;
+    ) external payable returns (bytes32 intentHash);
 
     /**
      * @notice allows withdrawal of reward funds locked up for a given intent
