@@ -19,6 +19,7 @@ const MainnetContracts: Record<ContractNames, ContractDeployConfigs> = {
     abi: Prover.abi,
     bytecode: Prover.bytecode as Hex,
     args: [
+      5,
       [
         MainnetChainConfigs.baseChainConfiguration,
         MainnetChainConfigs.optimismChainConfiguration,

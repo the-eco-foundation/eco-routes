@@ -1,7 +1,7 @@
 import { run } from 'hardhat'
 import { ethers } from 'ethers'
 import { BlockTag, Chain, Hex, PublicClient, zeroAddress } from 'viem'
-import { DeployNetworkConfig } from './deloyProtocol'
+import { DeployDisputeNetworkConfig } from './deloyProtocol'
 import { networks as mainnetNetworks } from '../config/mainnet/config'
 import { networks as sepoliaNetworks } from '../config/testnet/config'
 import {
@@ -169,7 +169,9 @@ export async function waitSeconds(seconds: number) {
   })
 }
 
-export function getDeployNetwork(networkName: string): DeployNetworkConfig {
+export function getDeployNetwork(
+  networkName: string,
+): DeployDisputeNetworkConfig {
   // mainnet
   switch (networkName) {
     case 'base':
@@ -206,7 +208,7 @@ export function getDeployNetwork(networkName: string): DeployNetworkConfig {
   throw new Error('Network not found')
 }
 
-export function getDeployChainConfig(chain: Chain): DeployNetworkConfig {
+export function getDeployChainConfig(chain: Chain): DeployDisputeNetworkConfig {
   // mainnet
   switch (chain) {
     case base:

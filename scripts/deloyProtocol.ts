@@ -18,20 +18,30 @@ export type DeployNetwork = {
   gasLimit: number
   intentSource: {
     counter: number
-    minimumDuration: number
   }
   hyperlaneMailboxAddress: Hex
   network: string
   pre: boolean // whether this is a pre deployment to a network, think preproduction
   chainId: number
+  chainConfiguration: {
+    provingMechanism: number
+    settlementChainId: number
+    settlementContract: Hex
+    blockhashOracle: Hex
+    outputRootVersionNumber: number
+    finalityDelaySeconds: number
+  }
   [key: string]: any
 }
 
-export type DeployNetworkConfig = Omit<
+export type DeployNetworkConfig = Pick<
   DeployNetwork,
-  'gasLimit' | 'intentSource' | 'hyperlaneMailboxAddress' | 'network' | 'pre'
+  'chainId' | 'chainConfiguration'
 >
-
+export type DeployDisputeNetworkConfig = Omit<
+  DeployNetwork,
+  'pre' | 'intentSource' | 'hyperlaneMailboxAddress' | 'gasLimit'
+>
 export type ProtocolDeploy = {
   proverAddress: Hex
   intentSourceAddress: Hex
@@ -169,10 +179,7 @@ export async function deployIntentSource(
 ) {
   const contractName = 'IntentSource'
   const intentSourceFactory = await ethers.getContractFactory(contractName)
-  const args = [
-    deployNetwork.intentSource.minimumDuration,
-    deployNetwork.intentSource.counter,
-  ]
+  const args = [deployNetwork.intentSource.counter]
   const intentSourceTx = (await retryFunction(async () => {
     return await intentSourceFactory.getDeployTransaction(args[0], args[1])
   }, ethers.provider)) as unknown as ContractTransactionResponse

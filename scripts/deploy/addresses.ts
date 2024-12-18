@@ -80,8 +80,12 @@ export function transformAddresses() {
   console.log('Transforming addresses into typescript index.ts file')
   const name = 'EcoProtocolAddresses'
   const addresses = JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'))
-  const importsExports = `import {Hex} from 'viem'\nexport * from './abi'\n`
-  const types = `/**
+  const importsExports = `export * from './abi'\n`
+  const types = `
+// Viem Hex like type
+type Hex = \`0x\${string}\`
+
+/**
  * The eco protocol chain configuration type. Represents
  * all the deployed contracts on a chain.
  * 
