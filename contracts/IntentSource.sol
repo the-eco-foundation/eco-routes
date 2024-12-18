@@ -61,7 +61,7 @@ contract IntentSource is IIntentSource {
 
     function intentVaultAddress(
         Intent calldata intent
-    ) internal view returns (address) {
+    ) public view returns (address) {
         /* Convert a hash which is bytes32 to an address which is 20-byte long
         according to https://docs.soliditylang.org/en/v0.8.9/control-structures.html?highlight=create2#salted-contract-creations-create2 */
         return
