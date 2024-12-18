@@ -90,7 +90,9 @@
     "deployCI": "hardhat run scripts/deploy/deployCI.ts",
     "pub:clean": "rimraf build/dist",
     "pub:build": "cd build && tsc",
-    "pub:prepack": "yarn pub:clean && yarn pub:build"
+    "pub:prepack": "yarn pub:clean && yarn pub:build",
+    "deployBaseSepoliaJW": "hardhat run --network baseSepolia scripts/deployBeta.ts"
+
   },
   "devDependencies": {
     "@eth-optimism/contracts-bedrock": "^0.17.2",

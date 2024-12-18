@@ -50,7 +50,6 @@ contract IntentSource is IIntentSource {
         return "v0.0.3-beta";
     }
 
-
     function getVaultClaimant() external view returns (address) {
         return vaultClaimant;
     }
@@ -59,32 +58,24 @@ contract IntentSource is IIntentSource {
         return vaultRefundToken;
     }
 
-    function intentVaultAddress(
-        Intent calldata intent
-    ) internal view returns (address) {
+    function intentVaultAddress(Intent calldata intent) public view returns (address) {
         /* Convert a hash which is bytes32 to an address which is 20-byte long
         according to https://docs.soliditylang.org/en/v0.8.9/control-structures.html?highlight=create2#salted-contract-creations-create2 */
-        return
-            address(
-                uint160(
-                    uint256(
-                        keccak256(
-                            abi.encodePacked(
-                                hex"ff",
-                                address(this),
-                                intent.nonce,
-                                // Encoding delegateData and refundAddress as constructor params
-                                keccak256(
-                                    abi.encodePacked(
-                                        type(IntentVault).creationCode,
-                                        abi.encode(intent)
-                                    )
-                                )
-                            )
+        return address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            hex"ff",
+                            address(this),
+                            intent.nonce,
+                            // Encoding delegateData and refundAddress as constructor params
+                            keccak256(abi.encodePacked(type(IntentVault).creationCode, abi.encode(intent)))
                         )
                     )
                 )
-            );
+            )
+        );
     }
 
     /**
@@ -96,10 +87,7 @@ contract IntentSource is IIntentSource {
     function publishIntent(Intent calldata intent, bool addRewards) external payable {
         uint256 rewardsLength = intent.rewards.length;
 
-        require(
-            intent.sourceChainID == CHAIN_ID,
-            "IntentSource: invalid source chain ID"
-        );
+        require(intent.sourceChainID == CHAIN_ID, "IntentSource: invalid source chain ID");
 
         if (rewardsLength == 0 && msg.value == 0) {
             revert NoRewards();
@@ -148,18 +136,13 @@ contract IntentSource is IIntentSource {
         );
     }
 
-    function validateIntent(
-        Intent calldata intent
-    ) external view returns (bool) {
+    function validateIntent(Intent calldata intent) external view returns (bool) {
         address vault = intentVaultAddress(intent);
 
         return _validateIntent(intent, vault);
     }
 
-    function _validateIntent(
-        Intent calldata intent,
-        address vault
-    ) internal view returns (bool) {
+    function _validateIntent(Intent calldata intent, address vault) internal view returns (bool) {
         uint256 rewardsLength = intent.rewards.length;
 
         if (intent.expiryTime < block.timestamp + MINIMUM_DURATION / 2) {
@@ -185,9 +168,7 @@ contract IntentSource is IIntentSource {
      */
     function withdrawRewards(Intent calldata intent) public {
         bytes32 intentHash = keccak256(abi.encode(intent));
-        address claimant = SimpleProver(intent.prover).provenIntents(
-            intentHash
-        );
+        address claimant = SimpleProver(intent.prover).provenIntents(intentHash);
 
         // Claim the rewards if the intent has not been claimed
         if (claimant != address(0) && !claimed[intentHash]) {
