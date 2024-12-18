@@ -144,8 +144,10 @@ export async function hyperproveInstant() {
     console.log('fetching fee')
     const fee = await inbox.fetchFee(
       sourceNetwork.chainId,
-      messageBody,
       zeroPadValue(sourceNetwork.hyperProverContractAddress, 32),
+      messageBody,
+      messageBody, // doesnt matter if postDispatchHook is zero address
+      ethers.ZeroAddress,
     )
 
     console.log(`got the fee: ${fee}`)

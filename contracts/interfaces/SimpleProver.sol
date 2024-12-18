@@ -2,7 +2,6 @@
 pragma solidity ^0.8.13;
 
 import "./IProver.sol";
-import "./ISemver.sol";
 
 abstract contract SimpleProver is IProver {
     /**

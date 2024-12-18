@@ -14,6 +14,21 @@ export async function encodeTransfer(
   return callData
 }
 
+export async function encodeTransferNative(
+  to: string,
+  value: number,
+): Promise<DataHexString> {
+  const transferNativeABI = [
+    'function transferNative(address _to, uint256 value)',
+  ]
+  const abiInterface = new ethers.Interface(transferNativeABI)
+  const callData = abiInterface.encodeFunctionData('transferNative', [
+    to,
+    value,
+  ])
+  return callData
+}
+
 export async function encodeIdentifier(
   counter: number,
   chainid: NumberLike,

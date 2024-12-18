@@ -62,7 +62,6 @@ const networks: any = {
     proverContractAddress: '0x87898EbfaA6fCa5c4dFF901C27f5D702b697f64b', // implementation 0x3d00187B8B66d54A642e1efce811242886141202
     inboxAddress: '0x23187a5cdD5f6702DB9E81dB6cD990FA82410eB7',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -75,6 +74,7 @@ const networks: any = {
         id: networkIds.sepolia,
         contract: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
       },
+      finalityDelaySeconds: 0,
     },
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   },
@@ -85,7 +85,6 @@ const networks: any = {
     proverContractAddress: '0xe25003c99Fd00E455F87D999Faa0825f87A27De6', // immplementation 0xeA7b55dCf75238e675bb4bBBf8deAc2Fd2292c72
     inboxAddress: '0x5ACc1a4b80a659F037498336C695D25f889ea33b',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -99,6 +98,7 @@ const networks: any = {
         // Dispute Game Factory address
         contract: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
       },
+      finalityDelaySeconds: 0,
     },
     // The following settlement contracts are useful for event listening
     settlementContracts: {
@@ -115,7 +115,6 @@ const networks: any = {
     proverContractAddress: '0x4eE5C3a97D61B5698E04601B75Cde8D152C4Cc2c', // implementation 0xF45EeF07Ea39f065239b3a2109999D356Df1C8E4
     inboxAddress: '0xEAF11C290238650dED616ab5bC1f1D5E3C6F04E1',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -128,6 +127,7 @@ const networks: any = {
         id: 84532,
         contract: '0xb3EDAE5AB86f16242018c7cED4fBCabb3c784951',
       },
+      finalityDelaySeconds: 604800,
     },
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     arbitrumSepolia: {
@@ -138,7 +138,6 @@ const networks: any = {
       proverContractAddress: '',
       inboxAddress: '',
       intentSource: {
-        minimumDuration: 1000,
         counter: 0,
       },
       proving: {
