@@ -15,16 +15,18 @@ contract IntentVault {
         uint256 rewardsLength = intent.rewards.length;
 
         address claimant = IIntentSource(msg.sender).getVaultClaimant();
-        address refundToken = IIntentSource(msg.sender).getVaultRefundToken();
+        address refundToken;
 
-        if (claimant == address(0)) claimant = intent.creator;
+        if (claimant == address(0)) {
+            claimant = intent.creator;
+            refundToken = IIntentSource(msg.sender).getVaultRefundToken();
+        }
 
         for (uint256 i; i < rewardsLength; ++i) {
             address token = intent.rewards[i].token;
             uint256 amount = intent.rewards[i].amount;
             uint256 balance = IERC20(token).balanceOf(address(this));
 
-            require(amount >= balance, "IntentVault: insufficient balance");
             require(
                 token != refundToken,
                 "IntentVault: refund token cannot be a reward token"
@@ -35,6 +37,8 @@ contract IntentVault {
                     IERC20(token).safeTransfer(claimant, balance);
                 }
             } else {
+                require(amount >= balance, "IntentVault: insufficient balance");
+
                 IERC20(token).safeTransfer(claimant, amount);
                 if (balance > amount) {
                     IERC20(token).safeTransfer(intent.creator, balance - amount);
@@ -42,7 +46,7 @@ contract IntentVault {
             }
         }
 
-        if (intent.nativeReward > 0) {
+        if (claimant != intent.creator && intent.nativeReward > 0) {
             require(
                 address(this).balance >= intent.nativeReward,
                 "IntentVault: insufficient balance"

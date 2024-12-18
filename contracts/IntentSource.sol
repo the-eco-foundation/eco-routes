@@ -111,19 +111,6 @@ contract IntentSource is IIntentSource {
 
         bytes32 intentHash = keccak256(abi.encode(intent));
 
-        emit IntentCreated(
-            intentHash,
-            intent.creator,
-            intent.nonce,
-            intent.destinationChainID,
-            intent.destinationInbox,
-            intent.calls,
-            intent.rewards,
-            intent.nativeReward,
-            intent.expiryTime,
-            intent.prover
-        );
-
         address vault = intentVaultAddress(intent);
 
         if (addRewards) {
@@ -143,13 +130,36 @@ contract IntentSource is IIntentSource {
 
                 IERC20(token).safeTransferFrom(msg.sender, vault, amount);
             }
+        } else {
+            require(_validateIntent(intent, vault), "IntentSource: invalid intent");
         }
+
+        emit IntentCreated(
+            intentHash,
+            intent.creator,
+            intent.nonce,
+            intent.destinationChainID,
+            intent.destinationInbox,
+            intent.calls,
+            intent.rewards,
+            intent.nativeReward,
+            intent.expiryTime,
+            intent.prover
+        );
     }
 
     function validateIntent(
         Intent calldata intent
     ) external view returns (bool) {
         address vault = intentVaultAddress(intent);
+
+        return _validateIntent(intent, vault);
+    }
+
+    function _validateIntent(
+        Intent calldata intent,
+        address vault
+    ) internal view returns (bool) {
         uint256 rewardsLength = intent.rewards.length;
 
         if (intent.expiryTime < block.timestamp + MINIMUM_DURATION / 2) {
@@ -179,24 +189,27 @@ contract IntentSource is IIntentSource {
             intentHash
         );
 
+        // Claim the rewards if the intent has not been claimed
         if (claimant != address(0) && !claimed[intentHash]) {
             vaultClaimant = claimant;
             claimed[intentHash] = true;
 
             emit Withdrawal(intentHash, claimant);
-        } else {
-            if (block.timestamp < intent.expiryTime) {
-                revert UnauthorizedWithdrawal(intentHash);
-            }
 
-            emit Withdrawal(intentHash, intent.creator);
+            new IntentVault{salt: intent.nonce}(intent);
+
+            vaultClaimant = address(0);
+            return;
         }
+
+        // Refund the rewards if the intent has expired
+        if (block.timestamp < intent.expiryTime) {
+            revert UnauthorizedWithdrawal(intentHash);
+        }
+
+        emit Withdrawal(intentHash, intent.creator);
 
         new IntentVault{salt: intent.nonce}(intent);
-
-        if (claimant != address(0)) {
-            vaultClaimant = address(0);
-        }
     }
 
     /**
@@ -212,8 +225,9 @@ contract IntentSource is IIntentSource {
     }
 
     function refundToken(Intent calldata intent, address token) external {
-        if (block.timestamp < intent.expiryTime) {
-            bytes32 intentHash = keccak256(abi.encode(intent));
+        bytes32 intentHash = keccak256(abi.encode(intent));
+
+        if (!claimed[intentHash] || block.timestamp < intent.expiryTime) {
             revert UnauthorizedWithdrawal(intentHash);
         }
 
