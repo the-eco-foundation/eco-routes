@@ -9,6 +9,7 @@ export const baseChainConfiguration: DeployNetworkConfig = {
     settlementContract: networks.base.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
     blockhashOracle: networks.base.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber: networks.base.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: 0,
   },
 }
 
@@ -19,7 +20,8 @@ export const optimismChainConfiguration: DeployNetworkConfig = {
     settlementChainId: networks.optimism.proving.settlementChain.id, // settlementChainId
     settlementContract: networks.optimism.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.     blockhashOracle: networks.optimism.proving.l1BlockAddress,
     blockhashOracle: networks.optimism.proving.l1BlockAddress, // blockhashOracle
-    outputRootVersionNumber: networks.optimism.proving.outputRootVersionNumber, // outputRootVersionNumber
+    outputRootVersionNumber: networks.optimism.proving.outputRootVersionNumber,
+    finalityDelaySeconds: 0,
   },
 }
 
@@ -31,6 +33,7 @@ export const helixChainConfiguration: DeployNetworkConfig = {
     settlementContract: networks.helix.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
     blockhashOracle: networks.helix.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber: networks.helix.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: 0,
   },
 }
 
@@ -42,6 +45,7 @@ export const arbitrumChainConfiguration: DeployNetworkConfig = {
     settlementContract: networks.arbitrum.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
     blockhashOracle: networks.arbitrum.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber: networks.arbitrum.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: 0,
   },
 }
 
@@ -53,5 +57,6 @@ export const mantleChainConfiguration: DeployNetworkConfig = {
     settlementContract: networks.mantle.proving.settlementChain.contract, // settlementContract e.g DisputGameFactory or L2OutputOracle.
     blockhashOracle: networks.mantle.proving.l1BlockAddress, // blockhashOracle
     outputRootVersionNumber: networks.mantle.proving.outputRootVersionNumber, // outputRootVersionNumber
+    finalityDelaySeconds: 604800,
   },
 }

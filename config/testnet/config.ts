@@ -1,5 +1,5 @@
 import { zeroAddress } from 'viem'
-import { DeployNetworkConfig } from '../../scripts/deloyProtocol'
+import { DeployDisputeNetworkConfig } from '../../scripts/deloyProtocol'
 
 /* eslint-disable no-magic-numbers */
 const provingMechanisms: any = {
@@ -21,12 +21,14 @@ const networkIds: any = {
   ecoTestnet: 471923,
   arbitrumSepolia: 421614,
   mantleSepolia: 5003,
+  polygonSepolia: 80002,
   11155111: 'sepolia',
   11155420: 'optimismSepolia',
   84532: 'baseSepolia',
   471923: 'ecoTestnet',
   421614: 'arbitrumSepolia',
   5003: 'mantleSepolia',
+  80002: 'polygonSepolia',
 }
 
 // const enshrined: any = {
@@ -73,7 +75,7 @@ const intent: any = {
   duration: 3600,
 }
 
-const networks: Record<any, DeployNetworkConfig> = {
+const networks: Record<any, DeployDisputeNetworkConfig> = {
   // sepolia: {
   //   network: 'sepolia',
   //   chainId: networkIds.sepolia,
@@ -92,7 +94,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
     inboxAddress: '0x6097875C63313ACE4E505aAA4C53A044Da454397',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -114,7 +115,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 20000000,
+    gasLimit: 5000000,
   },
   baseSepolia: {
     network: 'base-sepolia',
@@ -124,7 +125,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
     inboxAddress: '0x6097875C63313ACE4E505aAA4C53A044Da454397',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -153,7 +153,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 20000000,
+    gasLimit: 30000000,
   },
   ecoTestnet: {
     network: 'eco-testnet',
@@ -165,7 +165,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '0xD62A91e1d49913C56157b4A4e03a962cEbC5F733',
     inboxAddress: '0x200b2417A9d0F79133C2b05b2C028B8A70392e66',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -187,7 +186,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0xCf4bc4786C11eB28169C7dd7B630d2Ea48856708',
     hyperlaneMailboxAddress: '0x6966b0E55883d49BFB24539356a2f8A673E02039',
-    gasLimit: 20000000,
+    gasLimit: 30000000,
   },
   arbitrumSepolia: {
     network: 'arbitrum-sepolia',
@@ -197,7 +196,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     proverContractAddress: '',
     inboxAddress: '',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -221,7 +219,7 @@ const networks: Record<any, DeployNetworkConfig> = {
     // ],
     usdcAddress: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
     hyperlaneMailboxAddress: '0xc756cFc1b7d0d4646589EDf10eD54b201237F5e8',
-    gasLimit: 20000000,
+    gasLimit: 30000000,
   },
   mantleSepolia: {
     network: 'mantleSepolia',
@@ -231,7 +229,6 @@ const networks: Record<any, DeployNetworkConfig> = {
     intentSourceAddress: '',
     inboxAddress: '',
     intentSource: {
-      minimumDuration: 1000,
       counter: 0,
     },
     proving: {
@@ -249,7 +246,21 @@ const networks: Record<any, DeployNetworkConfig> = {
     },
     usdcAddress: '',
     hyperlaneMailboxAddress: zeroAddress, // until they deploy the real one
-    gasLimit: 50000000000,
+    gasLimit: 60000000000,
+  },
+  polygonSepolia: {
+    network: 'polygonSepolia',
+    chainId: networkIds.polygonSepolia,
+    proverContractAddress: '',
+    hyperProverContractAddress: '',
+    intentSourceAddress: '',
+    inboxAddress: '',
+    intentSource: {
+      counter: 0,
+    },
+    usdcAddress: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
+    hyperlaneMailboxAddress: '0x5d934f4e2f797775e53561bB72aca21ba36B96BB',
+    gasLimit: 30000000,
   },
 }
 // TODO Update Bedrock with from BaseSepolia to ECOTestNet

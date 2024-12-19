@@ -2,18 +2,22 @@ import { execSync } from 'child_process'
 
 process.env.DEPLOY_CI = 'true'
 const mainnetDep = [
-  'deployBase',
-  'deployOptimism',
+  'deployPolygon',
   'deployArbitrum',
   'deployMantle',
+  'deployBase',
+  'deployOptimism',
 ]
-const sepoliaDep = mainnetDep.map((dep) => dep + 'Sepolia')
+const sepoliaDep = mainnetDep.flatMap((dep) => {
+  return dep.toLocaleLowerCase().includes('polygon') ? [] : [dep + 'Sepolia']
+})
 
 export function deployContracts() {
-  for (const dep of mainnetDep) {
+  for (const dep of sepoliaDep) {
     callYarnCmd(dep)
   }
-  for (const dep of sepoliaDep) {
+
+  for (const dep of mainnetDep) {
     callYarnCmd(dep)
   }
 }
