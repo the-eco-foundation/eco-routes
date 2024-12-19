@@ -32,7 +32,9 @@ contract IntentSource is IIntentSource {
         counter = _counterStart;
     }
 
-    function version() external pure returns (string memory) { return Semver.version(); }
+    function version() external pure returns (string memory) {
+        return Semver.version();
+    }
     /**
      * @notice Creates an intent to execute instructions on a contract on a supported chain in exchange for a bundle of assets.
      * @dev If a proof ON THE SOURCE CHAIN is not completed by the expiry time, the reward funds will not be redeemable by the solver, REGARDLESS OF WHETHER THE INSTRUCTIONS WERE EXECUTED.
@@ -140,8 +142,8 @@ contract IntentSource is IIntentSource {
                 IERC20(intent.rewardTokens[i]).safeTransfer(withdrawTo, intent.rewardAmounts[i]);
             }
             uint256 nativeReward = intent.rewardNative;
-            if(nativeReward > 0) {
-                (bool success, ) = payable(withdrawTo).call{value: nativeReward}("");
+            if (nativeReward > 0) {
+                (bool success,) = payable(withdrawTo).call{value: nativeReward}("");
                 require(success, "Native transfer failed.");
             }
         } else {
@@ -196,12 +198,13 @@ contract IntentSource is IIntentSource {
         }
         safeERC20Transfer(erc20, _claimant, balance);
         if (nativeRewards > 0) {
-            payable(_claimant).transfer(nativeRewards);
+            (bool success,) = payable(_claimant).call{value: nativeRewards}("");
+            require(success, "Native transfer failed.");
         }
     }
 
     function safeERC20Transfer(address _token, address _to, uint256 _amount) internal {
-        if(_token != address(0)) {
+        if (_token != address(0)) {
             IERC20(_token).safeTransfer(_to, _amount);
         }
     }

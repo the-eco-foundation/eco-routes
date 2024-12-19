@@ -34,7 +34,7 @@ contract Prover is SimpleProver {
     uint256 public constant L2_FAULT_DISPUTE_GAME_STATUS_SLOT = 0;
 
     // Number of blocks to wait before Settlement Layer can be proven again
-    uint256 immutable public SETTLEMENT_BLOCKS_DELAY;
+    uint256 public immutable SETTLEMENT_BLOCKS_DELAY;
 
     // This contract lives on an L2 and contains the data for the 'current' L1 block.
     // there is a delay between this contract and L1 state - the block information found here is usually a few blocks behind the most recent block on L1.
@@ -214,7 +214,9 @@ contract Prover is SimpleProver {
         }
     }
 
-    function version() external pure returns (string memory) { return Semver.version(); }
+    function version() external pure returns (string memory) {
+        return Semver.version();
+    }
 
     function getProofType() external pure override returns (ProofType) {
         return PROOF_TYPE;
