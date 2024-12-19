@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
-import "./ISemver.sol";
 
-interface IInbox is ISemver{
+import {Semver, ISemver} from "../libs/Semver.sol";
 
+interface IInbox is ISemver {
     // Event emitted when an intent is succesfully fulfilled
     event Fulfillment(bytes32 indexed _hash, uint256 indexed _sourceChainID, address indexed _claimant);
 
@@ -48,7 +48,7 @@ interface IInbox is ISemver{
 
     // Error thrown when an external address attempts to call transferNative
     error UnauthorizedTransferNative();
-    
+
     // Error thrown when the number of intents in a call to sendBatch exceeds MAX_BATCH_SIZE
     error BatchTooLarge();
 
@@ -118,7 +118,6 @@ interface IInbox is ISemver{
      * @param _prover The prover against which this intent will be checked
      * @return results The results of the calls as an array of bytes
      */
-
     function fulfillHyperBatched(
         uint256 _sourceChainID,
         address[] calldata _targets,
@@ -129,7 +128,7 @@ interface IInbox is ISemver{
         bytes32 _expectedHash,
         address _prover
     ) external payable returns (bytes[] memory);
-    
+
     /**
      * Sends a batch of intents to the hyperprover in a single message.
      * All intents should be between the same source and destination chains and should be proven against the same hyperprover.
