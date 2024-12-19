@@ -198,7 +198,8 @@ contract IntentSource is IIntentSource {
         }
         safeERC20Transfer(erc20, _claimant, balance);
         if (nativeRewards > 0) {
-            payable(_claimant).transfer(nativeRewards);
+            (bool success, ) = payable(_claimant).call{value: nativeRewards}("");
+            require(success, "Native transfer failed.");
         }
     }
 
