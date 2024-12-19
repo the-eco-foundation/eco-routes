@@ -78,7 +78,7 @@ interface IIntentSource is ISemver {
         address indexed creator,
         bytes32 nonce,
         uint256 destinationChain,
-        uint256 destinationInbox,
+        address destinationInbox,
         Call[] calls,
         Reward[] rewards,
         uint256 nativeReward,
