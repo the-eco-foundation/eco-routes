@@ -157,7 +157,6 @@ contract Inbox is IInbox, Ownable {
             (bool success, ) = payable(msg.sender).call{value: msg.value - fee}("");
             require(success, "Native transfer failed.");
         }
-        bytes[] memory results =  _fulfill(_sourceChainID, _targets, _data, _expiryTime, _nonce, _claimant, _expectedHash);
         if (_postDispatchHook == address(0)) {
             IMailbox(mailbox).dispatch{value: fee}(
                 uint32(_sourceChainID), 
