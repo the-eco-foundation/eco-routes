@@ -191,6 +191,6 @@ This section is under development. While the tests are not yet operational, the 
 
 ## Contact
 
-Project Link: [https://github.com/the-eco-foundation/eco-routes](https://github.com/the-eco-foundation/eco-routes)
+Project Link: [https://github.com/eco/eco-routes](https://github.com/eco/eco-routes)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
