@@ -11,13 +11,13 @@
   "engines": {
     "node": ">=v22.10.0"
   },
-  "homepage": "https://github.com/the-eco-foundation/eco-routes#readme",
+  "homepage": "https://github.com/eco/eco-routes#readme",
   "bugs": {
-    "url": "https://github.com/the-eco-foundation/eco-routes/issues"
+    "url": "https://github.com/eco/eco-routes/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/the-eco-foundation/eco-routes.git"
+    "url": "git+https://github.com/eco/eco-routes.git"
   },
   "author": "Eco Engineering <eng@eco.com>",
   "license": "MIT",
