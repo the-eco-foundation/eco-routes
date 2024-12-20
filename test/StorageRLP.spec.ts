@@ -79,6 +79,16 @@ async function verifyStorageProofGameId(prover, key, valueRlp, proof, hash) {
   }
 }
 
+async function verifyStorageProofClaimant(prover, key, valueRlp, proof, hash) {
+  try {
+    await prover.proveStorageClaimant(key, valueRlp, proof, hash)
+    return true
+  } catch (error) {
+    console.error(`Error verifying key ${key}:`, error)
+    return false
+  }
+}
+
 describe('Prover Storage RLP Tests', () => {
   let prover, storage
 
@@ -264,7 +274,7 @@ describe('Prover Storage RLP Tests', () => {
     const valid = await verifyStorageProof(prover, key, valueRlp, proof, hash)
     expect(valid).to.be.true
 
-    const validRaw = await verifyStorageProofRootClaim(
+    const validRaw = await verifyStorageProofClaimant(
       prover,
       key,
       //valueRlp,
@@ -288,11 +298,11 @@ describe('Prover Storage RLP Tests', () => {
     const valid = await verifyStorageProof(prover, key, valueRlp, proof, hash)
     expect(valid).to.be.true
 
-    const validRaw = await verifyStorageProofRootClaim(
+    const validRaw = await verifyStorageProofClaimant(
       prover,
       key,
       //valueRlp,
-      toBeHex('0x00000000A8d0841Cf15D452aFA297cb6D10877d7'),
+      getAddress('0x00000000A8d0841Cf15D452aFA297cb6D10877d7'),
       proof,
       hash,
     )

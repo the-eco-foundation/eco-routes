@@ -100,6 +100,11 @@ contract SimpleStorage {
         proveStorage(abi.encodePacked(_key), RLPWriter.writeBytes(abi.encodePacked(_val)), _proof, _root);
     }
 
+    function proveStorageClaimant(bytes memory _key, address _val, bytes[] memory _proof, bytes32 _root) public pure {
+        proveStorage(abi.encodePacked(_key), RLPWriter.writeUint(uint160(_val)), _proof, _root);
+        // proveStorage(abi.encodePacked(_key), RLPWriter.writeBytes(abi.encodePacked(_val)), _proof, _root);
+    }
+
     /**
      * @notice generates the output root used for Bedrock and Cannon proving
      * @param outputRootVersion the output root version number usually 0
