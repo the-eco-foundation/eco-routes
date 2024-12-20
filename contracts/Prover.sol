@@ -688,7 +688,7 @@ contract Prover is SimpleProver {
         // proves that the claimaint address corresponds to the intentHash on the contract
         proveStorage(
             abi.encodePacked(messageMappingSlot),
-            RLPWriter.writeBytes(abi.encodePacked(claimant)),
+            RLPWriter.writeUint(uint160(claimant)),
             l2StorageProof,
             bytes32(inboxStateRoot)
         );
